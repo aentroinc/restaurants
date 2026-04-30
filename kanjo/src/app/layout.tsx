@@ -1,22 +1,31 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans_JP, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
 import { RoleProvider } from "@/lib/role-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSansJP = IBM_Plex_Sans_JP({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Kanjo - 外食経営AI",
-  description: "店長と社長のスマホに住む経営パートナー",
+  title: "Kanjo | Restaurant Intelligence",
+  description: "AI-powered restaurant operations platform",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -27,11 +36,11 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ibmPlexSansJP.variable} ${ibmPlexMono.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50">
+      <body className="min-h-full flex flex-col bg-slate-50">
         <RoleProvider>
-          <main className="flex-1 pb-20 max-w-md mx-auto w-full">
+          <main className="flex-1 pb-16 max-w-lg mx-auto w-full">
             {children}
           </main>
           <BottomNav />

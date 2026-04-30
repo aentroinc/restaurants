@@ -123,8 +123,38 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+    font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
   }
 }
+
+.font-mono-num {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #64748b;
+}
+
+.kpi-value {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.status-ok { color: #00c853; }
+.status-warn { color: #ffab00; }
+.status-bad { color: #ff3d57; }
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }

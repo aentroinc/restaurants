@@ -1,189 +1,105 @@
 "use client";
 
-import { stores, staff } from "@/lib/mock-data";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { company, staff } from "@/lib/mock-data";
 
 export default function SettingsPage() {
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-lg font-bold">設定</h1>
-      <p className="text-xs text-gray-500">マスタ管理・データ連携・アカウント</p>
-
-      {/* Store Master */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold">🏪 お店の登録</h2>
-          <button className="text-xs text-orange-600 font-medium">+ 追加</button>
-        </div>
-        <div className="space-y-2">
-          {stores.map((store) => (
-            <Card key={store.id} className="border-0 shadow-sm">
-              <CardContent className="p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{store.name}</p>
-                  <p className="text-xs text-gray-400">{store.area} / {store.seats}席</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-700 border-0 text-xs">POS連携中</Badge>
-                  <span className="text-gray-300">→</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <p className="text-[10px] tracking-[0.15em] text-slate-400 font-medium uppercase">SETTINGS</p>
+        <h1 className="text-base font-bold text-slate-800 mt-0.5">設定</h1>
       </div>
 
-      <Separator />
+      {/* Company */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">企業情報</p>
+        {[
+          { label: "企業名", value: company.name },
+          { label: "ブランド", value: company.brand },
+          { label: "店舗数", value: `${company.totalStores}店舗` },
+          { label: "エリア", value: company.areas.join("・") },
+        ].map((item) => (
+          <div key={item.label} className="flex justify-between py-1.5 border-b border-slate-50 last:border-0 text-xs">
+            <span className="text-slate-400">{item.label}</span>
+            <span className="font-medium">{item.value}</span>
+          </div>
+        ))}
+      </div>
 
-      {/* Staff Master */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold">👤 スタッフの登録</h2>
-          <button className="text-xs text-orange-600 font-medium">+ 追加</button>
-        </div>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-500">{staff.length}人 登録ずみ</span>
-              <button className="text-xs text-orange-600">CSVで一括登録</button>
+      {/* Masters */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">マスタ管理</p>
+        {[
+          { label: "店舗マスタ", count: "48店舗", status: "ok" },
+          { label: "メニューマスタ", count: "10メニュー", status: "ok" },
+          { label: "食材マスタ", count: "86食材", status: "ok" },
+          { label: "レシピマスタ", count: "42レシピ", status: "warn" },
+          { label: "スタッフ", count: `${staff.length * 10}名`, status: "ok" },
+          { label: "仕入先", count: "12業者", status: "ok" },
+        ].map((item) => (
+          <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+            <span className="text-xs">{item.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400">{item.count}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${item.status === "ok" ? "bg-emerald-500" : "bg-amber-400"}`} />
+              <span className="text-slate-300 text-xs">→</span>
             </div>
-            <div className="space-y-1.5">
-              {staff.slice(0, 4).map((s) => (
-                <div key={s.id} className="flex items-center justify-between py-1 border-b border-gray-50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold">
-                      {s.avatar}
-                    </div>
-                    <div>
-                      <p className="text-sm">{s.name}</p>
-                      <p className="text-xs text-gray-400">{s.store} / {s.type}</p>
-                    </div>
-                  </div>
-                  <span className="text-gray-300">→</span>
-                </div>
-              ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Integrations */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">データ連携</p>
+        {[
+          { name: "スマレジ", detail: "Webhook + API", status: "接続OK" },
+          { name: "Airレジ", detail: "3分間隔ポーリング", status: "接続OK" },
+          { name: "天気予報API", detail: "気象庁", status: "稼働中" },
+          { name: "CSV取り込み", detail: "フォールバック", status: "有効" },
+        ].map((item) => (
+          <div key={item.name} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+            <div>
+              <span className="text-xs font-medium">{item.name}</span>
+              <span className="text-[10px] text-slate-400 ml-1">{item.detail}</span>
             </div>
-            <button className="text-xs text-orange-600 mt-2">ぜんぶみる →</button>
-          </CardContent>
-        </Card>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">{item.status}</span>
+          </div>
+        ))}
       </div>
-
-      <Separator />
-
-      {/* Menu Master */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold">🍽 メニューの登録</h2>
-          <button className="text-xs text-orange-600 font-medium">+ 追加</button>
-        </div>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <p className="text-sm text-gray-500">10メニュー 登録ずみ</p>
-            <div className="flex gap-2 mt-2">
-              <button className="text-xs bg-gray-100 px-3 py-1.5 rounded-lg">メニュー一覧</button>
-              <button className="text-xs bg-gray-100 px-3 py-1.5 rounded-lg">食材マスタ</button>
-              <button className="text-xs bg-gray-100 px-3 py-1.5 rounded-lg">レシピ登録</button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
-      {/* POS Integration */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">📡 データ連携</h2>
-        <div className="space-y-2">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">スマレジ</p>
-                <p className="text-xs text-gray-400">Webhook + APIで連携中</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">接続OK</Badge>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Airレジ</p>
-                <p className="text-xs text-gray-400">ポーリングで3分おきに取得</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">接続OK</Badge>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">CSV取り込み</p>
-                <p className="text-xs text-gray-400">POS連携できないお店用</p>
-              </div>
-              <button className="text-xs bg-orange-500 text-white px-3 py-1 rounded-lg">アップロード</button>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-3 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">天気予報API</p>
-                <p className="text-xs text-gray-400">気象庁データ / 自動取得</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">稼働中</Badge>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <Separator />
 
       {/* LINE */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">📱 LINE連携</h2>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm">LINE公式アカウント</p>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">連携ずみ</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm">LINEログイン</p>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">有効</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm">通知の送り先</p>
-              <span className="text-xs text-gray-500">12人 登録ずみ</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">LINE連携</p>
+        {[
+          { label: "公式アカウント", value: "連携済み" },
+          { label: "LINEログイン", value: "有効" },
+          { label: "通知登録者", value: "124名" },
+        ].map((item) => (
+          <div key={item.label} className="flex justify-between py-1.5 border-b border-slate-50 last:border-0 text-xs">
+            <span className="text-slate-400">{item.label}</span>
+            <span className="text-emerald-600 font-medium">{item.value}</span>
+          </div>
+        ))}
       </div>
-
-      <Separator />
 
       {/* Account */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">👤 アカウント</h2>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm">ログイン中</p>
-              <span className="text-xs text-gray-500">yamamoto@example.com</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm">権限</p>
-              <Badge className="bg-blue-100 text-blue-700 border-0 text-xs">社長 / 管理者</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm">2段階認証</p>
-              <Badge className="bg-green-100 text-green-700 border-0 text-xs">有効</Badge>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">アカウント</p>
+        <div className="flex justify-between py-1.5 text-xs border-b border-slate-50">
+          <span className="text-slate-400">メール</span>
+          <span>yamamoto@cocospice.co.jp</span>
+        </div>
+        <div className="flex justify-between py-1.5 text-xs border-b border-slate-50">
+          <span className="text-slate-400">権限</span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">管理者</span>
+        </div>
+        <div className="flex justify-between py-1.5 text-xs">
+          <span className="text-slate-400">2段階認証</span>
+          <span className="text-emerald-600">有効</span>
+        </div>
       </div>
 
-      <div className="pt-2">
-        <button className="w-full text-sm text-red-500 py-2">ログアウト</button>
-      </div>
+      <button className="w-full text-xs text-red-400 py-2">ログアウト</button>
     </div>
   );
 }

@@ -8,35 +8,25 @@ export function LiveSalesCounter({ base }: { base: number }) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const add = Math.floor(Math.random() * 2500) + 500;
+      const add = Math.floor(Math.random() * 1800) + 400;
       setSales((prev) => prev + add);
       setFlash(true);
-      setTimeout(() => setFlash(false), 600);
-    }, 4000 + Math.random() * 3000);
-
+      setTimeout(() => setFlash(false), 500);
+    }, 3000 + Math.random() * 4000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative">
-      <p
-        className={`text-5xl font-black text-orange-900 tracking-tight transition-all duration-300 ${
-          flash ? "scale-105 text-green-600" : ""
-        }`}
-      >
+    <div>
+      <p className={`text-4xl kpi-value tracking-tight transition-colors duration-300 ${flash ? "text-emerald-600" : "text-slate-900"}`}>
         ¥{sales.toLocaleString()}
       </p>
-      {flash && (
-        <span className="absolute -right-1 top-0 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full animate-bounce">
-          +チャリン！
+      <div className="flex items-center gap-1.5 mt-1">
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
         </span>
-      )}
-      <div className="flex items-center gap-1 mt-1">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-        </span>
-        <span className="text-xs text-green-600">リアルタイム更新中</span>
+        <span className="text-[10px] text-emerald-600 tracking-wider font-medium">LIVE</span>
       </div>
     </div>
   );

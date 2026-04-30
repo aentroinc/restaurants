@@ -1,261 +1,232 @@
 "use client";
 
-import { stores, monthlyPL, monthlyTrendByStore, storeIssues } from "@/lib/mock-data";
+import { company, areaData, monthlyPL, ebitdaImpact, storeIssues, monthlyTrendByArea } from "@/lib/mock-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
-function formatYen(n: number) {
-  return `¥${n.toLocaleString()}`;
-}
-function formatMan(n: number) {
-  return `${(n / 10000).toFixed(0)}万`;
-}
+function yen(n: number) { return `¥${n.toLocaleString()}`; }
+function man(n: number) { return `${(n / 10000).toFixed(0)}万`; }
+function oku(n: number) { return `${(n / 100000000).toFixed(2)}億`; }
 
 export function HomeOwner() {
-  const totalToday = stores.reduce((s, st) => s + st.todaySales, 0);
-  const totalYesterday = stores.reduce((s, st) => s + st.yesterdaySales, 0);
-  const todayDiff = Math.round(((totalToday - totalYesterday) / totalYesterday) * 100);
-  const totalWasteReduction = stores.reduce((s, st) => s + st.wasteReduction, 0);
-  const dangerIssues = storeIssues.filter((i) => i.severity === "danger");
+  const totalToday = areaData.reduce((s, a) => s + a.todaySales, 0);
+  const totalTarget = areaData.reduce((s, a) => s + a.target, 0);
+  const pctTarget = Math.round((totalToday / totalTarget) * 100);
   const salesGrowth = Math.round(((monthlyPL.sales - monthlyPL.salesLastYear) / monthlyPL.salesLastYear) * 100);
-  const profitGrowth = Math.round(((monthlyPL.profit - monthlyPL.profitLastYear) / monthlyPL.profitLastYear) * 100);
-  const costRatio = ((monthlyPL.costOfGoods / monthlyPL.sales) * 100).toFixed(1);
-  const laborRatio = ((monthlyPL.laborCost / monthlyPL.sales) * 100).toFixed(1);
-  const profitRatio = ((monthlyPL.profit / monthlyPL.sales) * 100).toFixed(1);
-
-  const storeRanking = [...stores].sort((a, b) => b.todaySales - a.todaySales);
+  const ebitdaGrowth = Math.round(((monthlyPL.ebitda - monthlyPL.ebitdaLastYear) / monthlyPL.ebitdaLastYear) * 100);
+  const ebitdaMargin = ((monthlyPL.ebitda / monthlyPL.sales) * 100).toFixed(1);
+  const dangerIssues = storeIssues.filter((i) => i.severity === "danger");
 
   return (
-    <div className="space-y-4">
-      {/* Greeting - MARCH grad: respectful but professional */}
-      <p className="text-sm text-gray-600">山本社長、お疲れさまです。本日の経営状況です。</p>
-
-      {/* KPI Overview - data-dense, MARCH grad can handle it */}
-      <Card className="border-0 shadow-sm bg-orange-50">
-        <CardContent className="p-4">
-          <div className="flex justify-between items-end">
-            <div>
-              <p className="text-xs text-orange-700">全{stores.length}店舗 本日売上</p>
-              <p className="text-4xl font-bold text-orange-900 tracking-tight">
-                {formatYen(totalToday)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className={`text-lg font-bold ${todayDiff >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {todayDiff >= 0 ? "+" : ""}{todayDiff}%
-              </p>
-              <p className="text-xs text-gray-500">前日比</p>
-            </div>
+    <div className="space-y-5">
+      {/* Today's Snapshot */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="section-title mb-3">本日実績 / 全{company.totalStores}店舗</p>
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-3xl kpi-value">{yen(totalToday)}</p>
+            <p className="text-xs text-slate-400 mt-1">目標進捗 {pctTarget}%</p>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* P/L - MARCH grad understands these terms */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-sm font-bold">4月度 損益サマリー</h2>
-            <Link href="/report" className="text-xs text-orange-600">くわしく →</Link>
+          <div className="text-right">
+            <p className="text-lg kpi-value text-emerald-600">+{Math.round(((totalToday - (totalTarget * 0.85)) / (totalTarget * 0.85)) * 100)}%</p>
+            <p className="text-[10px] text-slate-400">vs 前日</p>
           </div>
+        </div>
+        <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full bg-slate-800 rounded-full transition-all" style={{ width: `${Math.min(pctTarget, 100)}%` }} />
+        </div>
+      </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            <div className="bg-gray-50 rounded-lg p-2 text-center">
-              <p className="text-xs text-gray-500">売上高</p>
-              <p className="text-lg font-bold">{formatMan(monthlyPL.sales)}</p>
-              <p className="text-xs text-green-600">+{salesGrowth}% YoY</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-2 text-center">
-              <p className="text-xs text-gray-500">営業利益</p>
-              <p className="text-lg font-bold text-green-700">{formatMan(monthlyPL.profit)}</p>
-              <p className="text-xs text-green-600">+{profitGrowth}% YoY</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-2 text-center">
-              <p className="text-xs text-gray-500">利益率</p>
-              <p className="text-lg font-bold">{profitRatio}%</p>
-            </div>
+      {/* EBITDA Impact Card - THE KEY METRIC */}
+      <div className="bg-slate-900 rounded-xl p-4 text-white">
+        <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-400 mb-3">AI IMPACT ON EBITDA</p>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <p className="text-xs text-slate-400">Kanjo導入による月間EBITDA改善</p>
+            <p className="text-3xl kpi-value text-emerald-400 mt-1">+{man(ebitdaImpact.totalImprovement)}円</p>
           </div>
-
-          {/* Cost breakdown bar */}
-          <div className="mb-2">
-            <div className="flex h-6 rounded-full overflow-hidden text-xs text-white">
-              <div className="bg-red-400 flex items-center justify-center" style={{ width: `${costRatio}%` }}>原価{costRatio}%</div>
-              <div className="bg-blue-400 flex items-center justify-center" style={{ width: `${laborRatio}%` }}>人件費{laborRatio}%</div>
-              <div className="bg-green-400 flex items-center justify-center" style={{ width: `${profitRatio}%` }}>利益{profitRatio}%</div>
-              <div className="bg-gray-300 flex-1 flex items-center justify-center">他</div>
-            </div>
+          <div className="text-right">
+            <p className="text-xs text-slate-400">ROI</p>
+            <p className="text-xl kpi-value text-emerald-400">{ebitdaImpact.roi.roiMultiple}x</p>
           </div>
+        </div>
 
-          <div className="space-y-1">
-            {[
-              { label: "原材料費", value: monthlyPL.costOfGoods, target: 30, actual: Number(costRatio) },
-              { label: "人件費", value: monthlyPL.laborCost, target: 28, actual: Number(laborRatio) },
-              { label: "賃料", value: monthlyPL.rent, target: null, actual: null },
-              { label: "水道光熱費", value: monthlyPL.utilities, target: null, actual: null },
-              { label: "その他経費", value: monthlyPL.other, target: null, actual: null },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">{item.label}</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{formatMan(item.value)}</span>
-                  {item.target && (
-                    <span className={`text-xs px-1 rounded ${
-                      item.actual! > item.target ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
-                    }`}>
-                      {item.actual!.toFixed(1)}% {item.actual! > item.target ? "↑" : "✓"}
+        {/* Breakdown bars */}
+        <div className="space-y-2">
+          {ebitdaImpact.breakdown.map((item) => (
+            <div key={item.label}>
+              <div className="flex justify-between text-[11px] mb-0.5">
+                <span className="text-slate-300">{item.label}</span>
+                <span className="kpi-value text-emerald-400">+{man(item.amount)}</span>
+              </div>
+              <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${item.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* EBITDA Trend */}
+        <div className="mt-4 pt-3 border-t border-slate-700">
+          <p className="text-[11px] text-slate-400 mb-2">EBITDA推移 (AI寄与分)</p>
+          <div className="flex items-end gap-1 h-16">
+            {ebitdaImpact.monthlyTrend.map((m) => {
+              const maxE = Math.max(...ebitdaImpact.monthlyTrend.map((t) => t.ebitda));
+              const totalH = (m.ebitda / maxE) * 100;
+              const aiH = (m.aiContribution / maxE) * 100;
+              return (
+                <div key={m.month} className="flex-1 flex flex-col items-center gap-0.5">
+                  <div className="w-full flex flex-col justify-end" style={{ height: "48px" }}>
+                    <div className="bg-slate-600 rounded-t-sm" style={{ height: `${totalH * 0.48}px` }}>
+                      <div className="bg-emerald-500 rounded-t-sm w-full" style={{ height: `${aiH * 0.48}px` }} />
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-slate-500">{m.month.replace("月", "")}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-3 mt-2 text-[10px]">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-slate-600 rounded-sm" /> EBITDA</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-emerald-500 rounded-sm" /> AI寄与</span>
+          </div>
+        </div>
+
+        <div className="mt-3 bg-slate-800 rounded-lg p-2.5 text-xs text-slate-300">
+          月額利用料 {man(ebitdaImpact.roi.monthlyCost)}円 → 改善効果 {man(ebitdaImpact.roi.monthlyReturn)}円 = <span className="text-emerald-400 font-bold">ROI {ebitdaImpact.roi.roiMultiple}倍</span>
+        </div>
+      </div>
+
+      {/* Monthly P/L */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="flex justify-between items-center mb-3">
+          <p className="section-title">4月度 損益概要</p>
+          <Link href="/report" className="text-[11px] text-slate-400 tracking-wider">詳細 →</Link>
+        </div>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {[
+            { label: "売上高", value: monthlyPL.sales, growth: salesGrowth },
+            { label: "EBITDA", value: monthlyPL.ebitda, growth: ebitdaGrowth },
+            { label: "EBITDAマージン", value: null, display: `${ebitdaMargin}%`, growth: null },
+          ].map((item) => (
+            <div key={item.label} className="bg-slate-50 rounded-lg p-2.5">
+              <p className="text-[10px] text-slate-400 tracking-wider">{item.label}</p>
+              <p className="text-base kpi-value mt-0.5">{item.display || oku(item.value!)}</p>
+              {item.growth !== null && (
+                <p className={`text-[10px] mt-0.5 ${item.growth >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  {item.growth >= 0 ? "+" : ""}{item.growth}% YoY
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Cost structure */}
+        <div className="h-4 flex rounded-md overflow-hidden text-[9px] text-white font-medium">
+          <div className="bg-red-400 flex items-center justify-center" style={{ width: `${(monthlyPL.costOfGoods / monthlyPL.sales * 100).toFixed(0)}%` }}>
+            原価{(monthlyPL.costOfGoods / monthlyPL.sales * 100).toFixed(0)}%
+          </div>
+          <div className="bg-blue-400 flex items-center justify-center" style={{ width: `${(monthlyPL.laborCost / monthlyPL.sales * 100).toFixed(0)}%` }}>
+            人件費{(monthlyPL.laborCost / monthlyPL.sales * 100).toFixed(0)}%
+          </div>
+          <div className="bg-emerald-500 flex items-center justify-center" style={{ width: `${ebitdaMargin}%` }}>
+            EBITDA
+          </div>
+          <div className="bg-slate-300 flex-1" />
+        </div>
+      </div>
+
+      {/* Area Performance */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="section-title mb-3">エリア別実績</p>
+        <div className="space-y-2">
+          {areaData.map((area) => {
+            const pct = Math.round((area.todaySales / area.target) * 100);
+            const costOk = area.costRate <= 30.5;
+            return (
+              <div key={area.id} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{area.name}</span>
+                    <span className="text-sm kpi-value">{yen(area.todaySales)}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center gap-2 text-[10px]">
+                      <span className="text-slate-400">{area.stores}店舗</span>
+                      <span className={costOk ? "text-emerald-600" : "text-red-500"}>原価{area.costRate}%</span>
+                      <span className={area.wasteChange <= 0 ? "text-emerald-600" : "text-red-500"}>
+                        ロス{area.wasteChange <= 0 ? "▼" : "▲"}{man(Math.abs(area.wasteChange))}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] kpi-value ${pct >= 85 ? "text-emerald-600" : pct >= 70 ? "text-amber-500" : "text-red-500"}`}>
+                      {pct}%
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            );
+          })}
+        </div>
+      </div>
 
-      {/* Waste - the churn prevention metric */}
-      <Card className={`border-0 shadow-sm ${totalWasteReduction > 0 ? "bg-green-50" : "bg-red-50"}`}>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-sm font-bold">食材ロス削減実績</h2>
-            <Link href="/waste" className="text-xs text-orange-600">くわしく →</Link>
-          </div>
-          <p className={`text-3xl font-bold ${totalWasteReduction > 0 ? "text-green-700" : "text-red-600"}`}>
-            {totalWasteReduction > 0 ? "▼" : "▲"} {formatYen(Math.abs(totalWasteReduction))}/月
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            前月比。導入前比では月額約48万円の削減効果
-          </p>
-          <div className="mt-3 space-y-1">
-            {stores.map((s) => (
-              <div key={s.id} className="flex justify-between text-xs">
-                <span className="text-gray-600">{s.name}</span>
-                <span className={s.wasteReduction >= 0 ? "text-green-600" : "text-red-500 font-medium"}>
-                  {s.wasteReduction >= 0 ? "▼" : "▲"}{formatYen(Math.abs(s.wasteReduction))}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Problem stores */}
+      {/* Issues */}
       {dangerIssues.length > 0 && (
-        <div>
-          <h2 className="text-sm font-bold mb-2 flex items-center gap-1">
-            要対応店舗
-            <Badge className="bg-red-500 text-white border-0 text-xs">{dangerIssues.length}</Badge>
-          </h2>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <p className="section-title">要対応</p>
+            <Badge className="bg-red-50 text-red-600 border border-red-200 text-[10px] px-1.5">{dangerIssues.length}</Badge>
+          </div>
           <div className="space-y-2">
             {dangerIssues.map((issue, i) => (
-              <Card key={i} className="border-0 shadow-sm bg-red-50 border-l-4 border-l-red-400">
-                <CardContent className="p-3 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium">{issue.store}</p>
-                    <p className="text-xs text-red-600">{issue.message}</p>
-                  </div>
-                  <span className="text-xs text-orange-600">対策 →</span>
-                </CardContent>
-              </Card>
+              <div key={i} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                <div>
+                  <p className="text-xs font-medium">{issue.store}</p>
+                  <p className="text-[11px] text-slate-500">{issue.message}</p>
+                </div>
+                <span className="text-[10px] text-slate-400">→</span>
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      <Separator />
-
-      {/* Store Ranking */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">店舗別 本日実績</h2>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-3">
-            <div className="grid grid-cols-5 gap-1 text-xs text-gray-500 font-medium border-b pb-2 mb-1">
-              <span></span>
-              <span>売上</span>
-              <span>達成率</span>
-              <span>原価率</span>
-              <span>人件費率</span>
-            </div>
-            {storeRanking.map((store, i) => {
-              const progress = Math.round((store.todaySales / store.targetSales) * 100);
-              return (
-                <div key={store.id} className="grid grid-cols-5 gap-1 text-xs py-1.5 border-b border-gray-50 items-center">
-                  <span className="font-medium">{store.name}</span>
-                  <span className="font-bold">{Math.round(store.todaySales / 10000)}万</span>
-                  <span className={progress >= 80 ? "text-green-600" : progress >= 60 ? "text-yellow-600" : "text-red-500"}>
-                    {progress}%
-                  </span>
-                  <span className={store.costRate > 31 ? "text-red-500" : "text-green-600"}>
-                    {store.costRate}%
-                  </span>
-                  <span className={store.laborCostRate > 30 ? "text-red-500" : "text-green-600"}>
-                    {store.laborCostRate}%
-                  </span>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Separator />
-
       {/* Half-year trend */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">半期売上推移</h2>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            {monthlyTrendByStore.map((m) => {
-              const total = stores.reduce((s, st) => s + ((m as Record<string, unknown>)[st.name] as number || 0), 0);
-              const maxTotal = 80000000;
-              return (
-                <div key={m.month} className="flex items-center gap-2 mb-1.5">
-                  <span className="text-xs text-gray-500 w-8">{m.month}</span>
-                  <div className="flex-1 bg-gray-100 rounded-full h-4">
-                    <div className="bg-orange-400 h-4 rounded-full" style={{ width: `${(total / maxTotal) * 100}%` }} />
-                  </div>
-                  <span className="text-xs font-medium w-14 text-right">{formatMan(total)}</span>
-                </div>
-              );
-            })}
-            <p className="text-xs text-gray-500 mt-2">12月にピーク(忘年会需要)。1月の落ち込みは例年通り。3月以降は回復基調。</p>
-          </CardContent>
-        </Card>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="section-title mb-3">半期売上推移</p>
+        {monthlyTrendByArea.map((m) => {
+          const total = Object.entries(m).filter(([k]) => k !== "month").reduce((s, [, v]) => s + (v as number), 0);
+          const maxTotal = 700000000;
+          return (
+            <div key={m.month} className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] text-slate-400 w-7 kpi-value">{m.month.replace("月", "")}</span>
+              <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div className="bg-slate-700 h-full rounded-full" style={{ width: `${(total / maxTotal) * 100}%` }} />
+              </div>
+              <span className="text-[10px] kpi-value w-10 text-right">{oku(total)}</span>
+            </div>
+          );
+        })}
       </div>
 
-      <Separator />
+      {/* CEO LINE */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="section-title mb-3">週次LINE通知サンプル</p>
+        <div className="bg-[#eef6ee] rounded-xl p-3 text-[13px] leading-relaxed whitespace-pre-line">
+{`山本社長、先週の実績です
 
-      {/* Weekly LINE for CEO */}
-      <div>
-        <h2 className="text-sm font-bold mb-2">📱 社長向け週次LINE(毎週月曜 朝8時)</h2>
-        <Card className="border-0 shadow-sm bg-green-50">
-          <CardContent className="p-4">
-            <div className="bg-white rounded-xl p-3 shadow-sm text-sm whitespace-pre-line leading-relaxed">
-{`📊 山本社長、先週のまとめです
+全48店舗 / 4月4週
+売上: ${oku(monthlyPL.sales / 4)} (目標比92%)
+EBITDA: ${man(monthlyPL.ebitda / 4)} (マージン${ebitdaMargin}%)
 
-全6店舗 / 4月4週目
-売上: 1,520万円(目標比92%)
-営業利益: 312万円(利益率20.5%)
+AI効果: +${man(ebitdaImpact.totalImprovement)}円/月
+→ ロス削減 +${man(ebitdaImpact.breakdown[0].amount)}
+→ 仕入れ最適化 +${man(ebitdaImpact.breakdown[1].amount)}
 
-◎ 好調: 新宿店(目標達成)、吉祥寺店
-△ 注意: 池袋店(原価率33.1%)
-✕ 要改善: 赤羽店(原価率34.2%/ロス増)
-
-食材ロス削減累計: ▼48万円/月
-
-次週の注目: GW商戦(5/3-6)
-全店の仕入れ増量を手配済みです`}
-            </div>
-            <div className="flex gap-2 mt-2">
-              <button className="flex-1 bg-green-500 text-white rounded-lg py-2 text-xs font-medium">
-                👉 月次レポート全文
-              </button>
-              <button className="flex-1 bg-green-500 text-white rounded-lg py-2 text-xs font-medium">
-                👉 要改善店舗の対策
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+要注意: 大宮店(原価率32.5%)
+好調: 新宿西口店(売上+18%)`}
+        </div>
       </div>
     </div>
   );

@@ -1,165 +1,91 @@
 "use client";
 
-import { tomorrowForecast, hourlySales, weeklyTrend } from "@/lib/mock-data";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { hourlySales, weeklyTrend, stores } from "@/lib/mock-data";
 
-function formatYen(n: number) {
-  return `¥${n.toLocaleString()}`;
-}
-
-function BarChart({
-  data,
-  labelKey,
-  valueKey,
-  maxValue,
-}: {
-  data: Record<string, unknown>[];
-  labelKey: string;
-  valueKey: string;
-  maxValue: number;
-}) {
-  return (
-    <div className="space-y-2">
-      {data.map((item, i) => {
-        const value = item[valueKey] as number;
-        const pct = (value / maxValue) * 100;
-        return (
-          <div key={i} className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 w-10 text-right">
-              {item[labelKey] as string}
-            </span>
-            <div className="flex-1 bg-gray-100 rounded-full h-5 relative">
-              <div
-                className="bg-orange-400 h-5 rounded-full"
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <span className="text-xs font-medium w-16 text-right">
-              {formatYen(value)}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+function yen(n: number) { return `¥${n.toLocaleString()}`; }
 
 export default function ForecastPage() {
-  const maxHourlySales = Math.max(...hourlySales.map((h) => h.sales));
-  const maxWeeklySales = Math.max(...weeklyTrend.map((w) => w.sales));
+  const store = stores[0];
+  const maxH = Math.max(...hourlySales.map((h) => h.sales));
+  const maxW = Math.max(...weeklyTrend.map((w) => w.sales));
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-lg font-bold">あしたの見込み</h1>
-      <p className="text-xs text-gray-500">
-        {tomorrowForecast.date}({tomorrowForecast.dayOfWeek}){" "}
-        {tomorrowForecast.weather}
-      </p>
+      <div>
+        <p className="text-[10px] tracking-[0.15em] text-slate-400 font-medium uppercase">DEMAND FORECAST</p>
+        <h1 className="text-base font-bold text-slate-800 mt-0.5">明日の見込み</h1>
+        <p className="text-xs text-slate-400">5月1日(金) / くもり / {store.name}</p>
+      </div>
 
-      {tomorrowForecast.stores.map((store) => (
-        <Card key={store.storeId} className="border-0 shadow-sm">
-          <CardContent className="p-4">
-            <h2 className="font-bold text-base mb-2">{store.storeName}</h2>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <p className="text-[10px] text-slate-400">お客さん</p>
+            <p className="text-2xl kpi-value">148<span className="text-sm text-slate-400">名</span></p>
+            <p className="text-[10px] text-emerald-600">去年+8名</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400">売上</p>
+            <p className="text-2xl kpi-value">58<span className="text-sm text-slate-400">万</span></p>
+          </div>
+        </div>
+        <div className="bg-slate-50 rounded-lg p-2.5 text-xs text-slate-600">
+          金曜＋GW前半で客足が増える見込み
+        </div>
+      </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <p className="text-xs text-gray-500">お客さん</p>
-                <p className="text-2xl font-bold">
-                  約{store.expectedCustomers}人
-                </p>
-                <p className="text-xs text-gray-400">
-                  去年: {store.lastYearCustomers}人
-                </p>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">よく出そうなメニュー</p>
+        {[
+          { name: "チキンカツカレー", count: 42 },
+          { name: "ビーフカレー", count: 36 },
+          { name: "キーマカレー", count: 28 },
+          { name: "野菜カレー", count: 22 },
+          { name: "ナン", count: 65 },
+        ].map((m, i) => (
+          <div key={m.name} className="flex items-center gap-2 py-1.5 border-b border-slate-50 last:border-0">
+            <span className="text-[10px] text-slate-400 w-4 text-right">{i + 1}</span>
+            <span className="text-xs flex-1">{m.name}</span>
+            <span className="text-xs kpi-value">{m.count}食</span>
+          </div>
+        ))}
+        <div className="bg-amber-50 rounded-lg p-2 mt-3 text-xs text-amber-700">
+          鶏むねの仕入れ、いつもより多めに
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">時間帯べつ売上(今日)</p>
+        <div className="space-y-1.5">
+          {hourlySales.map((h) => (
+            <div key={h.hour} className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400 w-6 kpi-value text-right">{h.hour}</span>
+              <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div className="bg-slate-700 h-full rounded-full" style={{ width: `${(h.sales / maxH) * 100}%` }} />
               </div>
-              <div>
-                <p className="text-xs text-gray-500">売上</p>
-                <p className="text-2xl font-bold">
-                  約{Math.round(store.expectedSales / 10000)}万円
-                </p>
-              </div>
+              <span className="text-[10px] kpi-value w-12 text-right">{yen(h.sales)}</span>
             </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-slate-400 mt-2 bg-slate-50 p-2 rounded">
+          12時台がピーク。14-16時は空いてるので値段を工夫すると◎
+        </p>
+      </div>
 
-            <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-2 mb-3">
-              💡 {store.reason}
-            </p>
-
-            <div className="mb-2">
-              <p className="text-xs font-bold text-gray-500 mb-1">
-                よく出そうなTOP3
-              </p>
-              {store.topMenus.map((menu, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between text-sm py-0.5 border-b border-gray-50"
-                >
-                  <span>
-                    {i + 1}. {menu.name}
-                  </span>
-                  <span className="text-gray-500">{menu.count}食</span>
-                </div>
-              ))}
-            </div>
-
-            {store.warning && (
-              <div className="bg-yellow-50 rounded-lg p-2 mt-2">
-                <p className="text-sm text-yellow-800">⚠ {store.warning}</p>
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs font-bold text-slate-600 mb-3">今週の売上</p>
+        <div className="space-y-1.5">
+          {weeklyTrend.map((w) => (
+            <div key={w.day} className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400 w-4 text-right">{w.day}</span>
+              <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div className="bg-slate-700 h-full rounded-full" style={{ width: `${(w.sales / maxW) * 100}%` }} />
               </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-
-      <Separator />
-
-      <Tabs defaultValue="hourly">
-        <TabsList className="w-full">
-          <TabsTrigger value="hourly" className="flex-1">
-            時間帯べつ
-          </TabsTrigger>
-          <TabsTrigger value="weekly" className="flex-1">
-            1週間のうごき
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="hourly" className="mt-3">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-bold mb-3">
-                今日の時間帯べつ売上(渋谷店)
-              </h3>
-              <BarChart
-                data={hourlySales}
-                labelKey="hour"
-                valueKey="sales"
-                maxValue={maxHourlySales}
-              />
-              <p className="text-xs text-gray-500 mt-3 bg-gray-50 p-2 rounded">
-                💡 12時台がピーク。14〜16時はお客さんが少ないので、この時間の値段を工夫すると◎
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="weekly" className="mt-3">
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-bold mb-3">今週の売上(渋谷店)</h3>
-              <BarChart
-                data={weeklyTrend}
-                labelKey="day"
-                valueKey="sales"
-                maxValue={maxWeeklySales}
-              />
-              <p className="text-xs text-gray-500 mt-3 bg-gray-50 p-2 rounded">
-                💡 金・土が稼ぎどき。水曜がやや上がっているのは近隣のイベント効果かも
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <span className="text-[10px] kpi-value w-12 text-right">{yen(w.sales)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
