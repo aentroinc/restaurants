@@ -1,10 +1,9 @@
 "use client";
 
-import { stores, todayAlerts } from "@/lib/mock-data";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { stores, todayAlerts, hourlySales } from "@/lib/mock-data";
+import { Expandable, TabSwitcher } from "@/components/expandable";
+import { LiveSalesCounter, LiveDot } from "@/components/live-sales";
 import Link from "next/link";
-import { LiveSalesCounter } from "@/components/live-sales";
 
 function yen(n: number) { return `¥${n.toLocaleString()}`; }
 
@@ -15,22 +14,24 @@ export function HomeManager() {
   const diffPct = Math.round((diff / store.yesterdaySales) * 100);
   const myAlerts = todayAlerts.filter((a) => a.storeId === store.id);
   const remaining = Math.max(store.targetSales - store.todaySales, 0);
+  const maxH = Math.max(...hourlySales.map((h) => h.sales));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <p className="text-sm text-slate-500">田中さん、おつかれ！</p>
 
       {/* Sales */}
       <div className="bg-white rounded-xl p-5 shadow-sm">
-        <p className="text-xs text-slate-400">いまの売上</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs text-slate-400">いまの売上</p>
+          <LiveDot />
+        </div>
         <LiveSalesCounter base={store.todaySales} />
 
-        <div className="mt-1">
-          <p className={`text-sm font-medium ${diff >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-            きのうより {Math.abs(diffPct)}% {diff >= 0 ? "おおい" : "すくない"}
-          </p>
-          <p className="text-xs text-slate-400">{store.customers}人きた / 1人 {yen(store.avgSpend)}</p>
-        </div>
+        <p className={`text-sm font-medium mt-2 ${diff >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+          きのうより {Math.abs(diffPct)}% {diff >= 0 ? "おおい" : "すくない"}
+        </p>
+        <p className="text-xs text-slate-400">{store.customers}人きた / 1人 {yen(store.avgSpend)}</p>
 
         {/* Goal bar */}
         <div className="mt-4">
@@ -38,9 +39,9 @@ export function HomeManager() {
             <span className="text-slate-500">今日のゴール</span>
             <span className="kpi-value">{progress}%</span>
           </div>
-          <div className="h-3.5 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${progress >= 80 ? "bg-emerald-500" : progress >= 50 ? "bg-amber-400" : "bg-red-400"}`}
+              className={`h-full rounded-full transition-all duration-1000 ${progress >= 80 ? "bg-emerald-500" : progress >= 50 ? "bg-amber-400" : "bg-red-400"}`}
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>
@@ -50,10 +51,47 @@ export function HomeManager() {
         </div>
       </div>
 
+      {/* Time-of-day sales - interactive */}
+      <Expandable title="今日の時間帯べつ" defaultOpen>
+        <TabSwitcher tabs={[
+          {
+            label: "グラフ",
+            content: (
+              <div className="space-y-1">
+                {hourlySales.map((h) => (
+                  <div key={h.hour} className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400 w-5 kpi-value text-right">{h.hour}</span>
+                    <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+                      <div className="bg-slate-700 h-full rounded-full transition-all" style={{ width: `${(h.sales / maxH) * 100}%` }} />
+                    </div>
+                    <span className="text-[10px] kpi-value w-12 text-right">{yen(h.sales)}</span>
+                  </div>
+                ))}
+              </div>
+            ),
+          },
+          {
+            label: "リスト",
+            content: (
+              <div className="space-y-0.5">
+                {hourlySales.map((h) => (
+                  <div key={h.hour} className="flex justify-between text-xs py-1 border-b border-slate-50 last:border-0">
+                    <span className="text-slate-500">{h.hour}:00</span>
+                    <div className="flex gap-4">
+                      <span className="text-slate-400">{h.customers}人</span>
+                      <span className="kpi-value">{yen(h.sales)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ),
+          },
+        ]} />
+      </Expandable>
+
       {/* Alerts */}
       {myAlerts.length > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-bold text-slate-700 mb-2">いま気になること</p>
+        <Expandable title="いま気になること" badge={<span className="text-[9px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded-full">{myAlerts.length}</span>} defaultOpen>
           <div className="space-y-2">
             {myAlerts.map((alert) => (
               <div
@@ -69,7 +107,7 @@ export function HomeManager() {
               </div>
             ))}
           </div>
-        </div>
+        </Expandable>
       )}
 
       {/* Action items - big tap targets */}
@@ -77,12 +115,12 @@ export function HomeManager() {
         <p className="text-sm font-bold text-slate-700 mb-2">やること</p>
         <div className="space-y-2">
           {[
-            { href: "/stock", label: "仕入れをチェック", sub: "2件、まだ確認してない", color: "bg-amber-50 border-amber-200" },
-            { href: "/shift", label: "来週のシフトを決める", sub: "金曜ディナー 1人たりない", color: "bg-blue-50 border-blue-200" },
-            { href: "/menu", label: "メニューを見直す", sub: "出てないやつが2つある", color: "bg-purple-50 border-purple-200" },
+            { href: "/stock", label: "仕入れをチェック", sub: "2件、まだ確認してない", bg: "bg-amber-50", border: "border-amber-200" },
+            { href: "/shift", label: "来週のシフトを決める", sub: "金曜ディナー 1人たりない", bg: "bg-blue-50", border: "border-blue-200" },
+            { href: "/menu", label: "メニューを見直す", sub: "出てないやつが2つある", bg: "bg-purple-50", border: "border-purple-200" },
           ].map((item) => (
             <Link key={item.href} href={item.href}>
-              <div className={`${item.color} border rounded-xl p-4 flex items-center justify-between active:scale-[0.98] transition-transform`}>
+              <div className={`${item.bg} border ${item.border} rounded-xl p-4 flex items-center justify-between tap-scale`}>
                 <div>
                   <p className="text-sm font-bold text-slate-700">{item.label}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{item.sub}</p>
@@ -94,18 +132,18 @@ export function HomeManager() {
         </div>
       </div>
 
-      {/* Simple stats */}
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center tap-scale">
           <p className="text-xs text-slate-400">材料費</p>
           <p className={`text-xl kpi-value ${store.costRate > store.costRateTarget ? "text-red-500" : "text-emerald-600"}`}>
             {store.costRate}%
           </p>
           <p className="text-[10px] text-slate-400">
-            {store.costRate > store.costRateTarget ? `目標${store.costRateTarget}%よりちょっと高い` : "いい感じ"}
+            {store.costRate > store.costRateTarget ? `目標${store.costRateTarget}%よりちょい高い` : "いい感じ"}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center tap-scale">
           <p className="text-xs text-slate-400">もったいない</p>
           <p className={`text-xl kpi-value ${store.wasteReduction >= 0 ? "text-emerald-600" : "text-red-500"}`}>
             {store.wasteReduction >= 0 ? "↓" : "↑"}
@@ -117,8 +155,7 @@ export function HomeManager() {
       </div>
 
       {/* LINE */}
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <p className="text-sm font-bold text-slate-700 mb-1">朝LINEでとどくよ</p>
+      <Expandable title="朝LINEでとどくよ" defaultOpen={false}>
         <p className="text-[10px] text-slate-400 mb-2">毎朝 6:00</p>
         <div className="bg-[#eef6ee] rounded-xl p-3 text-[13px] leading-relaxed whitespace-pre-line">
 {`おはよう 渋谷センター街店
@@ -135,11 +172,11 @@ export function HomeManager() {
 鶏むね、多めに頼んどいて！`}
         </div>
         <Link href="/stock">
-          <button className="mt-2 w-full bg-slate-800 text-white rounded-lg py-2.5 text-sm font-medium active:bg-slate-700">
+          <button className="mt-2 w-full bg-slate-800 text-white rounded-lg py-2.5 text-sm font-medium tap-scale">
             仕入れをみる →
           </button>
         </Link>
-      </div>
+      </Expandable>
     </div>
   );
 }

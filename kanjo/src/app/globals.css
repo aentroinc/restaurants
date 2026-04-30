@@ -158,3 +158,24 @@
   50% { opacity: 0.6; }
 }
 .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-16px); }
+}
+.animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+
+@keyframes slide-down {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 500px; }
+}
+.animate-slide-down { animation: slide-down 0.3s ease-out; overflow: hidden; }
+
+.tap-scale { transition: transform 0.1s; }
+.tap-scale:active { transform: scale(0.97); }
