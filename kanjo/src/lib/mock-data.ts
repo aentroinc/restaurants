@@ -1,9 +1,51 @@
 // Mock data for Kanjo restaurant management SaaS
 
+export type Role = "owner" | "area" | "manager";
+
+export const roles: { id: Role; label: string; name: string; desc: string }[] = [
+  { id: "owner", label: "社長", name: "山本 誠一", desc: "全店舗をみる" },
+  { id: "area", label: "エリアマネージャー", name: "中村 恵", desc: "城西エリア担当" },
+  { id: "manager", label: "店長", name: "田中 太郎", desc: "渋谷店" },
+];
+
 export const stores = [
-  { id: "1", name: "渋谷店", area: "渋谷区", seats: 42, status: "open" as const, todaySales: 387200, yesterdaySales: 342100, targetSales: 450000, customers: 89, avgSpend: 4350 },
-  { id: "2", name: "新宿店", area: "新宿区", seats: 56, status: "open" as const, todaySales: 512800, yesterdaySales: 489300, targetSales: 550000, customers: 118, avgSpend: 4346 },
-  { id: "3", name: "池袋店", area: "豊島区", seats: 38, status: "open" as const, todaySales: 298400, yesterdaySales: 315600, targetSales: 380000, customers: 72, avgSpend: 4144 },
+  { id: "1", name: "渋谷店", area: "城西", seats: 42, status: "open" as const, todaySales: 387200, yesterdaySales: 342100, targetSales: 450000, customers: 89, avgSpend: 4350, monthlySales: 11200000, monthlyTarget: 13500000, costRate: 31.2, costRateTarget: 30.0, laborCostRate: 28.5, wasteAmount: 142000, wasteReduction: 38000 },
+  { id: "2", name: "新宿店", area: "城西", seats: 56, status: "open" as const, todaySales: 512800, yesterdaySales: 489300, targetSales: 550000, customers: 118, avgSpend: 4346, monthlySales: 15800000, monthlyTarget: 16500000, costRate: 29.8, costRateTarget: 30.0, laborCostRate: 26.2, wasteAmount: 98000, wasteReduction: 52000 },
+  { id: "3", name: "池袋店", area: "城北", seats: 38, status: "open" as const, todaySales: 298400, yesterdaySales: 315600, targetSales: 380000, customers: 72, avgSpend: 4144, monthlySales: 9600000, monthlyTarget: 11400000, costRate: 33.1, costRateTarget: 30.0, laborCostRate: 31.0, wasteAmount: 215000, wasteReduction: -12000 },
+  { id: "4", name: "吉祥寺店", area: "城西", seats: 44, status: "open" as const, todaySales: 345600, yesterdaySales: 328900, targetSales: 420000, customers: 82, avgSpend: 4214, monthlySales: 10400000, monthlyTarget: 12600000, costRate: 30.5, costRateTarget: 30.0, laborCostRate: 27.8, wasteAmount: 125000, wasteReduction: 41000 },
+  { id: "5", name: "立川店", area: "城西", seats: 36, status: "open" as const, todaySales: 278900, yesterdaySales: 295200, targetSales: 360000, customers: 68, avgSpend: 4101, monthlySales: 8900000, monthlyTarget: 10800000, costRate: 32.4, costRateTarget: 30.0, laborCostRate: 29.5, wasteAmount: 178000, wasteReduction: 15000 },
+  { id: "6", name: "赤羽店", area: "城北", seats: 32, status: "open" as const, todaySales: 245800, yesterdaySales: 252300, targetSales: 320000, customers: 61, avgSpend: 4030, monthlySales: 7800000, monthlyTarget: 9600000, costRate: 34.2, costRateTarget: 30.0, laborCostRate: 32.1, wasteAmount: 245000, wasteReduction: -8000 },
+];
+
+export const monthlyPL = {
+  sales: 63700000,
+  salesLastYear: 58200000,
+  costOfGoods: 19750000,
+  laborCost: 17830000,
+  rent: 8400000,
+  utilities: 2100000,
+  other: 3200000,
+  profit: 12420000,
+  profitLastYear: 10800000,
+};
+
+export const monthlyTrendByStore = [
+  { month: "11月", 渋谷店: 10800000, 新宿店: 14200000, 池袋店: 9200000, 吉祥寺店: 9800000, 立川店: 8400000, 赤羽店: 7200000 },
+  { month: "12月", 渋谷店: 13500000, 新宿店: 17800000, 池袋店: 11200000, 吉祥寺店: 12100000, 立川店: 10200000, 赤羽店: 8800000 },
+  { month: "1月", 渋谷店: 9800000, 新宿店: 13100000, 池袋店: 8400000, 吉祥寺店: 8900000, 立川店: 7800000, 赤羽店: 6500000 },
+  { month: "2月", 渋谷店: 10200000, 新宿店: 14500000, 池袋店: 8800000, 吉祥寺店: 9500000, 立川店: 8100000, 赤羽店: 6800000 },
+  { month: "3月", 渋谷店: 11500000, 新宿店: 15200000, 池袋店: 9800000, 吉祥寺店: 10200000, 立川店: 8600000, 赤羽店: 7500000 },
+  { month: "4月", 渋谷店: 11200000, 新宿店: 15800000, 池袋店: 9600000, 吉祥寺店: 10400000, 立川店: 8900000, 赤羽店: 7800000 },
+];
+
+export const storeIssues = [
+  { storeId: "3", store: "池袋店", type: "cost" as const, message: "原価率が3.1%オーバーしています", severity: "danger" as const },
+  { storeId: "6", store: "赤羽店", type: "cost" as const, message: "原価率が4.2%オーバー。ムダが増えています", severity: "danger" as const },
+  { storeId: "3", store: "池袋店", type: "labor" as const, message: "人件費率が31%で高めです", severity: "warning" as const },
+  { storeId: "6", store: "赤羽店", type: "labor" as const, message: "人件費率が32.1%で高めです", severity: "warning" as const },
+  { storeId: "5", store: "立川店", type: "sales" as const, message: "月の売上が目標の82%です", severity: "warning" as const },
+  { storeId: "3", store: "池袋店", type: "waste" as const, message: "ムダが先月より増えています", severity: "danger" as const },
+  { storeId: "6", store: "赤羽店", type: "waste" as const, message: "ムダが先月より増えています", severity: "danger" as const },
 ];
 
 export const todayAlerts = [
