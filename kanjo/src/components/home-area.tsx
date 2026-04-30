@@ -4,6 +4,7 @@ import { stores, storeIssues, todayAlerts } from "@/lib/mock-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 function formatYen(n: number) {
   return `¥${n.toLocaleString()}`;
@@ -23,39 +24,41 @@ export function HomeArea() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <p className="text-xs text-gray-500">中村さん、おつかれさまです</p>
-        <p className="text-xs text-gray-400">城西エリア({areaStores.length}店舗)</p>
-      </div>
+      {/* Greeting - Fラン卒: friendly, casual but respectful */}
+      <p className="text-sm text-gray-600">中村さん、おつかれさまです 👋</p>
+      <p className="text-xs text-gray-400">城西エリア {areaStores.length}店舗のようすです</p>
 
-      {/* Area total */}
+      {/* Big number - simple, emoji-driven */}
       <Card className="border-0 shadow-sm bg-orange-50">
         <CardContent className="p-4">
-          <p className="text-xs text-orange-700">城西エリア合計 / 今日の売上</p>
+          <p className="text-xs text-orange-700">きょうの城西エリア</p>
           <p className="text-4xl font-bold text-orange-900 tracking-tight">
             {formatYen(totalToday)}
           </p>
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>エリア目標まで</span>
-              <span>{totalProgress}%</span>
-            </div>
-            <div className="w-full bg-orange-200 rounded-full h-2">
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 bg-orange-200 rounded-full h-3">
               <div
-                className={`h-2 rounded-full ${totalProgress >= 80 ? "bg-green-500" : "bg-yellow-500"}`}
+                className={`h-3 rounded-full ${totalProgress >= 80 ? "bg-green-500" : "bg-yellow-500"}`}
                 style={{ width: `${Math.min(totalProgress, 100)}%` }}
               />
             </div>
+            <span className="text-sm font-bold">{totalProgress}%</span>
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            {totalProgress >= 80
+              ? "👍 いい感じ！このペースなら目標いけそう"
+              : totalProgress >= 60
+                ? "🤔 もうちょっとがんばりたい"
+                : "😰 ちょっとキビシイかも…"}
+          </p>
         </CardContent>
       </Card>
 
-      {/* Issues */}
+      {/* Issues - color-coded ◎△✕, not percentages */}
       {areaIssues.length > 0 && (
         <div>
-          <h2 className="text-sm font-bold mb-2 flex items-center gap-1">
-            ⚠ エリアのおしらせ
-            <Badge className="bg-red-500 text-white border-0 text-xs">{areaIssues.length}</Badge>
+          <h2 className="text-sm font-bold mb-2">
+            🚨 いま気をつけること
           </h2>
           <div className="space-y-2">
             {areaIssues.map((issue, i) => (
@@ -69,14 +72,14 @@ export function HomeArea() {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">{issue.store}</p>
-                    <Badge className={`text-xs border-0 ${
-                      issue.severity === "danger" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"
-                    }`}>
-                      {issue.severity === "danger" ? "ヤバい" : "気をつけて"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{issue.severity === "danger" ? "✕" : "△"}</span>
+                      <div>
+                        <p className="text-sm font-bold">{issue.store}</p>
+                        <p className="text-xs text-gray-600">{issue.message}</p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-600 mt-0.5">{issue.message}</p>
                 </CardContent>
               </Card>
             ))}
@@ -87,17 +90,15 @@ export function HomeArea() {
       {/* Today's alerts */}
       {areaAlerts.length > 0 && (
         <div>
-          <h2 className="text-sm font-bold mb-2">いまのおしらせ</h2>
+          <h2 className="text-sm font-bold mb-2">📢 今日のできごと</h2>
           <div className="space-y-2">
             {areaAlerts.map((alert) => (
               <Card key={alert.id} className="border-0 shadow-sm bg-gray-50">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-2">
-                    <span>{alert.icon}</span>
-                    <div>
-                      <p className="text-sm font-medium">{alert.message}</p>
-                      <p className="text-xs text-gray-400">{alert.time} / {stores.find((s) => s.id === alert.storeId)?.name}</p>
-                    </div>
+                <CardContent className="p-3 flex items-start gap-2">
+                  <span className="text-lg">{alert.icon}</span>
+                  <div>
+                    <p className="text-sm">{alert.message}</p>
+                    <p className="text-xs text-gray-400">{alert.time} / {stores.find((s) => s.id === alert.storeId)?.name}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -108,59 +109,61 @@ export function HomeArea() {
 
       <Separator />
 
-      {/* Per-store comparison */}
+      {/* Per-store - visual ◎△✕ based, not number-heavy */}
       <div>
-        <h2 className="text-sm font-bold mb-2">店舗くらべ</h2>
+        <h2 className="text-sm font-bold mb-2">🏪 お店のようす</h2>
         <div className="space-y-3">
           {areaStores.map((store) => {
             const progress = Math.round((store.todaySales / store.targetSales) * 100);
             const monthProgress = Math.round((store.monthlySales / store.monthlyTarget) * 100);
-            const costOver = store.costRate > store.costRateTarget;
+            const costOK = store.costRate <= store.costRateTarget + 1;
+            const laborOK = store.laborCostRate <= 29;
+            const wasteOK = store.wasteReduction >= 0;
+
+            const overallScore = (costOK ? 1 : 0) + (laborOK ? 1 : 0) + (wasteOK ? 1 : 0) + (progress >= 70 ? 1 : 0);
+            const overallEmoji = overallScore >= 4 ? "◎" : overallScore >= 2 ? "△" : "✕";
+            const overallColor = overallScore >= 4 ? "text-green-600" : overallScore >= 2 ? "text-yellow-600" : "text-red-500";
+            const overallBg = overallScore >= 4 ? "bg-green-50" : overallScore >= 2 ? "bg-yellow-50" : "bg-red-50";
+
             return (
-              <Card key={store.id} className="border-0 shadow-sm">
+              <Card key={store.id} className={`border-0 shadow-sm ${overallBg}`}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-sm">{store.name}</h3>
-                    <Badge className={`text-xs border-0 ${
-                      progress >= 80 ? "bg-green-100 text-green-700" :
-                      progress >= 60 ? "bg-yellow-100 text-yellow-700" :
-                      "bg-red-100 text-red-700"
-                    }`}>
-                      今日 {progress}%
-                    </Badge>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-2xl font-bold ${overallColor}`}>{overallEmoji}</span>
+                      <h3 className="font-bold">{store.name}</h3>
+                    </div>
+                    <span className="text-lg font-bold">{formatYen(store.todaySales)}</span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-xs text-gray-500">今日</p>
-                      <p className="text-base font-bold">{formatYen(store.todaySales)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">今月</p>
-                      <p className="text-base font-bold">{Math.round(store.monthlySales / 10000)}万</p>
-                      <p className="text-xs text-gray-400">{monthProgress}%</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">原価率</p>
-                      <p className={`text-base font-bold ${costOver ? "text-red-500" : "text-green-600"}`}>
-                        {store.costRate}%
+                  <div className="grid grid-cols-4 gap-2 text-center">
+                    <div className="bg-white/60 rounded-lg p-2">
+                      <p className="text-xs text-gray-500">目標</p>
+                      <p className={`text-sm font-bold ${progress >= 80 ? "text-green-600" : progress >= 60 ? "text-yellow-600" : "text-red-500"}`}>
+                        {progress >= 80 ? "◎" : progress >= 60 ? "△" : "✕"}
                       </p>
-                      <p className="text-xs text-gray-400">目標{store.costRateTarget}%</p>
+                      <p className="text-xs text-gray-400">{progress}%</p>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 mt-2 text-center">
-                    <div className="bg-gray-50 rounded p-1.5">
-                      <p className="text-xs text-gray-500">人件費率</p>
-                      <p className={`text-sm font-bold ${store.laborCostRate > 30 ? "text-red-500" : "text-green-600"}`}>
-                        {store.laborCostRate}%
+                    <div className="bg-white/60 rounded-lg p-2">
+                      <p className="text-xs text-gray-500">材料費</p>
+                      <p className={`text-sm font-bold ${costOK ? "text-green-600" : "text-red-500"}`}>
+                        {costOK ? "◎" : "✕"}
                       </p>
+                      <p className="text-xs text-gray-400">{store.costRate}%</p>
                     </div>
-                    <div className="bg-gray-50 rounded p-1.5">
-                      <p className="text-xs text-gray-500">ムダ削減</p>
-                      <p className={`text-sm font-bold ${store.wasteReduction >= 0 ? "text-green-600" : "text-red-500"}`}>
-                        {store.wasteReduction >= 0 ? "▼" : "▲"}{formatYen(Math.abs(store.wasteReduction))}
+                    <div className="bg-white/60 rounded-lg p-2">
+                      <p className="text-xs text-gray-500">人件費</p>
+                      <p className={`text-sm font-bold ${laborOK ? "text-green-600" : "text-red-500"}`}>
+                        {laborOK ? "◎" : "✕"}
                       </p>
+                      <p className="text-xs text-gray-400">{store.laborCostRate}%</p>
+                    </div>
+                    <div className="bg-white/60 rounded-lg p-2">
+                      <p className="text-xs text-gray-500">ムダ</p>
+                      <p className={`text-sm font-bold ${wasteOK ? "text-green-600" : "text-red-500"}`}>
+                        {wasteOK ? "◎" : "✕"}
+                      </p>
+                      <p className="text-xs text-gray-400">{wasteOK ? "へった" : "ふえた"}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -174,28 +177,33 @@ export function HomeArea() {
 
       {/* Shift coverage */}
       <div>
-        <h2 className="text-sm font-bold mb-2">📅 シフトの充足率(来週)</h2>
+        <h2 className="text-sm font-bold mb-2">📅 来週のシフト、足りてる?</h2>
         <div className="space-y-2">
-          {areaStores.map((store) => {
-            const coverage = Math.round(75 + Math.random() * 25);
+          {areaStores.map((store, i) => {
+            const coverages = [92, 85, 78, 95];
+            const coverage = coverages[i] || 80;
+            const emoji = coverage >= 90 ? "👍" : coverage >= 80 ? "🤔" : "😰";
             return (
               <Card key={store.id} className="border-0 shadow-sm">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm">{store.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span>{emoji}</span>
+                      <span className="text-sm">{store.name}</span>
+                    </div>
                     <span className={`text-sm font-bold ${coverage >= 90 ? "text-green-600" : coverage >= 80 ? "text-yellow-600" : "text-red-500"}`}>
                       {coverage}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
                     <div
-                      className={`h-2 rounded-full ${coverage >= 90 ? "bg-green-500" : coverage >= 80 ? "bg-yellow-500" : "bg-red-400"}`}
+                      className={`h-2.5 rounded-full ${coverage >= 90 ? "bg-green-500" : coverage >= 80 ? "bg-yellow-500" : "bg-red-400"}`}
                       style={{ width: `${coverage}%` }}
                     />
                   </div>
                   {coverage < 90 && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      {coverage < 80 ? "ホール・キッチンどちらも不足" : "金曜ディナーが不足"}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {coverage < 80 ? "⚠ ホール・キッチンどっちもたりない！" : "⚠ 金曜のディナーだけたりない"}
                     </p>
                   )}
                 </CardContent>
@@ -207,23 +215,27 @@ export function HomeArea() {
 
       <Separator />
 
-      {/* LINE preview */}
+      {/* LINE preview - Fラン: casual, emoji-heavy */}
       <div>
         <h2 className="text-sm font-bold mb-2">📱 エリアマネージャーへのLINE</h2>
         <Card className="border-0 shadow-sm bg-green-50">
           <CardContent className="p-4">
+            <p className="text-xs text-gray-400 mb-1">毎朝 7:00 にとどきます</p>
             <div className="bg-white rounded-xl p-3 shadow-sm text-sm whitespace-pre-line leading-relaxed">
-              {`📋 中村さん、城西エリア朝レポート
+{`📋 中村さん、おはようございます！
 
-4店舗合計 / 目標達成率 82%
+きのうの城西エリア 4店舗
 
-⤴ 好調: 新宿店(目標93%)
-⤵ 要注意: 立川店(目標77%)
+◎ 新宿店 → 目標クリア！すごい
+△ 渋谷店 → あとちょっとだった
+△ 吉祥寺店 → まあまあ
+✕ 立川店 → 材料費ちょっと高かった
 
-⚠ 立川店の原価率が2.4%オーバー
-原因: 鶏もも仕入れ値の上昇
+今日やること
+🛒 立川店の仕入れチェック
+📅 渋谷店の金曜シフト、1人さがす
 
-👉 立川店のくわしい数字をみる`}
+👉 くわしくみる`}
             </div>
           </CardContent>
         </Card>
