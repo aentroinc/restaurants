@@ -154,6 +154,28 @@ export function HomeManager() {
         </div>
       </div>
 
+      {/* New feature quick links */}
+      <div className="grid grid-cols-3 gap-2">
+        <Link href="/customers">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">リピーター</p>
+            <p className="text-sm kpi-value text-emerald-600">78%</p>
+          </div>
+        </Link>
+        <Link href="/reviews">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">口コミ</p>
+            <p className="text-sm kpi-value">3.88★</p>
+          </div>
+        </Link>
+        <Link href="/delivery">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">テイクアウト</p>
+            <p className="text-sm kpi-value">42%</p>
+          </div>
+        </Link>
+      </div>
+
       {/* LINE */}
       <Expandable title="朝LINEでとどくよ" defaultOpen={false}>
         <p className="text-[10px] text-slate-400 mb-2">毎朝 6:00</p>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { stores, storeIssues, todayAlerts, areaData } from "@/lib/mock-data";
 import { Expandable, TabSwitcher } from "@/components/expandable";
 import { LiveTicker, LiveDot, AnimatedNumber } from "@/components/live-sales";
+import Link from "next/link";
 
 function yen(n: number) { return `¥${n.toLocaleString()}`; }
 
@@ -227,6 +228,28 @@ export function HomeArea() {
 → 渋谷の金曜シフト1人さがす`}
         </div>
       </Expandable>
+
+      {/* Quick links to new features */}
+      <div className="grid grid-cols-3 gap-2">
+        <Link href="/customers">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">リピート率</p>
+            <p className="text-sm kpi-value text-emerald-600">80%</p>
+          </div>
+        </Link>
+        <Link href="/reviews">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">口コミ</p>
+            <p className="text-sm kpi-value">3.82★</p>
+          </div>
+        </Link>
+        <Link href="/promotions">
+          <div className="bg-white rounded-xl p-2.5 shadow-sm tap-scale text-center">
+            <p className="text-[9px] text-slate-400">販促</p>
+            <p className="text-sm kpi-value">3件</p>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }

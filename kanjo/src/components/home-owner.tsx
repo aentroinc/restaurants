@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { company, areaData, monthlyPL, ebitdaImpact, storeIssues, stores } from "@/lib/mock-data";
+import { company, areaData, monthlyPL, ebitdaImpact, storeIssues, stores, customerData, reviewData, promotionData } from "@/lib/mock-data";
 import { Expandable, TabSwitcher } from "@/components/expandable";
 import { LiveTicker, AnimatedNumber, LiveDot } from "@/components/live-sales";
 import Link from "next/link";
@@ -266,14 +266,38 @@ export function HomeOwner() {
       <div className="grid grid-cols-2 gap-2">
         <Link href="/report">
           <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
-            <p className="text-[10px] text-slate-400">月次レポート</p>
+            <p className="text-[10px] text-slate-400">MONTHLY P/L</p>
             <p className="text-xs font-medium mt-0.5">損益の詳細 →</p>
           </div>
         </Link>
         <Link href="/ai-impact">
           <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
-            <p className="text-[10px] text-slate-400">AI効果</p>
+            <p className="text-[10px] text-slate-400">AI IMPACT</p>
             <p className="text-xs font-medium mt-0.5">改善レポート →</p>
+          </div>
+        </Link>
+        <Link href="/customers">
+          <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
+            <p className="text-[10px] text-slate-400">CUSTOMERS</p>
+            <p className="text-xs font-medium mt-0.5">リピート率 {customerData.repeatRate}% →</p>
+          </div>
+        </Link>
+        <Link href="/delivery">
+          <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
+            <p className="text-[10px] text-slate-400">CHANNEL MIX</p>
+            <p className="text-xs font-medium mt-0.5">デリバリー収益 →</p>
+          </div>
+        </Link>
+        <Link href="/reviews">
+          <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
+            <p className="text-[10px] text-slate-400">REPUTATION</p>
+            <p className="text-xs font-medium mt-0.5">評価 {reviewData.avgRating} ★ →</p>
+          </div>
+        </Link>
+        <Link href="/promotions">
+          <div className="bg-white rounded-xl p-3 shadow-sm tap-scale">
+            <p className="text-[10px] text-slate-400">PROMOTIONS</p>
+            <p className="text-xs font-medium mt-0.5">実施中 {promotionData.activeCampaigns.length}件 →</p>
           </div>
         </Link>
       </div>

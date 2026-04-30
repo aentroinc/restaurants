@@ -176,6 +176,129 @@ export const notifications = [
   { id: "5", time: "12:30", type: "waste", title: "廃棄警告", body: "渋谷センター街店: サラダ廃棄2.3倍", read: false },
 ];
 
+// #5 Customer / Repeat Analysis
+export const customerData = {
+  totalMonthly: 42800,
+  newCustomers: 8560,
+  repeaters: 34240,
+  repeatRate: 80.0,
+  repeatRateLastMonth: 78.2,
+  avgVisitsPerRepeater: 3.2,
+  ltvAvg: 48600,
+  ltvTrend: [
+    { month: "11月", ltv: 42000 }, { month: "12月", ltv: 45200 }, { month: "1月", ltv: 44800 },
+    { month: "2月", ltv: 46100 }, { month: "3月", ltv: 47500 }, { month: "4月", ltv: 48600 },
+  ],
+  segments: [
+    { label: "ヘビーユーザー(月4回+)", pct: 12, avgSpend: 4800, count: 5136 },
+    { label: "レギュラー(月2-3回)", pct: 28, avgSpend: 4200, count: 11984 },
+    { label: "ライト(月1回)", pct: 40, avgSpend: 3600, count: 17120 },
+    { label: "新規", pct: 20, avgSpend: 3400, count: 8560 },
+  ],
+  storeRepeatRanking: [
+    { store: "新宿西口店", rate: 84.2 },
+    { store: "渋谷センター街店", rate: 82.1 },
+    { store: "吉祥寺店", rate: 80.5 },
+    { store: "横浜駅西口店", rate: 78.8 },
+    { store: "池袋東口店", rate: 74.2 },
+    { store: "大宮店", rate: 71.8 },
+  ],
+};
+
+// #6 Delivery / Takeout Channel
+export const deliveryData = {
+  channels: [
+    { name: "イートイン", sales: 385000000, pct: 64.7, margin: 22.5, orders: 128000 },
+    { name: "テイクアウト", sales: 118000000, pct: 19.8, margin: 18.8, orders: 48000 },
+    { name: "UberEats", sales: 52000000, pct: 8.7, margin: 8.2, orders: 22000, commission: 35 },
+    { name: "出前館", sales: 28000000, pct: 4.7, margin: 6.5, orders: 12000, commission: 38 },
+    { name: "自社デリバリー", sales: 12000000, pct: 2.0, margin: 15.2, orders: 4800 },
+  ],
+  monthlyTrend: [
+    { month: "11月", eatin: 68, takeout: 18, delivery: 14 },
+    { month: "12月", eatin: 62, takeout: 20, delivery: 18 },
+    { month: "1月", eatin: 65, takeout: 19, delivery: 16 },
+    { month: "2月", eatin: 64, takeout: 20, delivery: 16 },
+    { month: "3月", eatin: 64, takeout: 20, delivery: 16 },
+    { month: "4月", eatin: 65, takeout: 20, delivery: 15 },
+  ],
+  commissionImpact: {
+    totalCommission: 28800000,
+    ifSelfDelivery: 8400000,
+    potentialSaving: 20400000,
+  },
+  storeDeliveryRatio: [
+    { store: "渋谷センター街店", eatin: 58, takeout: 24, delivery: 18 },
+    { store: "新宿西口店", eatin: 55, takeout: 22, delivery: 23 },
+    { store: "池袋東口店", eatin: 62, takeout: 20, delivery: 18 },
+    { store: "吉祥寺店", eatin: 72, takeout: 18, delivery: 10 },
+    { store: "横浜駅西口店", eatin: 68, takeout: 20, delivery: 12 },
+    { store: "大宮店", eatin: 75, takeout: 16, delivery: 9 },
+  ],
+};
+
+// #8 Reviews / Reputation
+export const reviewData = {
+  avgRating: 3.82,
+  avgRatingLastMonth: 3.78,
+  totalReviews: 2840,
+  newReviewsThisMonth: 186,
+  platforms: [
+    { name: "Google", rating: 3.85, count: 1820, trend: "up" as const },
+    { name: "食べログ", rating: 3.42, count: 680, trend: "flat" as const },
+    { name: "Retty", rating: 3.95, count: 340, trend: "up" as const },
+  ],
+  storeRanking: [
+    { store: "吉祥寺店", rating: 4.12, count: 320, trend: "up" as const },
+    { store: "新宿西口店", rating: 3.95, count: 520, trend: "up" as const },
+    { store: "渋谷センター街店", rating: 3.88, count: 480, trend: "flat" as const },
+    { store: "横浜駅西口店", rating: 3.82, count: 380, trend: "flat" as const },
+    { store: "池袋東口店", rating: 3.52, count: 420, trend: "down" as const },
+    { store: "大宮店", rating: 3.38, count: 280, trend: "down" as const },
+  ],
+  recentAlerts: [
+    { store: "池袋東口店", platform: "Google", rating: 1, text: "注文してから30分待たされた。カレーもぬるかった。", date: "4/28", sentiment: "negative" as const },
+    { store: "大宮店", platform: "食べログ", rating: 2, text: "前は美味しかったけど最近味が落ちた気がする。ルーが薄い。", date: "4/27", sentiment: "negative" as const },
+    { store: "渋谷センター街店", platform: "Google", rating: 5, text: "ランチのチキンカツカレー最高！いつも混んでるけど回転早い。", date: "4/29", sentiment: "positive" as const },
+  ],
+  sentimentBreakdown: { positive: 62, neutral: 24, negative: 14 },
+  topKeywords: [
+    { word: "コスパ", count: 142, sentiment: "positive" as const },
+    { word: "スパイス", count: 98, sentiment: "positive" as const },
+    { word: "待ち時間", count: 85, sentiment: "negative" as const },
+    { word: "ボリューム", count: 72, sentiment: "positive" as const },
+    { word: "接客", count: 64, sentiment: "neutral" as const },
+    { word: "テイクアウト", count: 58, sentiment: "positive" as const },
+  ],
+};
+
+// #9 Promotions / Campaigns
+export const promotionData = {
+  activeCampaigns: [
+    { id: "1", name: "GWスパイスフェア", period: "4/27-5/6", type: "限定メニュー", status: "実施中" as const, targetStores: "全店", sales: 4200000, uplift: 12.5, cost: 180000, roi: 23.3 },
+    { id: "2", name: "LINE友だち15%OFF", period: "4/1-4/30", type: "クーポン", status: "実施中" as const, targetStores: "全店", sales: 8800000, uplift: 8.2, cost: 1320000, roi: 6.7 },
+    { id: "3", name: "平日14-17時100円引き", period: "4/1-4/30", type: "タイムセール", status: "実施中" as const, targetStores: "全店", sales: 3200000, uplift: 22.8, cost: 640000, roi: 5.0 },
+  ],
+  pastCampaigns: [
+    { id: "4", name: "春のスタンプラリー", period: "3/1-3/31", type: "スタンプ", sales: 12400000, uplift: 15.2, cost: 860000, roi: 14.4 },
+    { id: "5", name: "新メニュー記念500円", period: "2/15-2/28", type: "値引き", sales: 5600000, uplift: 28.5, cost: 2100000, roi: 2.7 },
+  ],
+  couponRedemption: {
+    issued: 12400,
+    redeemed: 4960,
+    rate: 40.0,
+    avgDiscount: 145,
+    incrementalSales: 2480000,
+  },
+  channelROI: [
+    { channel: "LINE", roi: 8.2, spend: 420000 },
+    { channel: "Instagram", roi: 4.5, spend: 280000 },
+    { channel: "Google広告", roi: 3.2, spend: 350000 },
+    { channel: "チラシ", roi: 1.8, spend: 180000 },
+    { channel: "食べログ掲載", roi: 2.1, spend: 150000 },
+  ],
+};
+
 export const lineMessages = [
   {
     time: "06:00",
