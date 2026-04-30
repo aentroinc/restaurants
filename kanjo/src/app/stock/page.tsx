@@ -1,10 +1,12 @@
 "use client";
 
 import { ingredients, purchaseOrders } from "@/lib/mock-data";
+import { useToast } from "@/components/toast";
 
 function yen(n: number) { return `¥${n.toLocaleString()}`; }
 
 export default function StockPage() {
+  const { toast } = useToast();
   const lowStock = ingredients.filter((i) => i.currentStock / i.requiredToday < 0.5);
 
   return (
@@ -79,7 +81,10 @@ export default function StockPage() {
               <div className="flex items-center justify-between border-t border-slate-50 pt-2">
                 <span className="text-xs kpi-value">{yen(order.total)}</span>
                 {order.status === "確認待ち" && (
-                  <button className="bg-slate-800 text-white text-xs px-4 py-1.5 rounded-lg active:bg-slate-700">
+                  <button
+                    onClick={() => toast(`${order.supplier}に注文しました ✓`)}
+                    className="bg-slate-800 text-white text-xs px-4 py-1.5 rounded-lg tap-scale"
+                  >
                     注文する
                   </button>
                 )}

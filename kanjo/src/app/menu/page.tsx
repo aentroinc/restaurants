@@ -1,6 +1,7 @@
 "use client";
 
 import { menus } from "@/lib/mock-data";
+import { useToast } from "@/components/toast";
 
 function yen(n: number) { return `¥${n.toLocaleString()}`; }
 
@@ -14,6 +15,7 @@ const tagStyle = {
 type Tag = keyof typeof tagStyle;
 
 export default function MenuPage() {
+  const { toast } = useToast();
   const stars = menus.filter((m) => m.tag === "主役");
   const dogs = menus.filter((m) => m.tag === "退場候補");
   const totalProfit = menus.reduce((s, m) => s + m.monthlyProfit, 0);
@@ -119,8 +121,8 @@ export default function MenuPage() {
           この組み合わせで月の売上が約4万円ふえる見込み
         </div>
         <div className="flex gap-2 mt-3">
-          <button className="flex-1 bg-slate-800 text-white text-xs py-2 rounded-lg active:bg-slate-700">この値段にする</button>
-          <button className="flex-1 border border-slate-200 text-xs py-2 rounded-lg text-slate-500">あとで</button>
+          <button onClick={() => toast("価格を更新しました ✓")} className="flex-1 bg-slate-800 text-white text-xs py-2 rounded-lg tap-scale">この値段にする</button>
+          <button onClick={() => toast("あとで通知します")} className="flex-1 border border-slate-200 text-xs py-2 rounded-lg text-slate-500 tap-scale">あとで</button>
         </div>
       </div>
     </div>

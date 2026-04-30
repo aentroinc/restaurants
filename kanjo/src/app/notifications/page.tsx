@@ -1,6 +1,7 @@
 "use client";
 
 import { useRole } from "@/lib/role-context";
+import { useToast } from "@/components/toast";
 import Link from "next/link";
 
 const typeStyle: Record<string, { bg: string }> = {
@@ -16,16 +17,16 @@ const typeStyle: Record<string, { bg: string }> = {
 };
 
 const ownerNotifications = [
-  { id: "1", time: "08:00", type: "sales", title: "全社日次サマリー", body: "全48店舗: 売上¥20.2M / 目標達成率86%", read: true },
+  { id: "1", time: "08:00", type: "sales", title: "全社日次サマリー", body: "全48店舗: 売上2,020万円 / 目標達成率86%", read: true },
   { id: "2", time: "09:15", type: "waste", title: "ロス悪化検知", body: "大宮店: 食材ロスが前月比+25,000円。肉類の廃棄増加", read: false },
   { id: "3", time: "10:30", type: "review", title: "低評価レビュー検知", body: "池袋東口店: Google ★1「30分待たされた」要対応", read: false },
-  { id: "4", time: "11:00", type: "delivery", title: "デリバリー手数料レポート", body: "4月UberEats手数料: ¥1,820万。自社比率向上で¥680万削減可能", read: false },
+  { id: "4", time: "11:00", type: "delivery", title: "デリバリー手数料レポート", body: "4月UberEats手数料: 1,820万円。自社比率向上で680万円削減可能", read: false },
   { id: "5", time: "14:00", type: "customer", title: "リピート率更新", body: "全社リピート率80.0%(+1.8pt)。新宿西口店が84.2%でトップ", read: true },
-  { id: "6", time: "15:00", type: "promo", title: "GWフェア中間報告", body: "売上貢献¥420万 / 目標対比+12.5%。好調推移", read: true },
+  { id: "6", time: "15:00", type: "promo", title: "GWフェア中間報告", body: "売上貢献420万円 / 目標対比+12.5%。好調推移", read: true },
 ];
 
 const areaNotifications = [
-  { id: "1", time: "07:00", type: "sales", title: "エリア朝レポート", body: "東京23区 18店舗: きのう¥8.42M(目標85%)", read: true },
+  { id: "1", time: "07:00", type: "sales", title: "エリア朝レポート", body: "東京23区 18店舗: きのう842万円(目標85%)", read: true },
   { id: "2", time: "09:30", type: "staff", title: "シフト不足", body: "池袋東口店: 金曜ディナー帯ホール1名不足", read: false },
   { id: "3", time: "10:30", type: "review", title: "悪い口コミ", body: "池袋東口店: Google ★1 待ち時間のクレーム。返信してあげて", read: false },
   { id: "4", time: "12:00", type: "waste", title: "ロスが増えてる", body: "池袋東口店: 原価率31.5%(目標+1.5pt)。仕入れ見直して", read: false },
@@ -55,8 +56,8 @@ AI改善効果: +2,505万/月
 好調: 新宿西口店(売上+18%)
 口コミ: 池袋★1レビュー要対応
 
-デリバリー手数料: 月¥2,880万
-→自社比率向上で¥2,040万削減余地`,
+デリバリー手数料: 月2,880万円
+→自社比率向上で2,040万円削減余地`,
     button: "詳細レポートをみる",
   },
 ];
@@ -103,6 +104,7 @@ GWフェアの声かけもよろしく`,
 export default function NotificationsPage() {
   const { role } = useRole();
 
+  const { toast } = useToast();
   const notifs = role === "owner" ? ownerNotifications : role === "area" ? areaNotifications : managerNotifications;
   const lines = role === "owner" ? ownerLine : role === "area" ? areaLine : managerLine;
   const unread = notifs.filter((n) => !n.read).length;
@@ -148,7 +150,10 @@ export default function NotificationsPage() {
               <div className="bg-[#eef6ee] rounded-xl p-3 text-[13px] leading-relaxed whitespace-pre-line">
                 {msg.content}
               </div>
-              <button className="mt-2 w-full bg-slate-800 text-white rounded-lg py-2 text-xs font-medium tap-scale">
+              <button
+                onClick={() => toast(`${msg.button}を開いています...`)}
+                className="mt-2 w-full bg-slate-800 text-white rounded-lg py-2 text-xs font-medium tap-scale"
+              >
                 {msg.button} →
               </button>
             </div>

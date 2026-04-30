@@ -1,12 +1,14 @@
 "use client";
 
 import { areaData, monthlyPL, ebitdaImpact, monthlyTrendByArea } from "@/lib/mock-data";
+import { useToast } from "@/components/toast";
 
 function yen(n: number) { return `¥${n.toLocaleString()}`; }
 function man(n: number) { return `${(n / 10000).toFixed(0)}万`; }
 function oku(n: number) { return `${(n / 100000000).toFixed(2)}億`; }
 
 export default function ReportPage() {
+  const { toast } = useToast();
   const salesGrowth = Math.round(((monthlyPL.sales - monthlyPL.salesLastYear) / monthlyPL.salesLastYear) * 100);
   const ebitdaGrowth = Math.round(((monthlyPL.ebitda - monthlyPL.ebitdaLastYear) / monthlyPL.ebitdaLastYear) * 100);
   const ebitdaMargin = ((monthlyPL.ebitda / monthlyPL.sales) * 100).toFixed(1);
@@ -178,8 +180,8 @@ export default function ReportPage() {
       </div>
 
       <div className="flex gap-2">
-        <button className="flex-1 bg-slate-800 text-white text-xs py-2.5 rounded-lg active:bg-slate-700">PDFに出す</button>
-        <button className="flex-1 border border-slate-200 text-xs py-2.5 rounded-lg text-slate-500">Excelに出す</button>
+        <button onClick={() => toast("PDFを作成しています...")} className="flex-1 bg-slate-800 text-white text-xs py-2.5 rounded-lg tap-scale">PDFに出す</button>
+        <button onClick={() => toast("Excelファイルをダウンロード中...")} className="flex-1 border border-slate-200 text-xs py-2.5 rounded-lg text-slate-500 tap-scale">Excelに出す</button>
       </div>
     </div>
   );

@@ -169,7 +169,7 @@ export const weeklyTrend = [
 ];
 
 export const notifications = [
-  { id: "1", time: "06:00", type: "forecast", title: "需要予測更新", body: "渋谷センター街店: 148名 / ¥582K見込み", read: true },
+  { id: "1", time: "06:00", type: "forecast", title: "需要予測更新", body: "渋谷センター街店: 148名 / 約58万円見込み", read: true },
   { id: "2", time: "14:23", type: "stock", title: "在庫警告", body: "渋谷センター街店: 鶏むね残12食分", read: false },
   { id: "3", time: "13:45", type: "sales", title: "売上好調", body: "新宿西口店: 先週比+18%", read: true },
   { id: "4", time: "15:02", type: "staff", title: "シフト不足", body: "池袋東口店: ディナー帯ホール1名不足", read: false },

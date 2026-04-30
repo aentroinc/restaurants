@@ -1,6 +1,7 @@
 "use client";
 
 import { shiftSchedule, staff } from "@/lib/mock-data";
+import { useToast } from "@/components/toast";
 
 const days = ["月", "火", "水", "木", "金", "土", "日"];
 
@@ -17,6 +18,7 @@ function getHours(shifts: typeof shiftSchedule[0]["shifts"]) {
 }
 
 export default function ShiftPage() {
+  const { toast } = useToast();
   return (
     <div className="p-4 space-y-4">
       <div>
@@ -65,10 +67,10 @@ export default function ShiftPage() {
       </div>
 
       <div className="flex gap-2">
-        <button className="flex-1 bg-slate-800 text-white text-sm py-2.5 rounded-lg font-medium active:bg-slate-700">
+        <button onClick={() => toast("シフトを確定しました ✓")} className="flex-1 bg-slate-800 text-white text-sm py-2.5 rounded-lg font-medium tap-scale">
           このシフトでOK
         </button>
-        <button className="flex-1 border border-slate-200 text-sm py-2.5 rounded-lg text-slate-600 active:bg-slate-50">
+        <button onClick={() => toast("編集モードに切り替えました")} className="flex-1 border border-slate-200 text-sm py-2.5 rounded-lg text-slate-600 tap-scale">
           かえる
         </button>
       </div>

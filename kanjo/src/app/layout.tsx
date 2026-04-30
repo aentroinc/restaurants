@@ -3,6 +3,7 @@ import { IBM_Plex_Sans_JP, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
 import { RoleProvider } from "@/lib/role-context";
+import { ToastProvider } from "@/components/toast";
 
 const ibmPlexSansJP = IBM_Plex_Sans_JP({
   variable: "--font-sans",
@@ -40,10 +41,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-50">
         <RoleProvider>
-          <main className="flex-1 pb-16 max-w-lg mx-auto w-full">
-            {children}
-          </main>
-          <BottomNav />
+          <ToastProvider>
+            <main className="flex-1 pb-16 max-w-lg mx-auto w-full">
+              {children}
+            </main>
+            <BottomNav />
+          </ToastProvider>
         </RoleProvider>
       </body>
     </html>
