@@ -29,7 +29,7 @@ export default function SalesPage() {
           <span className="text-sm font-semibold text-gray-700">4月の実績</span>
           <span className="text-xs text-gray-400">確定値</span>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <div className="text-xs text-gray-400">売上</div>
             <div className="kpi-value text-lg text-gray-900">¥{(monthlySummary.sales / 10000).toFixed(0)}万</div>
@@ -39,11 +39,17 @@ export default function SalesPage() {
           </div>
           <div>
             <div className="text-xs text-gray-400">客数</div>
-            <div className="kpi-value text-lg text-gray-900">{monthlySummary.customers}人</div>
+            <div className="kpi-value text-lg text-gray-900">{monthlySummary.customers.toLocaleString()}人</div>
+            <div className="text-[11px] text-gray-400">客単価 ¥{monthlySummary.avg_ticket.toLocaleString()}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-400">営業利益(推定)</div>
+            <div className="text-xs text-gray-400">原価率 / 人件費率</div>
+            <div className="kpi-value text-lg text-gray-900">{monthlySummary.food_cost_pct}% / {monthlySummary.labor_cost_pct}%</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-400">営業利益(税引前)</div>
             <div className="kpi-value text-lg text-emerald-600">¥{(monthlySummary.profit_estimate / 10000).toFixed(0)}万</div>
+            <div className="text-[11px] text-gray-400">利益率 {(monthlySummary.profit_estimate / monthlySummary.sales * 100).toFixed(1)}%</div>
           </div>
         </div>
       </div>

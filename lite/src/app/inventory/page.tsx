@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { inventory, todayKpi } from "@/lib/mock-data";
-import { Package, AlertTriangle, CheckCircle, XCircle, ShoppingCart } from "lucide-react";
+import { Package, AlertTriangle, CheckCircle, XCircle, ShoppingCart, Phone } from "lucide-react";
 
 export default function InventoryPage() {
   const [filter, setFilter] = useState<"all" | "alert">("all");
@@ -82,9 +82,17 @@ export default function InventoryPage() {
                 </span>
               </div>
               {item.order_suggestion && (
-                <div className="mt-2 ml-12 flex items-start gap-2 bg-blue-50 rounded-lg px-3 py-2">
-                  <ShoppingCart className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
-                  <p className="text-xs text-blue-700">{item.order_suggestion}</p>
+                <div className="mt-2 ml-12 space-y-2">
+                  <div className="flex items-start gap-2 bg-blue-50 rounded-lg px-3 py-2">
+                    <ShoppingCart className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                    <p className="text-xs text-blue-700">{item.order_suggestion}</p>
+                  </div>
+                  {item.supplier && (
+                    <button className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold active:scale-[0.97] transition-transform">
+                      <Phone className="w-4 h-4" />
+                      {item.supplier}に発注する
+                    </button>
+                  )}
                 </div>
               )}
             </div>

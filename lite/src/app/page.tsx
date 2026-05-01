@@ -31,11 +31,12 @@ export default function TodayPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold text-gray-900">{shop.name}</h1>
-          <p className="text-xs text-gray-400 mt-0.5">5月1日(木) {todayKpi.updated_at}更新</p>
+          <p className="text-xs text-gray-400 mt-0.5">5月1日(木) {todayKpi.updated_at}時点</p>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-gray-400">今夜の予約</div>
+          <div className="text-[10px] text-gray-400">本日の予約</div>
           <div className="text-lg font-bold text-blue-600">{todayKpi.reservations_tonight}組</div>
+          <div className="text-[10px] text-gray-400">ウォークイン{todayKpi.walk_in_pct}%</div>
         </div>
       </div>
 
