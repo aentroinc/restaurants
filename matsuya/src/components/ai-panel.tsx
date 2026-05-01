@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bot, ChevronRight, ChevronDown, Shield, Clock, User } from "lucide-react";
+import { useToast } from "@/components/toast";
 
 export interface AIInsight {
   id: string;
@@ -16,8 +17,6 @@ export interface AIInsight {
 
 interface AIPanelProps {
   insights: AIInsight[];
-  onApprove?: (id: string) => void;
-  onReject?: (id: string) => void;
 }
 
 const confidenceColor = {
@@ -26,16 +25,29 @@ const confidenceColor = {
   Low: "text-red-400 bg-red-400/10",
 };
 
-export function AIPanel({ insights, onApprove, onReject }: AIPanelProps) {
+const confidenceLabel = { High: "高", Medium: "中", Low: "低" };
+
+export function AIPanel({ insights }: AIPanelProps) {
   const [expandedId, setExpandedId] = useState<string | null>(insights[0]?.id ?? null);
+  const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
+  const { show } = useToast();
+
+  const handleApprove = (id: string) => {
+    setApprovedIds(prev => new Set(prev).add(id));
+    show("AI推奨を承認しました。担当者にタスクを発行します。", "success");
+  };
+
+  const handleReject = (id: string) => {
+    show("AI推奨を却下しました。", "warning");
+  };
 
   return (
     <div className="w-80 border-l border-white/[0.06] bg-[#080c12] flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 h-11 border-b border-white/[0.06]">
-        <Bot className="w-4 h-4 text-blue-400" />
-        <span className="text-[11px] font-bold tracking-[0.1em] text-white/70 uppercase">AIP Assistant</span>
-        <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">
+      <div className="flex items-center gap-2 px-4 h-14 border-b border-white/[0.06]">
+        <Bot className="w-4.5 h-4.5 text-blue-400" />
+        <span className="text-[12px] font-bold tracking-[0.08em] text-white/70 uppercase">AI アシスタント</span>
+        <span className="ml-auto text-[11px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">
           {insights.length}
         </span>
       </div>
@@ -44,26 +56,32 @@ export function AIPanel({ insights, onApprove, onReject }: AIPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {insights.map((insight) => {
           const expanded = expandedId === insight.id;
+          const isApproved = approvedIds.has(insight.id);
           return (
             <div key={insight.id} className="border-b border-white/[0.04]">
               <button
                 onClick={() => setExpandedId(expanded ? null : insight.id)}
-                className="w-full flex items-start gap-2 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"
+                className="w-full flex items-start gap-2.5 px-4 py-4 text-left hover:bg-white/[0.02] transition-colors"
               >
                 {expanded ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
+                  <ChevronDown className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
                 ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-[12px] text-white/80 leading-relaxed">{insight.finding}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${confidenceColor[insight.confidence]}`}>
-                      {insight.confidence}
+                  <p className="text-[13px] text-white/80 leading-relaxed">{insight.finding}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${confidenceColor[insight.confidence]}`}>
+                      信頼度: {confidenceLabel[insight.confidence]}
                     </span>
-                    {insight.requires_approval && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">
-                        Approval Required
+                    {insight.requires_approval && !isApproved && (
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">
+                        要承認
+                      </span>
+                    )}
+                    {isApproved && (
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">
+                        承認済
                       </span>
                     )}
                   </div>
@@ -71,14 +89,14 @@ export function AIPanel({ insights, onApprove, onReject }: AIPanelProps) {
               </button>
 
               {expanded && (
-                <div className="px-4 pb-4 pl-9 space-y-3 animate-fade-in">
+                <div className="px-4 pb-4 pl-10 space-y-3 animate-fade-in">
                   {/* Evidence */}
                   <div>
-                    <div className="text-[9px] font-bold tracking-[0.1em] text-white/30 uppercase mb-1">Evidence</div>
-                    <ul className="space-y-1">
+                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/30 uppercase mb-1.5">根拠データ</div>
+                    <ul className="space-y-1.5">
                       {insight.evidence.map((e, i) => (
-                        <li key={i} className="text-[11px] text-white/50 flex items-start gap-1.5">
-                          <span className="text-blue-400/60 mt-0.5">-</span>
+                        <li key={i} className="text-[12px] text-white/50 flex items-start gap-2 leading-relaxed">
+                          <span className="text-blue-400/60 mt-0.5 shrink-0">-</span>
                           {e}
                         </li>
                       ))}
@@ -87,37 +105,37 @@ export function AIPanel({ insights, onApprove, onReject }: AIPanelProps) {
 
                   {/* Recommended Action */}
                   <div>
-                    <div className="text-[9px] font-bold tracking-[0.1em] text-white/30 uppercase mb-1">Recommended Action</div>
-                    <p className="text-[11px] text-white/60">{insight.recommended_action}</p>
+                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/30 uppercase mb-1.5">推奨アクション</div>
+                    <p className="text-[12px] text-white/60 leading-relaxed">{insight.recommended_action}</p>
                   </div>
 
                   {/* Expected Impact */}
                   <div>
-                    <div className="text-[9px] font-bold tracking-[0.1em] text-white/30 uppercase mb-1">Expected Impact</div>
-                    <p className="text-[11px] text-emerald-400/80">{insight.expected_impact}</p>
+                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/30 uppercase mb-1.5">期待効果</div>
+                    <p className="text-[13px] text-emerald-400/80 font-medium">{insight.expected_impact}</p>
                   </div>
 
                   {/* Meta */}
-                  <div className="flex items-center gap-3 text-[9px] text-white/30">
+                  <div className="flex items-center gap-3 text-[10px] text-white/30 pt-1">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{insight.generated_at}</span>
-                    <span className="flex items-center gap-1"><Shield className="w-3 h-3" />{insight.confidence}</span>
-                    <span className="flex items-center gap-1"><User className="w-3 h-3" />{insight.requires_approval ? "Human-in-loop" : "Auto"}</span>
+                    <span className="flex items-center gap-1"><Shield className="w-3 h-3" />{confidenceLabel[insight.confidence]}</span>
+                    <span className="flex items-center gap-1"><User className="w-3 h-3" />{insight.requires_approval ? "人間承認" : "自動"}</span>
                   </div>
 
                   {/* Actions */}
-                  {insight.requires_approval && (
-                    <div className="flex gap-2 pt-1">
+                  {insight.requires_approval && !isApproved && (
+                    <div className="flex gap-2 pt-2">
                       <button
-                        onClick={() => onApprove?.(insight.id)}
-                        className="flex-1 text-[11px] font-medium py-1.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
+                        onClick={() => handleApprove(insight.id)}
+                        className="flex-1 text-[12px] font-semibold py-2 rounded-md bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:scale-[0.97] transition-all"
                       >
-                        Approve
+                        承認する
                       </button>
                       <button
-                        onClick={() => onReject?.(insight.id)}
-                        className="flex-1 text-[11px] font-medium py-1.5 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                        onClick={() => handleReject(insight.id)}
+                        className="flex-1 text-[12px] font-semibold py-2 rounded-md bg-red-500/10 text-red-400 hover:bg-red-500/20 active:scale-[0.97] transition-all"
                       >
-                        Reject
+                        却下する
                       </button>
                     </div>
                   )}

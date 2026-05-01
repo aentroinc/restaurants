@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { ContextHeader } from "@/components/context-header";
 import { AIPanel, type AIInsight } from "@/components/ai-panel";
 import { stores, menuItems, shifts, incidents, brands, type Store } from "@/lib/mock-data";
 import {
   Search, ChevronRight, TrendingUp, TrendingDown, Users, Clock,
-  Package, UserCheck, AlertTriangle, BarChart3, ArrowUpRight,
+  Package, UserCheck, AlertTriangle, BarChart3, ArrowUpRight, Zap,
 } from "lucide-react";
 
 const store360Insights: AIInsight[] = [
@@ -66,7 +68,7 @@ function StoreDetail({ store }: { store: Store }) {
       {/* Store Header */}
       <div className="flex items-center gap-4">
         <div>
-          <h2 className="text-base font-semibold text-white/90">{store.name}</h2>
+          <h2 className="text-lg font-bold text-white/90">{store.name}</h2>
           <div className="flex items-center gap-3 mt-1 text-[10px] text-white/40">
             <span>{store.store_id}</span>
             <span>{store.location_type}</span>
@@ -103,7 +105,7 @@ function StoreDetail({ store }: { store: Store }) {
         {/* Menu composition */}
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
           <div className="px-4 py-2 border-b border-white/[0.06] flex items-center justify-between">
-            <span className="section-title">Menu Composition</span>
+            <span className="section-title">メニュー構成比</span>
             <span className="text-[10px] text-white/30">{storeMenus.length}品目</span>
           </div>
           <div className="max-h-[260px] overflow-y-auto">
@@ -129,7 +131,7 @@ function StoreDetail({ store }: { store: Store }) {
         {/* Shift coverage */}
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
           <div className="px-4 py-2 border-b border-white/[0.06] flex items-center justify-between">
-            <span className="section-title">Today&apos;s Shift Coverage</span>
+            <span className="section-title">本日のシフト充足</span>
             <span className="text-[10px] text-white/30">{todayShifts.length} slots</span>
           </div>
           <div className="p-4">
@@ -165,7 +167,7 @@ function StoreDetail({ store }: { store: Store }) {
       {/* Sales timeline placeholder */}
       <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
         <div className="px-4 py-2 border-b border-white/[0.06]">
-          <span className="section-title">Sales Timeline (15min)</span>
+          <span className="section-title">売上タイムライン (15分粒度)</span>
         </div>
         <div className="h-[140px] flex items-end gap-[2px] px-4 py-3">
           {Array.from({ length: 64 }, (_, i) => {
@@ -195,7 +197,7 @@ function StoreDetail({ store }: { store: Store }) {
       {storeIncidents.length > 0 && (
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
           <div className="px-4 py-2 border-b border-white/[0.06]">
-            <span className="section-title">Active Incidents</span>
+            <span className="section-title">発生中のアラート</span>
           </div>
           <div className="divide-y divide-white/[0.04]">
             {storeIncidents.map((inc) => (
@@ -216,10 +218,26 @@ function StoreDetail({ store }: { store: Store }) {
         </div>
       )}
 
+      {/* Create Action button */}
+      <div className="flex gap-3">
+        <Link
+          href="/actions"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-blue-500/20 text-blue-400 text-[13px] font-semibold hover:bg-blue-500/30 active:scale-[0.97] transition-all"
+        >
+          <Zap className="w-4 h-4" /> 対応アクションを作成
+        </Link>
+        <Link
+          href="/ontology"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-white/[0.04] text-white/50 text-[13px] hover:bg-white/[0.06] transition-colors"
+        >
+          関連オブジェクトを表示
+        </Link>
+      </div>
+
       {/* Similar stores */}
       <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
         <div className="px-4 py-2 border-b border-white/[0.06]">
-          <span className="section-title">Similar Stores Comparison</span>
+          <span className="section-title">類似店舗比較</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-[11px]">
@@ -258,8 +276,26 @@ function StoreDetail({ store }: { store: Store }) {
 }
 
 export default function Store360Page() {
-  const [selectedStore, setSelectedStore] = useState<Store>(stores[0]);
+  return (
+    <Suspense>
+      <Store360Content />
+    </Suspense>
+  );
+}
+
+function Store360Content() {
+  const searchParams = useSearchParams();
+  const storeIdFromUrl = searchParams.get("id");
+  const initialStore = (storeIdFromUrl && stores.find(s => s.store_id === storeIdFromUrl)) || stores[0];
+  const [selectedStore, setSelectedStore] = useState<Store>(initialStore);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (storeIdFromUrl) {
+      const found = stores.find(s => s.store_id === storeIdFromUrl);
+      if (found) setSelectedStore(found);
+    }
+  }, [storeIdFromUrl]);
 
   const filtered = search
     ? stores.filter(s => s.name.includes(search) || s.store_id.includes(search) || s.area.includes(search))

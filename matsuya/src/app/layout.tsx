@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_JP, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
+import { ToastProvider } from "@/components/toast";
 
 const ibmPlexSansJP = IBM_Plex_Sans_JP({
   variable: "--font-sans",
@@ -38,10 +39,12 @@ export default function RootLayout({
       className={`${ibmPlexSansJP.variable} ${ibmPlexMono.variable} h-full`}
     >
       <body className="min-h-full bg-[#0a0e14] text-foreground">
-        <Sidebar />
-        <main className="ml-56 min-h-screen">
-          {children}
-        </main>
+        <ToastProvider>
+          <Sidebar />
+          <main className="ml-56 min-h-screen">
+            {children}
+          </main>
+        </ToastProvider>
       </body>
     </html>
   );
