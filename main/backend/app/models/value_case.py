@@ -1,7 +1,8 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import String, Date, Numeric, ForeignKey, DateTime, func, JSON
+from sqlalchemy import String, Date, Numeric, ForeignKey, DateTime, func, ARRAY
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -9,12 +10,12 @@ from app.database import Base
 class ValueCase(Base):
     __tablename__ = "value_cases"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(String(36), ForeignKey("tenants.id"), nullable=False, index=True)
-    company_id: Mapped[str] = mapped_column(String(36), ForeignKey("companies.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    company_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     issue_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    target_store_ids: Mapped[list | None] = mapped_column(JSON)
+    target_store_ids: Mapped[list | None] = mapped_column(ARRAY(UUID(as_uuid=True)))
     baseline_start: Mapped[date] = mapped_column(Date, nullable=False)
     baseline_end: Mapped[date] = mapped_column(Date, nullable=False)
     measurement_start: Mapped[date] = mapped_column(Date, nullable=False)
@@ -32,8 +33,8 @@ class ValueCase(Base):
 class ValueCaseMetric(Base):
     __tablename__ = "value_case_metrics"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    value_case_id: Mapped[str] = mapped_column(String(36), ForeignKey("value_cases.id"), nullable=False, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    value_case_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("value_cases.id"), nullable=False, index=True)
     metric_name: Mapped[str] = mapped_column(String(100), nullable=False)
     baseline_value: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     measured_value: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))

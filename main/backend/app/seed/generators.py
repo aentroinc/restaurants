@@ -6,8 +6,8 @@ from decimal import Decimal
 
 RNG = random.Random(42)
 
-TENANT_ID = "00000000-0000-0000-0000-000000000001"
-COMPANY_ID = "00000000-0000-0000-0000-000000000010"
+TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+COMPANY_ID = uuid.UUID("00000000-0000-0000-0000-000000000010")
 
 REGIONS = [
     {"name": "関東", "code": "KANTO"},
@@ -145,13 +145,13 @@ DISCOUNT_OVERUSE_STORES = [14, 35, 60]
 IMPROVEMENT_SUCCESS_STORES = [3, 20, 40, 52, 65]
 
 
-def make_uuid(namespace: int) -> str:
-    return str(uuid.UUID(f"00000000-0000-0000-{namespace:04x}-{RNG.randint(0, 2**48-1):012x}"))
+def make_uuid(namespace: int) -> uuid.UUID:
+    return uuid.UUID(f"00000000-0000-0000-{namespace:04x}-{RNG.randint(0, 2**48-1):012x}")
 
 
-def gen_deterministic_uuid(category: str, index: int) -> str:
+def gen_deterministic_uuid(category: str, index: int) -> uuid.UUID:
     r = random.Random(f"{category}:{index}")
-    return str(uuid.UUID(int=r.getrandbits(128), version=4))
+    return uuid.UUID(int=r.getrandbits(128), version=4)
 
 
 def generate_regions():

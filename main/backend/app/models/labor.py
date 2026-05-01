@@ -1,7 +1,8 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import Date, Numeric, ForeignKey, DateTime, func, String
+from sqlalchemy import Date, Numeric, ForeignKey, DateTime, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -9,9 +10,9 @@ from app.database import Base
 class LaborActual(Base):
     __tablename__ = "labor_actuals"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(String(36), ForeignKey("tenants.id"), nullable=False, index=True)
-    store_id: Mapped[str] = mapped_column(String(36), ForeignKey("stores.id"), nullable=False, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    store_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("stores.id"), nullable=False, index=True)
     business_date: Mapped[date] = mapped_column(Date, nullable=False)
     labor_hours: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=False)
     labor_cost: Mapped[Decimal] = mapped_column(Numeric(12, 0), nullable=False)
