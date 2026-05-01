@@ -244,7 +244,7 @@ export default function ExpansionPage() {
                               {proj.status === "completed" ? "完了" : proj.status === "in-progress" ? "進行中" : "計画"}
                             </span>
                           </td>
-                          <td className="px-3 py-2 text-right font-mono text-white/50">{proj.capex_myen}百万円</td>
+                          <td className="px-3 py-2 text-right font-mono text-white/50">{(proj.capex_myen * 100).toLocaleString()}万円</td>
                           <td className="px-3 py-2 text-right font-mono text-emerald-400">+{proj.ticket_lift_pct.toFixed(1)}%</td>
                           <td className="px-3 py-2 text-right font-mono text-blue-400">+{proj.customer_lift_pct.toFixed(1)}%</td>
                           <td className="px-3 py-2 text-right font-mono text-white/50">{proj.payback_months}ヶ月</td>

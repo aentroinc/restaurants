@@ -159,7 +159,8 @@ export default function SupplyChainTwin() {
               </div>
               <div className="space-y-1.5">
                 {skus.filter(s => s.category === "牛肉").slice(0, 5).map((sku, i) => {
-                  const risk = i === 0 ? 0.92 : i === 1 ? 0.45 : Math.random() * 0.3;
+                  const riskValues = [0.92, 0.45, 0.28, 0.15, 0.08];
+                  const risk = riskValues[i] ?? 0.1;
                   return (
                     <div key={sku.sku_id} className="flex items-center gap-2">
                       <span className="text-[10px] text-white/50 w-16 truncate">{sku.name}</span>

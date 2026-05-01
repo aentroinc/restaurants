@@ -53,18 +53,22 @@ interface ForecastRow {
   confidence_band: [number, number];
 }
 
+// Deterministic seed-based values
+const seedVal = (i: number, offset: number, range: number) => ((i * 7 + offset * 13 + 37) % 100) / 100 * range;
+
 const forecastData: ForecastRow[] = forecastSkus.map((sku, i) => {
   const isBeef = sku.category === "牛肉";
-  const stockDays = isBeef && i < 3 ? 1.2 + i * 0.3 : 2.5 + Math.random() * 3;
-  const demandPct = isBeef && i === 0 ? 12 : Math.round((Math.random() - 0.3) * 15);
+  const stockDays = isBeef && i < 3 ? 1.2 + i * 0.3 : 2.5 + seedVal(i, 1, 3);
+  const demandPct = isBeef && i === 0 ? 12 : Math.round(seedVal(i, 2, 15) - 4.5);
+  const stockoutHour = Math.round(10 + seedVal(i, 3, 10));
   return {
     sku,
     current_stock_days: Math.round(stockDays * 10) / 10,
     demand_forecast_pct: demandPct,
-    stockout_time: stockDays < 2 ? `明日 ${Math.round(10 + Math.random() * 10)}:00` : null,
-    waste_risk: sku.storage_type === "冷蔵" ? Math.round(Math.random() * 40) : Math.round(Math.random() * 15),
-    recommended_replenish: stockDays < 2 ? Math.round(8 + Math.random() * 15) : 0,
-    confidence_band: [Math.round((1 - Math.random() * 0.15) * 100), Math.round((1 + Math.random() * 0.15) * 100)],
+    stockout_time: stockDays < 2 ? `明日 ${stockoutHour}:00` : null,
+    waste_risk: sku.storage_type === "冷蔵" ? Math.round(seedVal(i, 4, 40)) : Math.round(seedVal(i, 5, 15)),
+    recommended_replenish: stockDays < 2 ? Math.round(8 + seedVal(i, 6, 15)) : 0,
+    confidence_band: [Math.round((1 - seedVal(i, 7, 0.15)) * 100), Math.round((1 + seedVal(i, 8, 0.15)) * 100)] as [number, number],
   };
 });
 

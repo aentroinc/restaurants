@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ContextHeader } from "@/components/context-header";
 import { AIPanel, type AIInsight } from "@/components/ai-panel";
 import { ontologyRelationships, stores, menuItems, skus, factories, distributionCenters, deliveryRoutes, campaigns } from "@/lib/mock-data";
-import { Network, ChevronRight, Circle } from "lucide-react";
+import { Network, ChevronRight, Store as StoreIcon, UtensilsCrossed, Package, Factory as FactoryIcon, Building2, Truck, Megaphone, Link2 } from "lucide-react";
 
 const ontologyInsights: AIInsight[] = [
   {
@@ -211,17 +211,17 @@ export default function OntologyPage() {
           {/* Object type counts */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { type: "Store", count: stores.length, icon: "🏪" },
-              { type: "MenuItem", count: menuItems.length, icon: "🍽" },
-              { type: "SKU", count: skus.length, icon: "📦" },
-              { type: "Factory", count: factories.length, icon: "🏭" },
-              { type: "DC", count: distributionCenters.length, icon: "🏢" },
-              { type: "Route", count: deliveryRoutes.length, icon: "🚛" },
-              { type: "Campaign", count: campaigns.length, icon: "📢" },
-              { type: "Relationship Types", count: ontologyRelationships.length, icon: "🔗" },
+              { type: "Store", count: stores.length, Icon: StoreIcon, color: "text-emerald-400" },
+              { type: "MenuItem", count: menuItems.length, Icon: UtensilsCrossed, color: "text-purple-400" },
+              { type: "SKU", count: skus.length, Icon: Package, color: "text-red-400" },
+              { type: "Factory", count: factories.length, Icon: FactoryIcon, color: "text-amber-400" },
+              { type: "DC", count: distributionCenters.length, Icon: Building2, color: "text-cyan-400" },
+              { type: "Route", count: deliveryRoutes.length, Icon: Truck, color: "text-blue-400" },
+              { type: "Campaign", count: campaigns.length, Icon: Megaphone, color: "text-yellow-400" },
+              { type: "Relationship Types", count: ontologyRelationships.length, Icon: Link2, color: "text-white/50" },
             ].map((item) => (
               <div key={item.type} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 flex items-center gap-3">
-                <span className="text-lg">{item.icon}</span>
+                <item.Icon className={`w-5 h-5 ${item.color}`} strokeWidth={1.5} />
                 <div>
                   <div className="kpi-value text-lg text-white/80">{item.count}</div>
                   <div className="text-[10px] text-white/40">{item.type}</div>

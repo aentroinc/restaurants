@@ -42,22 +42,29 @@ const campInsights: AIInsight[] = [
 const locationTypes = ["駅前","ロードサイド","商業施設","住宅地"] as const;
 const timeSlots = ["朝 (6-10)", "昼 (11-14)", "午後 (14-17)", "夜 (17-21)", "深夜 (21-2)"];
 
-// Simulated performance data per campaign
-const campaignPerformance = campaigns.map(c => ({
+// Deterministic performance multipliers per campaign
+const regionMultipliers = [
+  { region: "首都圏", liftMul: 1.12, custMul: 0.95 },
+  { region: "関西", liftMul: 0.72, custMul: 0.65 },
+  { region: "東海", liftMul: 0.58, custMul: 0.52 },
+  { region: "九州", liftMul: 0.42, custMul: 0.35 },
+];
+const timeMultipliers = [0.45, 1.30, 0.62, 0.70, 0.28];
+
+const campaignPerformance = campaigns.map((c, ci) => ({
   ...c,
-  byRegion: [
-    { region: "首都圏", lift: c.sales_lift_pct * (0.9 + Math.random() * 0.3), customers: Math.round(c.customer_lift_pct * (0.8 + Math.random() * 0.4) * 100) / 100 },
-    { region: "関西", lift: c.sales_lift_pct * (0.5 + Math.random() * 0.4), customers: Math.round(c.customer_lift_pct * (0.5 + Math.random() * 0.3) * 100) / 100 },
-    { region: "東海", lift: c.sales_lift_pct * (0.4 + Math.random() * 0.3), customers: Math.round(c.customer_lift_pct * (0.3 + Math.random() * 0.4) * 100) / 100 },
-    { region: "九州", lift: c.sales_lift_pct * (0.3 + Math.random() * 0.3), customers: Math.round(c.customer_lift_pct * (0.2 + Math.random() * 0.3) * 100) / 100 },
-  ],
+  byRegion: regionMultipliers.map(r => ({
+    region: r.region,
+    lift: Math.round(c.sales_lift_pct * (r.liftMul + ci * 0.02) * 100) / 100,
+    customers: Math.round(c.customer_lift_pct * (r.custMul + ci * 0.01) * 100) / 100,
+  })),
   byLocationType: locationTypes.map(lt => ({
     type: lt,
     lift: Math.round(c.sales_lift_pct * (lt === "駅前" ? 1.1 : lt === "ロードサイド" ? 0.8 : lt === "商業施設" ? 0.9 : 0.5) * 100) / 100,
   })),
   byTime: timeSlots.map((slot, i) => ({
     slot,
-    lift: Math.round(c.sales_lift_pct * (i === 1 ? 1.3 : i === 3 ? 0.7 : 0.5 + Math.random() * 0.5) * 100) / 100,
+    lift: Math.round(c.sales_lift_pct * timeMultipliers[i] * 100) / 100,
   })),
 }));
 
@@ -229,8 +236,12 @@ export default function CampaignPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {menuItems.filter(m => m.is_new).map((menu) => {
+                  {menuItems.filter(m => m.is_new).map((menu, mi) => {
                     const brand = brands.find(b => b.brand_id === menu.brand);
+                    const stationLunch = [12.4, 9.8, 11.2, 8.5, 10.1][mi % 5];
+                    const stationNight = [2.1, 3.4, 1.8, 2.7, 2.3][mi % 5];
+                    const rsLunch = [15.2, 12.8, 14.1, 11.6, 13.4][mi % 5];
+                    const rsNight = [3.8, 4.2, 2.9, 3.5, 4.1][mi % 5];
                     return (
                       <tr key={menu.menu_id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                         <td className="px-4 py-2 text-white/70 font-medium">{menu.name}</td>
@@ -238,16 +249,16 @@ export default function CampaignPage() {
                         <td className="px-3 py-2 text-right font-mono text-white/50">¥{menu.price}</td>
                         <td className="px-3 py-2 text-right font-mono text-white/50">{(menu.gross_margin_estimate * 100).toFixed(0)}%</td>
                         <td className="px-3 py-2 text-right font-mono text-emerald-400">
-                          <span className="flex items-center justify-end gap-0.5"><ArrowUpRight className="w-3 h-3" />{(8 + Math.random() * 6).toFixed(1)}%</span>
+                          <span className="flex items-center justify-end gap-0.5"><ArrowUpRight className="w-3 h-3" />{stationLunch.toFixed(1)}%</span>
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-amber-400">
-                          {(1 + Math.random() * 3).toFixed(1)}%
+                          {stationNight.toFixed(1)}%
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-emerald-400">
-                          <span className="flex items-center justify-end gap-0.5"><ArrowUpRight className="w-3 h-3" />{(10 + Math.random() * 8).toFixed(1)}%</span>
+                          <span className="flex items-center justify-end gap-0.5"><ArrowUpRight className="w-3 h-3" />{rsLunch.toFixed(1)}%</span>
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-white/40">
-                          {(2 + Math.random() * 4).toFixed(1)}%
+                          {rsNight.toFixed(1)}%
                         </td>
                       </tr>
                     );

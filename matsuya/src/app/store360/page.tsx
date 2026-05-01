@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ContextHeader } from "@/components/context-header";
 import { AIPanel, type AIInsight } from "@/components/ai-panel";
-import { stores, menuItems, shifts, incidents, type Store } from "@/lib/mock-data";
+import { stores, menuItems, shifts, incidents, brands, type Store } from "@/lib/mock-data";
 import {
   Search, ChevronRight, TrendingUp, TrendingDown, Users, Clock,
   Package, UserCheck, AlertTriangle, BarChart3, ArrowUpRight,
@@ -46,11 +46,17 @@ function StoreDetail({ store }: { store: Store }) {
   const storeMenus = menuItems.filter(m => m.brand === store.brand);
   const storeIncidents = incidents.filter(i => i.impacted_stores.includes(store.store_id));
 
+  // Derive dynamic sub-values from store data
+  const salesDelta = store.daily_sales > 500000 ? `+${((store.daily_sales - 450000) / 450000 * 100).toFixed(1)}%` : `${((store.daily_sales - 500000) / 500000 * 100).toFixed(1)}%`;
+  const custDelta = store.daily_customers > 400 ? `+${((store.daily_customers - 380) / 380 * 100).toFixed(1)}%` : `${((store.daily_customers - 420) / 420 * 100).toFixed(1)}%`;
+  const ticketDelta = store.avg_ticket > 900 ? `+${((store.avg_ticket - 850) / 850 * 100).toFixed(1)}%` : `${((store.avg_ticket - 900) / 900 * 100).toFixed(1)}%`;
+  const marginDelta = store.gross_margin > 0.65 ? `+${((store.gross_margin - 0.64) * 100).toFixed(1)}pt` : `${((store.gross_margin - 0.66) * 100).toFixed(1)}pt`;
+
   const metrics = [
-    { label: "本日売上", value: `¥${store.daily_sales.toLocaleString()}`, sub: "予測比+12%", icon: TrendingUp, color: "text-emerald-400" },
-    { label: "客数", value: store.daily_customers.toString(), sub: "予測比+8%", icon: Users, color: "text-blue-400" },
-    { label: "客単価", value: `¥${store.avg_ticket.toLocaleString()}`, sub: "予測比+4.2%", icon: ArrowUpRight, color: "text-emerald-400" },
-    { label: "粗利率", value: `${(store.gross_margin * 100).toFixed(1)}%`, sub: "-2.1pt", icon: TrendingDown, color: "text-amber-400" },
+    { label: "本日売上", value: `¥${store.daily_sales.toLocaleString()}`, sub: `予測比${salesDelta}`, icon: TrendingUp, color: store.daily_sales > 500000 ? "text-emerald-400" : "text-amber-400" },
+    { label: "客数", value: store.daily_customers.toString(), sub: `予測比${custDelta}`, icon: Users, color: store.daily_customers > 400 ? "text-blue-400" : "text-amber-400" },
+    { label: "客単価", value: `¥${store.avg_ticket.toLocaleString()}`, sub: `予測比${ticketDelta}`, icon: ArrowUpRight, color: store.avg_ticket > 900 ? "text-emerald-400" : "text-white/50" },
+    { label: "粗利率", value: `${(store.gross_margin * 100).toFixed(1)}%`, sub: marginDelta, icon: store.gross_margin > 0.65 ? TrendingUp : TrendingDown, color: store.gross_margin > 0.65 ? "text-emerald-400" : "text-amber-400" },
     { label: "廃棄率", value: `${(store.waste_pct * 100).toFixed(1)}%`, sub: store.waste_pct > 0.035 ? "要改善" : "良好", icon: Package, color: store.waste_pct > 0.035 ? "text-amber-400" : "text-emerald-400" },
     { label: "人員充足率", value: `${(store.staff_coverage * 100).toFixed(0)}%`, sub: store.staff_coverage < 0.9 ? "不足" : "充足", icon: UserCheck, color: store.staff_coverage < 0.9 ? "text-red-400" : "text-emerald-400" },
   ];
@@ -266,7 +272,7 @@ export default function Store360Page() {
           title="Store 360"
           subtitle="店舗統合分析"
           region={selectedStore.region}
-          brandFilter={selectedStore.brand}
+          brandFilter={brands.find(b => b.brand_id === selectedStore.brand)?.name}
         />
 
         <div className="flex flex-1 overflow-hidden">

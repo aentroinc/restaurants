@@ -16,12 +16,19 @@ export type BrandId = (typeof brands)[number]["brand_id"];
 
 // --- Regions / Areas ---
 const regions = ["北海道","東北","北関東","首都圏","甲信越","東海","関西","中国","四国","九州"] as const;
-const areas = [
-  "札幌","仙台","宇都宮","新宿","渋谷","池袋","品川","横浜","千葉","大宮",
-  "八王子","町田","立川","吉祥寺","川崎","船橋","松戸","柏","所沢","川越",
-  "高崎","水戸","長野","新潟","名古屋","静岡","浜松","岐阜","大阪","梅田",
-  "難波","京都","神戸","岡山","広島","松山","福岡","熊本","鹿児島","那覇",
-] as const;
+const areasByRegion: Record<string, string[]> = {
+  "北海道": ["札幌","旭川","函館"],
+  "東北": ["仙台","盛岡","郡山"],
+  "北関東": ["宇都宮","高崎","水戸"],
+  "首都圏": ["新宿","渋谷","池袋","品川","横浜","千葉","大宮","八王子","町田","立川","吉祥寺","川崎","船橋","松戸","柏","所沢","川越","上野","秋葉原","蒲田"],
+  "甲信越": ["長野","新潟","甲府"],
+  "東海": ["名古屋","静岡","浜松","岐阜"],
+  "関西": ["大阪","梅田","難波","京都","神戸","天王寺"],
+  "中国": ["岡山","広島","倉敷"],
+  "四国": ["松山","高松","徳島"],
+  "九州": ["福岡","熊本","鹿児島","那覇","北九州"],
+};
+const areas = Object.values(areasByRegion).flat();
 
 const locationTypes = ["駅前","ロードサイド","商業施設","住宅地"] as const;
 export type LocationType = (typeof locationTypes)[number];
@@ -57,7 +64,7 @@ function seededRandom(seed: number) {
 }
 
 const rng = seededRandom(42);
-const pick = <T>(arr: readonly T[]): T => arr[Math.floor(rng() * arr.length)];
+const pick = <T>(arr: readonly T[] | T[]): T => arr[Math.floor(rng() * arr.length)];
 const rand = (min: number, max: number) => Math.round((rng() * (max - min) + min) * 100) / 100;
 
 const brandDistribution: BrandId[] = [
@@ -79,7 +86,8 @@ const baseLats: Record<string, [number, number]> = {
 export const stores: Store[] = Array.from({ length: 120 }, (_, i) => {
   const brand = brandDistribution[i % brandDistribution.length];
   const region = i < 60 ? "首都圏" : pick(regions);
-  const area = pick(areas);
+  const regionAreas = areasByRegion[region] || areasByRegion["首都圏"];
+  const area = pick(regionAreas);
   const locType = pick(locationTypes);
   const base = baseLats[region] || [35.68, 139.69];
   const isRenovated = rng() < 0.25;
