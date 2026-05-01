@@ -79,7 +79,7 @@ export default function CampaignPage() {
                   {campaign.status !== "計画中" && (
                     <>
                       <div className="text-right">
-                        <div className="text-[10px] text-white/25 mb-0.5">売上リフト</div>
+                        <div className="text-[12px] text-white/25 mb-0.5">売上リフト</div>
                         <div className="flex items-center gap-1">
                           <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
                           <span className="kpi-value text-[18px] text-emerald-400">
@@ -88,7 +88,7 @@ export default function CampaignPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[10px] text-white/25 mb-0.5">客数リフト</div>
+                        <div className="text-[12px] text-white/25 mb-0.5">客数リフト</div>
                         <div className="flex items-center gap-1">
                           <Users className="w-3.5 h-3.5 text-blue-400" />
                           <span className="kpi-value text-[18px] text-blue-400">
@@ -111,25 +111,25 @@ export default function CampaignPage() {
                 <div className="border-t border-white/[0.06] px-6 py-5 space-y-4 animate-slide-down bg-white/[0.01]">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         キャンペーンID
                       </div>
                       <div className="text-[13px] text-white/60 font-mono">{campaign.id}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         対象店舗数
                       </div>
                       <div className="text-[13px] text-white/60">{campaign.target_stores}店舗（{campaign.target_stores === 28 ? "全店" : "一部"}）</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         実施期間
                       </div>
                       <div className="text-[13px] text-white/60">{campaign.period}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         ステータス
                       </div>
                       <span className={`text-[12px] px-2.5 py-0.5 rounded font-medium ${statusStyle[campaign.status]}`}>
@@ -141,13 +141,13 @@ export default function CampaignPage() {
                   {campaign.status !== "計画中" && (
                     <div className="grid grid-cols-2 gap-4 pt-2">
                       <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-4">
-                        <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                        <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                           売上リフト
                         </div>
                         <div className="kpi-value text-[24px] text-emerald-400">+{campaign.sales_lift_pct}%</div>
                       </div>
                       <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-4">
-                        <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                        <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                           客数リフト
                         </div>
                         <div className="kpi-value text-[24px] text-blue-400">+{campaign.customer_lift_pct}%</div>
@@ -157,7 +157,7 @@ export default function CampaignPage() {
 
                   {planningNotes[campaign.id] && (
                     <div className="rounded-lg border border-blue-500/20 bg-blue-500/[0.04] p-4">
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-blue-400/60 uppercase mb-2">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-blue-400/60 uppercase mb-2">
                         計画メモ
                       </div>
                       <p className="text-[13px] text-white/60 leading-relaxed">{planningNotes[campaign.id]}</p>

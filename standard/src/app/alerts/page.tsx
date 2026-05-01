@@ -38,7 +38,7 @@ export default function AlertsPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="AIアラート" subtitle="AI-Generated Alerts" storeCount={chain.store_count} />
+      <ContextHeader title="AIアラート" subtitle="AI異常検知・改善提案" storeCount={chain.store_count} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Summary */}
@@ -85,8 +85,8 @@ export default function AlertsPage() {
                     <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${sev.dot}`} />
                     <Icon className="w-4 h-4 text-white/30 shrink-0" />
                     <span className="text-[11px] text-white/40 w-20 shrink-0">{alert.store_name}</span>
-                    <span className={`text-[10px] px-2.5 py-0.5 rounded shrink-0 ${sev.badge}`}>{sev.label}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-white/40 shrink-0`}>{alert.type}</span>
+                    <span className={`text-[12px] px-2.5 py-0.5 rounded shrink-0 ${sev.badge}`}>{sev.label}</span>
+                    <span className={`text-[12px] px-2 py-0.5 rounded bg-white/[0.06] text-white/40 shrink-0`}>{alert.type}</span>
                     <span className="text-[14px] font-bold text-white/80 flex-1">{alert.title}</span>
                     {expanded ? (
                       <ChevronDown className="w-4 h-4 text-orange-400 shrink-0" />
@@ -101,7 +101,7 @@ export default function AlertsPage() {
                       <div className="ml-[4.5rem] space-y-4">
                         {/* Detail */}
                         <div>
-                          <div className="text-[10px] font-bold tracking-[0.1em] text-white/30 uppercase mb-2">詳細 Detail</div>
+                          <div className="text-[12px] font-bold tracking-[0.1em] text-white/30 uppercase mb-2">詳細 Detail</div>
                           <p className="text-[13px] text-white/60 leading-relaxed">{alert.detail}</p>
                         </div>
 
@@ -109,7 +109,7 @@ export default function AlertsPage() {
                         <div className="rounded-lg border border-orange-400/15 bg-orange-400/[0.04] p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Lightbulb className="w-4 h-4 text-orange-400" />
-                            <span className="text-[10px] font-bold tracking-[0.1em] text-orange-400/70 uppercase">AI推奨アクション Suggested Action</span>
+                            <span className="text-[12px] font-bold tracking-[0.1em] text-orange-400/70 uppercase">AI推奨アクション</span>
                           </div>
                           <p className="text-[13px] text-white/70 leading-relaxed">{alert.suggested_action}</p>
                         </div>
@@ -118,7 +118,7 @@ export default function AlertsPage() {
                         <div className="rounded-lg border border-emerald-500/15 bg-emerald-500/[0.04] p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <TrendingUp className="w-4 h-4 text-emerald-400" />
-                            <span className="text-[10px] font-bold tracking-[0.1em] text-emerald-400/70 uppercase">期待効果 Expected Impact</span>
+                            <span className="text-[12px] font-bold tracking-[0.1em] text-emerald-400/70 uppercase">期待効果</span>
                           </div>
                           <p className="text-[14px] font-bold text-emerald-400/80">{alert.impact}</p>
                         </div>
@@ -164,7 +164,7 @@ export default function AlertsPage() {
                   <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span className="text-[11px] text-white/30 w-20 shrink-0">{alert.store_name}</span>
                   <span className="text-[13px] text-white/40 line-through flex-1">{alert.title}</span>
-                  <span className="text-[10px] text-emerald-400/50">対応済</span>
+                  <span className="text-[12px] text-emerald-400/50">対応済</span>
                 </div>
               ))}
             </div>

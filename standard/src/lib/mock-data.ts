@@ -35,10 +35,11 @@ export const stores: Store[] = [
   { id: "S05", name: "溝の口店", area: "川崎", seats: 40, daily_sales: 268000, daily_customers: 60, avg_ticket: 4467, food_cost_pct: 31.2, labor_cost_pct: 28.8, waste_pct: 2.9, staff_coverage: 0.92, trend: "flat", issues: [] },
 ];
 
+// 月商 = 日商合計 × 営業日数(26日/月、月曜定休4日)
 export const totalKpi = {
   daily_sales: stores.reduce((s, st) => s + st.daily_sales, 0),
-  monthly_sales: 38_500_000,
-  monthly_prev: 37_200_000,
+  monthly_sales: Math.round(stores.reduce((s, st) => s + st.daily_sales, 0) * 26),
+  monthly_prev: Math.round(stores.reduce((s, st) => s + st.daily_sales, 0) * 26 * 0.965),
   total_customers: stores.reduce((s, st) => s + st.daily_customers, 0),
   avg_ticket: Math.round(stores.reduce((s, st) => s + st.daily_sales, 0) / stores.reduce((s, st) => s + st.daily_customers, 0)),
   avg_food_cost: 31.9,

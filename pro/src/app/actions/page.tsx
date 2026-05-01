@@ -121,25 +121,25 @@ export default function ActionsPage() {
                 <div className="border-t border-white/[0.06] px-6 py-5 space-y-4 animate-slide-down bg-white/[0.01]">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         担当者
                       </div>
                       <div className="text-[13px] text-white/60">{action.owner}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         期限
                       </div>
                       <div className="text-[13px] text-white/60">{action.due_date}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         期待効果
                       </div>
                       <div className="text-[13px] text-emerald-400/80 font-medium">{action.impact}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-1">
                         ステータス
                       </div>
                       <span className={`text-[12px] px-2.5 py-0.5 rounded font-medium ${config.style}`}>
@@ -151,7 +151,7 @@ export default function ActionsPage() {
                   {/* Signal reference */}
                   {signal && (
                     <div className="rounded-lg border border-white/[0.04] bg-white/[0.02] p-4">
-                      <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                      <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                         関連シグナル ({signal.id})
                       </div>
                       <div className="flex items-start gap-2">

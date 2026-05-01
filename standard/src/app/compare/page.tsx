@@ -18,10 +18,10 @@ const trendIcon = {
 
 const columns: { key: SortKey; label: string; sublabel: string }[] = [
   { key: "name", label: "店舗名", sublabel: "Store" },
-  { key: "daily_sales", label: "日次売上", sublabel: "Daily Sales" },
+  { key: "daily_sales", label: "日次売上", sublabel: "" },
   { key: "daily_customers", label: "客数", sublabel: "Customers" },
   { key: "avg_ticket", label: "客単価", sublabel: "Ticket" },
-  { key: "food_cost_pct", label: "原価率", sublabel: "Food Cost" },
+  { key: "food_cost_pct", label: "原価率", sublabel: "" },
   { key: "labor_cost_pct", label: "人件費率", sublabel: "Labor" },
   { key: "waste_pct", label: "廃棄率", sublabel: "Waste" },
   { key: "staff_coverage", label: "充足率", sublabel: "Coverage" },
@@ -48,7 +48,7 @@ export default function ComparePage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="店舗比較" subtitle="Store Comparison" storeCount={chain.store_count} />
+      <ContextHeader title="店舗比較" subtitle="全店横断比較" storeCount={chain.store_count} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Comparison table */}
@@ -65,7 +65,7 @@ export default function ComparePage() {
                     <div className="flex items-center gap-1.5">
                       <div>
                         <div className="text-[11px] font-bold tracking-[0.08em] text-white/50 uppercase">{col.label}</div>
-                        <div className="text-[9px] text-white/25">{col.sublabel}</div>
+                        <div className="text-[11px] text-white/25">{col.sublabel}</div>
                       </div>
                       {sortKey === col.key && (
                         sortAsc ? <ChevronUp className="w-3.5 h-3.5 text-orange-400" /> : <ChevronDown className="w-3.5 h-3.5 text-orange-400" />
@@ -75,7 +75,7 @@ export default function ComparePage() {
                 ))}
                 <th className="px-5 py-3.5">
                   <div className="text-[11px] font-bold tracking-[0.08em] text-white/50 uppercase">トレンド</div>
-                  <div className="text-[9px] text-white/25">Trend</div>
+                  <div className="text-[11px] text-white/25">Trend</div>
                 </th>
               </tr>
             </thead>
@@ -149,7 +149,7 @@ export default function ComparePage() {
                             style={{ height: `${Math.max(height, 2)}%` }}
                             title={day.isClosed ? "定休日" : `${fmtYen(day.sales)}`}
                           />
-                          <span className={`text-[9px] ${day.isClosed ? "text-white/15" : "text-white/30"}`}>{day.dow}</span>
+                          <span className={`text-[11px] ${day.isClosed ? "text-white/15" : "text-white/30"}`}>{day.dow}</span>
                         </div>
                       );
                     })}

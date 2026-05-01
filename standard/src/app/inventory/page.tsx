@@ -30,7 +30,7 @@ export default function InventoryPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="在庫・発注" subtitle="Inventory Matrix" storeCount={chain.store_count} />
+      <ContextHeader title="在庫・発注" subtitle="全店在庫状況" storeCount={chain.store_count} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Summary */}
@@ -40,7 +40,7 @@ export default function InventoryPage() {
             <div className="kpi-value text-[28px] text-white/90 mt-2">{inventory.length}<span className="text-[15px] text-white/40 ml-1">品目</span></div>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-            <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">残少 Low Stock</div>
+            <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">残りわずか</div>
             <div className="kpi-value text-[28px] text-amber-400 mt-2">{totalLow}<span className="text-[15px] text-white/40 ml-1">件</span></div>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
@@ -67,7 +67,7 @@ export default function InventoryPage() {
                 {stores.map(store => (
                   <th key={store.id} className="px-4 py-3.5 text-center">
                     <div className="text-[11px] font-bold tracking-[0.06em] text-white/50">{store.name.replace("店", "")}</div>
-                    <div className="text-[9px] text-white/25">{store.id}</div>
+                    <div className="text-[11px] text-white/25">{store.id}</div>
                   </th>
                 ))}
                 <th className="px-5 py-3.5 text-center">
@@ -108,7 +108,7 @@ export default function InventoryPage() {
                             <span className={`kpi-value text-[16px] ${ordered ? "text-emerald-400" : ""}`}>
                               {st.stock}
                             </span>
-                            <span className="text-[9px] text-white/30">
+                            <span className="text-[11px] text-white/30">
                               {ordered ? (
                                 <span className="flex items-center gap-0.5 text-emerald-400">
                                   <Check className="w-3 h-3" /> 発注済

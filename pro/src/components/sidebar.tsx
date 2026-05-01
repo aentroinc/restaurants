@@ -51,7 +51,7 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 py-3 border-t border-white/[0.06]">
-        <div className="text-[9px] text-white/20 text-center">Demo data / illustrative only</div>
+        <div className="text-[9px] text-white/20 text-center">デモ用サンプルデータ</div>
       </div>
     </aside>
   );

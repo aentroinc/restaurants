@@ -56,7 +56,7 @@ export default function MenuPage() {
       <div className="flex items-center gap-1.5">
         <div>
           <div className="text-[11px] font-bold tracking-[0.08em] text-white/50 uppercase">{label}</div>
-          <div className="text-[9px] text-white/25">{sublabel}</div>
+          <div className="text-[11px] text-white/25">{sublabel}</div>
         </div>
         {sortKey === sKey && (sortAsc ? <ChevronUp className="w-3.5 h-3.5 text-orange-400" /> : <ChevronDown className="w-3.5 h-3.5 text-orange-400" />)}
       </div>
@@ -65,7 +65,7 @@ export default function MenuPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="メニュー分析" subtitle="Menu Analytics" storeCount={chain.store_count} />
+      <ContextHeader title="メニュー分析" subtitle="全店メニュー売上分析" storeCount={chain.store_count} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Summary cards */}
@@ -96,7 +96,7 @@ export default function MenuPage() {
                 <th className="px-5 py-3.5 text-left w-12">
                   <div className="text-[11px] font-bold tracking-[0.08em] text-white/50 uppercase">#</div>
                 </th>
-                <SortHeader label="メニュー" sublabel="Menu Item" sKey="name" />
+                <SortHeader label="メニュー" sublabel="" sKey="name" />
                 <th className="px-5 py-3.5 text-left">
                   <div className="text-[11px] font-bold tracking-[0.08em] text-white/50 uppercase">カテゴリ</div>
                 </th>
@@ -135,7 +135,7 @@ export default function MenuPage() {
                           <span className="text-[14px] font-bold text-white/90">{item.name}</span>
                         </div>
                         <div className="px-5 py-4 w-24">
-                          <span className={`text-[10px] px-2 py-0.5 rounded ${categoryColor[item.category] || "bg-white/10 text-white/50"}`}>{item.category}</span>
+                          <span className={`text-[12px] px-2 py-0.5 rounded ${categoryColor[item.category] || "bg-white/10 text-white/50"}`}>{item.category}</span>
                         </div>
                         <div className="px-5 py-4 w-24">
                           <span className="text-[13px] text-white/60 font-mono">{fmtYen(item.price)}</span>
@@ -163,7 +163,7 @@ export default function MenuPage() {
                       {/* Per-store breakdown */}
                       {expanded && (
                         <div className="px-8 py-4 bg-white/[0.02] border-b border-white/[0.06] animate-slide-down">
-                          <div className="text-[10px] font-bold tracking-[0.1em] text-white/30 uppercase mb-3">店舗別注文数 PER-STORE ORDERS</div>
+                          <div className="text-[12px] font-bold tracking-[0.1em] text-white/30 uppercase mb-3">店舗別注文数 PER-STORE ORDERS</div>
                           <div className="grid grid-cols-5 gap-3">
                             {item.by_store.map(bs => {
                               const store = stores.find(s => s.id === bs.store_id);

@@ -81,11 +81,11 @@ export default function SignalsPage() {
                   <div>
                     <div className="text-[14px] font-medium text-white/85">{signal.title}</div>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium flex items-center gap-1 ${sevConfig.style}`}>
+                      <span className={`text-[12px] px-2 py-0.5 rounded font-medium flex items-center gap-1 ${sevConfig.style}`}>
                         <SevIcon className="w-3 h-3" />
                         {sevConfig.label}
                       </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${typeStyle[signal.type]}`}>
+                      <span className={`text-[12px] px-2 py-0.5 rounded font-medium ${typeStyle[signal.type]}`}>
                         {signal.type}
                       </span>
                       <span className="text-[11px] text-white/25 font-mono">{signal.id}</span>
@@ -98,7 +98,7 @@ export default function SignalsPage() {
                 <div className="border-t border-white/[0.06] px-6 py-5 space-y-4 animate-slide-down bg-white/[0.01]">
                   {/* Detail */}
                   <div>
-                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                    <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                       詳細
                     </div>
                     <p className="text-[13px] text-white/60 leading-relaxed">{signal.detail}</p>
@@ -106,7 +106,7 @@ export default function SignalsPage() {
 
                   {/* Affected */}
                   <div>
-                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                    <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                       影響範囲
                     </div>
                     <div className="flex items-center gap-2 text-[13px] text-white/60">
@@ -117,7 +117,7 @@ export default function SignalsPage() {
 
                   {/* Suggested Action */}
                   <div>
-                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                    <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                       推奨アクション
                     </div>
                     <p className="text-[13px] text-white/60 leading-relaxed">{signal.action}</p>
@@ -125,7 +125,7 @@ export default function SignalsPage() {
 
                   {/* Impact */}
                   <div>
-                    <div className="text-[10px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
+                    <div className="text-[12px] font-bold tracking-[0.08em] text-white/25 uppercase mb-2">
                       インパクト
                     </div>
                     <p className="text-[13px] text-emerald-400/80 font-medium">{signal.impact}</p>

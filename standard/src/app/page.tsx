@@ -91,31 +91,31 @@ export default function DashboardPage() {
           {/* Top KPI row */}
           <div className="grid grid-cols-5 gap-4">
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">本日売上 Daily Sales</div>
+              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">本日売上</div>
               <div className="kpi-value text-[28px] text-orange-400 mt-2">{fmtYen(totalKpi.daily_sales)}</div>
               <div className="text-[11px] text-white/30 mt-1">5店舗合計</div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">月間売上 Monthly</div>
+              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">月間売上</div>
               <div className="kpi-value text-[28px] text-white/90 mt-2">{fmtYen(totalKpi.monthly_sales)}</div>
               <div className={`text-[12px] mt-1 ${Number(salesChange) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 前月比 {Number(salesChange) >= 0 ? "+" : ""}{salesChange}%
               </div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">本日客数 Customers</div>
+              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">本日客数</div>
               <div className="kpi-value text-[28px] text-white/90 mt-2">{fmt(totalKpi.total_customers)}<span className="text-[15px] text-white/40 ml-1">人</span></div>
               <div className="text-[11px] text-white/30 mt-1">客単価 {fmtYen(totalKpi.avg_ticket)}</div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">月間利益 Profit</div>
+              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">月間利益</div>
               <div className="kpi-value text-[28px] text-emerald-400 mt-2">{fmtYen(totalKpi.profit_estimate)}</div>
               <div className={`text-[12px] mt-1 ${Number(profitChange) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 前月比 +{profitChange}%
               </div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-5">
-              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">アラート Alerts</div>
+              <div className="text-[11px] font-bold tracking-[0.1em] text-white/40 uppercase">アラート</div>
               <div className="kpi-value text-[28px] text-red-400 mt-2">{totalKpi.alert_count}<span className="text-[15px] text-white/40 ml-1">件</span></div>
               <div className="text-[11px] text-white/30 mt-1">
                 更新 {totalKpi.updated_at}
@@ -127,21 +127,21 @@ export default function DashboardPage() {
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-4 flex items-center justify-between">
               <div>
-                <div className="text-[11px] text-white/40">平均原価率 Food Cost</div>
+                <div className="text-[11px] text-white/40">平均原価率</div>
                 <div className={`kpi-value text-[24px] mt-1 ${totalKpi.avg_food_cost > 32 ? "text-red-400" : "text-white/90"}`}>{totalKpi.avg_food_cost}%</div>
               </div>
               <div className="text-[11px] text-white/30">目標 32%</div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-4 flex items-center justify-between">
               <div>
-                <div className="text-[11px] text-white/40">平均人件費率 Labor</div>
+                <div className="text-[11px] text-white/40">平均人件費率</div>
                 <div className="kpi-value text-[24px] text-white/90 mt-1">{totalKpi.avg_labor_cost}%</div>
               </div>
               <div className="text-[11px] text-white/30">目標 30%</div>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-[#0f1419] p-4 flex items-center justify-between">
               <div>
-                <div className="text-[11px] text-white/40">平均廃棄率 Waste</div>
+                <div className="text-[11px] text-white/40">平均廃棄率</div>
                 <div className={`kpi-value text-[24px] mt-1 ${totalKpi.total_waste_pct > 3 ? "text-amber-400" : "text-white/90"}`}>{totalKpi.total_waste_pct}%</div>
               </div>
               <div className="text-[11px] text-white/30">目標 2.5%</div>
@@ -150,7 +150,7 @@ export default function DashboardPage() {
 
           {/* Store cards grid */}
           <div>
-            <div className="section-title mb-3">店舗一覧 STORE OVERVIEW</div>
+            <div className="section-title mb-3">店舗一覧</div>
             <div className="grid grid-cols-5 gap-4">
               {stores.map(store => {
                 const storeAlerts = alerts.filter(a => a.store_id === store.id);
@@ -167,7 +167,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {storeAlerts.length > 0 && (
-                          <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
+                          <span className="flex items-center gap-1 text-[12px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">
                             <Bell className="w-3 h-3" />
                             {storeAlerts.length}
                           </span>
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                     {store.issues.length > 0 && (
                       <div className="mt-3 space-y-1">
                         {store.issues.map((issue, i) => (
-                          <div key={i} className="flex items-center gap-1.5 text-[10px] text-amber-400/80">
+                          <div key={i} className="flex items-center gap-1.5 text-[12px] text-amber-400/80">
                             <AlertTriangle className="w-3 h-3 shrink-0" />
                             {issue}
                           </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
           {/* Recent alerts preview */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="section-title">最新アラート RECENT ALERTS</div>
+              <div className="section-title">最新アラート</div>
               <Link href="/alerts" className="text-[11px] text-orange-400 hover:text-orange-300 flex items-center gap-1">
                 すべて見る <ChevronRight className="w-3.5 h-3.5" />
               </Link>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
                     alert.severity === "high" ? "bg-red-500" : alert.severity === "medium" ? "bg-amber-500" : "bg-blue-400"
                   }`} />
                   <span className="text-[11px] text-white/40 w-16 shrink-0">{alert.store_name}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded shrink-0 ${
+                  <span className={`text-[12px] px-2 py-0.5 rounded shrink-0 ${
                     alert.severity === "high" ? "bg-red-500/10 text-red-400" : alert.severity === "medium" ? "bg-amber-500/10 text-amber-400" : "bg-blue-400/10 text-blue-400"
                   }`}>{alert.type}</span>
                   <span className="text-[13px] text-white/70 flex-1">{alert.title}</span>

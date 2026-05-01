@@ -102,7 +102,7 @@ export default function AreaPage() {
                             className={`w-full rounded-sm ${i === 5 ? "bg-emerald-400/60" : "bg-white/10"}`}
                             style={{ height: `${ratio * 100}%` }}
                           />
-                          <span className="text-[9px] text-white/20">
+                          <span className="text-[11px] text-white/20">
                             {["11月", "12月", "1月", "2月", "3月", "4月"][i]}
                           </span>
                         </div>
@@ -118,7 +118,7 @@ export default function AreaPage() {
                           (h) => (
                             <th
                               key={h}
-                              className="text-[10px] font-bold tracking-[0.06em] text-white/25 uppercase px-4 py-2.5 text-left"
+                              className="text-[12px] font-bold tracking-[0.06em] text-white/25 uppercase px-4 py-2.5 text-left"
                             >
                               {h}
                             </th>

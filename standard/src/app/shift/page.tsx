@@ -7,7 +7,7 @@ import { Users, CalendarDays, AlertTriangle, CheckCircle } from "lucide-react";
 export default function ShiftPage() {
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="シフト管理" subtitle="Shift Management" storeCount={chain.store_count} />
+      <ContextHeader title="シフト管理" subtitle="全店シフト充足状況" storeCount={chain.store_count} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Info banner */}
@@ -79,7 +79,7 @@ export default function ShiftPage() {
                   {store.issues.filter(i => i.includes("不足") || i.includes("ホール")).length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-1">
                       {store.issues.filter(i => i.includes("不足") || i.includes("ホール") || i.includes("人員")).map((issue, i) => (
-                        <div key={i} className="flex items-center gap-1.5 text-[10px] text-amber-400/80">
+                        <div key={i} className="flex items-center gap-1.5 text-[12px] text-amber-400/80">
                           <AlertTriangle className="w-3 h-3 shrink-0" />
                           {issue}
                         </div>
@@ -113,7 +113,7 @@ export default function ShiftPage() {
                     ) : (
                       <>
                         <div className={`kpi-value text-[22px] mt-2 ${coverage < 90 ? "text-amber-400" : "text-white/70"}`}>{coverage}%</div>
-                        <div className="text-[10px] text-white/30 mt-1">{isWeekend ? "要注意" : "適正"}</div>
+                        <div className="text-[12px] text-white/30 mt-1">{isWeekend ? "要注意" : "適正"}</div>
                       </>
                     )}
                   </div>

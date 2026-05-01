@@ -16,22 +16,22 @@ export function ContextHeader({ title, subtitle, region, brandFilter, storeCount
       <div className="flex items-center gap-4">
         <div>
           <h1 className="text-[15px] font-bold text-white/90 tracking-wide">{title}</h1>
-          {subtitle && <p className="text-[11px] text-white/40 mt-0.5">{subtitle}</p>}
+          {subtitle && <p className="text-[12px] text-white/40 mt-0.5">{subtitle}</p>}
         </div>
         {region && (
-          <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/[0.06] text-white/50">{region}</span>
+          <span className="text-[12px] px-2.5 py-1 rounded-md bg-white/[0.06] text-white/50">{region}</span>
         )}
         {brandFilter && (
-          <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/[0.06] text-white/50">{brandFilter}</span>
+          <span className="text-[12px] px-2.5 py-1 rounded-md bg-white/[0.06] text-white/50">{brandFilter}</span>
         )}
         {storeCount !== undefined && (
-          <span className="text-[11px] text-white/40">{storeCount}店舗</span>
+          <span className="text-[12px] text-white/40">{storeCount}店舗</span>
         )}
       </div>
       <div className="flex items-center gap-5 text-[11px] text-white/40">
         <span className="flex items-center gap-1.5">
           <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse-subtle" />
-          LIVE
+          リアルタイム
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" />
@@ -39,9 +39,9 @@ export function ContextHeader({ title, subtitle, region, brandFilter, storeCount
         </span>
         <span className="flex items-center gap-1.5">
           <Shield className="w-3.5 h-3.5" />
-          信頼度: High
+          信頼度: 高
         </span>
-        <span>2026-05-01 15:45</span>
+        <span>2026-05-01 22:30</span>
       </div>
     </header>
   );
