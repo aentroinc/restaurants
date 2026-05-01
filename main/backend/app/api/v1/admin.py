@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from app.database import get_db
 from app.models.ingestion import IngestionBatch, DataContract, SchemaMapping
 from app.schemas.common import APIResponse
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
@@ -249,13 +250,13 @@ AI_GOVERNANCE_CONFIG = {
 
 
 @router.get("/data-sources", response_model=APIResponse[list[dict]])
-async def list_data_sources(db: AsyncSession = Depends(get_db)):
+async def list_data_sources(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     return APIResponse(data=DATA_SOURCES, meta={"total": len(DATA_SOURCES)})
 
 
 @router.get("/data-contracts", response_model=APIResponse[list[dict]])
-async def list_data_contracts(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(DataContract).order_by(DataContract.created_at.desc()))
+async def list_data_contracts(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
+    result = await db.execute(select(DataContract).where(DataContract.tenant_id == tenant_id).order_by(DataContract.created_at.desc()))
     db_contracts = result.scalars().all()
 
     if db_contracts:
@@ -278,13 +279,15 @@ async def list_ingestion_runs(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
-    count_q = await db.execute(select(func.count(IngestionBatch.id)))
+    count_q = await db.execute(select(func.count(IngestionBatch.id)).where(IngestionBatch.tenant_id == tenant_id))
     total = count_q.scalar() or 0
 
     if total > 0:
         result = await db.execute(
             select(IngestionBatch)
+            .where(IngestionBatch.tenant_id == tenant_id)
             .order_by(IngestionBatch.uploaded_at.desc())
             .offset((page - 1) * page_size)
             .limit(page_size)
@@ -314,8 +317,8 @@ async def list_ingestion_runs(
 
 
 @router.get("/schema-mappings", response_model=APIResponse[list[dict]])
-async def list_schema_mappings(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(SchemaMapping).order_by(SchemaMapping.created_at.desc()))
+async def list_schema_mappings(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
+    result = await db.execute(select(SchemaMapping).where(SchemaMapping.tenant_id == tenant_id).order_by(SchemaMapping.created_at.desc()))
     db_mappings = result.scalars().all()
 
     if db_mappings:
@@ -332,10 +335,10 @@ async def list_schema_mappings(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/id-mappings", response_model=APIResponse[list[dict]])
-async def list_id_mappings(db: AsyncSession = Depends(get_db)):
+async def list_id_mappings(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     return APIResponse(data=DEFAULT_ID_MAPPINGS, meta={"total": len(DEFAULT_ID_MAPPINGS)})
 
 
 @router.get("/ai-governance", response_model=APIResponse[dict])
-async def get_ai_governance(db: AsyncSession = Depends(get_db)):
+async def get_ai_governance(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     return APIResponse(data=AI_GOVERNANCE_CONFIG)

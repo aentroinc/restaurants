@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from app.database import get_db
 from app.models.data_quality import DataQualityIssue
 from app.schemas.common import APIResponse
 from app.schemas.data_quality import DataQualityResponse, DataQualitySummary
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/data-quality", tags=["data_quality"])
 
@@ -15,8 +16,9 @@ async def list_issues(
     status: str | None = Query(None),
     limit: int = Query(100),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
-    q = select(DataQualityIssue)
+    q = select(DataQualityIssue).where(DataQualityIssue.tenant_id == tenant_id)
     if severity:
         q = q.where(DataQualityIssue.severity == severity)
     if status:
@@ -34,18 +36,25 @@ async def list_issues(
 
 
 @router.get("/summary", response_model=APIResponse[DataQualitySummary])
-async def summary(db: AsyncSession = Depends(get_db)):
-    total_q = await db.execute(select(func.count(DataQualityIssue.id)))
+async def summary(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    base = DataQualityIssue.tenant_id == tenant_id
+
+    total_q = await db.execute(select(func.count(DataQualityIssue.id)).where(base))
     total = total_q.scalar() or 0
 
     severity_q = await db.execute(
         select(DataQualityIssue.severity, func.count(DataQualityIssue.id))
+        .where(base)
         .group_by(DataQualityIssue.severity)
     )
     sev_counts = {r[0]: r[1] for r in severity_q.all()}
 
     status_q = await db.execute(
         select(DataQualityIssue.status, func.count(DataQualityIssue.id))
+        .where(base)
         .group_by(DataQualityIssue.status)
     )
     status_counts = {r[0]: r[1] for r in status_q.all()}

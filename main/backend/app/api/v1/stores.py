@@ -16,6 +16,7 @@ from app.models.sv_visit import SVVisit
 from app.models.employee import Employee
 from app.schemas.common import APIResponse, PaginationMeta
 from app.schemas.store import StoreRanking, StoreDetail, KPIHistory, TaskSummary, SVVisitSummary, StoreProfitGraph, PLComponent
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/stores", tags=["stores"])
 
@@ -29,6 +30,7 @@ async def store_ranking(
     page_size: int = Query(50, ge=1, le=200),
     brand_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -38,7 +40,7 @@ async def store_ranking(
         .join(Brand, Brand.id == Store.brand_id)
         .outerjoin(Area, Area.id == Store.area_id)
         .outerjoin(StoreDailyKPI, and_(StoreDailyKPI.store_id == Store.id, StoreDailyKPI.business_date == as_of))
-        .where(Store.status == "active")
+        .where(and_(Store.status == "active", Store.tenant_id == tenant_id))
     )
     if brand_id:
         q = q.where(Store.brand_id == brand_id)
@@ -58,7 +60,7 @@ async def store_ranking(
     else:
         q = q.order_by(sort_col.asc().nullslast())
 
-    count_q = select(func.count(Store.id)).where(Store.status == "active")
+    count_q = select(func.count(Store.id)).where(and_(Store.status == "active", Store.tenant_id == tenant_id))
     if brand_id:
         count_q = count_q.where(Store.brand_id == brand_id)
     total = (await db.execute(count_q)).scalar() or 0
@@ -105,13 +107,14 @@ async def store_ranking(
 async def store_detail(
     store_id: UUID = Path(...),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     q = await db.execute(
         select(Store, Brand.name, Area.name, Region.name)
         .join(Brand, Brand.id == Store.brand_id)
         .outerjoin(Area, Area.id == Store.area_id)
         .outerjoin(Region, Region.id == Area.region_id)
-        .where(Store.id == store_id)
+        .where(and_(Store.id == store_id, Store.tenant_id == tenant_id))
     )
     row = q.one_or_none()
     if not row:
@@ -121,7 +124,7 @@ async def store_detail(
 
     kpi_q = await db.execute(
         select(StoreDailyKPI)
-        .where(StoreDailyKPI.store_id == store_id)
+        .where(and_(StoreDailyKPI.store_id == store_id, StoreDailyKPI.tenant_id == tenant_id))
         .order_by(StoreDailyKPI.business_date.desc())
         .limit(90)
     )
@@ -141,7 +144,7 @@ async def store_detail(
 
     task_q = await db.execute(
         select(TaskModel)
-        .where(TaskModel.store_id == store_id)
+        .where(and_(TaskModel.store_id == store_id, TaskModel.tenant_id == tenant_id))
         .order_by(TaskModel.created_at.desc())
         .limit(10)
     )
@@ -150,7 +153,7 @@ async def store_detail(
     visit_q = await db.execute(
         select(SVVisit, Employee.name)
         .outerjoin(Employee, Employee.id == SVVisit.sv_employee_id)
-        .where(SVVisit.store_id == store_id)
+        .where(and_(SVVisit.store_id == store_id, SVVisit.tenant_id == tenant_id))
         .order_by(SVVisit.visit_date.desc())
         .limit(10)
     )
@@ -184,15 +187,18 @@ async def store_detail(
 async def store_profit_graph(
     store_id: UUID = Path(...),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
-    store_q = await db.execute(select(Store.name).where(Store.id == store_id))
+    store_q = await db.execute(
+        select(Store.name).where(and_(Store.id == store_id, Store.tenant_id == tenant_id))
+    )
     store_name = store_q.scalar()
     if not store_name:
         return APIResponse(errors=[{"detail": "Store not found"}])
 
     pl_q = await db.execute(
         select(StorePL)
-        .where(and_(StorePL.store_id == store_id, StorePL.period_type == "monthly"))
+        .where(and_(StorePL.store_id == store_id, StorePL.period_type == "monthly", StorePL.tenant_id == tenant_id))
         .order_by(StorePL.period_start)
     )
     periods = [PLComponent(

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from uuid import UUID
 from datetime import datetime, date
 from app.database import get_db
@@ -11,6 +11,7 @@ from app.models.employee import Employee
 from app.models.task import Task
 from app.models.ontology import OntologyObjectType, OntologyRelationType
 from app.schemas.common import APIResponse, PaginationMeta
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/ontology", tags=["ontology"])
 
@@ -41,8 +42,13 @@ SYSTEM_RELATION_TYPES = [
 
 
 @router.get("/object-types", response_model=APIResponse[list[dict]])
-async def list_object_types(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(OntologyObjectType))
+async def list_object_types(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    result = await db.execute(
+        select(OntologyObjectType).where(OntologyObjectType.tenant_id == tenant_id)
+    )
     db_types = result.scalars().all()
 
     if db_types:
@@ -80,11 +86,16 @@ async def list_objects(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     objects = []
 
     if object_type is None or object_type == "store":
-        q = select(Store, Brand.name.label("brand_name")).join(Brand, Brand.id == Store.brand_id).where(Store.status == "active")
+        q = (
+            select(Store, Brand.name.label("brand_name"))
+            .join(Brand, Brand.id == Store.brand_id)
+            .where(and_(Store.status == "active", Store.tenant_id == tenant_id))
+        )
         if search:
             q = q.where(Store.name.ilike(f"%{search}%"))
         result = await db.execute(q.limit(page_size).offset((page - 1) * page_size))
@@ -98,7 +109,7 @@ async def list_objects(
             })
 
     if object_type is None or object_type == "brand":
-        q = select(Brand)
+        q = select(Brand).where(Brand.tenant_id == tenant_id)
         if search:
             q = q.where(Brand.name.ilike(f"%{search}%"))
         result = await db.execute(q.limit(20))
@@ -111,7 +122,7 @@ async def list_objects(
             })
 
     if object_type is None or object_type == "employee":
-        q = select(Employee)
+        q = select(Employee).where(Employee.tenant_id == tenant_id)
         if search:
             q = q.where(Employee.name.ilike(f"%{search}%"))
         result = await db.execute(q.limit(20))
@@ -129,9 +140,14 @@ async def list_objects(
 
 
 @router.get("/objects/{object_id}", response_model=APIResponse[dict])
-async def get_object(object_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_object(
+    object_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
     result = await db.execute(
-        select(Store, Brand.name).join(Brand, Brand.id == Store.brand_id).where(Store.id == object_id)
+        select(Store, Brand.name).join(Brand, Brand.id == Store.brand_id)
+        .where(and_(Store.id == object_id, Store.tenant_id == tenant_id))
     )
     row = result.one_or_none()
     if row:
@@ -140,7 +156,9 @@ async def get_object(object_id: UUID = Path(...), db: AsyncSession = Depends(get
             {"relation_type": "belongs_to_brand", "display_name": "ブランド所属", "target_id": str(s.brand_id), "target_name": brand_name, "target_type": "brand"},
             {"relation_type": "belongs_to_area", "display_name": "エリア所属", "target_id": str(s.area_id), "target_name": "", "target_type": "area"},
         ]
-        task_count = (await db.execute(select(func.count(Task.id)).where(Task.store_id == object_id))).scalar() or 0
+        task_count = (await db.execute(
+            select(func.count(Task.id)).where(and_(Task.store_id == object_id, Task.tenant_id == tenant_id))
+        )).scalar() or 0
         data = {
             "id": str(s.id), "object_type": "store", "display_name": s.name,
             "code": s.code, "description": f"{s.prefecture}{s.city}{s.address}",
@@ -154,10 +172,14 @@ async def get_object(object_id: UUID = Path(...), db: AsyncSession = Depends(get
         }
         return APIResponse(data=data)
 
-    result = await db.execute(select(Brand).where(Brand.id == object_id))
+    result = await db.execute(
+        select(Brand).where(and_(Brand.id == object_id, Brand.tenant_id == tenant_id))
+    )
     brand = result.scalar_one_or_none()
     if brand:
-        store_count = (await db.execute(select(func.count(Store.id)).where(Store.brand_id == object_id))).scalar() or 0
+        store_count = (await db.execute(
+            select(func.count(Store.id)).where(and_(Store.brand_id == object_id, Store.tenant_id == tenant_id))
+        )).scalar() or 0
         data = {
             "id": str(brand.id), "object_type": "brand", "display_name": brand.name,
             "code": "", "description": f"サービスモデル: {brand.service_model}",
@@ -171,11 +193,16 @@ async def get_object(object_id: UUID = Path(...), db: AsyncSession = Depends(get
 
 
 @router.get("/objects/{object_id}/relations", response_model=APIResponse[list[dict]])
-async def get_object_relations(object_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_object_relations(
+    object_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
     relations = []
 
     result = await db.execute(
-        select(Store, Brand.name).join(Brand, Brand.id == Store.brand_id).where(Store.id == object_id)
+        select(Store, Brand.name).join(Brand, Brand.id == Store.brand_id)
+        .where(and_(Store.id == object_id, Store.tenant_id == tenant_id))
     )
     row = result.one_or_none()
     if row:
@@ -183,12 +210,16 @@ async def get_object_relations(object_id: UUID = Path(...), db: AsyncSession = D
         relations.append({"relation_type": "belongs_to_brand", "display_name": "ブランド所属", "direction": "outgoing", "target_id": str(s.brand_id), "target_name": brand_name, "target_type": "brand"})
         relations.append({"relation_type": "belongs_to_area", "display_name": "エリア所属", "direction": "outgoing", "target_id": str(s.area_id), "target_name": "", "target_type": "area"})
 
-        tasks_q = await db.execute(select(Task).where(Task.store_id == object_id).limit(10))
+        tasks_q = await db.execute(
+            select(Task).where(and_(Task.store_id == object_id, Task.tenant_id == tenant_id)).limit(10)
+        )
         for t in tasks_q.scalars().all():
             relations.append({"relation_type": "has_task", "display_name": "タスク", "direction": "outgoing", "target_id": str(t.id), "target_name": t.title, "target_type": "task"})
         return APIResponse(data=relations, meta={"total": len(relations)})
 
-    result = await db.execute(select(Store).where(Store.brand_id == object_id).limit(20))
+    result = await db.execute(
+        select(Store).where(and_(Store.brand_id == object_id, Store.tenant_id == tenant_id)).limit(20)
+    )
     stores = result.scalars().all()
     if stores:
         for s in stores:
@@ -198,7 +229,11 @@ async def get_object_relations(object_id: UUID = Path(...), db: AsyncSession = D
 
 
 @router.get("/objects/{object_id}/lineage", response_model=APIResponse[list[dict]])
-async def get_object_lineage(object_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_object_lineage(
+    object_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
     events = [
         {"event_type": "created", "timestamp": "2025-01-15T09:00:00+09:00", "actor": "system", "description": "初期データ投入により作成", "source": "seed"},
         {"event_type": "updated", "timestamp": "2025-03-01T10:30:00+09:00", "actor": "pos_csv_import", "description": "POS CSVバッチ取り込みにより売上データ更新", "source": "ingestion_batch"},
@@ -209,8 +244,13 @@ async def get_object_lineage(object_id: UUID = Path(...), db: AsyncSession = Dep
 
 
 @router.get("/relation-types", response_model=APIResponse[list[dict]])
-async def list_relation_types(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(OntologyRelationType))
+async def list_relation_types(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    result = await db.execute(
+        select(OntologyRelationType).where(OntologyRelationType.tenant_id == tenant_id)
+    )
     db_types = result.scalars().all()
 
     if db_types:

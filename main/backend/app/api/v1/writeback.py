@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 from app.database import get_db
 from app.schemas.common import APIResponse, PaginationMeta
+from app.auth import get_tenant_id, require_role
 
 router = APIRouter(prefix="/api/v1/writeback", tags=["writeback"])
 
@@ -126,7 +127,7 @@ _writeback_requests: list[dict] = [
 
 
 @router.get("/policies", response_model=APIResponse[list[dict]])
-async def list_policies(db: AsyncSession = Depends(get_db)):
+async def list_policies(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     return APIResponse(data=WRITEBACK_POLICIES, meta={"total": len(WRITEBACK_POLICIES)})
 
 
@@ -136,6 +137,7 @@ async def list_requests(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     data = _writeback_requests
     if status:
@@ -148,7 +150,7 @@ async def list_requests(
 
 
 @router.post("/requests", response_model=APIResponse[dict])
-async def create_request(body: dict = Body(...), db: AsyncSession = Depends(get_db)):
+async def create_request(body: dict = Body(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id), _user=Depends(require_role("admin", "director", "sv"))):
     new_req = {
         "id": str(uuid4()),
         "policy_action": body.get("policy_action", "task_create"),
@@ -167,7 +169,7 @@ async def create_request(body: dict = Body(...), db: AsyncSession = Depends(get_
 
 
 @router.post("/requests/{request_id}/approve", response_model=APIResponse[dict])
-async def approve_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db)):
+async def approve_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     for r in _writeback_requests:
         if r["id"] == request_id:
             r["status"] = "approved"
@@ -178,7 +180,7 @@ async def approve_request(request_id: str = Path(...), db: AsyncSession = Depend
 
 
 @router.post("/requests/{request_id}/execute", response_model=APIResponse[dict])
-async def execute_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db)):
+async def execute_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     for r in _writeback_requests:
         if r["id"] == request_id:
             r["status"] = "executed"

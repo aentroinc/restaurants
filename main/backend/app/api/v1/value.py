@@ -1,21 +1,26 @@
 from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from uuid import UUID, uuid4
 from app.database import get_db
 from app.models.value_case import ValueCase, ValueCaseMetric
 from app.schemas.common import APIResponse
 from app.schemas.value import ValueCaseResponse, ValueCaseMetricResponse, ValueCaseCreate
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/value-cases", tags=["value"])
 
-DEMO_TENANT_ID = "00000000-0000-0000-0000-000000000001"
 DEMO_COMPANY_ID = "00000000-0000-0000-0000-000000000010"
 
 
 @router.get("", response_model=APIResponse[list[ValueCaseResponse]])
-async def list_value_cases(db: AsyncSession = Depends(get_db)):
-    q = await db.execute(select(ValueCase).order_by(ValueCase.created_at.desc()))
+async def list_value_cases(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = await db.execute(
+        select(ValueCase).where(ValueCase.tenant_id == tenant_id).order_by(ValueCase.created_at.desc())
+    )
     cases = []
     for vc in q.scalars().all():
         metrics_q = await db.execute(select(ValueCaseMetric).where(ValueCaseMetric.value_case_id == vc.id))
@@ -37,8 +42,14 @@ async def list_value_cases(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{vc_id}", response_model=APIResponse[ValueCaseResponse])
-async def get_value_case(vc_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
-    q = await db.execute(select(ValueCase).where(ValueCase.id == vc_id))
+async def get_value_case(
+    vc_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = await db.execute(
+        select(ValueCase).where(and_(ValueCase.id == vc_id, ValueCase.tenant_id == tenant_id))
+    )
     vc = q.scalar_one_or_none()
     if not vc:
         return APIResponse(errors=[{"detail": "Value case not found"}])
@@ -61,9 +72,13 @@ async def get_value_case(vc_id: UUID = Path(...), db: AsyncSession = Depends(get
 
 
 @router.post("", response_model=APIResponse[ValueCaseResponse])
-async def create_value_case(body: ValueCaseCreate, db: AsyncSession = Depends(get_db)):
+async def create_value_case(
+    body: ValueCaseCreate,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
     vc = ValueCase(
-        id=uuid4(), tenant_id=UUID(DEMO_TENANT_ID), company_id=UUID(DEMO_COMPANY_ID),
+        id=uuid4(), tenant_id=UUID(tenant_id), company_id=UUID(DEMO_COMPANY_ID),
         name=body.name, issue_type=body.issue_type,
         target_store_ids=body.target_store_ids,
         baseline_start=body.baseline_start, baseline_end=body.baseline_end,

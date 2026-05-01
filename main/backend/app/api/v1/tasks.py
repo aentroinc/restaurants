@@ -9,10 +9,10 @@ from app.models.store import Store
 from app.models.employee import Employee
 from app.schemas.common import APIResponse, PaginationMeta
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
+from app.auth import get_tenant_id, require_role
+from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/api/v1/tasks", tags=["tasks"])
-
-DEMO_TENANT_ID = "00000000-0000-0000-0000-000000000001"
 
 
 def _task_to_response(t: TaskModel, store_name: str | None = None, assignee_name: str | None = None) -> TaskResponse:
@@ -35,13 +35,15 @@ async def list_tasks(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     q = (
         select(TaskModel, Store.name.label("store_name"), Employee.name.label("assignee_name"))
         .join(Store, Store.id == TaskModel.store_id)
         .outerjoin(Employee, Employee.id == TaskModel.assigned_to)
+        .where(TaskModel.tenant_id == tenant_id)
     )
-    count_q = select(func.count(TaskModel.id))
+    count_q = select(func.count(TaskModel.id)).where(TaskModel.tenant_id == tenant_id)
 
     if status:
         q = q.where(TaskModel.status == status)
@@ -60,12 +62,16 @@ async def list_tasks(
 
 
 @router.get("/{task_id}", response_model=APIResponse[TaskResponse])
-async def get_task(task_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_task(
+    task_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
     result = await db.execute(
         select(TaskModel, Store.name, Employee.name)
         .join(Store, Store.id == TaskModel.store_id)
         .outerjoin(Employee, Employee.id == TaskModel.assigned_to)
-        .where(TaskModel.id == task_id)
+        .where(and_(TaskModel.id == task_id, TaskModel.tenant_id == tenant_id))
     )
     row = result.one_or_none()
     if not row:
@@ -74,10 +80,15 @@ async def get_task(task_id: UUID = Path(...), db: AsyncSession = Depends(get_db)
 
 
 @router.post("", response_model=APIResponse[TaskResponse])
-async def create_task(body: TaskCreate, db: AsyncSession = Depends(get_db)):
+async def create_task(
+    body: TaskCreate,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(require_role("admin", "director", "sv")),
+):
     task = TaskModel(
         id=uuid4(),
-        tenant_id=UUID(DEMO_TENANT_ID),
+        tenant_id=UUID(tenant_id),
         store_id=body.store_id,
         title=body.title,
         description=body.description,
@@ -95,12 +106,23 @@ async def create_task(body: TaskCreate, db: AsyncSession = Depends(get_db)):
 
     store_q = await db.execute(select(Store.name).where(Store.id == task.store_id))
     store_name = store_q.scalar()
+
+    log_audit(tenant_id, None, "create_task", "task", str(task.id), {"title": body.title})
+
     return APIResponse(data=_task_to_response(task, store_name))
 
 
 @router.patch("/{task_id}", response_model=APIResponse[TaskResponse])
-async def update_task(task_id: UUID = Path(...), body: TaskUpdate = ..., db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(TaskModel).where(TaskModel.id == task_id))
+async def update_task(
+    task_id: UUID = Path(...),
+    body: TaskUpdate = ...,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(require_role("admin", "director", "sv", "manager")),
+):
+    result = await db.execute(
+        select(TaskModel).where(and_(TaskModel.id == task_id, TaskModel.tenant_id == tenant_id))
+    )
     task = result.scalar_one_or_none()
     if not task:
         return APIResponse(errors=[{"detail": "Task not found"}])
@@ -117,4 +139,7 @@ async def update_task(task_id: UUID = Path(...), body: TaskUpdate = ..., db: Asy
 
     store_q = await db.execute(select(Store.name).where(Store.id == task.store_id))
     store_name = store_q.scalar()
+
+    log_audit(tenant_id, None, "update_task", "task", str(task_id), {"changes": list(update_data.keys())})
+
     return APIResponse(data=_task_to_response(task, store_name))

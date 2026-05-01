@@ -11,6 +11,7 @@ from app.models.kpi import StoreDailyKPI
 from app.models.daily_sales import DailyStoreSales
 from app.schemas.common import APIResponse
 from app.schemas.executive import ExecutiveSummary, BrandKPI, ExecutiveIssue
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/executive", tags=["executive"])
 
@@ -19,6 +20,7 @@ router = APIRouter(prefix="/api/v1/executive", tags=["executive"])
 async def executive_summary(
     as_of: date | None = Query(None),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -29,18 +31,28 @@ async def executive_summary(
     prev_year_start = period_start.replace(year=period_start.year - 1)
     prev_year_end = period_end.replace(year=period_end.year - 1)
 
-    store_count_q = await db.execute(select(func.count(Store.id)).where(Store.status == "active"))
+    store_count_q = await db.execute(
+        select(func.count(Store.id)).where(and_(Store.status == "active", Store.tenant_id == tenant_id))
+    )
     total_stores = store_count_q.scalar() or 0
 
     sales_q = await db.execute(
         select(func.sum(DailyStoreSales.net_sales))
-        .where(and_(DailyStoreSales.business_date >= period_start, DailyStoreSales.business_date <= period_end))
+        .where(and_(
+            DailyStoreSales.business_date >= period_start,
+            DailyStoreSales.business_date <= period_end,
+            DailyStoreSales.tenant_id == tenant_id,
+        ))
     )
     total_sales = sales_q.scalar() or Decimal(0)
 
     prev_sales_q = await db.execute(
         select(func.sum(DailyStoreSales.net_sales))
-        .where(and_(DailyStoreSales.business_date >= prev_year_start, DailyStoreSales.business_date <= prev_year_end))
+        .where(and_(
+            DailyStoreSales.business_date >= prev_year_start,
+            DailyStoreSales.business_date <= prev_year_end,
+            DailyStoreSales.tenant_id == tenant_id,
+        ))
     )
     prev_sales = prev_sales_q.scalar() or Decimal(0)
     yoy = None
@@ -55,7 +67,7 @@ async def executive_summary(
             func.avg(StoreDailyKPI.health_score),
             func.sum(StoreDailyKPI.improvement_opportunity_amount),
         )
-        .where(StoreDailyKPI.business_date == period_end)
+        .where(and_(StoreDailyKPI.business_date == period_end, StoreDailyKPI.tenant_id == tenant_id))
     )
     row = kpi_q.one_or_none()
     avg_cogs = row[0] or Decimal(0) if row else Decimal(0)
@@ -68,6 +80,7 @@ async def executive_summary(
         select(func.count(StoreDailyKPI.id))
         .where(and_(
             StoreDailyKPI.business_date == period_end,
+            StoreDailyKPI.tenant_id == tenant_id,
             StoreDailyKPI.issue_types.isnot(None),
             StoreDailyKPI.issue_types != text("'[]'::jsonb"),
         ))
@@ -94,7 +107,7 @@ async def executive_summary(
             StoreDailyKPI.store_id == Store.id,
             StoreDailyKPI.business_date == period_end,
         ))
-        .where(Store.status == "active")
+        .where(and_(Store.status == "active", Store.tenant_id == tenant_id))
         .group_by(Brand.id, Brand.name)
     )
     brands = []
@@ -130,6 +143,7 @@ async def executive_issues(
     as_of: date | None = Query(None),
     limit: int = Query(50),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -144,6 +158,7 @@ async def executive_issues(
         .outerjoin(Area, Area.id == Store.area_id)
         .where(and_(
             StoreDailyKPI.business_date == as_of,
+            StoreDailyKPI.tenant_id == tenant_id,
             StoreDailyKPI.issue_types.isnot(None),
             StoreDailyKPI.issue_types != text("'[]'::jsonb"),
         ))

@@ -23,6 +23,7 @@ class IngestionBatch(Base):
     uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     promoted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    validation_errors: Mapped[list | None] = mapped_column(JSONB)
 
 
 class DataContract(Base):

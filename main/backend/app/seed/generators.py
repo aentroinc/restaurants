@@ -1242,3 +1242,99 @@ def generate_users():
             "password_hash": None,
         },
     ]
+
+
+def generate_workflow_instances(templates, stores, tasks_list, employees):
+    results_instances = []
+    results_events = []
+    sv_employees = [e for e in employees if e["role"] == "sv"]
+
+    anomaly_stores = [s for s in stores if s["_global_idx"] in LABOR_OVERRUN_STORES + COGS_OVERRUN_STORES]
+    if len(anomaly_stores) < 8:
+        anomaly_stores = stores[:8]
+
+    event_idx = 0
+    for i in range(min(8, len(anomaly_stores))):
+        store = anomaly_stores[i]
+        template = templates[i % len(templates)]
+        instance_id = gen_deterministic_uuid("wf_instance", i)
+        sv = sv_employees[i % len(sv_employees)]
+
+        is_completed = i < 3
+        status = "completed" if is_completed else "active"
+        current_step = len(template["steps"]) - 1 if is_completed else RNG.randint(0, 2)
+
+        results_instances.append({
+            "id": instance_id,
+            "tenant_id": TENANT_ID,
+            "template_id": template["id"],
+            "related_object_type": "store",
+            "related_object_id": store["id"],
+            "status": status,
+            "current_step": current_step,
+            "started_at": datetime(2026, 3, RNG.randint(1, 15)),
+            "completed_at": datetime(2026, 4, RNG.randint(10, 25)) if is_completed else None,
+        })
+
+        results_events.append({
+            "id": gen_deterministic_uuid("wf_event", event_idx),
+            "workflow_instance_id": instance_id,
+            "event_type": "triggered",
+            "actor_id": None,
+            "payload": {
+                "issue_type": template["issue_type"],
+                "store_name": store["name"],
+                "business_date": "2026-03-31",
+            },
+            "created_at": datetime(2026, 3, RNG.randint(1, 15)),
+        })
+        event_idx += 1
+
+        related_task = tasks_list[i % len(tasks_list)] if tasks_list else None
+        results_events.append({
+            "id": gen_deterministic_uuid("wf_event", event_idx),
+            "workflow_instance_id": instance_id,
+            "event_type": "task_created",
+            "actor_id": None,
+            "payload": {
+                "task_id": str(related_task["id"]) if related_task else None,
+                "task_title": related_task["title"] if related_task else "タスク",
+            },
+            "created_at": datetime(2026, 3, RNG.randint(1, 15)),
+        })
+        event_idx += 1
+
+        if i < 6:
+            results_events.append({
+                "id": gen_deterministic_uuid("wf_event", event_idx),
+                "workflow_instance_id": instance_id,
+                "event_type": "sv_visited",
+                "actor_id": sv["id"],
+                "payload": {"visit_note": "店舗訪問、状況確認完了"},
+                "created_at": datetime(2026, 3, RNG.randint(16, 28)),
+            })
+            event_idx += 1
+
+        if current_step > 0 or is_completed:
+            results_events.append({
+                "id": gen_deterministic_uuid("wf_event", event_idx),
+                "workflow_instance_id": instance_id,
+                "event_type": "step_advanced",
+                "actor_id": sv["id"],
+                "payload": {"step": 1, "action": template["steps"][1]["action"] if len(template["steps"]) > 1 else "unknown"},
+                "created_at": datetime(2026, 4, RNG.randint(1, 10)),
+            })
+            event_idx += 1
+
+        if is_completed:
+            results_events.append({
+                "id": gen_deterministic_uuid("wf_event", event_idx),
+                "workflow_instance_id": instance_id,
+                "event_type": "completed",
+                "actor_id": sv["id"],
+                "payload": {"completed_at": datetime(2026, 4, RNG.randint(10, 25)).isoformat()},
+                "created_at": datetime(2026, 4, RNG.randint(10, 25)),
+            })
+            event_idx += 1
+
+    return results_instances, results_events

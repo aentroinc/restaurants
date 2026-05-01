@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.store import Store
 from app.models.kpi import StoreDailyKPI
 from app.schemas.common import APIResponse
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/lineage", tags=["lineage"])
 
@@ -25,7 +26,7 @@ KPI_META = {
 
 
 @router.get("/object/{object_id}", response_model=APIResponse[list[dict]])
-async def get_object_lineage(object_id: UUID = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_object_lineage(object_id: UUID = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     events = [
         {
             "id": "e0000001-0000-0000-0000-000000000001",
@@ -103,6 +104,7 @@ async def get_kpi_lineage(
     kpi_code: str = Path(...),
     as_of: date | None = Query(None),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -111,14 +113,14 @@ async def get_kpi_lineage(
     if not meta:
         return APIResponse(errors=[{"detail": f"Unknown KPI code: {kpi_code}"}])
 
-    store_q = await db.execute(select(Store.name).where(Store.id == store_id))
+    store_q = await db.execute(select(Store.name).where(and_(Store.id == store_id, Store.tenant_id == tenant_id)))
     store_name = store_q.scalar()
     if not store_name:
         return APIResponse(errors=[{"detail": "Store not found"}])
 
     kpi_q = await db.execute(
         select(StoreDailyKPI).where(
-            and_(StoreDailyKPI.store_id == store_id, StoreDailyKPI.business_date == as_of)
+            and_(StoreDailyKPI.store_id == store_id, StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id)
         )
     )
     kpi = kpi_q.scalar_one_or_none()

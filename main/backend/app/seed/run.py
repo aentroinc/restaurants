@@ -28,7 +28,7 @@ from app.models.task import Task
 from app.models.meeting_pack import BoardMeetingPack, BoardMeetingItem
 from app.models.data_quality import DataQualityIssue
 from app.models.value_case import ValueCase, ValueCaseMetric
-from app.models.workflow import WorkflowTemplate
+from app.models.workflow import WorkflowTemplate, WorkflowInstance, WorkflowEvent
 from app.models.user import User
 from app.seed.generators import (
     TENANT_ID, COMPANY_ID, BRANDS,
@@ -36,7 +36,8 @@ from app.seed.generators import (
     generate_stores, generate_products, generate_daily_sales, generate_hourly_sales,
     generate_product_sales, generate_labor, generate_store_pl, generate_kpis,
     generate_reviews, generate_sv_visits, generate_tasks, generate_value_cases,
-    generate_workflow_templates, generate_meeting_pack, generate_data_quality_issues,
+    generate_workflow_templates, generate_workflow_instances,
+    generate_meeting_pack, generate_data_quality_issues,
     generate_users,
 )
 
@@ -228,11 +229,19 @@ def run():
         session.commit()
         print(f"  {len(value_cases)} value cases created.")
 
-        # 17. Workflow Templates
+        # 17. Workflow Templates + Instances + Events
         print("Creating workflow templates...")
         wf_templates = generate_workflow_templates()
         bulk_insert(session, WorkflowTemplate, wf_templates)
         session.commit()
+
+        print("Creating workflow instances and events...")
+        wf_instances, wf_events = generate_workflow_instances(wf_templates, stores, tasks, employees)
+        bulk_insert(session, WorkflowInstance, wf_instances)
+        session.commit()
+        bulk_insert(session, WorkflowEvent, wf_events)
+        session.commit()
+        print(f"  {len(wf_instances)} workflow instances, {len(wf_events)} events created.")
 
         # 18. Meeting Pack
         print("Creating meeting pack...")

@@ -4,6 +4,7 @@ from uuid import UUID
 from datetime import datetime
 from app.database import get_db
 from app.schemas.common import APIResponse
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/kpi-definitions", tags=["kpi-registry"])
 
@@ -198,6 +199,7 @@ async def list_kpi_definitions(
     category: str | None = None,
     status: str | None = None,
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     data = KPI_DEFINITIONS + _custom_definitions
     if category:
@@ -208,7 +210,7 @@ async def list_kpi_definitions(
 
 
 @router.get("/{definition_id}", response_model=APIResponse[dict])
-async def get_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db)):
+async def get_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     for d in KPI_DEFINITIONS + _custom_definitions:
         if d["id"] == definition_id or d["code"] == definition_id:
             return APIResponse(data=d)
@@ -216,7 +218,7 @@ async def get_kpi_definition(definition_id: str = Path(...), db: AsyncSession = 
 
 
 @router.post("", response_model=APIResponse[dict])
-async def create_kpi_definition(body: dict = Body(...), db: AsyncSession = Depends(get_db)):
+async def create_kpi_definition(body: dict = Body(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     import uuid
     new_def = {
         "id": str(uuid.uuid4()),
@@ -241,7 +243,7 @@ async def create_kpi_definition(body: dict = Body(...), db: AsyncSession = Depen
 
 
 @router.post("/{definition_id}/approve", response_model=APIResponse[dict])
-async def approve_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db)):
+async def approve_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     for d in _custom_definitions:
         if d["id"] == definition_id:
             d["status"] = "approved"
@@ -255,7 +257,7 @@ async def approve_kpi_definition(definition_id: str = Path(...), db: AsyncSessio
 
 
 @router.post("/{definition_id}/simulate", response_model=APIResponse[dict])
-async def simulate_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db)):
+async def simulate_kpi_definition(definition_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     target_def = None
     for d in KPI_DEFINITIONS + _custom_definitions:
         if d["id"] == definition_id or d["code"] == definition_id:

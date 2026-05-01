@@ -12,6 +12,8 @@ from app.models.sv_visit import SVVisit
 from app.models.task import Task
 from app.schemas.common import APIResponse
 from app.schemas.ai import AIQueryRequest, AIQueryResponse, ReferencedEntity, SuggestedQuestion
+from app.auth import get_tenant_id
+from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/api/v1/ai", tags=["ai"])
 
@@ -49,7 +51,7 @@ def parse_intent(question: str) -> list[str]:
 
 
 @router.post("/query", response_model=APIResponse[AIQueryResponse])
-async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
+async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
     intents = parse_intent(body.question)
     as_of = date(2026, 4, 30)
 
@@ -68,6 +70,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             .where(and_(
                 DailyStoreSales.business_date >= as_of.replace(day=1),
                 DailyStoreSales.business_date <= as_of,
+                DailyStoreSales.tenant_id == tenant_id,
             ))
         )
         total_sales = sales_q.scalar() or 0
@@ -76,6 +79,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             .where(and_(
                 DailyStoreSales.business_date >= as_of.replace(day=1, year=as_of.year - 1),
                 DailyStoreSales.business_date <= as_of.replace(year=as_of.year - 1),
+                DailyStoreSales.tenant_id == tenant_id,
             ))
         )
         prev_sales = prev_q.scalar() or 0
@@ -87,7 +91,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             select(StoreDailyKPI.store_id, Store.name, StoreDailyKPI.net_sales, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
             .order_by(StoreDailyKPI.net_sales.desc())
             .limit(3)
         )
@@ -99,7 +103,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             select(StoreDailyKPI.store_id, Store.name, StoreDailyKPI.net_sales, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
             .order_by(StoreDailyKPI.net_sales)
             .limit(3)
         )
@@ -113,7 +117,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "labor" in intents:
         avg_labor_q = await db.execute(
             select(func.avg(StoreDailyKPI.labor_cost_rate))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         avg_labor = avg_labor_q.scalar() or 0
         facts.append(f"全店平均人件費率: {avg_labor:.1f}%")
@@ -123,7 +127,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                    StoreDailyKPI.sales_per_labor_hour, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.labor_cost_rate > 35))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.labor_cost_rate > 35))
             .order_by(StoreDailyKPI.labor_cost_rate.desc())
             .limit(5)
         )
@@ -143,7 +147,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "cogs" in intents:
         avg_cogs_q = await db.execute(
             select(func.avg(StoreDailyKPI.cogs_rate))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         avg_cogs = avg_cogs_q.scalar() or 0
         facts.append(f"全店平均原価率: {avg_cogs:.1f}%")
@@ -153,7 +157,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                    StoreDailyKPI.cogs, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.cogs_rate > 35))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.cogs_rate > 35))
             .order_by(StoreDailyKPI.cogs_rate.desc())
             .limit(5)
         )
@@ -173,7 +177,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "profit" in intents:
         profit_q = await db.execute(
             select(func.avg(StoreDailyKPI.operating_profit_rate))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         avg_profit = profit_q.scalar() or 0
         facts.append(f"全店平均営業利益率: {avg_profit:.1f}%")
@@ -216,7 +220,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             select(Task.store_id, Store.name, Task.title, Task.issue_type,
                    Task.expected_impact_amount, Task.realized_impact_amount)
             .join(Store, Store.id == Task.store_id)
-            .where(and_(Task.status == "done", Task.realized_impact_amount.isnot(None)))
+            .where(and_(Task.status == "done", Task.realized_impact_amount.isnot(None), Task.tenant_id == tenant_id))
             .order_by(Task.realized_impact_amount.desc())
             .limit(5)
         )
@@ -228,7 +232,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
         # open/in-progress tasks count
         open_q = await db.execute(
             select(Task.status, func.count(Task.id))
-            .where(Task.status.in_(["open", "in_progress", "done"]))
+            .where(and_(Task.status.in_(["open", "in_progress", "done"]), Task.tenant_id == tenant_id))
             .group_by(Task.status)
         )
         status_counts = {r[0]: r[1] for r in open_q.all()}
@@ -237,7 +241,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
         # total improvement opportunity
         opp_q = await db.execute(
             select(func.sum(StoreDailyKPI.improvement_opportunity_amount))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         total_opp = opp_q.scalar() or 0
         facts.append(f"全店改善余地の合計: {total_opp:,.0f}円/月")
@@ -253,7 +257,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                    StoreDailyKPI.issue_types, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.health_score < 40))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.health_score < 40))
             .order_by(StoreDailyKPI.health_score)
             .limit(5)
         )
@@ -271,7 +275,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "review" in intents:
         avg_review_q = await db.execute(
             select(func.avg(StoreDailyKPI.review_score))
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.review_score.isnot(None)))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.review_score.isnot(None)))
         )
         avg_review = avg_review_q.scalar() or 0
         facts.append(f"全店平均口コミスコア: {avg_review:.2f}")
@@ -280,7 +284,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             select(StoreDailyKPI.store_id, Store.name, StoreDailyKPI.review_score, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.review_score.isnot(None)))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.review_score.isnot(None)))
             .order_by(StoreDailyKPI.review_score)
             .limit(5)
         )
@@ -292,7 +296,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
         best_review_q = await db.execute(
             select(Store.name, StoreDailyKPI.review_score)
             .join(Store, Store.id == StoreDailyKPI.store_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.review_score.isnot(None)))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.review_score.isnot(None)))
             .order_by(StoreDailyKPI.review_score.desc())
             .limit(3)
         )
@@ -310,6 +314,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             .where(and_(
                 SVVisit.visit_date >= as_of.replace(day=1),
                 SVVisit.visit_date <= as_of,
+                SVVisit.tenant_id == tenant_id,
             ))
         )
         visit_count = visit_count_q.scalar() or 0
@@ -320,6 +325,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             .where(and_(
                 SVVisit.visit_date >= as_of.replace(day=1),
                 SVVisit.visit_date <= as_of,
+                SVVisit.tenant_id == tenant_id,
             ))
         )
         avg_checklist = avg_score_q.scalar() or 0
@@ -332,6 +338,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
             .where(and_(
                 SVVisit.visit_date >= as_of.replace(day=1),
                 SVVisit.visit_date <= as_of,
+                SVVisit.tenant_id == tenant_id,
             ))
             .order_by(SVVisit.checklist_score)
             .limit(5)
@@ -347,7 +354,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "fl_ratio" in intents:
         avg_fl_q = await db.execute(
             select(func.avg(StoreDailyKPI.fl_ratio))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         avg_fl = avg_fl_q.scalar() or 0
         facts.append(f"全店平均FL比率: {avg_fl:.1f}%")
@@ -357,7 +364,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                    StoreDailyKPI.cogs_rate, StoreDailyKPI.labor_cost_rate, Brand.name.label("brand_name"))
             .join(Store, Store.id == StoreDailyKPI.store_id)
             .join(Brand, Brand.id == Store.brand_id)
-            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.fl_ratio > 65))
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id, StoreDailyKPI.fl_ratio > 65))
             .order_by(StoreDailyKPI.fl_ratio.desc())
             .limit(5)
         )
@@ -379,7 +386,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                 DailyStoreSales.store_id == StoreDailyKPI.store_id,
                 DailyStoreSales.business_date == StoreDailyKPI.business_date,
             ))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
             .order_by(DailyStoreSales.discount_amount.desc())
             .limit(5)
         )
@@ -395,7 +402,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
     if "health" in intents:
         avg_health_q = await db.execute(
             select(func.avg(StoreDailyKPI.health_score))
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         avg_health = avg_health_q.scalar() or 0
         facts.append(f"全店平均ヘルススコア: {avg_health:.0f}")
@@ -406,7 +413,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
                 func.count(StoreDailyKPI.id).filter(and_(StoreDailyKPI.health_score >= 50, StoreDailyKPI.health_score < 80)),
                 func.count(StoreDailyKPI.id).filter(StoreDailyKPI.health_score < 50),
             )
-            .where(StoreDailyKPI.business_date == as_of)
+            .where(and_(StoreDailyKPI.business_date == as_of, StoreDailyKPI.tenant_id == tenant_id))
         )
         dist = health_dist_q.one_or_none()
         if dist:
@@ -444,6 +451,11 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db)):
         hypotheses.append("追加データが必要です。詳細な分析にはより具体的な質問をお試しください。")
     if not actions:
         actions.append("該当する店舗のKPI推移を確認し、課題の優先順位を検討してください。")
+
+    log_audit(
+        tenant_id, None, "ai_query", "ai", None,
+        {"question": body.question, "intents": intents},
+    )
 
     return APIResponse(data=AIQueryResponse(
         conclusion=conclusion,

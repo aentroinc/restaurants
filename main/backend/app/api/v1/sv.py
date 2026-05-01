@@ -13,6 +13,7 @@ from app.models.task import Task as TaskModel
 from app.schemas.common import APIResponse
 from app.schemas.sv import SVMission, SuggestedAction
 from app.services.sv_prioritizer import calculate_sv_priority
+from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/sv", tags=["sv"])
 
@@ -22,6 +23,7 @@ async def sv_missions(
     as_of: date | None = Query(None),
     limit: int = Query(20),
     db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -33,7 +35,7 @@ async def sv_missions(
         .join(Brand, Brand.id == Store.brand_id)
         .outerjoin(Area, Area.id == Store.area_id)
         .outerjoin(StoreDailyKPI, and_(StoreDailyKPI.store_id == Store.id, StoreDailyKPI.business_date == as_of))
-        .where(Store.status == "active")
+        .where(and_(Store.status == "active", Store.tenant_id == tenant_id))
     )
 
     missions = []
@@ -41,14 +43,14 @@ async def sv_missions(
         store, brand_name, area_name, kpi = row
 
         visit_q = await db.execute(
-            select(func.max(SVVisit.visit_date)).where(SVVisit.store_id == store.id)
+            select(func.max(SVVisit.visit_date)).where(and_(SVVisit.store_id == store.id, SVVisit.tenant_id == tenant_id))
         )
         last_visit = visit_q.scalar()
         days_since = (as_of - last_visit).days if last_visit else None
 
         task_q = await db.execute(
             select(func.count(TaskModel.id))
-            .where(and_(TaskModel.store_id == store.id, TaskModel.status.in_(["open", "in_progress"])))
+            .where(and_(TaskModel.store_id == store.id, TaskModel.tenant_id == tenant_id, TaskModel.status.in_(["open", "in_progress"])))
         )
         open_tasks = task_q.scalar() or 0
 
