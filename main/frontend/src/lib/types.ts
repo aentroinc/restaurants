@@ -108,6 +108,7 @@ export interface SVMission {
   priority_score: number
   reasons: string[]
   suggested_actions: string[]
+  checklist_items: string[]
   days_since_visit: number
   open_tasks: number
   kpi: StoreKPI
@@ -226,4 +227,108 @@ export interface APIResponse<T> {
   data: T
   meta: Record<string, unknown>
   errors: string[]
+}
+
+// Ontology
+export interface OntologyObjectType {
+  id: string; object_type: string; display_name: string; description?: string;
+  base_schema: Record<string, string>; custom_schema: Record<string, string>; icon?: string;
+}
+export interface OntologyObject {
+  id: string; object_type: string; canonical_id: string; display_name: string;
+  attributes: Record<string, any>; status: string; relations?: OntologyRelation[];
+}
+export interface OntologyRelationType {
+  id: string; relation_type: string; from_object_type: string; to_object_type: string;
+  display_name: string; cardinality: string;
+}
+export interface OntologyRelation {
+  id: string; relation_type: string; direction: string;
+  related_object: { id: string; object_type: string; display_name: string };
+  attributes: Record<string, any>;
+}
+
+// KPI
+export interface KPIDefinition {
+  id: string; kpi_code: string; display_name: string; description?: string;
+  formula_expression: string; input_objects: string[]; output_unit?: string;
+  version: number; status: string; approved_by?: string; approved_at?: string;
+  effective_from?: string;
+}
+export interface KPISimulationResult {
+  affected_stores: number;
+  sample_before_after: { store_name: string; old_value: number; new_value: number }[];
+  ranking_changes: number;
+}
+
+// Lineage
+export interface LineageEvent {
+  id: string; event_type: string; source_type: string; source_id?: string;
+  target_type: string; target_id?: string; transformation_name?: string;
+  metadata: Record<string, any>; created_at: string;
+}
+export interface KPILineage {
+  kpi_definition: { kpi_code: string; display_name: string; formula: string; version: number };
+  period: string;
+  inputs: { source_type: string; source_name: string; value: number }[];
+  ingestion_run?: { id: string; source_file: string; imported_at: string };
+}
+
+// Writeback
+export interface WritebackPolicy {
+  id: string; action_type: string; policy_name: string; requires_approval: boolean;
+  allowed_roles: string[]; status: string;
+}
+export interface WritebackRequest {
+  id: string; action_type: string; target_object_type: string; target_object_id?: string;
+  payload: Record<string, any>; status: string; requested_by?: string;
+  approved_by?: string; created_at: string;
+}
+
+// Admin
+export interface DataSource {
+  id: string; name: string; source_type: string; system_category: string;
+  connection_mode: string; status: string; last_success_at?: string; last_failure_at?: string;
+}
+export interface DataContractAdmin {
+  id: string; contract_name: string; contract_version: number; entity_type: string;
+  status: string; required_fields: any; effective_from?: string;
+}
+export interface IngestionRunAdmin {
+  id: string; data_source_name: string; run_status: string; source_file_name?: string;
+  source_row_count?: number; accepted_row_count?: number; rejected_row_count?: number;
+  started_at?: string; completed_at?: string;
+}
+export interface SchemaMapping {
+  id: string; source_field: string; canonical_field: string; transform_rule: string;
+  required: boolean; data_source_name: string;
+}
+export interface IDMapping {
+  id: string; source_system: string; source_id: string; canonical_id: string;
+  confidence: number; status: string; entity_type: string;
+}
+
+// AI Governance
+export interface AIGovernanceConfig {
+  allowed_object_types: { object_type: string; display_name: string; enabled: boolean }[];
+  restricted_fields: { field_name: string; object_type: string; reason: string }[];
+  lineage_required: boolean;
+  writeback_allowed: boolean;
+  recent_queries: { question: string; timestamp: string; confidence: string; referenced_objects_count: number }[];
+}
+
+// Enhanced AI response
+export interface AIResponseEnhanced {
+  answer_type: string; conclusion: string;
+  facts: { statement: string; source_metric: string; source_entity?: string; period?: string }[];
+  calculations: { name: string; formula: string; value: number; kpi_definition_id?: string }[];
+  hypotheses: { statement: string; confidence: string; supporting_facts?: string[] }[];
+  recommendations: { action: string; owner_role?: string; expected_impact_amount?: number; requires_human_approval: boolean }[];
+  lineage?: {
+    referenced_kpis: { kpi_code: string; version: number }[];
+    referenced_objects: { object_type: string; object_id: string; display_name: string }[];
+    data_period?: string; data_freshness?: string;
+  };
+  limitations?: string[];
+  confidence: string;
 }

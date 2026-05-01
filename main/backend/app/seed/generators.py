@@ -1039,14 +1039,33 @@ def generate_value_cases(stores):
             "realized_impact_amount": cd["realized"],
         })
 
-        metrics = [
-            {"metric_name": "月次売上", "baseline": 15000000, "measured": 16500000,
-             "peer_adjusted": 16200000, "impact": cd["realized"] // 3},
-            {"metric_name": "コスト率", "baseline": 35.5, "measured": 32.1,
-             "peer_adjusted": 32.5, "impact": cd["realized"] // 3},
-            {"metric_name": "営業利益率", "baseline": 5.2, "measured": 8.8,
-             "peer_adjusted": 8.5, "impact": cd["realized"] // 3},
-        ]
+        if cd["issue_type"] == "labor_overrun":
+            metrics = [
+                {"metric_name": "人件費率", "baseline": 35.0, "measured": 30.0,
+                 "peer_adjusted": 30.5, "impact": cd["realized"] * 6 // 10},
+                {"metric_name": "人時売上高", "baseline": 4200, "measured": 5100,
+                 "peer_adjusted": 4950, "impact": cd["realized"] * 2 // 10},
+                {"metric_name": "営業利益率", "baseline": 5.2, "measured": 8.1,
+                 "peer_adjusted": 7.8, "impact": cd["realized"] * 2 // 10},
+            ]
+        elif cd["issue_type"] == "cogs_overrun":
+            metrics = [
+                {"metric_name": "原価率", "baseline": 38.0, "measured": 34.0,
+                 "peer_adjusted": 34.5, "impact": cd["realized"] * 6 // 10},
+                {"metric_name": "理論原価乖離率", "baseline": 4.5, "measured": 1.8,
+                 "peer_adjusted": 2.0, "impact": cd["realized"] * 2 // 10},
+                {"metric_name": "粗利率", "baseline": 62.0, "measured": 66.0,
+                 "peer_adjusted": 65.5, "impact": cd["realized"] * 2 // 10},
+            ]
+        else:  # sales_decline
+            metrics = [
+                {"metric_name": "月次売上", "baseline": 12000000, "measured": 13800000,
+                 "peer_adjusted": 13500000, "impact": cd["realized"] * 6 // 10},
+                {"metric_name": "来客数", "baseline": 8500, "measured": 9800,
+                 "peer_adjusted": 9600, "impact": cd["realized"] * 2 // 10},
+                {"metric_name": "客単価", "baseline": 1410, "measured": 1410,
+                 "peer_adjusted": 1410, "impact": cd["realized"] * 2 // 10},
+            ]
         for mi, m in enumerate(metrics):
             results_metrics.append({
                 "id": gen_deterministic_uuid("value_metric", i * 10 + mi),

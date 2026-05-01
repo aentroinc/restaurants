@@ -69,6 +69,7 @@ async def executive_summary(
         .where(and_(
             StoreDailyKPI.business_date == period_end,
             StoreDailyKPI.issue_types.isnot(None),
+            StoreDailyKPI.issue_types != text("'[]'::jsonb"),
         ))
     )
     issue_count = issue_q.scalar() or 0
@@ -76,7 +77,7 @@ async def executive_summary(
     brand_q = await db.execute(
         select(
             Brand.id, Brand.name,
-            func.count(Store.id),
+            func.count(func.distinct(Store.id)),
             func.sum(DailyStoreSales.net_sales),
             func.avg(StoreDailyKPI.avg_ticket),
             func.avg(StoreDailyKPI.cogs_rate),
@@ -144,6 +145,7 @@ async def executive_issues(
         .where(and_(
             StoreDailyKPI.business_date == as_of,
             StoreDailyKPI.issue_types.isnot(None),
+            StoreDailyKPI.issue_types != text("'[]'::jsonb"),
         ))
         .order_by(StoreDailyKPI.improvement_opportunity_amount.desc().nullslast())
         .limit(limit)

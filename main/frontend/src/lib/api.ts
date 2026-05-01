@@ -4,6 +4,11 @@ import {
   mockMeetingPacks, mockDataQualitySummary, mockDataQualityIssues,
   mockValueCases, mockValueRealizationSummary, mockAIResponses,
   mockSuggestedQuestions, getMockStoreDetail,
+  mockOntologyObjectTypes, mockOntologyObjects, mockOntologyRelationTypes,
+  mockKPIDefinitions, mockKPISimulationResult, mockKPILineage, mockLineageEvents,
+  mockWritebackPolicies, mockWritebackRequests,
+  mockDataSources, mockDataContracts, mockIngestionRuns, mockSchemaMappings, mockIDMappings,
+  mockAIGovernanceConfig, mockAIResponseEnhanced,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -58,6 +63,42 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
     const question = body.question || ""
     return (mockAIResponses[question] || mockAIResponses["default"]) as any
   }
+  // Ontology
+  if (path.startsWith("/api/v1/ontology/object-types")) return mockOntologyObjectTypes as any
+  if (path.match(/\/api\/v1\/ontology\/objects\/[^/]+\/relations/)) {
+    const id = path.split("/")[5]
+    const obj = mockOntologyObjects.find((o) => o.id === id)
+    return (obj?.relations || []) as any
+  }
+  if (path.match(/\/api\/v1\/ontology\/objects\/[^/]+\/lineage/)) return mockLineageEvents as any
+  if (path.match(/\/api\/v1\/ontology\/objects\/[^/]+$/)) {
+    const id = path.split("/").pop()!
+    return (mockOntologyObjects.find((o) => o.id === id) || mockOntologyObjects[0]) as any
+  }
+  if (path.startsWith("/api/v1/ontology/objects")) return mockOntologyObjects as any
+  if (path.startsWith("/api/v1/ontology/relation-types")) return mockOntologyRelationTypes as any
+  // KPI Definitions
+  if (path.match(/\/api\/v1\/kpi-definitions\/[^/]+\/simulate/)) return mockKPISimulationResult as any
+  if (path.match(/\/api\/v1\/kpi-definitions\/[^/]+\/approve/)) return { status: "approved" } as any
+  if (path.match(/\/api\/v1\/kpi-definitions\/[^/]+$/)) {
+    const id = path.split("/").pop()!
+    return (mockKPIDefinitions.find((k) => k.id === id) || mockKPIDefinitions[0]) as any
+  }
+  if (path.startsWith("/api/v1/kpi-definitions")) return mockKPIDefinitions as any
+  // Lineage
+  if (path.startsWith("/api/v1/lineage/kpi/")) return mockKPILineage as any
+  if (path.startsWith("/api/v1/lineage/object/")) return mockLineageEvents as any
+  // Writeback
+  if (path.startsWith("/api/v1/writeback/policies")) return mockWritebackPolicies as any
+  if (path.match(/\/api\/v1\/writeback\/requests\/[^/]+\/(approve|execute)/)) return { status: "ok" } as any
+  if (path.startsWith("/api/v1/writeback/requests")) return mockWritebackRequests as any
+  // Admin
+  if (path.startsWith("/api/v1/admin/data-sources")) return mockDataSources as any
+  if (path.startsWith("/api/v1/admin/data-contracts")) return mockDataContracts as any
+  if (path.startsWith("/api/v1/admin/ingestion-runs")) return mockIngestionRuns as any
+  if (path.startsWith("/api/v1/admin/schema-mappings")) return mockSchemaMappings as any
+  if (path.startsWith("/api/v1/admin/id-mappings")) return mockIDMappings as any
+  if (path.startsWith("/api/v1/admin/ai-governance")) return mockAIGovernanceConfig as any
   return {} as T
 }
 

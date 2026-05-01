@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
   LayoutDashboard, BarChart3, Target, CheckSquare, Presentation,
-  Shield, TrendingUp, Brain,
+  Shield, TrendingUp, Brain, Boxes, Calculator, Database, GitBranch,
+  ShieldCheck, Lock,
 } from "lucide-react"
 
 const navItems = [
@@ -17,6 +18,15 @@ const navItems = [
   { label: "データ品質", icon: Shield, href: "/data-quality" },
   { label: "改善効果", icon: TrendingUp, href: "/value-realization" },
   { label: "AI アナリスト", icon: Brain, href: "/ai-analyst" },
+]
+
+const adminItems = [
+  { label: "オントロジー", icon: Boxes, href: "/admin/ontology" },
+  { label: "KPI 定義", icon: Calculator, href: "/admin/kpi-definitions" },
+  { label: "データ連携", icon: Database, href: "/admin/data-sources" },
+  { label: "データ系譜", icon: GitBranch, href: "/admin/lineage" },
+  { label: "書き戻し管理", icon: ShieldCheck, href: "/admin/writeback" },
+  { label: "AI ガバナンス", icon: Lock, href: "/admin/ai-governance" },
 ]
 
 interface SidebarProps {
@@ -41,7 +51,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
           return (
@@ -58,6 +68,40 @@ export function Sidebar({ collapsed }: SidebarProps) {
               title={collapsed ? item.label : undefined}
             >
               <item.icon className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          )
+        })}
+
+        {/* Admin Section Divider */}
+        <div className={cn("pt-4 pb-2", collapsed && "pt-3 pb-1")}>
+          {collapsed ? (
+            <div className="mx-auto h-px w-6 bg-slate-700" />
+          ) : (
+            <div className="flex items-center gap-2 px-3">
+              <div className="h-px flex-1 bg-slate-700" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">管理</span>
+              <div className="h-px flex-1 bg-slate-700" />
+            </div>
+          )}
+        </div>
+
+        {adminItems.map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href)
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
+                isActive
+                  ? "bg-blue-600/15 text-blue-400/90"
+                  : "text-slate-500 hover:bg-slate-800 hover:text-slate-300",
+                collapsed && "justify-center px-2"
+              )}
+              title={collapsed ? item.label : undefined}
+            >
+              <item.icon className="h-4 w-4 shrink-0" />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           )

@@ -4,18 +4,36 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { ContextHeader } from "@/components/context-header"
 import { fetchAPI } from "@/lib/api"
 import type { SVMission } from "@/lib/types"
-import { ChevronDown, ChevronUp, Plus, Clock, ListTodo } from "lucide-react"
+import { ChevronDown, ChevronUp, Plus, Clock, ListTodo, CheckCircle2 } from "lucide-react"
 import { cn, formatPercent } from "@/lib/utils"
+import Link from "next/link"
+
+const issueTypes = ["人件費超過", "原価超過", "売上減少", "レビュー低下", "値引き過多"]
+
+interface TaskForm {
+  title: string
+  description: string
+  issue_type: string
+  priority: string
+}
 
 export default function SVMissionsPage() {
   const [missions, setMissions] = useState<SVMission[]>([])
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [svFilter, setSvFilter] = useState("all")
   const [brandFilter, setBrandFilter] = useState("all")
+
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false)
+  const [taskForm, setTaskForm] = useState<TaskForm>({ title: "", description: "", issue_type: "", priority: "" })
+  const [taskStoreName, setTaskStoreName] = useState("")
+  const [taskCreated, setTaskCreated] = useState(false)
 
   useEffect(() => {
     fetchAPI<SVMission[]>("/api/v1/sv/missions").then(setMissions)
@@ -43,9 +61,72 @@ export default function SVMissionsPage() {
     return "bg-blue-500"
   }
 
+  function openTaskDialog(storeName: string, prefill?: Partial<TaskForm>) {
+    setTaskStoreName(storeName)
+    setTaskForm({ title: prefill?.title || "", description: prefill?.description || "", issue_type: prefill?.issue_type || "", priority: prefill?.priority || "" })
+    setTaskCreated(false)
+    setTaskDialogOpen(true)
+  }
+
+  function handleCreateTask() {
+    setTaskCreated(true)
+    setTimeout(() => { setTaskDialogOpen(false); setTaskCreated(false) }, 1500)
+  }
+
   return (
     <div>
       <ContextHeader title="SV ミッションボード" description="SVが優先的に訪問すべき店舗とアクション一覧" />
+
+      {/* Task Dialog */}
+      <Dialog open={taskDialogOpen} onOpenChange={(open) => { setTaskDialogOpen(open); if (!open) setTaskCreated(false) }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader><DialogTitle>タスク作成 - {taskStoreName}</DialogTitle></DialogHeader>
+          {taskCreated ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-3" />
+              <p className="text-lg font-semibold text-gray-900">タスクを作成しました</p>
+              <p className="text-sm text-gray-500 mt-1">{taskForm.title}</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 py-4">
+                <div>
+                  <label className="text-sm font-medium">タイトル</label>
+                  <Input placeholder="タスクのタイトル" className="mt-1" value={taskForm.title} onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">詳細</label>
+                  <Textarea placeholder="タスクの詳細" className="mt-1" value={taskForm.description} onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">課題種別</label>
+                    <Select value={taskForm.issue_type} onValueChange={(v) => setTaskForm({ ...taskForm, issue_type: v })}>
+                      <SelectTrigger className="mt-1"><SelectValue placeholder="種別" /></SelectTrigger>
+                      <SelectContent>{issueTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">優先度</label>
+                    <Select value={taskForm.priority} onValueChange={(v) => setTaskForm({ ...taskForm, priority: v })}>
+                      <SelectTrigger className="mt-1"><SelectValue placeholder="優先度" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="高">高</SelectItem>
+                        <SelectItem value="中">中</SelectItem>
+                        <SelectItem value="低">低</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setTaskDialogOpen(false)}>キャンセル</Button>
+                <Button onClick={handleCreateTask} disabled={!taskForm.title}>作成</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="mb-6 flex gap-3">
         <Select value={svFilter} onValueChange={setSvFilter}>
@@ -79,7 +160,9 @@ export default function SVMissionsPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{mission.store.name}</span>
+                      <Link href={`/stores/${mission.store.id}`} className="font-semibold text-blue-600 hover:underline" onClick={(e) => e.stopPropagation()}>
+                        {mission.store.name}
+                      </Link>
                       <Badge variant="secondary" className="text-xs">{mission.store.brand_name}</Badge>
                     </div>
                     <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
@@ -112,10 +195,10 @@ export default function SVMissionsPage() {
                       <div>
                         <h4 className="mb-2 text-sm font-semibold text-gray-700">確認事項</h4>
                         <ul className="space-y-1">
-                          {mission.suggested_actions.map((a, i) => (
+                          {mission.checklist_items.map((item, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
                               <input type="checkbox" className="mt-1 rounded border-gray-300" readOnly />
-                              {a}
+                              {item}
                             </li>
                           ))}
                         </ul>
@@ -129,7 +212,10 @@ export default function SVMissionsPage() {
                             </li>
                           ))}
                         </ul>
-                        <Button size="sm" className="mt-3"><Plus className="h-4 w-4 mr-1" />タスク作成</Button>
+                        <Button size="sm" className="mt-3" onClick={() => openTaskDialog(mission.store.name, {
+                          title: mission.suggested_actions[0] || "",
+                          description: mission.reasons.join("\n"),
+                        })}><Plus className="h-4 w-4 mr-1" />タスク作成</Button>
                       </div>
                     </div>
                   </div>

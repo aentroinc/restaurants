@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import health, executive, stores, tasks, sv, meeting, data_quality, value, ai
+from app.api.v1 import health, executive, stores, tasks, sv, meeting, data_quality, value, ai, ontology, kpi_registry, lineage, writeback, admin
 
 app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0")
 
@@ -21,3 +21,8 @@ app.include_router(meeting.router)
 app.include_router(data_quality.router)
 app.include_router(value.router)
 app.include_router(ai.router)
+app.include_router(ontology.router)
+app.include_router(kpi_registry.router)
+app.include_router(lineage.router)
+app.include_router(writeback.router)
+app.include_router(admin.router)
