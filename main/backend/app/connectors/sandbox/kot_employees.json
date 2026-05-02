@@ -1,0 +1,10 @@
+{
+  "employees": [
+    {"employeeKey": "KOT001-01", "code": "E001", "lastName": "佐藤", "firstName": "太郎", "divisionCode": "D001", "employeeType": "正社員", "active": true, "email": "sato@example.com"},
+    {"employeeKey": "KOT001-02", "code": "E002", "lastName": "鈴木", "firstName": "花子", "divisionCode": "D001", "employeeType": "アルバイト", "active": true, "email": null},
+    {"employeeKey": "KOT001-03", "code": "E003", "lastName": "山田", "firstName": "次郎", "divisionCode": "D001", "employeeType": "アルバイト", "active": true, "email": null},
+    {"employeeKey": "KOT002-01", "code": "E004", "lastName": "高橋", "firstName": "美咲", "divisionCode": "D002", "employeeType": "正社員", "active": true, "email": "takahashi@example.com"},
+    {"employeeKey": "KOT002-02", "code": "E005", "lastName": "田中", "firstName": "健", "divisionCode": "D002", "employeeType": "アルバイト", "active": true, "email": null},
+    {"employeeKey": "KOT003-01", "code": "E006", "lastName": "渡辺", "firstName": "由美", "divisionCode": "D003", "employeeType": "正社員", "active": true, "email": "watanabe@example.com"}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "menus": [
+    {"id": "MENU-UE-001", "title": "ランチメニュー", "store_id": "UE-STORE-001", "categories": [
+      {"id": "CAT-1", "title": "丼物", "items": [
+        {"id": "ITEM-1", "title": "牛丼 並盛", "price_info": {"price": 750}, "tax_info": {"tax_rate": 10}},
+        {"id": "ITEM-4", "title": "親子丼", "price_info": {"price": 850}, "tax_info": {"tax_rate": 10}}
+      ]},
+      {"id": "CAT-2", "title": "定食", "items": [
+        {"id": "ITEM-5", "title": "唐揚げ定食", "price_info": {"price": 650}, "tax_info": {"tax_rate": 10}},
+        {"id": "ITEM-8", "title": "ハンバーグ定食", "price_info": {"price": 980}, "tax_info": {"tax_rate": 10}}
+      ]},
+      {"id": "CAT-3", "title": "サイド", "items": [
+        {"id": "ITEM-2", "title": "味噌汁", "price_info": {"price": 200}, "tax_info": {"tax_rate": 10}},
+        {"id": "ITEM-3", "title": "サラダ", "price_info": {"price": 300}, "tax_info": {"tax_rate": 10}},
+        {"id": "ITEM-9", "title": "コロッケ", "price_info": {"price": 380}, "tax_info": {"tax_rate": 10}}
+      ]}
+    ]}
+  ]
+}

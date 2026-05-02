@@ -1,0 +1,9 @@
+{
+  "deals": [
+    {"id": 100001, "company_id": 9999999, "issue_date": "2026-05-01", "due_date": "2026-05-31", "type": "expense", "amount": 480000, "status": "settled", "ref_number": "PO-2026-0501-001", "partner_id": 50001, "partner_name": "全国食肉株式会社", "details": [{"id": 1, "account_item_id": 605, "account_item_name": "仕入高", "tax_code": 24, "amount": 480000, "description": "牛肉 ロース 100kg"}]},
+    {"id": 100002, "company_id": 9999999, "issue_date": "2026-05-01", "due_date": "2026-05-31", "type": "expense", "amount": 120000, "status": "settled", "ref_number": "PO-2026-0501-002", "partner_id": 50002, "partner_name": "鮮魚卸 海光", "details": [{"id": 2, "account_item_id": 605, "account_item_name": "仕入高", "tax_code": 24, "amount": 120000, "description": "サーモン 30kg"}]},
+    {"id": 100003, "company_id": 9999999, "issue_date": "2026-05-02", "due_date": "2026-06-30", "type": "expense", "amount": 85000, "status": "unsettled", "ref_number": "PO-2026-0502-003", "partner_id": 50003, "partner_name": "東京青果", "details": [{"id": 3, "account_item_id": 605, "account_item_name": "仕入高", "tax_code": 24, "amount": 85000, "description": "野菜 各種"}]},
+    {"id": 100004, "company_id": 9999999, "issue_date": "2026-05-02", "due_date": "2026-06-30", "type": "expense", "amount": 32000, "status": "unsettled", "ref_number": "INV-2026-0502-004", "partner_id": 50004, "partner_name": "東京電力", "details": [{"id": 4, "account_item_id": 815, "account_item_name": "水道光熱費", "tax_code": 24, "amount": 32000, "description": "5月電気代"}]}
+  ],
+  "meta": {"total_count": 4}
+}

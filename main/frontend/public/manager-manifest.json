@@ -1,0 +1,23 @@
+{
+  "name": "AENTRO 店長",
+  "short_name": "店長",
+  "description": "AENTRO 店長専用 PWA — 日報・廃棄・クレーム・修理・シフト",
+  "start_url": "/manager",
+  "display": "standalone",
+  "background_color": "#0a0e14",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "scope": "/manager",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

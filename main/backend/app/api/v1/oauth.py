@@ -5,17 +5,18 @@ Endpoints:
   GET  /api/v1/oauth/{connector}/callback        -> exchange code, persist tokens
   POST /api/v1/oauth/{connector}/test            -> hit provider test endpoint
   POST /api/v1/oauth/{connector}/sync            -> kick a real IngestionBatch sync
-  POST /api/v1/oauth/{connector}/api-key         -> save API key creds (airregi/kot)
+  POST /api/v1/oauth/{connector}/api-key         -> save API key creds (airregi/kot/td)
+  POST /api/v1/oauth/{connector}/webhook         -> webhook receive (td)
   GET  /api/v1/oauth/{connector}/status          -> connection status
 
-`{connector}` ∈ {square, smaregi, airregi, king_of_time}.
+`{connector}` ∈ {square, smaregi, airregi, king_of_time, kot, freee, ubereats, td}.
 """
 from __future__ import annotations
 
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,6 +29,10 @@ from app.connectors.oauth_square import SquareOAuth
 from app.connectors.oauth_smaregi import SmaregiOAuth
 from app.connectors.oauth_airregi import AirregiAPIKey
 from app.connectors.oauth_kot import KOTAPIKey
+from app.connectors.kot_attendance import KOTAttendance
+from app.connectors.freee_accounting import FreeeAccounting
+from app.connectors.ubereats import UberEatsMerchant
+from app.connectors.td_temperature import TDTemperature
 from app.models.data_source import DataSourceV2
 from app.services import connector_secrets as cs
 from app.services.ingestion_runner import run_sync_job
@@ -40,11 +45,28 @@ router = APIRouter(prefix="/api/v1/oauth", tags=["oauth"])
 OAUTH_PROVIDERS: dict[str, type[OAuth2ConnectorBase]] = {
     "square": SquareOAuth,
     "smaregi": SmaregiOAuth,
+    "freee": FreeeAccounting,
 }
 
 API_KEY_PROVIDERS: dict[str, type] = {
     "airregi": AirregiAPIKey,
     "king_of_time": KOTAPIKey,
+    "kot": KOTAttendance,
+    "td": TDTemperature,
+}
+
+# Client Credentials 系 (browser flow なし)
+CLIENT_CREDENTIAL_PROVIDERS: dict[str, type] = {
+    "ubereats": UberEatsMerchant,
+}
+
+# Direct sync handlers (新コネクタは IngestionBatch を独自に作るので、
+# run_sync_job ではなく connector.sync(db, tenant_id) を呼ぶ)
+DIRECT_SYNC_PROVIDERS: dict[str, type] = {
+    "kot": KOTAttendance,
+    "freee": FreeeAccounting,
+    "ubereats": UberEatsMerchant,
+    "td": TDTemperature,
 }
 
 
@@ -203,6 +225,15 @@ async def test_connection(
             await db.commit()
         return APIResponse(data=result)
 
+    if connector in CLIENT_CREDENTIAL_PROVIDERS:
+        impl = CLIENT_CREDENTIAL_PROVIDERS[connector]()
+        try:
+            tokens = await impl.get_client_credentials_token()
+            result = await impl.test_token(tokens.access_token)
+        except Exception as e:
+            return APIResponse(data={"ok": False, "error": str(e)[:200]})
+        return APIResponse(data=result)
+
     raise HTTPException(400, f"Unknown connector: {connector}")
 
 
@@ -238,7 +269,27 @@ async def sync_now(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
 ):
-    """Trigger an IngestionBatch run via the existing ingestion_runner."""
+    """Trigger an IngestionBatch run.
+
+    新4 connector (kot/freee/ubereats/td) は connector.sync() を直接呼ぶ。
+    既存4本 (square/smaregi/airregi/king_of_time) は ingestion_runner 経由。
+    """
+    # 新コネクタ: 直接 sync
+    if connector in DIRECT_SYNC_PROVIDERS:
+        cred = await cs.get_credential(db, tenant_id, connector)
+        sandbox = True if cred is None else cred.status == "connected" and bool((cred.extra or {}).get("sandbox_mode", True))
+        impl = DIRECT_SYNC_PROVIDERS[connector]()
+        try:
+            result = await impl.sync(db, tenant_id, sandbox_mode=True)
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(500, f"sync failed: {e}")
+        await _ensure_data_source(db, tenant_id, connector)
+        await db.commit()
+        log_audit(tenant_id, None, "oauth_sync", "connector", connector, {"batch_id": result.get("batch_id")})
+        return APIResponse(data=result)
+
+    # 既存パス
     cred = await cs.get_credential(db, tenant_id, connector)
     if cred is None or cred.status != "connected":
         raise HTTPException(400, f"Connector {connector} is not connected")
@@ -248,6 +299,28 @@ async def sync_now(
 
     result = await run_sync_job(db, tenant_id, str(ds_id), job_type="incremental")
     log_audit(tenant_id, None, "oauth_sync", "connector", connector, {"job_id": result.get("job_id")})
+    return APIResponse(data=result)
+
+
+@router.post("/{connector}/webhook")
+async def webhook(
+    connector: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Webhook 受信 — 現状は T&D 温度ロガーのみ対応。"""
+    if connector != "td":
+        raise HTTPException(400, f"Connector {connector} does not support webhooks")
+    payload = await request.json()
+    impl = TDTemperature()
+    try:
+        result = await impl.receive_webhook(db, tenant_id, payload)
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(500, f"webhook processing failed: {e}")
+    await db.commit()
+    log_audit(tenant_id, None, "webhook_receive", "connector", connector, {"batch_id": result.get("batch_id")})
     return APIResponse(data=result)
 
 
@@ -274,14 +347,20 @@ async def status(
 
 # ── helpers ─────────────────────────────────────────────────────
 
+_NEW_CONNECTOR_META: dict[str, dict[str, str]] = {
+    "kot": {"name": "KING OF TIME (勤怠)", "system_category": "labor", "auth_type": "api_key"},
+    "freee": {"name": "freee 会計", "system_category": "accounting", "auth_type": "oauth2"},
+    "ubereats": {"name": "Uber Eats Merchant", "system_category": "delivery", "auth_type": "oauth2_client_credentials"},
+    "td": {"name": "T&D 温度ロガー", "system_category": "iot_sensor", "auth_type": "api_key"},
+}
+
+
 async def _ensure_data_source(
     db: AsyncSession,
     tenant_id: str,
     connector: str,
 ) -> uuid.UUID:
     """Create a DataSourceV2 row for this connector if one doesn't exist."""
-    from app.connectors.registry import get_connector
-
     result = await db.execute(
         select(DataSourceV2).where(
             DataSourceV2.tenant_id == tenant_id,
@@ -292,14 +371,25 @@ async def _ensure_data_source(
     if ds is not None:
         return ds.id
 
-    base = get_connector(connector)
+    if connector in _NEW_CONNECTOR_META:
+        meta = _NEW_CONNECTOR_META[connector]
+        name = meta["name"]
+        system_category = meta["system_category"]
+        auth_type = meta["auth_type"]
+    else:
+        from app.connectors.registry import get_connector
+        base = get_connector(connector)
+        name = base.name
+        system_category = base.system_category
+        auth_type = base.auth_type
+
     ds = DataSourceV2(
         id=uuid.uuid4(),
         tenant_id=tenant_id,
-        name=f"{base.name} (OAuth)",
+        name=f"{name} (OAuth)",
         source_type=connector,
-        system_category=base.system_category,
-        auth_type=base.auth_type,
+        system_category=system_category,
+        auth_type=auth_type,
         config={"sandbox_mode": True, "via": "oauth_flow"},
         status="connected",
     )

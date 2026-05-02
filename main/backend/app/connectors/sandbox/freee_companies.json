@@ -1,0 +1,5 @@
+{
+  "companies": [
+    {"id": 9999999, "name": "AENTRO Sandbox 株式会社", "name_kana": "アエントロ サンドボックス", "display_name": "AENTRO Sandbox", "tax_at_source_calc_type": 0, "contact_name": "経理太郎", "head_count": 25, "corporate_number": "1234567890123", "fiscal_yearmonths": [{"start_date": "2026-04-01", "end_date": "2027-03-31", "indicative_setting": "japanese_calendar"}], "use_industry_template": false, "role": "admin", "default_wallet_account_id": 1, "private_settlement": false, "minus_format": 0}
+  ]
+}

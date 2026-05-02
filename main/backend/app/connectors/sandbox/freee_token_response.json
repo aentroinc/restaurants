@@ -1,0 +1,8 @@
+{
+  "access_token": "freee-sandbox-access-token-0000000000",
+  "refresh_token": "freee-sandbox-refresh-token-0000000000",
+  "token_type": "Bearer",
+  "expires_in": 21600,
+  "scope": "read write",
+  "company_id": 9999999
+}

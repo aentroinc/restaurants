@@ -26,6 +26,9 @@ from app.api.v1 import labor_forecast as labor_forecast_router
 from app.api.v1 import markings as markings_router
 from app.api.v1 import cost_variance as cost_variance_router
 from app.api.v1 import aip_logic as aip_logic_router
+from app.api.v1 import face_auth as face_auth_router
+from app.api.v1 import clock as clock_router
+from app.api.v1 import manual_input as manual_input_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.audit_capture import AuditCaptureMiddleware
@@ -123,3 +126,6 @@ app.include_router(labor_forecast_router.router)
 app.include_router(markings_router.router)
 app.include_router(cost_variance_router.router)
 app.include_router(aip_logic_router.router)
+app.include_router(face_auth_router.router)
+app.include_router(clock_router.router)
+app.include_router(manual_input_router.router)

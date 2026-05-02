@@ -1,0 +1,6 @@
+{
+  "access_token": "ubereats-sandbox-access-token-0000000000",
+  "token_type": "Bearer",
+  "expires_in": 2592000,
+  "scope": "eats.store eats.order"
+}

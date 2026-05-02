@@ -6,7 +6,7 @@ import { ContextHeader } from "@/components/context-header"
 import {
   TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle,
   Trash2, UserMinus, Truck, Wrench, MapPin, ArrowRight,
-  Circle, ChevronRight, Activity, Building2,
+  Circle, ChevronRight, Activity, Building2, Smartphone,
 } from "lucide-react"
 
 // =============================================================================
@@ -364,6 +364,21 @@ export default function ExecutiveCommandPage() {
       />
 
       <div className="px-5 py-5 space-y-5">
+        {/* Manager PWA entry point */}
+        <Link
+          href="/manager"
+          className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.06] hover:bg-emerald-500/[0.10] transition-colors"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <Smartphone className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-white/90 truncate">AENTRO 店長 PWA</div>
+              <div className="text-[11px] text-white/50 truncate">スマホ・タブレットから日報/廃棄/クレーム/修理/シフトを4タップで完結</div>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
+        </Link>
+
         {/* Top status strip */}
         <div className="flex items-center gap-3 text-[11px] text-white/50 flex-wrap">
           <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5 shrink-0" /> {filteredStores.length}店舗 / {TOTAL_STORES}店舗</span>

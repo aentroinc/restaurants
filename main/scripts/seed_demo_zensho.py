@@ -650,6 +650,14 @@ def run():
         print("HACCP records...")
         seed_haccp(session, stores)
 
+        print("Manual-input ontology objects (8 × 30 = 240)...")
+        try:
+            from app.services.manual_input_seeds import seed_manual_input_data
+            counts = seed_manual_input_data(session)
+            print(f"  inserted manual-input rows: {counts}")
+        except Exception as e:
+            print(f"  WARN: manual-input seed skipped ({e})")
+
         print("\n== DONE ==")
         print(f"  brands={len(brands)} areas={sum(len(v) for v in areas.values())}")
         print(f"  employees={len(employees)} stores={len(stores)}")

@@ -16,6 +16,24 @@ from app.models.connector_credential import ConnectorCredential
 from app.services.secrets import encrypt_value, decrypt_value
 
 
+# 認識する connector_type 一覧 (バリデーション用)
+SUPPORTED_CONNECTOR_TYPES: tuple[str, ...] = (
+    # POS
+    "square",
+    "smaregi",
+    "airregi",
+    # 勤怠
+    "king_of_time",
+    "kot",
+    # 会計
+    "freee",
+    # デリバリー
+    "ubereats",
+    # IoT センサー
+    "td",
+)
+
+
 def _enc(v: str | None) -> str | None:
     return encrypt_value(v) if v else None
 

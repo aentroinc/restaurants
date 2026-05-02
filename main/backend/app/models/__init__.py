@@ -70,6 +70,11 @@ from app.models.labor_forecast import DemandForecast30m, LaborRequirement, Shift
 from app.models.aip_logic import LogicFunction, LogicRun
 from app.models.cost_variance import InventoryCount, TheoreticalCost, CostVariance
 from app.models.marking import Marking, MarkingAssignment, UserPurpose
+from app.models.face_auth import FaceTemplate, ClockEvent, StaffPin
+from app.models.manual_input import (
+    DailyReport, WasteLog, Complaint, EquipmentIssue,
+    AllergyResponse, LossReport, CustomerVoice, CompetitorScan,
+)
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -117,4 +122,7 @@ __all__ = [
     "LogicFunction", "LogicRun",
     "InventoryCount", "TheoreticalCost", "CostVariance",
     "Marking", "MarkingAssignment", "UserPurpose",
+    "FaceTemplate", "ClockEvent", "StaffPin",
+    "DailyReport", "WasteLog", "Complaint", "EquipmentIssue",
+    "AllergyResponse", "LossReport", "CustomerVoice", "CompetitorScan",
 ]

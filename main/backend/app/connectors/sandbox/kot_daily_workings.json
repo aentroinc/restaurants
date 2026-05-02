@@ -1,0 +1,10 @@
+{
+  "dailyWorkings": [
+    {"date": "2026-05-02", "employeeKey": "KOT001-01", "divisionCode": "D001", "clockIn": "08:30", "clockOut": "17:30", "breakMinutes": 60, "workMinutes": 480, "overtimeMinutes": 0},
+    {"date": "2026-05-02", "employeeKey": "KOT001-02", "divisionCode": "D001", "clockIn": "09:00", "clockOut": "18:30", "breakMinutes": 60, "workMinutes": 510, "overtimeMinutes": 30},
+    {"date": "2026-05-02", "employeeKey": "KOT001-03", "divisionCode": "D001", "clockIn": "10:00", "clockOut": "20:00", "breakMinutes": 60, "workMinutes": 540, "overtimeMinutes": 60},
+    {"date": "2026-05-02", "employeeKey": "KOT002-01", "divisionCode": "D002", "clockIn": "08:00", "clockOut": "17:00", "breakMinutes": 60, "workMinutes": 480, "overtimeMinutes": 0},
+    {"date": "2026-05-02", "employeeKey": "KOT002-02", "divisionCode": "D002", "clockIn": "09:30", "clockOut": "19:00", "breakMinutes": 60, "workMinutes": 510, "overtimeMinutes": 30},
+    {"date": "2026-05-02", "employeeKey": "KOT003-01", "divisionCode": "D003", "clockIn": "11:00", "clockOut": "21:30", "breakMinutes": 60, "workMinutes": 570, "overtimeMinutes": 90}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "devices": [
+    {"id": "RTR-500-001", "name": "冷蔵庫1号 (キッチン)", "model": "RTR-501", "store_code": "ST0001", "channel_count": 1, "battery_pct": 87, "last_seen_at": "2026-05-02T23:59:00+09:00", "alarm_enabled": true, "threshold_min_c": 0.0, "threshold_max_c": 10.0},
+    {"id": "RTR-500-002", "name": "冷凍庫1号 (バックヤード)", "model": "RTR-501", "store_code": "ST0001", "channel_count": 1, "battery_pct": 92, "last_seen_at": "2026-05-02T23:59:00+09:00", "alarm_enabled": true, "threshold_min_c": -25.0, "threshold_max_c": -15.0},
+    {"id": "RTR-500-003", "name": "冷蔵庫1号 (キッチン)", "model": "RTR-501", "store_code": "ST0002", "channel_count": 1, "battery_pct": 78, "last_seen_at": "2026-05-02T23:59:00+09:00", "alarm_enabled": true, "threshold_min_c": 0.0, "threshold_max_c": 10.0}
+  ]
+}

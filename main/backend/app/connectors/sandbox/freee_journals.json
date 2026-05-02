@@ -1,0 +1,11 @@
+{
+  "journals": {
+    "id": 1,
+    "company_id": 9999999,
+    "download_type": "csv",
+    "status_url": "/api/1/journals/reports/1/status",
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-02",
+    "journals_count": 12
+  }
+}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Sidebar } from "./sidebar"
 import { AIPanel } from "./ai-panel"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,17 @@ import { clearToken } from "@/lib/auth"
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
   const router = useRouter()
+  const pathname = usePathname() || ""
+
+  // Manager PWA uses its own layout (bottom tab bar, no sidebar).
+  if (pathname.startsWith("/manager")) {
+    return <>{children}</>
+  }
+
+  // SV PWA uses its own layout (top tabs / drawer, no sidebar).
+  if (pathname.startsWith("/sv/") || pathname === "/sv") {
+    return <>{children}</>
+  }
 
   function handleLogout() {
     clearToken()

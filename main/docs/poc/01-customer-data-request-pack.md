@@ -39,6 +39,22 @@ PoCでは、いきなり全社全店舗の全データを対象にしない。
 
 メール添付での提出は原則避ける。
 
+### 自動連携可能なシステム
+
+API連携を選択する場合、当社が標準でサポートしている SaaS / クラウドサービスは以下。OAuth2 または APIキー認証で、PoC開始から数日以内に接続可能。
+
+| カテゴリ | サービス | 認証方式 | 取得データ | 備考 |
+|---|---|---|---|---|
+| POS | Square | OAuth2 | 売上、注文、商品マスタ | sandbox 対応 |
+| POS | スマレジ (Smaregi) | OAuth2 + PKCE | 売上、取引、店舗マスタ | sandbox 対応 |
+| POS | Airレジ | APIキー | 売上、店舗マスタ | パートナーキー必要 |
+| 勤怠 | KING OF TIME | APIキー | 打刻、残業、休憩、従業員マスタ | 当日分の `daily-workings` を1日複数回取得 |
+| 会計 | freee 会計 | OAuth2 | 取引 (deals)、仕訳 (journals)、仕入先 | 仕入科目 (`account_item_id=605`) を抽出して原価分析へ連動 |
+| デリバリー | Uber Eats Merchant | OAuth2 Client Credentials | 注文、メニュー、店舗 | デリバリー売上を `daily_store_sales.delivery_sales` に取り込み |
+| IoTセンサー | T&D RTR-500 シリーズ | APIキー + Webhook | 温度ログ (1分粒度)、湿度、バッテリー | HACCP閾値超過で自動的に SVタスク発行 |
+
+接続は管理画面 → Connectors → 該当サービスを選択して認証フローを完了するだけで開始できる。Webhook 対応サービス (T&D 等) はリアルタイムで逸脱検知。
+
 ## 1.3 ファイル形式
 
 | 項目 | 推奨 |
