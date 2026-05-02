@@ -332,3 +332,46 @@ export interface AIResponseEnhanced {
   limitations?: string[];
   confidence: string;
 }
+
+// Workspace
+export interface Analysis {
+  id: string; name: string; description?: string; visibility: string; spec: any; created_at: string;
+}
+export interface CustomKPIDef {
+  id: string; api_name: string; display_name: string; formula: string; target_object_type: string; unit?: string; version: number; status: string;
+}
+export interface CohortDef {
+  id: string; name: string; object_type: string; filter_spec: any; instance_count?: number;
+}
+
+// Vertical
+export interface RecipeItem {
+  id: string; product_name: string; version: number; yield_quantity: number; cooking_time_minutes: number; status: string; theoretical_cost?: number; bom_count: number;
+}
+export interface IngredientItem {
+  id: string; name: string; unit: string; standard_cost_per_unit: number; storage_temperature: string; shelf_life_days: number;
+}
+export interface ShiftItem {
+  id: string; store_name: string; employee_name: string; role: string; start_at: string; end_at: string; violations: string[];
+}
+export interface LaborComplianceReport {
+  total_shifts: number; violation_count: number; violation_rate: number; violations: any[];
+}
+export interface QSCAuditItem {
+  id: string; store_name: string; audit_date: string; quality_score: number; service_score: number; cleanliness_score: number; overall_score: number;
+}
+export interface HACCPComplianceRate {
+  total_records: number; compliant: number; compliance_rate: number;
+}
+export interface FranchiseAgreementItem {
+  id: string; store_name: string; agreement_type: string; royalty_structure: any; effective_from: string;
+}
+export interface RoyaltyCalcItem {
+  id: string; store_name: string; period: string; gross_revenue: number; royalty_amount: number; net_payable: number; status: string;
+}
+export interface BenchmarkItem {
+  business_category: string; metric_name: string; p25: number; p50: number; p75: number; p90: number;
+}
+export interface RoleItem {
+  id: string; name: string; display_name: string; description?: string; is_system: boolean; permission_count?: number;
+}

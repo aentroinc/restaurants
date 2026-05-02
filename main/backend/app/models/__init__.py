@@ -29,6 +29,7 @@ from app.models.ontology_v2 import (
     OntologyInstance, OntologyLink,
 )
 from app.models.ingestion import IngestionBatch, DataContract, SchemaMapping
+from app.models.data_source import DataSourceV2, IngestionJob
 from app.models.industry_playbook import IndustryPlaybook
 from app.models.lineage import LineageEvent
 from app.models.writeback import WritebackPolicy, WritebackRequest
@@ -57,7 +58,9 @@ __all__ = [
     "OntologyObjectType", "OntologyField", "OntologyRelationType",
     "OntologyObjectTypeV2", "OntologyPropertyType", "OntologyLinkType",
     "OntologyInstance", "OntologyLink",
-    "IngestionBatch", "DataContract", "SchemaMapping", "IndustryPlaybook",
+    "IngestionBatch", "DataContract", "SchemaMapping",
+    "DataSourceV2", "IngestionJob",
+    "IndustryPlaybook",
     "LineageEvent", "WritebackPolicy", "WritebackRequest", "KPIDefinition",
     "Incident", "IncidentScenario", "Action", "ActionAuditLog",
     "Factory", "DistributionCenter", "DeliveryRoute",

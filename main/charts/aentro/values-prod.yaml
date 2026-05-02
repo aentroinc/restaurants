@@ -1,0 +1,59 @@
+global:
+  environment: prod
+
+backend:
+  replicaCount: 2
+  image:
+    tag: "" # set by CI
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  env:
+    ENVIRONMENT: production
+
+frontend:
+  replicaCount: 2
+  image:
+    tag: "" # set by CI
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingress:
+  hosts:
+    - host: app.aentro.io
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: aentro-prod-tls
+      hosts:
+        - app.aentro.io
+
+externalSecrets:
+  secrets:
+    - key: aentro-prod/database-url
+      property: DATABASE_URL
+    - key: aentro-prod/jwt-secret
+      property: JWT_SECRET_KEY
+    - key: aentro-prod/anthropic-api-key
+      property: ANTHROPIC_API_KEY
+    - key: aentro-prod/ingestion-master-key
+      property: INGESTION_MASTER_KEY

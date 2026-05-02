@@ -2979,3 +2979,96 @@ def generate_industry_benchmarks():
                 idx += 1
 
     return results
+
+
+def generate_data_sources():
+    ds_defs = [
+        {
+            "name": "CSV アップロード",
+            "source_type": "csv",
+            "system_category": "manual",
+            "auth_type": "none",
+            "config": {},
+            "status": "connected",
+            "last_sync_at": datetime(2026, 4, 28, 3, 0),
+        },
+        {
+            "name": "スマレジ (sandbox)",
+            "source_type": "smaregi",
+            "system_category": "pos",
+            "auth_type": "oauth2",
+            "config": {"sandbox_mode": True},
+            "status": "connected",
+            "last_sync_at": datetime(2026, 4, 30, 3, 0),
+        },
+        {
+            "name": "Airレジ",
+            "source_type": "airregi",
+            "system_category": "pos",
+            "auth_type": "oauth2",
+            "config": {},
+            "status": "disconnected",
+            "last_sync_at": None,
+        },
+        {
+            "name": "KING OF TIME",
+            "source_type": "king_of_time",
+            "system_category": "labor",
+            "auth_type": "api_key",
+            "config": {},
+            "status": "disconnected",
+            "last_sync_at": None,
+        },
+    ]
+
+    sources = []
+    for i, d in enumerate(ds_defs):
+        sources.append({
+            "id": gen_deterministic_uuid("data_source_v2", i),
+            "tenant_id": TENANT_ID,
+            "name": d["name"],
+            "source_type": d["source_type"],
+            "system_category": d["system_category"],
+            "auth_type": d["auth_type"],
+            "config": d["config"],
+            "status": d["status"],
+            "last_sync_at": d["last_sync_at"],
+            "last_error": None,
+            "created_by": None,
+        })
+
+    csv_ds_id = sources[0]["id"]
+    job_defs = [
+        {"job_type": "csv_upload", "status": "success", "rows_fetched": 120, "rows_loaded": 118, "rows_rejected": 2,
+         "started_at": datetime(2026, 4, 15, 10, 0), "finished_at": datetime(2026, 4, 15, 10, 1)},
+        {"job_type": "csv_upload", "status": "success", "rows_fetched": 90, "rows_loaded": 90, "rows_rejected": 0,
+         "started_at": datetime(2026, 4, 18, 14, 30), "finished_at": datetime(2026, 4, 18, 14, 31)},
+        {"job_type": "csv_upload", "status": "failed", "rows_fetched": 50, "rows_loaded": 0, "rows_rejected": 50,
+         "started_at": datetime(2026, 4, 20, 9, 0), "finished_at": datetime(2026, 4, 20, 9, 0)},
+        {"job_type": "csv_upload", "status": "success", "rows_fetched": 200, "rows_loaded": 198, "rows_rejected": 2,
+         "started_at": datetime(2026, 4, 25, 11, 0), "finished_at": datetime(2026, 4, 25, 11, 2)},
+        {"job_type": "csv_upload", "status": "success", "rows_fetched": 150, "rows_loaded": 150, "rows_rejected": 0,
+         "started_at": datetime(2026, 4, 28, 3, 0), "finished_at": datetime(2026, 4, 28, 3, 1)},
+    ]
+
+    jobs = []
+    for i, j in enumerate(job_defs):
+        error_log = []
+        if j["status"] == "failed":
+            error_log = [{"error": "CSV parsing error: invalid date format in column 'business_date'", "row": 1}]
+        jobs.append({
+            "id": gen_deterministic_uuid("ingestion_job", i),
+            "tenant_id": TENANT_ID,
+            "data_source_id": csv_ds_id,
+            "job_type": j["job_type"],
+            "status": j["status"],
+            "started_at": j["started_at"],
+            "finished_at": j["finished_at"],
+            "rows_fetched": j["rows_fetched"],
+            "rows_loaded": j["rows_loaded"],
+            "rows_rejected": j["rows_rejected"],
+            "cursor_value": None,
+            "error_log": error_log,
+        })
+
+    return sources, jobs

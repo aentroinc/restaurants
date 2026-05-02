@@ -7,6 +7,10 @@ import type {
   WritebackPolicy, WritebackRequest,
   DataSource, DataContractAdmin, IngestionRunAdmin, SchemaMapping, IDMapping,
   AIGovernanceConfig, AIResponseEnhanced,
+  Analysis, CustomKPIDef, CohortDef,
+  RecipeItem, IngredientItem, ShiftItem, LaborComplianceReport,
+  QSCAuditItem, HACCPComplianceRate,
+  FranchiseAgreementItem, RoyaltyCalcItem, BenchmarkItem, RoleItem,
 } from "./types"
 
 // Seeded PRNG for deterministic mock data
@@ -848,4 +852,198 @@ export const mockAIResponseEnhanced: AIResponseEnhanced = {
     "顧客レビューデータは4月25日以降更新されていません",
   ],
   confidence: "high",
+}
+
+// ============================================
+// Workspace Mock Data
+// ============================================
+
+export const mockAnalyses: Analysis[] = [
+  { id: "an-1", name: "関東エリア売上トレンド分析", description: "首都圏店舗の売上推移と要因分析", visibility: "private", spec: {}, created_at: "2026-04-28T10:00:00Z" },
+  { id: "an-2", name: "ブランド別原価率比較", description: "5ブランドの原価率の月次推移", visibility: "team", spec: {}, created_at: "2026-04-25T14:00:00Z" },
+  { id: "an-3", name: "人件費率改善効果レポート", description: "シフト最適化施策の効果測定", visibility: "public", spec: {}, created_at: "2026-04-20T09:00:00Z" },
+  { id: "an-4", name: "季節メニュー影響分析", description: "夏メニュー投入後の客単価変動", visibility: "private", spec: {}, created_at: "2026-04-15T11:00:00Z" },
+  { id: "an-5", name: "競合出店インパクト調査", description: "近隣出店による影響店舗の特定", visibility: "team", spec: {}, created_at: "2026-04-10T16:00:00Z" },
+]
+
+export const mockCustomKPIDefs: CustomKPIDef[] = [
+  { id: "ck-1", api_name: "peak_hour_efficiency", display_name: "ピーク時間効率", formula: "peak_sales / peak_labor_hours", target_object_type: "store", unit: "円/時", version: 2, status: "active" },
+  { id: "ck-2", api_name: "waste_ratio", display_name: "廃棄率", formula: "waste_amount / purchase_amount * 100", target_object_type: "store", unit: "%", version: 1, status: "active" },
+  { id: "ck-3", api_name: "repeat_customer_rate", display_name: "リピーター率", formula: "repeat_customers / total_customers * 100", target_object_type: "store", unit: "%", version: 1, status: "draft" },
+  { id: "ck-4", api_name: "menu_mix_index", display_name: "メニューミックス指数", formula: "high_margin_items_sold / total_items_sold", target_object_type: "brand", unit: "", version: 1, status: "active" },
+  { id: "ck-5", api_name: "labor_productivity_index", display_name: "労働生産性指数", formula: "(net_sales - cogs) / total_labor_hours", target_object_type: "store", unit: "円/時", version: 3, status: "active" },
+]
+
+export const mockCohortDefs: CohortDef[] = [
+  { id: "co-1", name: "高収益店舗群", object_type: "store", filter_spec: { health_score: { gte: 80 } }, instance_count: 42 },
+  { id: "co-2", name: "要改善店舗", object_type: "store", filter_spec: { health_score: { lt: 60 } }, instance_count: 8 },
+  { id: "co-3", name: "首都圏ブランドA", object_type: "store", filter_spec: { region: "首都圏", brand: "gyudon-a" }, instance_count: 18 },
+  { id: "co-4", name: "新規出店（1年以内）", object_type: "store", filter_spec: { opened_within_months: 12 }, instance_count: 15 },
+  { id: "co-5", name: "FC加盟店", object_type: "store", filter_spec: { agreement_type: "FC" }, instance_count: 35 },
+]
+
+// ============================================
+// Recipe & Ingredient Mock Data
+// ============================================
+
+export const mockRecipes: RecipeItem[] = [
+  { id: "rc-1", product_name: "特選カルビ定食", version: 3, yield_quantity: 1, cooking_time_minutes: 12, status: "active", theoretical_cost: 485, bom_count: 8 },
+  { id: "rc-2", product_name: "味噌ラーメン", version: 2, yield_quantity: 1, cooking_time_minutes: 8, status: "active", theoretical_cost: 320, bom_count: 12 },
+  { id: "rc-3", product_name: "海鮮丼", version: 4, yield_quantity: 1, cooking_time_minutes: 5, status: "active", theoretical_cost: 580, bom_count: 10 },
+  { id: "rc-4", product_name: "チキン南蛮定食", version: 1, yield_quantity: 1, cooking_time_minutes: 15, status: "draft", theoretical_cost: 410, bom_count: 9 },
+  { id: "rc-5", product_name: "抹茶パフェ", version: 2, yield_quantity: 1, cooking_time_minutes: 6, status: "active", theoretical_cost: 280, bom_count: 7 },
+  { id: "rc-6", product_name: "麻婆豆腐定食", version: 3, yield_quantity: 1, cooking_time_minutes: 10, status: "active", theoretical_cost: 350, bom_count: 11 },
+]
+
+export const mockIngredients: IngredientItem[] = [
+  { id: "ig-1", name: "牛カルビ（輸入）", unit: "kg", standard_cost_per_unit: 2800, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 5 },
+  { id: "ig-2", name: "豚ロース", unit: "kg", standard_cost_per_unit: 1200, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 4 },
+  { id: "ig-3", name: "鶏もも肉", unit: "kg", standard_cost_per_unit: 680, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 3 },
+  { id: "ig-4", name: "サーモン（ノルウェー産）", unit: "kg", standard_cost_per_unit: 3200, storage_temperature: "冷蔵(-2-2℃)", shelf_life_days: 3 },
+  { id: "ig-5", name: "中華麺", unit: "玉", standard_cost_per_unit: 45, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 7 },
+  { id: "ig-6", name: "白米", unit: "kg", standard_cost_per_unit: 380, storage_temperature: "常温", shelf_life_days: 90 },
+  { id: "ig-7", name: "味噌（合わせ）", unit: "kg", standard_cost_per_unit: 520, storage_temperature: "冷蔵(0-10℃)", shelf_life_days: 180 },
+  { id: "ig-8", name: "抹茶パウダー", unit: "g", standard_cost_per_unit: 8, storage_temperature: "冷暗所", shelf_life_days: 365 },
+]
+
+// ============================================
+// Labor / Shift Mock Data
+// ============================================
+
+export const mockShifts: ShiftItem[] = [
+  { id: "sh-1", store_name: "焼肉キング東京中央店", employee_name: "田中一郎", role: "ホール", start_at: "2026-04-28T09:00:00Z", end_at: "2026-04-28T22:00:00Z", violations: ["overtime"] },
+  { id: "sh-2", store_name: "焼肉キング東京中央店", employee_name: "佐藤花子", role: "キッチン", start_at: "2026-04-28T17:00:00Z", end_at: "2026-04-29T02:00:00Z", violations: ["rest_interval"] },
+  { id: "sh-3", store_name: "丸源ラーメン大阪駅前店", employee_name: "山田太郎", role: "店長", start_at: "2026-04-28T08:00:00Z", end_at: "2026-04-28T23:00:00Z", violations: ["overtime", "short_break"] },
+  { id: "sh-4", store_name: "寿司まどか愛知南店", employee_name: "鈴木次郎", role: "ホール", start_at: "2026-04-28T11:00:00Z", end_at: "2026-04-28T20:00:00Z", violations: [] },
+  { id: "sh-5", store_name: "鳥貴族福岡北店", employee_name: "高橋美咲", role: "キッチン", start_at: "2026-04-28T16:00:00Z", end_at: "2026-04-29T01:30:00Z", violations: ["short_break"] },
+  { id: "sh-6", store_name: "サイゼリヤ宮城東店", employee_name: "伊藤健", role: "ホール", start_at: "2026-04-27T09:00:00Z", end_at: "2026-04-27T21:00:00Z", violations: ["overtime"] },
+  { id: "sh-7", store_name: "焼肉キング東京中央店", employee_name: "渡辺翔", role: "キッチン", start_at: "2026-04-27T06:00:00Z", end_at: "2026-04-27T15:00:00Z", violations: [] },
+]
+
+export const mockLaborCompliance: LaborComplianceReport = {
+  total_shifts: 1842,
+  violation_count: 127,
+  violation_rate: 6.9,
+  violations: [
+    { type: "overtime", count: 58, description: "36協定超過" },
+    { type: "short_break", count: 42, description: "休憩時間不足" },
+    { type: "rest_interval", count: 27, description: "勤務間インターバル不足" },
+  ],
+}
+
+// ============================================
+// QSC Audit Mock Data
+// ============================================
+
+export const mockQSCAudits: QSCAuditItem[] = [
+  { id: "qsc-1", store_name: "焼肉キング東京中央店", audit_date: "2026-04-25", quality_score: 72, service_score: 68, cleanliness_score: 75, overall_score: 71.7 },
+  { id: "qsc-2", store_name: "丸源ラーメン大阪駅前店", audit_date: "2026-04-24", quality_score: 88, service_score: 85, cleanliness_score: 90, overall_score: 87.7 },
+  { id: "qsc-3", store_name: "寿司まどか愛知南店", audit_date: "2026-04-23", quality_score: 65, service_score: 70, cleanliness_score: 60, overall_score: 65.0 },
+  { id: "qsc-4", store_name: "鳥貴族福岡北店", audit_date: "2026-04-22", quality_score: 92, service_score: 90, cleanliness_score: 88, overall_score: 90.0 },
+  { id: "qsc-5", store_name: "サイゼリヤ宮城東店", audit_date: "2026-04-21", quality_score: 80, service_score: 78, cleanliness_score: 82, overall_score: 80.0 },
+  { id: "qsc-6", store_name: "中華E 横浜店", audit_date: "2026-04-20", quality_score: 55, service_score: 60, cleanliness_score: 50, overall_score: 55.0 },
+  { id: "qsc-7", store_name: "ファミレスF 千葉店", audit_date: "2026-04-19", quality_score: 85, service_score: 82, cleanliness_score: 86, overall_score: 84.3 },
+]
+
+// ============================================
+// HACCP Mock Data
+// ============================================
+
+export const mockHACCPCompliance: HACCPComplianceRate = {
+  total_records: 4520,
+  compliant: 4385,
+  compliance_rate: 97.0,
+}
+
+export const mockHACCPMonitoring = [
+  { id: "hm-1", store_name: "焼肉キング東京中央店", checkpoint: "冷蔵庫温度", recorded_value: "3.2℃", threshold: "0-5℃", compliant: true, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-2", store_name: "焼肉キング東京中央店", checkpoint: "調理温度（中心）", recorded_value: "78℃", threshold: "75℃以上", compliant: true, recorded_at: "2026-04-30T12:00:00Z" },
+  { id: "hm-3", store_name: "丸源ラーメン大阪駅前店", checkpoint: "冷蔵庫温度", recorded_value: "7.1℃", threshold: "0-5℃", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-4", store_name: "寿司まどか愛知南店", checkpoint: "手洗い記録", recorded_value: "実施済", threshold: "全員実施", compliant: true, recorded_at: "2026-04-30T07:00:00Z" },
+  { id: "hm-5", store_name: "鳥貴族福岡北店", checkpoint: "揚げ油温度", recorded_value: "172℃", threshold: "170-180℃", compliant: true, recorded_at: "2026-04-30T11:30:00Z" },
+  { id: "hm-6", store_name: "サイゼリヤ宮城東店", checkpoint: "冷凍庫温度", recorded_value: "-15℃", threshold: "-18℃以下", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+]
+
+export const mockAllergenMatrix = [
+  { product: "特選カルビ定食", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "味噌ラーメン", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "海鮮丼", allergens: { "小麦": true, "卵": true, "乳": false, "えび": true, "かに": true, "そば": false, "落花生": false } },
+  { product: "チキン南蛮定食", allergens: { "小麦": true, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "抹茶パフェ", allergens: { "小麦": false, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "麻婆豆腐定食", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": true } },
+]
+
+// ============================================
+// Franchise Mock Data
+// ============================================
+
+export const mockFranchiseAgreements: FranchiseAgreementItem[] = [
+  { id: "fa-1", store_name: "焼肉キング東京中央店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2021-04-01" },
+  { id: "fa-2", store_name: "丸源ラーメン大阪駅前店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 5.0 }, effective_from: "2022-01-01" },
+  { id: "fa-3", store_name: "寿司まどか愛知南店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 4.5 }, effective_from: "2023-03-01" },
+  { id: "fa-4", store_name: "鳥貴族福岡北店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-06-01" },
+  { id: "fa-5", store_name: "サイゼリヤ宮城東店", agreement_type: "FC", royalty_structure: { type: "fixed_plus_rate", fixed: 200000, rate: 3.0 }, effective_from: "2024-01-01" },
+  { id: "fa-6", store_name: "中華E 横浜店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 5.5 }, effective_from: "2023-09-01" },
+]
+
+export const mockRoyaltyCalcs: RoyaltyCalcItem[] = [
+  { id: "ry-1", store_name: "丸源ラーメン大阪駅前店", period: "2026-04", gross_revenue: 4500000, royalty_amount: 225000, net_payable: 4275000, status: "confirmed" },
+  { id: "ry-2", store_name: "寿司まどか愛知南店", period: "2026-04", gross_revenue: 3800000, royalty_amount: 171000, net_payable: 3629000, status: "confirmed" },
+  { id: "ry-3", store_name: "サイゼリヤ宮城東店", period: "2026-04", gross_revenue: 3200000, royalty_amount: 296000, net_payable: 2904000, status: "pending" },
+  { id: "ry-4", store_name: "中華E 横浜店", period: "2026-04", gross_revenue: 4100000, royalty_amount: 225500, net_payable: 3874500, status: "confirmed" },
+  { id: "ry-5", store_name: "丸源ラーメン大阪駅前店", period: "2026-03", gross_revenue: 4200000, royalty_amount: 210000, net_payable: 3990000, status: "paid" },
+  { id: "ry-6", store_name: "寿司まどか愛知南店", period: "2026-03", gross_revenue: 3600000, royalty_amount: 162000, net_payable: 3438000, status: "paid" },
+]
+
+// ============================================
+// Benchmark Mock Data
+// ============================================
+
+export const mockBenchmarks: BenchmarkItem[] = [
+  { business_category: "焼肉", metric_name: "原価率", p25: 28.0, p50: 31.0, p75: 34.0, p90: 37.0 },
+  { business_category: "焼肉", metric_name: "人件費率", p25: 25.0, p50: 28.5, p75: 32.0, p90: 36.0 },
+  { business_category: "ラーメン", metric_name: "原価率", p25: 26.0, p50: 29.0, p75: 32.0, p90: 35.0 },
+  { business_category: "ラーメン", metric_name: "人件費率", p25: 24.0, p50: 27.0, p75: 30.0, p90: 33.0 },
+]
+
+// ============================================
+// Role Mock Data
+// ============================================
+
+export const mockRoles: RoleItem[] = [
+  { id: "role-1", name: "admin", display_name: "システム管理者", description: "全機能にアクセス可能", is_system: true, permission_count: 48 },
+  { id: "role-2", name: "sv", display_name: "スーパーバイザー", description: "担当エリアの店舗管理", is_system: true, permission_count: 32 },
+  { id: "role-3", name: "manager", display_name: "店長", description: "自店舗の運営管理", is_system: true, permission_count: 18 },
+  { id: "role-4", name: "analyst", display_name: "アナリスト", description: "データ分析・レポート閲覧", is_system: false, permission_count: 24 },
+  { id: "role-5", name: "fc_owner", display_name: "FC加盟オーナー", description: "加盟店舗の売上・会計閲覧", is_system: false, permission_count: 12 },
+  { id: "role-6", name: "viewer", display_name: "閲覧者", description: "ダッシュボード閲覧のみ", is_system: true, permission_count: 8 },
+]
+
+export const mockRolePermissions: Record<string, { resource: string; action: string; scope: string }[]> = {
+  "role-1": [
+    { resource: "store", action: "read", scope: "all" }, { resource: "store", action: "write", scope: "all" },
+    { resource: "kpi", action: "read", scope: "all" }, { resource: "kpi", action: "write", scope: "all" },
+    { resource: "user", action: "read", scope: "all" }, { resource: "user", action: "write", scope: "all" },
+    { resource: "role", action: "read", scope: "all" }, { resource: "role", action: "write", scope: "all" },
+  ],
+  "role-2": [
+    { resource: "store", action: "read", scope: "area" }, { resource: "store", action: "write", scope: "area" },
+    { resource: "kpi", action: "read", scope: "area" }, { resource: "task", action: "read", scope: "area" },
+    { resource: "task", action: "write", scope: "area" },
+  ],
+  "role-3": [
+    { resource: "store", action: "read", scope: "own" }, { resource: "store", action: "write", scope: "own" },
+    { resource: "kpi", action: "read", scope: "own" }, { resource: "task", action: "read", scope: "own" },
+  ],
+  "role-4": [
+    { resource: "store", action: "read", scope: "all" }, { resource: "kpi", action: "read", scope: "all" },
+    { resource: "analysis", action: "read", scope: "all" }, { resource: "analysis", action: "write", scope: "own" },
+  ],
+  "role-5": [
+    { resource: "store", action: "read", scope: "own" }, { resource: "kpi", action: "read", scope: "own" },
+    { resource: "royalty", action: "read", scope: "own" },
+  ],
+  "role-6": [
+    { resource: "dashboard", action: "read", scope: "all" },
+  ],
 }

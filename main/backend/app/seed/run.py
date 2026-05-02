@@ -47,6 +47,7 @@ from app.models.qsc import QSCTemplate, QSCAudit
 from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
 from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
 from app.models.benchmark import IndustryBenchmark
+from app.models.data_source import DataSourceV2, IngestionJob
 from app.seed.generators import (
     TENANT_ID, COMPANY_ID, BRANDS,
     generate_regions, generate_areas, generate_brands, generate_employees,
@@ -63,6 +64,7 @@ from app.seed.generators import (
     generate_recipes_and_bom, generate_shifts, generate_labor_law_profile,
     generate_qsc_audits, generate_haccp_data, generate_franchise_data,
     generate_industry_benchmarks,
+    generate_data_sources,
 )
 
 
@@ -86,6 +88,7 @@ def run():
         print("Clearing existing data...")
         # Delete in reverse dependency order
         tables = [
+            "ingestion_jobs", "data_sources_v2",
             "franchise_royalty_calcs", "franchise_agreements",
             "allergen_matrix", "haccp_monitoring", "ccp_definitions",
             "qsc_audits", "qsc_templates",
@@ -448,6 +451,15 @@ def run():
         bulk_insert(session, IndustryBenchmark, benchmarks)
         session.commit()
         print(f"  {len(benchmarks)} benchmarks created.")
+
+        # 35. Data Sources + Ingestion Jobs (Connector Framework)
+        print("Creating data sources and ingestion jobs...")
+        data_sources, ingestion_jobs = generate_data_sources()
+        bulk_insert(session, DataSourceV2, data_sources)
+        session.commit()
+        bulk_insert(session, IngestionJob, ingestion_jobs)
+        session.commit()
+        print(f"  {len(data_sources)} data sources, {len(ingestion_jobs)} ingestion jobs created.")
 
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")

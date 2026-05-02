@@ -1,0 +1,81 @@
+global:
+  environment: dev
+
+backend:
+  replicaCount: 1
+  image:
+    repository: aentro/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  env:
+    ENVIRONMENT: dev
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: aentro/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: app.aentro.io
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: aentro-tls
+      hosts:
+        - app.aentro.io
+
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  secrets:
+    - key: aentro-dev/database-url
+      property: DATABASE_URL
+    - key: aentro-dev/jwt-secret
+      property: JWT_SECRET_KEY
+    - key: aentro-dev/anthropic-api-key
+      property: ANTHROPIC_API_KEY
+    - key: aentro-dev/ingestion-master-key
+      property: INGESTION_MASTER_KEY

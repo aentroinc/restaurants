@@ -1,0 +1,9 @@
+apiVersion: v2
+name: aentro
+description: AENTRO Restaurant Operations OS
+version: 0.1.0
+appVersion: "1.0.0"
+type: application
+maintainers:
+  - name: AENTRO
+    email: infra@aentro.io

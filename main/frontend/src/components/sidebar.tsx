@@ -9,6 +9,8 @@ import {
   Presentation, Sparkles, ShieldCheck, Brain,
   Boxes, Network, Calculator, Database, GitBranch, Lock,
   Hexagon,
+  Utensils, Clock, ClipboardCheck, Thermometer, Receipt,
+  FlaskConical, Users,
   type LucideIcon,
 } from "lucide-react"
 
@@ -42,10 +44,21 @@ const sections: NavSection[] = [
     ],
   },
   {
+    title: "業務管理",
+    items: [
+      { label: "レシピ・原価", icon: Utensils, href: "/recipes" },
+      { label: "シフト・労務", icon: Clock, href: "/labor" },
+      { label: "QSC監査", icon: ClipboardCheck, href: "/qsc" },
+      { label: "HACCP", icon: Thermometer, href: "/haccp" },
+      { label: "FC会計", icon: Receipt, href: "/franchise" },
+    ],
+  },
+  {
     title: "成長戦略",
     items: [
       { label: "出店・改装", icon: MapPin, href: "/expansion" },
       { label: "キャンペーン分析", icon: Megaphone, href: "/campaigns" },
+      { label: "分析ワークスペース", icon: FlaskConical, href: "/workspace" },
     ],
   },
   {
@@ -67,6 +80,7 @@ const adminItems: NavItem[] = [
   { label: "データ系譜", icon: GitBranch, href: "/admin/lineage" },
   { label: "書き戻し", icon: ShieldCheck, href: "/admin/writeback" },
   { label: "AIガバナンス", icon: Lock, href: "/admin/ai-governance" },
+  { label: "ロール管理", icon: Users, href: "/admin/roles" },
 ]
 
 interface SidebarProps {
