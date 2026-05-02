@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { fetchAPI } from "@/lib/api"
 
 interface LiveCounterProps {
   initial: number
@@ -9,24 +10,47 @@ interface LiveCounterProps {
   format?: (n: number) => string
   className?: string
   showLiveDot?: boolean
+  source?: "drift" | { endpoint: string; field: string }
 }
 
-export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, format = (n) => n.toLocaleString(), className = "", showLiveDot = true }: LiveCounterProps) {
+export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, format = (n) => n.toLocaleString(), className = "", showLiveDot = true, source = "drift" }: LiveCounterProps) {
   const [value, setValue] = useState(initial)
   const [flash, setFlash] = useState<"up" | "down" | null>(null)
+  const lastRef = useRef<number>(initial)
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setValue((prev) => {
-        const drift = Math.floor((Math.random() - 0.4) * driftRange * 2)  // 微増バイアス
-        const next = Math.max(0, prev + drift)
-        setFlash(drift > 0 ? "up" : drift < 0 ? "down" : null)
-        setTimeout(() => setFlash(null), 800)
-        return next
-      })
-    }, intervalMs)
-    return () => clearInterval(id)
-  }, [driftRange, intervalMs])
+    let cancelled = false
+
+    const updateValue = (next: number) => {
+      if (cancelled) return
+      const drift = next - lastRef.current
+      setFlash(drift > 0 ? "up" : drift < 0 ? "down" : null)
+      setTimeout(() => !cancelled && setFlash(null), 800)
+      lastRef.current = next
+      setValue(next)
+    }
+
+    const tick = async () => {
+      if (typeof source === "object") {
+        try {
+          const data: any = await fetchAPI(source.endpoint)
+          const v = data?.[source.field]
+          if (typeof v === "number") {
+            // 実 fetch 値をベースに 0.1% drift で「動いてる感」演出
+            const drift = Math.floor((Math.random() - 0.5) * v * 0.002)
+            updateValue(v + drift)
+          }
+        } catch { /* fallback to drift */ }
+      } else {
+        const drift = Math.floor((Math.random() - 0.4) * driftRange * 2)
+        updateValue(Math.max(0, lastRef.current + drift))
+      }
+    }
+
+    tick()
+    const id = setInterval(tick, intervalMs)
+    return () => { cancelled = true; clearInterval(id) }
+  }, [driftRange, intervalMs, source])
 
   return (
     <span className={`relative inline-flex items-center gap-2 ${className}`}>
@@ -47,6 +71,7 @@ interface LiveTickerProps {
   events?: { id: string; ts: string; text: string; severity?: "info" | "warning" | "critical" }[]
   intervalMs?: number
   className?: string
+  fetchEndpoint?: string  // 指定時は実 backend から rotation
 }
 
 const DEFAULT_EVENTS = [

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Rocket, CheckCircle2, Loader2, Network, Database, Server, Lock, Shield, Cloud, ArrowRight, Building2 } from "lucide-react"
+import { fetchAPI } from "@/lib/api"
+import { Rocket, CheckCircle2, Loader2, Network, Database, Server, Lock, Shield, Cloud, ArrowRight, Building2, Activity } from "lucide-react"
 
 interface DeployStep {
   id: string
@@ -24,11 +25,38 @@ const STEPS: DeployStep[] = [
   { id: "done", title: "完了", detail: "ゼンショーHD 専用環境が起動しました", Icon: CheckCircle2, duration: 1000, pct: 100 },
 ]
 
+interface DeployComponent {
+  id: string
+  name: string
+  status: "ok" | "warning" | "error"
+  detail: string
+}
+
+interface DeploySummary {
+  tables: number
+  tenants: number
+  environment: string
+  hostname: string
+  db_host: string
+}
+
 export default function OnboardingPage() {
   const router = useRouter()
   const [stepIdx, setStepIdx] = useState<number>(-1)
   const [progress, setProgress] = useState(0)
   const [logs, setLogs] = useState<{ ts: string; text: string; type: "info" | "ok" | "warn" }[]>([])
+  const [components, setComponents] = useState<DeployComponent[]>([])
+  const [summary, setSummary] = useState<DeploySummary | null>(null)
+  const [showLive, setShowLive] = useState(false)
+
+  // 実 status を 起動前 / 完了後 に表示
+  useEffect(() => {
+    fetchAPI<{ components: DeployComponent[]; system_summary: DeploySummary }>("/api/v1/admin/deploy/status").then((d: any) => {
+      const data = d?.data || d
+      if (data?.components) setComponents(data.components)
+      if (data?.system_summary) setSummary(data.system_summary)
+    }).catch(() => {})
+  }, [stepIdx])
 
   const start = () => {
     setStepIdx(0)
@@ -107,19 +135,53 @@ export default function OnboardingPage() {
 
         {/* Big start button */}
         {stepIdx < 0 && (
-          <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/[0.06] p-8 text-center">
-            <Rocket className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-            <p className="text-[15px] text-white/85 mb-5 leading-relaxed">
-              ボタンを押すと AWS Tokyo + Osaka リージョンに<br />
-              ゼンショーHD 専用環境が立ち上がります
-            </p>
-            <button onClick={start} className="px-8 py-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[15px] font-medium inline-flex items-center gap-2">
-              <Rocket className="w-5 h-5" /> 専用環境を起動
-            </button>
-            <p className="mt-4 text-[10px] text-white/40">
-              所要時間: 約 12 秒 / Terraform / Helm / External Secrets / OTel
-            </p>
-          </div>
+          <>
+            <div className="rounded-xl border border-emerald-400/30 bg-emerald-500/[0.06] p-8 text-center">
+              <Rocket className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+              <p className="text-[15px] text-white/85 mb-5 leading-relaxed">
+                ボタンを押すと AWS Tokyo + Osaka リージョンに<br />
+                ゼンショーHD 専用環境が立ち上がります
+              </p>
+              <button onClick={start} className="px-8 py-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[15px] font-medium inline-flex items-center gap-2">
+                <Rocket className="w-5 h-5" /> 専用環境を起動
+              </button>
+              <p className="mt-4 text-[10px] text-white/40">
+                所要時間: 約 12 秒 / Terraform / Helm / External Secrets / OTel
+              </p>
+            </div>
+
+            {/* Live system status */}
+            {components.length > 0 && (
+              <div className="mt-4 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+                <div className="flex items-center gap-2 mb-3 text-[11px] text-white/55 uppercase tracking-wider font-bold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-400" /> 現在の実環境（参考）
+                  <button onClick={() => setShowLive(!showLive)} className="ml-auto text-[10px] text-blue-400 normal-case font-normal">
+                    {showLive ? "閉じる" : "詳細"}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                  {components.map((c) => (
+                    <div key={c.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-black/20">
+                      <span className={`w-1.5 h-1.5 rounded-full ${c.status === "ok" ? "bg-emerald-400" : c.status === "warning" ? "bg-amber-400" : "bg-red-400"}`} />
+                      <span className="text-white/70">{c.name}</span>
+                    </div>
+                  ))}
+                </div>
+                {showLive && summary && (
+                  <div className="mt-3 pt-3 border-t border-white/[0.04] grid grid-cols-2 sm:grid-cols-5 gap-3 text-[10px] font-mono">
+                    <div><span className="text-white/40">tables:</span> <span className="text-blue-400">{summary.tables}</span></div>
+                    <div><span className="text-white/40">tenants:</span> <span className="text-blue-400">{summary.tenants}</span></div>
+                    <div><span className="text-white/40">env:</span> <span className="text-amber-400">{summary.environment}</span></div>
+                    <div><span className="text-white/40">host:</span> <span className="text-white/65">{summary.hostname}</span></div>
+                    <div><span className="text-white/40">db:</span> <span className="text-white/65">{summary.db_host}</span></div>
+                  </div>
+                )}
+                <p className="mt-2 text-[10px] text-white/35">
+                  これは現在動いている AENTRO instance の実体検査結果です。「専用環境を起動」ボタンを押すとこれをベースに新しい tenant が provision されます。
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Progress UI */}

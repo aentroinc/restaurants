@@ -32,6 +32,7 @@ const sections: NavSection[] = [
     items: [
       { label: "Daily Brief（3分朝ブリーフ）", icon: Brain, href: "/daily-brief" },
       { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
+      { label: "中計 × AENTRO", icon: Target, href: "/zensho-mtp" },
       { label: "Action Loop ライブ", icon: Repeat, href: "/action-loop" },
       { label: "デモツアー（28秒）", icon: Presentation, href: "/demo-tour" },
     ],

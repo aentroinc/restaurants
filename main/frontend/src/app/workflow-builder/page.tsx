@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { ContextHeader } from "@/components/context-header"
+import { fetchAPI } from "@/lib/api"
 import { Sparkles, Zap, Plus, ChevronRight, Trash2, Play, Save, MessageSquare, Building2, AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react"
 
 interface WorkflowSpec {
@@ -58,36 +59,35 @@ export default function WorkflowBuilderPage() {
   const [generatedSpec, setGeneratedSpec] = useState<WorkflowSpec | null>(null)
   const [name, setName] = useState("")
 
+  const [aiSource, setAiSource] = useState<string>("")
+
   const generateFromNL = async () => {
     setGenerating(true)
     setGeneratedSpec(null)
-    // simulate AI generation (in real implementation, call /api/v1/ai/chat with workflow gen tool)
-    await new Promise((r) => setTimeout(r, 1500))
-    // pattern match
-    const lower = nlInput.toLowerCase()
-    let spec: WorkflowSpec
-    if (lower.includes("廃棄") || lower.includes("waste")) {
-      spec = PRESETS[0].spec
-    } else if (lower.includes("haccp") || lower.includes("温度")) {
-      spec = PRESETS[1].spec
-    } else if (lower.includes("health") || lower.includes("score")) {
-      spec = PRESETS[2].spec
-    } else if (lower.includes("欠品") || lower.includes("在庫") || lower.includes("stockout")) {
-      spec = {
-        trigger: { type: "inventory_threshold", condition: "stockout_risk > 0.7", threshold: "70%", window: "リアルタイム" },
-        action: { type: "create_replenishment", target: "本部 SCM", description: "前倒し補充指示" },
-        enabled: true,
-        estimated_value: "年間 ¥3.2M / 検出店舗",
-      }
-    } else {
-      spec = {
-        trigger: { type: "kpi_threshold", condition: "(条件を AI が解析中)", threshold: "?", window: "日次" },
-        action: { type: "notify", target: "担当者", description: "(アクション内容を AI が解析中)" },
-        enabled: true,
-      }
+    setAiSource("")
+    try {
+      const resp: any = await fetchAPI("/api/v1/workflow-ai/generate", {
+        method: "POST",
+        body: JSON.stringify({ nl: nlInput }),
+      })
+      // backend は { data, source } 形式 or 直接 spec
+      const spec = resp?.trigger ? resp : (resp?.data ?? resp)
+      const source = resp?.source || "claude"
+      setGeneratedSpec(spec)
+      setAiSource(source)
+      setName(nlInput.slice(0, 30))
+    } catch {
+      // fallback: pattern match
+      const lower = nlInput.toLowerCase()
+      const spec = lower.includes("廃棄") ? PRESETS[0].spec
+        : lower.includes("haccp") || lower.includes("温度") ? PRESETS[1].spec
+        : lower.includes("health") ? PRESETS[2].spec
+        : { trigger: { type: "kpi_threshold", condition: "(解析失敗)", threshold: "?", window: "日次" },
+            action: { type: "notify", target: "担当者", description: "AI 接続失敗、再試行してください" }, enabled: true }
+      setGeneratedSpec(spec)
+      setAiSource("offline_fallback")
+      setName(nlInput.slice(0, 30))
     }
-    setGeneratedSpec(spec)
-    setName(nlInput.slice(0, 30))
     setGenerating(false)
   }
 
@@ -139,7 +139,12 @@ export default function WorkflowBuilderPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span className="text-[12px] text-emerald-400/80 uppercase tracking-wider font-bold">AI が生成した spec</span>
+                <span className="text-[12px] text-emerald-400/80 uppercase tracking-wider font-bold">
+                  AI が生成した spec
+                  {aiSource === "claude" && <span className="ml-2 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[9px]">Claude {`(real)`}</span>}
+                  {aiSource === "pattern_match" && <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 text-[9px]">pattern (fallback)</span>}
+                  {aiSource === "offline_fallback" && <span className="ml-2 px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 text-[9px]">offline</span>}
+                </span>
               </div>
               <input
                 value={name}
