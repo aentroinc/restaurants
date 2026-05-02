@@ -20,9 +20,14 @@ from app.models.data_quality import DataQualityIssue
 from app.models.value_case import ValueCase, ValueCaseMetric
 from app.models.workflow import WorkflowTemplate, WorkflowInstance, WorkflowEvent
 from app.models.ai_query import AIQueryLog
+from app.models.ai_session import AISession
 from app.models.audit import AuditLog
 from app.models.user import User, AccessScope
 from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelationType
+from app.models.ontology_v2 import (
+    OntologyObjectTypeV2, OntologyPropertyType, OntologyLinkType,
+    OntologyInstance, OntologyLink,
+)
 from app.models.ingestion import IngestionBatch, DataContract, SchemaMapping
 from app.models.industry_playbook import IndustryPlaybook
 from app.models.lineage import LineageEvent
@@ -33,6 +38,14 @@ from app.models.supply_chain import Factory, DistributionCenter, DeliveryRoute
 from app.models.demand import SKU, InventorySnapshot, DemandForecast, ReplenishmentRecommendation
 from app.models.expansion import LocationCandidate, RenovationProject
 from app.models.campaign import MenuItem, Campaign, CampaignBreakdown
+from app.models.recipe import Ingredient, Recipe, RecipeBOM, IngredientPriceHistory
+from app.models.shift import ShiftPattern, Shift, LaborLawProfile
+from app.models.qsc import QSCTemplate, QSCAudit
+from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
+from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
+from app.models.benchmark import IndustryBenchmark
+from app.models.workspace import Analysis, CustomKPI, Cohort, SavedQuery
+from app.models.rbac import Role, Permission, UserRole
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -42,6 +55,8 @@ __all__ = [
     "ValueCase", "ValueCaseMetric", "WorkflowTemplate", "WorkflowInstance",
     "WorkflowEvent", "AIQueryLog", "AuditLog", "User", "AccessScope",
     "OntologyObjectType", "OntologyField", "OntologyRelationType",
+    "OntologyObjectTypeV2", "OntologyPropertyType", "OntologyLinkType",
+    "OntologyInstance", "OntologyLink",
     "IngestionBatch", "DataContract", "SchemaMapping", "IndustryPlaybook",
     "LineageEvent", "WritebackPolicy", "WritebackRequest", "KPIDefinition",
     "Incident", "IncidentScenario", "Action", "ActionAuditLog",
@@ -49,4 +64,12 @@ __all__ = [
     "SKU", "InventorySnapshot", "DemandForecast", "ReplenishmentRecommendation",
     "LocationCandidate", "RenovationProject",
     "MenuItem", "Campaign", "CampaignBreakdown",
+    "Ingredient", "Recipe", "RecipeBOM", "IngredientPriceHistory",
+    "ShiftPattern", "Shift", "LaborLawProfile",
+    "QSCTemplate", "QSCAudit",
+    "CCPDefinition", "HACCPMonitoring", "AllergenMatrix",
+    "FranchiseAgreement", "FranchiseRoyaltyCalc",
+    "IndustryBenchmark",
+    "Analysis", "CustomKPI", "Cohort", "SavedQuery",
+    "Role", "Permission", "UserRole",
 ]

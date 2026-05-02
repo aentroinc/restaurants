@@ -31,10 +31,22 @@ from app.models.value_case import ValueCase, ValueCaseMetric
 from app.models.workflow import WorkflowTemplate, WorkflowInstance, WorkflowEvent
 from app.models.user import User
 from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelationType
+from app.models.ontology_v2 import (
+    OntologyObjectTypeV2, OntologyPropertyType, OntologyLinkType,
+    OntologyInstance, OntologyLink,
+)
 from app.models.industry_playbook import IndustryPlaybook
 from app.models.kpi_definition import KPIDefinition
 from app.models.lineage import LineageEvent
 from app.models.writeback import WritebackPolicy, WritebackRequest
+from app.models.workspace import Analysis, CustomKPI, Cohort, SavedQuery
+from app.models.rbac import Role, Permission, UserRole
+from app.models.recipe import Ingredient, Recipe, RecipeBOM, IngredientPriceHistory
+from app.models.shift import ShiftPattern, Shift, LaborLawProfile
+from app.models.qsc import QSCTemplate, QSCAudit
+from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
+from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
+from app.models.benchmark import IndustryBenchmark
 from app.seed.generators import (
     TENANT_ID, COMPANY_ID, BRANDS,
     generate_regions, generate_areas, generate_brands, generate_employees,
@@ -45,6 +57,12 @@ from app.seed.generators import (
     generate_meeting_pack, generate_data_quality_issues,
     generate_users, generate_kpi_definitions, generate_ontology_data,
     generate_industry_playbooks, generate_lineage_events, generate_writeback_data,
+    generate_ontology_v2_data,
+    generate_roles_and_permissions, generate_workspace_data,
+    generate_ingredients, generate_ingredient_price_history,
+    generate_recipes_and_bom, generate_shifts, generate_labor_law_profile,
+    generate_qsc_audits, generate_haccp_data, generate_franchise_data,
+    generate_industry_benchmarks,
 )
 
 
@@ -68,6 +86,17 @@ def run():
         print("Clearing existing data...")
         # Delete in reverse dependency order
         tables = [
+            "franchise_royalty_calcs", "franchise_agreements",
+            "allergen_matrix", "haccp_monitoring", "ccp_definitions",
+            "qsc_audits", "qsc_templates",
+            "shifts", "shift_patterns", "labor_law_profiles",
+            "recipe_bom", "ingredient_price_history", "recipes", "ingredients",
+            "industry_benchmarks",
+            "saved_queries", "cohorts", "custom_kpis", "analyses",
+            "user_roles", "permissions", "roles",
+            "ontology_links", "ontology_instances",
+            "ontology_link_types_v2", "ontology_property_types",
+            "ontology_object_types_v2",
             "lineage_events", "writeback_requests", "writeback_policies",
             "workflow_events", "workflow_instances", "workflow_templates",
             "board_meeting_items", "board_meeting_packs",
@@ -288,6 +317,19 @@ def run():
         session.commit()
         print(f"  {len(ont_types)} object types, {len(ont_fields)} fields, {len(ont_relations)} relation types created.")
 
+        # 22b. Ontology V2 Data (dynamic ontology)
+        print("Creating ontology v2 data...")
+        v2_types, v2_props, v2_link_types, v2_instances = generate_ontology_v2_data(stores)
+        bulk_insert(session, OntologyObjectTypeV2, v2_types)
+        session.commit()
+        bulk_insert(session, OntologyPropertyType, v2_props)
+        session.commit()
+        bulk_insert(session, OntologyLinkType, v2_link_types)
+        session.commit()
+        bulk_insert(session, OntologyInstance, v2_instances)
+        session.commit()
+        print(f"  {len(v2_types)} v2 object types, {len(v2_props)} properties, {len(v2_link_types)} link types, {len(v2_instances)} instances created.")
+
         # 23. Industry Playbooks
         print("Creating industry playbooks...")
         playbooks = generate_industry_playbooks()
@@ -310,6 +352,102 @@ def run():
         bulk_insert(session, WritebackRequest, wb_requests)
         session.commit()
         print(f"  {len(wb_policies)} policies, {len(wb_requests)} requests created.")
+
+        # 26. RBAC Roles, Permissions, UserRoles
+        print("Creating RBAC roles and permissions...")
+        rbac_roles, rbac_perms, rbac_user_roles = generate_roles_and_permissions()
+        bulk_insert(session, Role, rbac_roles)
+        session.commit()
+        bulk_insert(session, Permission, rbac_perms)
+        session.commit()
+        bulk_insert(session, UserRole, rbac_user_roles)
+        session.commit()
+        print(f"  {len(rbac_roles)} roles, {len(rbac_perms)} permissions, {len(rbac_user_roles)} user-role assignments created.")
+
+        # 27. Workspace Data (Analyses, Custom KPIs, Cohorts, Saved Queries)
+        print("Creating workspace data...")
+        ws_analyses, ws_kpis, ws_cohorts, ws_queries = generate_workspace_data()
+        bulk_insert(session, Analysis, ws_analyses)
+        session.commit()
+        bulk_insert(session, CustomKPI, ws_kpis)
+        session.commit()
+        bulk_insert(session, Cohort, ws_cohorts)
+        session.commit()
+        bulk_insert(session, SavedQuery, ws_queries)
+        session.commit()
+        print(f"  {len(ws_analyses)} analyses, {len(ws_kpis)} custom KPIs, {len(ws_cohorts)} cohorts, {len(ws_queries)} saved queries created.")
+
+        # 28. Ingredients + Price History
+        print("Creating ingredients...")
+        ingredients = generate_ingredients()
+        bulk_insert(session, Ingredient, ingredients)
+        session.commit()
+        print(f"  {len(ingredients)} ingredients created.")
+
+        print("Creating ingredient price history...")
+        ing_prices = generate_ingredient_price_history(ingredients)
+        bulk_insert(session, IngredientPriceHistory, ing_prices)
+        session.commit()
+        print(f"  {len(ing_prices)} ingredient price records created.")
+
+        # 29. Recipes + BOM
+        print("Creating recipes and BOM...")
+        recipes, bom_entries = generate_recipes_and_bom(products, ingredients)
+        bulk_insert(session, Recipe, recipes)
+        session.commit()
+        bulk_insert(session, RecipeBOM, bom_entries)
+        session.commit()
+        print(f"  {len(recipes)} recipes, {len(bom_entries)} BOM entries created.")
+
+        # 30. Shifts + Labor Law Profile
+        print("Creating shifts...")
+        shifts = generate_shifts(stores, employees)
+        bulk_insert(session, Shift, shifts)
+        session.commit()
+        print(f"  {len(shifts)} shifts created.")
+
+        print("Creating labor law profile...")
+        llp = generate_labor_law_profile()
+        bulk_insert(session, LaborLawProfile, llp)
+        session.commit()
+
+        # 31. QSC Audits
+        print("Creating QSC templates and audits...")
+        qsc_templates, qsc_audits = generate_qsc_audits(stores)
+        bulk_insert(session, QSCTemplate, qsc_templates)
+        session.commit()
+        bulk_insert(session, QSCAudit, qsc_audits)
+        session.commit()
+        print(f"  {len(qsc_templates)} templates, {len(qsc_audits)} audits created.")
+
+        # 32. HACCP Data
+        print("Creating HACCP data...")
+        ccps, haccp_monitoring, allergen_matrix = generate_haccp_data(stores, products)
+        bulk_insert(session, CCPDefinition, ccps)
+        session.commit()
+        for i in range(0, len(haccp_monitoring), batch_size):
+            batch = haccp_monitoring[i:i+batch_size]
+            bulk_insert(session, HACCPMonitoring, batch)
+            session.commit()
+        bulk_insert(session, AllergenMatrix, allergen_matrix)
+        session.commit()
+        print(f"  {len(ccps)} CCPs, {len(haccp_monitoring)} monitoring records, {len(allergen_matrix)} allergen entries created.")
+
+        # 33. Franchise Data
+        print("Creating franchise data...")
+        fc_agreements, fc_royalties = generate_franchise_data(stores)
+        bulk_insert(session, FranchiseAgreement, fc_agreements)
+        session.commit()
+        bulk_insert(session, FranchiseRoyaltyCalc, fc_royalties)
+        session.commit()
+        print(f"  {len(fc_agreements)} agreements, {len(fc_royalties)} royalty calcs created.")
+
+        # 34. Industry Benchmarks
+        print("Creating industry benchmarks...")
+        benchmarks = generate_industry_benchmarks()
+        bulk_insert(session, IndustryBenchmark, benchmarks)
+        session.commit()
+        print(f"  {len(benchmarks)} benchmarks created.")
 
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")

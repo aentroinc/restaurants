@@ -1905,3 +1905,1077 @@ def generate_industry_playbooks():
         })
 
     return results
+
+
+def generate_ontology_v2_data(stores):
+    """Generate v2 dynamic ontology data: object types, properties, link types, and store instances."""
+
+    # --- 9 Object Types ---
+    object_type_defs = [
+        {"api_name": "Store", "display_name": "店舗", "icon": "store", "pk": "store_code"},
+        {"api_name": "Brand", "display_name": "ブランド", "icon": "tag", "pk": "name"},
+        {"api_name": "Product", "display_name": "商品", "icon": "package", "pk": "product_code"},
+        {"api_name": "Employee", "display_name": "従業員", "icon": "user", "pk": "code"},
+        {"api_name": "Task", "display_name": "タスク", "icon": "check-square", "pk": "id"},
+        {"api_name": "SVVisit", "display_name": "SV訪問", "icon": "clipboard", "pk": "id"},
+        {"api_name": "Review", "display_name": "レビュー", "icon": "message-circle", "pk": "id"},
+        {"api_name": "MeetingPack", "display_name": "経営会議パック", "icon": "briefcase", "pk": "id"},
+        {"api_name": "ValueCase", "display_name": "改善施策", "icon": "trending-up", "pk": "id"},
+    ]
+
+    object_types = []
+    ot_id_map = {}
+    for i, otd in enumerate(object_type_defs):
+        ot_id = gen_deterministic_uuid("ontology_v2_ot", i)
+        ot_id_map[otd["api_name"]] = ot_id
+        object_types.append({
+            "id": ot_id,
+            "tenant_id": TENANT_ID,
+            "api_name": otd["api_name"],
+            "display_name": otd["display_name"],
+            "icon": otd["icon"],
+            "primary_key_field": otd["pk"],
+            "version": 1,
+            "status": "active",
+        })
+
+    # --- Properties per object type ---
+    property_defs = {
+        "Store": [
+            ("store_code", "店舗コード", "string", True, None, None, 0),
+            ("name", "店舗名", "string", True, None, None, 1),
+            ("prefecture", "都道府県", "string", False, None, None, 2),
+            ("city", "市区町村", "string", False, None, None, 3),
+            ("trade_area_type", "商圏タイプ", "enum", False, ["駅前", "ロードサイド", "商業施設", "オフィス街", "住宅街"], None, 4),
+            ("seat_count", "座席数", "int", False, None, {"min": 1, "max": 500}, 5),
+            ("status", "ステータス", "enum", False, ["active", "closed", "planned"], None, 6),
+            ("opening_date", "開店日", "timestamp", False, None, None, 7),
+            ("parking", "駐車場", "bool", False, None, None, 8),
+            ("drive_through", "ドライブスルー", "bool", False, None, None, 9),
+            ("delivery", "デリバリー", "bool", False, None, None, 10),
+            ("takeout", "テイクアウト", "bool", False, None, None, 11),
+            ("lat", "緯度", "float", False, None, {"min": -90, "max": 90}, 12),
+            ("lng", "経度", "float", False, None, {"min": -180, "max": 180}, 13),
+        ],
+        "Product": [
+            ("product_code", "商品コード", "string", True, None, None, 0),
+            ("name", "商品名", "string", True, None, None, 1),
+            ("category_l1", "カテゴリ大", "string", False, None, None, 2),
+            ("category_l2", "カテゴリ小", "string", False, None, None, 3),
+            ("price", "販売価格", "float", True, None, {"min": 0}, 4),
+            ("theoretical_cost", "理論原価", "float", False, None, {"min": 0}, 5),
+            ("active", "販売中", "bool", False, None, None, 6),
+            ("limited_time_offer", "期間限定", "bool", False, None, None, 7),
+        ],
+        "Brand": [
+            ("name", "ブランド名", "string", True, None, None, 0),
+            ("service_model", "サービスモデル", "enum", False, ["beef_bowl", "sushi", "burger", "izakaya", "ramen"], None, 1),
+            ("logo_url", "ロゴURL", "string", False, None, None, 2),
+        ],
+        "Employee": [
+            ("code", "社員コード", "string", True, None, None, 0),
+            ("name", "氏名", "string", True, None, None, 1),
+            ("role", "役職", "enum", False, ["director", "sv", "manager", "staff"], None, 2),
+            ("email", "メール", "string", False, None, None, 3),
+        ],
+        "Task": [
+            ("title", "タスク名", "string", True, None, None, 0),
+            ("status", "ステータス", "enum", False, ["open", "in_progress", "done", "cancelled"], None, 1),
+            ("priority", "優先度", "enum", False, ["high", "medium", "low"], None, 2),
+            ("category", "カテゴリ", "string", False, None, None, 3),
+            ("due_date", "期限", "timestamp", False, None, None, 4),
+        ],
+        "SVVisit": [
+            ("visit_date", "訪問日", "timestamp", True, None, None, 0),
+            ("overall_score", "総合スコア", "float", False, None, {"min": 0, "max": 100}, 1),
+            ("checklist_results", "チェックリスト結果", "object", False, None, None, 2),
+            ("memo", "メモ", "string", False, None, None, 3),
+        ],
+        "Review": [
+            ("platform", "プラットフォーム", "enum", False, ["google", "tabelog", "hotpepper"], None, 0),
+            ("rating", "評価", "float", False, None, {"min": 1, "max": 5}, 1),
+            ("comment", "コメント", "string", False, None, None, 2),
+            ("sentiment", "感情分析", "enum", False, ["positive", "neutral", "negative"], None, 3),
+            ("posted_at", "投稿日時", "timestamp", False, None, None, 4),
+        ],
+        "MeetingPack": [
+            ("title", "タイトル", "string", True, None, None, 0),
+            ("meeting_date", "会議日", "timestamp", True, None, None, 1),
+            ("status", "ステータス", "enum", False, ["draft", "published", "archived"], None, 2),
+        ],
+        "ValueCase": [
+            ("title", "施策名", "string", True, None, None, 0),
+            ("category", "カテゴリ", "string", False, None, None, 1),
+            ("status", "ステータス", "enum", False, ["proposed", "active", "completed", "rejected"], None, 2),
+            ("estimated_impact", "推定効果額", "float", False, None, {"min": 0}, 3),
+        ],
+    }
+
+    properties = []
+    prop_idx = 0
+    for ot_name, prop_list in property_defs.items():
+        ot_id = ot_id_map[ot_name]
+        for api_name, display, dtype, required, enum_vals, validation, sort in prop_list:
+            properties.append({
+                "id": gen_deterministic_uuid("ontology_v2_prop", prop_idx),
+                "tenant_id": TENANT_ID,
+                "object_type_id": ot_id,
+                "api_name": api_name,
+                "display_name": display,
+                "data_type": dtype,
+                "required": required,
+                "enum_values": enum_vals,
+                "validation": validation,
+                "pii_level": "low" if api_name in ("email", "name") and ot_name == "Employee" else "none",
+                "sort_order": sort,
+                "version": 1,
+            })
+            prop_idx += 1
+
+    # --- 7 Link Types ---
+    link_type_defs = [
+        ("store_belongs_to_brand", "ブランド所属", "Store", "Brand", "many_to_one"),
+        ("store_managed_by", "店長", "Store", "Employee", "many_to_one"),
+        ("store_has_task", "タスク割当", "Store", "Task", "one_to_many"),
+        ("store_has_review", "レビュー", "Store", "Review", "one_to_many"),
+        ("brand_has_product", "商品提供", "Brand", "Product", "one_to_many"),
+        ("task_assigned_to", "担当者", "Task", "Employee", "many_to_one"),
+        ("store_has_sv_visit", "SV訪問", "Store", "SVVisit", "one_to_many"),
+    ]
+
+    link_types = []
+    for i, (api_name, display, from_t, to_t, card) in enumerate(link_type_defs):
+        link_types.append({
+            "id": gen_deterministic_uuid("ontology_v2_lt", i),
+            "tenant_id": TENANT_ID,
+            "api_name": api_name,
+            "display_name": display,
+            "from_object_type_id": ot_id_map[from_t],
+            "to_object_type_id": ot_id_map[to_t],
+            "cardinality": card,
+            "version": 1,
+            "status": "active",
+        })
+
+    # --- Store Instances (copy from stores table data) ---
+    instances = []
+    store_ot_id = ot_id_map["Store"]
+    for i, s in enumerate(stores):
+        props = {
+            "store_code": s["code"],
+            "name": s["name"],
+            "prefecture": s["prefecture"],
+            "city": s["city"],
+            "trade_area_type": s["trade_area_type"],
+            "seat_count": s["seat_count"],
+            "status": s["status"],
+            "opening_date": s["opening_date"].isoformat() if s.get("opening_date") else None,
+            "parking": s["parking"],
+            "drive_through": s["drive_through"],
+            "delivery": s["delivery"],
+            "takeout": s["takeout"],
+            "lat": s["lat"],
+            "lng": s["lng"],
+        }
+        instances.append({
+            "id": gen_deterministic_uuid("ontology_v2_inst_store", i),
+            "tenant_id": TENANT_ID,
+            "object_type_id": store_ot_id,
+            "object_type_version": 1,
+            "primary_key_value": s["code"],
+            "properties": props,
+            "status": "active",
+        })
+
+    return object_types, properties, link_types, instances
+
+
+def generate_roles_and_permissions():
+    role_defs = [
+        ("admin", "管理者", "全権限を持つシステム管理者", True),
+        ("executive", "経営層", "全リソースの閲覧権限", True),
+        ("brand_manager", "ブランドマネージャー", "ブランド配下の店舗・タスクの管理", True),
+        ("area_manager", "エリアマネージャー", "エリア配下の店舗・タスクの管理", True),
+        ("sv", "SV", "担当店舗の巡回・タスク管理", True),
+        ("store_staff", "店舗スタッフ", "自店舗の閲覧のみ", True),
+        ("viewer", "閲覧者", "集計済みKPIの閲覧のみ", True),
+        ("analyst", "アナリスト", "ワークスペース全権限、店舗・KPI閲覧", True),
+    ]
+
+    roles = []
+    role_id_map = {}
+    for i, (name, display, desc, is_system) in enumerate(role_defs):
+        rid = gen_deterministic_uuid("role", i)
+        role_id_map[name] = rid
+        roles.append({
+            "id": rid,
+            "tenant_id": TENANT_ID,
+            "name": name,
+            "display_name": display,
+            "description": desc,
+            "is_system": is_system,
+        })
+
+    perm_defs = {
+        "admin": [
+            ("store", "read"), ("store", "write"), ("store", "delete"),
+            ("task", "read"), ("task", "write"), ("task", "delete"),
+            ("meeting_pack", "read"), ("meeting_pack", "write"), ("meeting_pack", "delete"),
+            ("ai_analyst", "read"), ("ai_analyst", "execute"),
+            ("kpi_definition", "read"), ("kpi_definition", "write"), ("kpi_definition", "delete"),
+            ("workspace", "read"), ("workspace", "write"), ("workspace", "delete"),
+        ],
+        "executive": [
+            ("store", "read"), ("task", "read"), ("meeting_pack", "read"),
+            ("ai_analyst", "read"), ("ai_analyst", "execute"),
+            ("kpi_definition", "read"), ("workspace", "read"),
+        ],
+        "brand_manager": [
+            ("store", "read", {"field": "brand_id", "operator": "eq", "value": "{user.brand_ids}"}),
+            ("store", "write", {"field": "brand_id", "operator": "eq", "value": "{user.brand_ids}"}),
+            ("task", "read", {"field": "brand_id", "operator": "eq", "value": "{user.brand_ids}"}),
+            ("task", "write", {"field": "brand_id", "operator": "eq", "value": "{user.brand_ids}"}),
+            ("meeting_pack", "read"),
+            ("kpi_definition", "read"),
+        ],
+        "area_manager": [
+            ("store", "read", {"field": "region", "operator": "eq", "value": "{user.region}"}),
+            ("store", "write", {"field": "region", "operator": "eq", "value": "{user.region}"}),
+            ("task", "read", {"field": "region", "operator": "eq", "value": "{user.region}"}),
+            ("task", "write", {"field": "region", "operator": "eq", "value": "{user.region}"}),
+            ("kpi_definition", "read"),
+        ],
+        "sv": [
+            ("store", "read", {"field": "assigned_stores", "operator": "in", "value": "{user.store_ids}"}),
+            ("store", "write", {"field": "assigned_stores", "operator": "in", "value": "{user.store_ids}"}),
+            ("task", "read", {"field": "assigned_stores", "operator": "in", "value": "{user.store_ids}"}),
+            ("task", "write", {"field": "assigned_stores", "operator": "in", "value": "{user.store_ids}"}),
+        ],
+        "store_staff": [
+            ("store", "read", {"field": "store_id", "operator": "eq", "value": "{user.store_id}"}),
+        ],
+        "viewer": [
+            ("store", "read"),
+            ("kpi_definition", "read"),
+        ],
+        "analyst": [
+            ("workspace", "read"), ("workspace", "write"), ("workspace", "delete"), ("workspace", "execute"),
+            ("store", "read"), ("kpi_definition", "read"),
+            ("ai_analyst", "read"), ("ai_analyst", "execute"),
+        ],
+    }
+
+    permissions = []
+    perm_idx = 0
+    for role_name, perm_list in perm_defs.items():
+        role_id = role_id_map[role_name]
+        for pdef in perm_list:
+            resource, action = pdef[0], pdef[1]
+            scope = pdef[2] if len(pdef) > 2 else None
+            permissions.append({
+                "id": gen_deterministic_uuid("permission", perm_idx),
+                "tenant_id": TENANT_ID,
+                "role_id": role_id,
+                "resource": resource,
+                "action": action,
+                "scope": scope,
+            })
+            perm_idx += 1
+
+    user_roles = [
+        {
+            "id": gen_deterministic_uuid("user_role", 0),
+            "user_id": gen_deterministic_uuid("user", 0),
+            "role_id": role_id_map["admin"],
+            "tenant_id": TENANT_ID,
+            "granted_by": None,
+        },
+        {
+            "id": gen_deterministic_uuid("user_role", 1),
+            "user_id": gen_deterministic_uuid("user", 1),
+            "role_id": role_id_map["sv"],
+            "tenant_id": TENANT_ID,
+            "granted_by": gen_deterministic_uuid("user", 0),
+        },
+        {
+            "id": gen_deterministic_uuid("user_role", 2),
+            "user_id": gen_deterministic_uuid("user", 2),
+            "role_id": role_id_map["store_staff"],
+            "tenant_id": TENANT_ID,
+            "granted_by": gen_deterministic_uuid("user", 0),
+        },
+    ]
+
+    return roles, permissions, user_roles
+
+
+def generate_workspace_data():
+    admin_id = gen_deterministic_uuid("user", 0)
+
+    analyses = [
+        {
+            "id": gen_deterministic_uuid("analysis", 0),
+            "tenant_id": TENANT_ID,
+            "name": "粗利率トレンド分析",
+            "description": "ブランド別・月次の粗利率推移を可視化し、原価高騰の影響を分析",
+            "owner_user_id": admin_id,
+            "visibility": "tenant",
+            "spec": {
+                "panels": [
+                    {"type": "line_chart", "kpi": "gross_profit_rate", "axis": ["brand", "month"],
+                     "filters": {}, "title": "ブランド別粗利率推移"},
+                    {"type": "table", "kpi": "cogs_rate", "axis": ["brand", "month"],
+                     "filters": {}, "title": "原価率一覧"},
+                ],
+                "layout": {"columns": 2},
+            },
+        },
+        {
+            "id": gen_deterministic_uuid("analysis", 1),
+            "tenant_id": TENANT_ID,
+            "name": "エリア別人件費比較",
+            "description": "エリア間の人件費率・人時売上の比較分析",
+            "owner_user_id": admin_id,
+            "visibility": "tenant",
+            "spec": {
+                "panels": [
+                    {"type": "bar_chart", "kpi": "labor_cost_rate", "axis": ["area"],
+                     "filters": {}, "title": "エリア別人件費率"},
+                    {"type": "scatter", "x_kpi": "sales_per_labor_hour", "y_kpi": "labor_cost_rate",
+                     "axis": ["store"], "title": "人時売上 vs 人件費率"},
+                ],
+                "layout": {"columns": 2},
+            },
+        },
+        {
+            "id": gen_deterministic_uuid("analysis", 2),
+            "tenant_id": TENANT_ID,
+            "name": "改善施策効果追跡",
+            "description": "施策実施前後のKPI変化を追跡するダッシュボード",
+            "owner_user_id": admin_id,
+            "visibility": "private",
+            "spec": {
+                "panels": [
+                    {"type": "line_chart", "kpi": "net_sales", "axis": ["store", "month"],
+                     "filters": {"cohort": "low_profit_stores"}, "title": "対象店舗の売上推移"},
+                    {"type": "metric", "kpi": "health_score", "axis": ["store"],
+                     "title": "ヘルススコア変化"},
+                ],
+                "layout": {"columns": 1},
+            },
+        },
+    ]
+
+    custom_kpis = [
+        {
+            "id": gen_deterministic_uuid("custom_kpi", 0),
+            "tenant_id": TENANT_ID,
+            "api_name": "takeout_ratio",
+            "display_name": "テイクアウト比率",
+            "formula": "{takeout_sales} / {net_sales}",
+            "target_object_type": "Store",
+            "aggregation_axis": ["brand", "month"],
+            "filters": None,
+            "unit": "%",
+            "created_by": admin_id,
+            "version": 1,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("custom_kpi", 1),
+            "tenant_id": TENANT_ID,
+            "api_name": "splh_yoy_improvement",
+            "display_name": "人時売上改善率",
+            "formula": "({sales_per_labor_hour} - {sales_per_labor_hour}) / {sales_per_labor_hour}",
+            "target_object_type": "Store",
+            "aggregation_axis": ["region", "month"],
+            "filters": None,
+            "unit": "%",
+            "created_by": admin_id,
+            "version": 1,
+            "status": "draft",
+        },
+    ]
+
+    cohorts = [
+        {
+            "id": gen_deterministic_uuid("cohort", 0),
+            "tenant_id": TENANT_ID,
+            "name": "首都圏駅前低収益店舗",
+            "object_type": "Store",
+            "filter_spec": {
+                "region": "関東",
+                "trade_area_type": "駅前",
+                "health_score_lt": 50,
+            },
+            "instance_count": None,
+            "snapshot_at": None,
+            "created_by": admin_id,
+        },
+        {
+            "id": gen_deterministic_uuid("cohort", 1),
+            "tenant_id": TENANT_ID,
+            "name": "人件費超過店舗群",
+            "object_type": "Store",
+            "filter_spec": {
+                "labor_cost_rate_gt": 35,
+            },
+            "instance_count": None,
+            "snapshot_at": None,
+            "created_by": admin_id,
+        },
+    ]
+
+    saved_queries = [
+        {
+            "id": gen_deterministic_uuid("saved_query", 0),
+            "tenant_id": TENANT_ID,
+            "name": "ブランド別月次売上サマリ",
+            "query_type": "ontology",
+            "query_spec": {
+                "object_type": "Store",
+                "measures": ["net_sales", "customer_count"],
+                "dimensions": ["brand", "month"],
+                "filters": {},
+                "sort": [{"field": "net_sales", "direction": "desc"}],
+            },
+            "last_run_at": None,
+            "row_count": None,
+            "created_by": admin_id,
+        },
+        {
+            "id": gen_deterministic_uuid("saved_query", 1),
+            "tenant_id": TENANT_ID,
+            "name": "低スコア店舗のタスク完了率",
+            "query_type": "kpi",
+            "query_spec": {
+                "kpi": "task_completion_rate",
+                "cohort_id": str(gen_deterministic_uuid("cohort", 0)),
+                "period": "last_90_days",
+            },
+            "last_run_at": None,
+            "row_count": None,
+            "created_by": admin_id,
+        },
+    ]
+
+    return analyses, custom_kpis, cohorts, saved_queries
+
+
+# =====================================================================
+# Vertical depth generators (Phase A + B)
+# =====================================================================
+
+JAPANESE_ALLERGENS_7 = ["えび", "かに", "小麦", "そば", "卵", "乳", "落花生"]
+JAPANESE_ALLERGENS_21 = [
+    "アーモンド", "あわび", "いか", "いくら", "オレンジ", "カシューナッツ",
+    "キウイフルーツ", "牛肉", "くるみ", "ごま", "さけ", "さば", "大豆",
+    "鶏肉", "バナナ", "豚肉", "まつたけ", "もも", "やまいも", "りんご", "ゼラチン",
+]
+ALL_ALLERGENS = JAPANESE_ALLERGENS_7 + JAPANESE_ALLERGENS_21
+
+INGREDIENT_DEFS = [
+    ("白米", "g", 0.30, [], "常温", 365),
+    ("酢飯", "g", 0.45, [], "冷蔵", 1),
+    ("牛バラ肉", "g", 2.80, ["牛肉"], "冷凍", 90),
+    ("豚バラ肉", "g", 2.20, ["豚肉"], "冷凍", 90),
+    ("鶏胸肉", "g", 1.50, ["鶏肉"], "冷凍", 90),
+    ("牛ひき肉", "g", 2.50, ["牛肉"], "冷凍", 60),
+    ("玉ねぎ", "g", 0.20, [], "常温", 30),
+    ("レタス", "g", 0.40, [], "冷蔵", 5),
+    ("トマト", "g", 0.50, [], "冷蔵", 7),
+    ("醤油", "ml", 0.30, ["大豆", "小麦"], "常温", 365),
+    ("味噌", "g", 0.60, ["大豆"], "冷蔵", 180),
+    ("サーモン", "g", 4.50, ["さけ"], "冷凍", 60),
+    ("マグロ", "g", 6.00, [], "冷凍", 60),
+    ("エビ", "g", 5.00, ["えび"], "冷凍", 90),
+    ("鯛", "g", 5.50, [], "冷凍", 60),
+    ("いか", "g", 3.50, ["いか"], "冷凍", 60),
+    ("海苔", "枚", 5.00, [], "常温", 180),
+    ("たまご", "個", 25.00, ["卵"], "冷蔵", 14),
+    ("パン粉", "g", 0.30, ["小麦"], "常温", 180),
+    ("食用油", "ml", 0.20, [], "常温", 365),
+    ("フレンチフライ用ポテト", "g", 0.35, [], "冷凍", 180),
+    ("バンズ", "個", 40.00, ["小麦", "卵", "乳"], "冷凍", 60),
+    ("チーズ", "g", 1.80, ["乳"], "冷蔵", 30),
+    ("ケチャップ", "g", 0.25, [], "常温", 365),
+    ("マスタード", "g", 0.40, [], "常温", 365),
+    ("わさび", "g", 3.00, [], "冷蔵", 30),
+    ("ガリ", "g", 0.50, [], "冷蔵", 90),
+    ("枝豆", "g", 0.80, ["大豆"], "冷凍", 180),
+    ("納豆", "パック", 30.00, ["大豆"], "冷蔵", 10),
+    ("きゅうり", "g", 0.30, [], "冷蔵", 7),
+]
+
+RECIPE_DEFS = {
+    "牛丼 並": [("白米", 250), ("牛バラ肉", 100), ("玉ねぎ", 50), ("醤油", 20)],
+    "牛丼 大盛": [("白米", 350), ("牛バラ肉", 130), ("玉ねぎ", 60), ("醤油", 25)],
+    "豚丼 並": [("白米", 250), ("豚バラ肉", 100), ("玉ねぎ", 50), ("醤油", 20)],
+    "味噌汁": [("味噌", 15), ("玉ねぎ", 20)],
+    "ねぎ玉牛丼": [("白米", 250), ("牛バラ肉", 100), ("玉ねぎ", 70), ("醤油", 20), ("たまご", 1)],
+    "まぐろ": [("酢飯", 20), ("マグロ", 15), ("わさび", 1)],
+    "サーモン": [("酢飯", 20), ("サーモン", 15), ("わさび", 1)],
+    "えび": [("酢飯", 20), ("エビ", 12), ("わさび", 1)],
+    "いか": [("酢飯", 20), ("いか", 15), ("わさび", 1)],
+    "鉄火巻": [("酢飯", 80), ("マグロ", 30), ("海苔", 1), ("わさび", 2)],
+    "かっぱ巻": [("酢飯", 80), ("きゅうり", 30), ("海苔", 1)],
+    "クラシックバーガー": [("バンズ", 1), ("牛ひき肉", 120), ("レタス", 20), ("トマト", 30), ("ケチャップ", 15)],
+    "チーズバーガー": [("バンズ", 1), ("牛ひき肉", 120), ("チーズ", 25), ("レタス", 20), ("ケチャップ", 15)],
+    "ダブルバーガー": [("バンズ", 1), ("牛ひき肉", 240), ("レタス", 25), ("トマト", 30), ("ケチャップ", 20)],
+    "チキンバーガー": [("バンズ", 1), ("鶏胸肉", 130), ("レタス", 20), ("ケチャップ", 10)],
+    "フレンチフライ S": [("フレンチフライ用ポテト", 100), ("食用油", 30)],
+    "フレンチフライ M": [("フレンチフライ用ポテト", 150), ("食用油", 40)],
+    "フレンチフライ L": [("フレンチフライ用ポテト", 200), ("食用油", 50)],
+    "ナゲット 5pc": [("鶏胸肉", 100), ("パン粉", 20), ("食用油", 30)],
+    "茶碗蒸し": [("たまご", 2), ("エビ", 10), ("鶏胸肉", 15)],
+}
+
+CCP_DEFS = [
+    ("揚げ物中心温度", 75.0, None, "per_batch", "中心温度計による測定"),
+    ("冷蔵庫温度", None, 10.0, "daily", "温度計の目視確認"),
+    ("冷凍庫温度", None, -15.0, "daily", "温度計の目視確認"),
+    ("食材入荷時温度", None, 10.0, "per_batch", "非接触温度計"),
+    ("手洗い確認", 1.0, None, "hourly", "目視チェック"),
+    ("加熱調理温度", 63.0, None, "per_batch", "中心温度計"),
+]
+
+QSC_TEMPLATE_SECTIONS = [
+    {
+        "name": "品質 (Quality)",
+        "weight": 0.4,
+        "items": [
+            {"question": "料理の温度は適切か", "max_score": 10},
+            {"question": "盛り付けは基準通りか", "max_score": 10},
+            {"question": "食材の鮮度は問題ないか", "max_score": 10},
+            {"question": "メニュー表通りの提供か", "max_score": 10},
+            {"question": "味付けは基準通りか", "max_score": 10},
+        ],
+    },
+    {
+        "name": "サービス (Service)",
+        "weight": 0.35,
+        "items": [
+            {"question": "入店時の挨拶はあったか", "max_score": 10},
+            {"question": "注文から提供までの時間", "max_score": 10},
+            {"question": "スタッフの身だしなみ", "max_score": 10},
+            {"question": "クレーム対応力", "max_score": 10},
+        ],
+    },
+    {
+        "name": "清潔 (Cleanliness)",
+        "weight": 0.25,
+        "items": [
+            {"question": "客席の清潔さ", "max_score": 10},
+            {"question": "トイレの清潔さ", "max_score": 10},
+            {"question": "厨房の清潔さ", "max_score": 10},
+            {"question": "外観・看板の清潔さ", "max_score": 10},
+        ],
+    },
+]
+
+
+def generate_ingredients():
+    results = []
+    for i, (name, unit, cost, allergens, storage, shelf) in enumerate(INGREDIENT_DEFS):
+        results.append({
+            "id": gen_deterministic_uuid("ingredient", i),
+            "tenant_id": TENANT_ID,
+            "name": name,
+            "unit": unit,
+            "supplier_id": None,
+            "standard_cost_per_unit": Decimal(str(cost)),
+            "allergen_codes": allergens,
+            "storage_temperature": storage,
+            "shelf_life_days": shelf,
+        })
+    return results
+
+
+def generate_ingredient_price_history(ingredients):
+    results = []
+    idx = 0
+    base_date = date(2024, 4, 1)
+    for ing in ingredients:
+        cost = float(ing["standard_cost_per_unit"])
+        for month_offset in range(24):
+            d = base_date + timedelta(days=month_offset * 30)
+            seasonal = 1.0 + RNG.uniform(-0.08, 0.08)
+            results.append({
+                "id": gen_deterministic_uuid("ing_price", idx),
+                "tenant_id": TENANT_ID,
+                "ingredient_id": ing["id"],
+                "supplier_id": None,
+                "unit_price": Decimal(str(round(cost * seasonal, 2))),
+                "effective_date": d,
+                "source": RNG.choice(["contract", "spot", "seasonal_forecast"]),
+            })
+            idx += 1
+    return results
+
+
+def generate_recipes_and_bom(products, ingredients):
+    ing_map = {ing["name"]: ing for ing in ingredients}
+    prod_map = {p["name"]: p for p in products}
+
+    recipes = []
+    bom_entries = []
+    r_idx = 0
+    b_idx = 0
+
+    for recipe_name, ing_list in RECIPE_DEFS.items():
+        product = prod_map.get(recipe_name)
+        if not product:
+            continue
+
+        recipe_id = gen_deterministic_uuid("recipe", r_idx)
+        recipes.append({
+            "id": recipe_id,
+            "tenant_id": TENANT_ID,
+            "product_id": product["id"],
+            "version": 1,
+            "yield_quantity": 1,
+            "cooking_time_minutes": RNG.randint(2, 15),
+            "instructions": None,
+            "status": "active",
+            "valid_from": datetime(2024, 4, 1),
+            "valid_to": None,
+        })
+
+        for ing_name, qty in ing_list:
+            ingredient = ing_map.get(ing_name)
+            if not ingredient:
+                continue
+            bom_entries.append({
+                "id": gen_deterministic_uuid("bom", b_idx),
+                "tenant_id": TENANT_ID,
+                "recipe_id": recipe_id,
+                "ingredient_id": ingredient["id"],
+                "quantity": Decimal(str(qty)),
+                "unit": ingredient["unit"],
+                "notes": None,
+            })
+            b_idx += 1
+
+        r_idx += 1
+
+    return recipes, bom_entries
+
+
+SHIFT_ROLES = ["調理", "ホール", "レジ", "清掃", "店長"]
+
+def generate_shifts(stores, employees):
+    results = []
+    idx = 0
+    base_date = date(2026, 3, 1)
+    manager_emps = [e for e in employees if e["role"] == "manager"]
+    sv_emps = [e for e in employees if e["role"] == "sv"]
+    all_emps = manager_emps + sv_emps
+
+    for day_offset in range(30):
+        current_date = base_date + timedelta(days=day_offset)
+        for store in stores[:20]:
+            n_shifts = RNG.randint(3, 6)
+            for s in range(n_shifts):
+                emp = all_emps[idx % len(all_emps)]
+                role = RNG.choice(SHIFT_ROLES)
+
+                # normal shifts: 6-8 hours
+                start_hour = RNG.choice([6, 7, 8, 9, 10, 11, 14, 15, 17, 18])
+                duration = RNG.choice([6, 7, 8, 9])
+
+                violations = []
+                # ~8% of shifts have violations
+                if RNG.random() < 0.08:
+                    violation_type = RNG.choice([
+                        "overtime", "short_break", "night_minor", "short_rest"
+                    ])
+                    if violation_type == "overtime":
+                        duration = RNG.randint(10, 13)
+                    elif violation_type == "short_break":
+                        pass  # handled below
+                    elif violation_type == "night_minor":
+                        start_hour = 22
+                        duration = 6
+                    elif violation_type == "short_rest":
+                        start_hour = 6  # early start after late shift
+
+                start_at = datetime(current_date.year, current_date.month, current_date.day, start_hour, 0)
+                end_hour = start_hour + duration
+                end_day = current_date
+                if end_hour >= 24:
+                    end_hour -= 24
+                    end_day = current_date + timedelta(days=1)
+                end_at = datetime(end_day.year, end_day.month, end_day.day, end_hour, 0)
+
+                work_hours = duration
+                break_minutes = 0
+                if work_hours >= 8:
+                    break_minutes = 60
+                elif work_hours >= 6:
+                    break_minutes = 45
+
+                # inject short break violations
+                if RNG.random() < 0.05 and work_hours >= 6:
+                    break_minutes = RNG.randint(0, 30)
+                    violations.append("insufficient_break")
+
+                overtime_hours = max(0, work_hours - break_minutes / 60 - 8)
+                night_hours = Decimal("0")
+                if start_hour >= 22 or (end_hour <= 5 and end_hour > 0):
+                    night_hours = Decimal(str(min(work_hours, 7)))
+
+                if overtime_hours > 0 and duration > 10:
+                    violations.append("daily_overtime_exceeded")
+
+                results.append({
+                    "id": gen_deterministic_uuid("shift", idx),
+                    "tenant_id": TENANT_ID,
+                    "store_id": store["id"],
+                    "employee_id": emp["id"],
+                    "role": role,
+                    "start_at": start_at,
+                    "end_at": end_at,
+                    "actual_start_at": start_at + timedelta(minutes=RNG.randint(-5, 10)),
+                    "actual_end_at": end_at + timedelta(minutes=RNG.randint(-10, 15)),
+                    "break_minutes": break_minutes,
+                    "overtime_hours": Decimal(str(round(overtime_hours, 2))),
+                    "night_hours": night_hours,
+                    "legal_violations": violations,
+                })
+                idx += 1
+
+    return results
+
+
+def generate_labor_law_profile():
+    return [{
+        "id": gen_deterministic_uuid("labor_law", 0),
+        "tenant_id": TENANT_ID,
+        "weekly_max_hours": 40,
+        "daily_max_hours": 8,
+        "night_premium_rate": Decimal("1.25"),
+        "overtime_premium_rate": Decimal("1.25"),
+        "rest_min_minutes_per_6h": 45,
+        "rest_min_minutes_per_8h": 60,
+        "rest_interval_min_hours": 11,
+        "minor_under_18_no_night": True,
+    }]
+
+
+def generate_qsc_audits(stores):
+    templates = [{
+        "id": gen_deterministic_uuid("qsc_template", 0),
+        "tenant_id": TENANT_ID,
+        "name": "標準QSCチェックシート v1",
+        "version": 1,
+        "sections": QSC_TEMPLATE_SECTIONS,
+    }]
+
+    audits = []
+    idx = 0
+    base_date = date(2025, 1, 1)
+    template_id = templates[0]["id"]
+
+    for store in stores:
+        n_audits = RNG.randint(1, 4)
+        for a in range(n_audits):
+            audit_date = base_date + timedelta(days=RNG.randint(0, 450))
+            # scores 60-95
+            q_score = round(RNG.uniform(60, 95), 2)
+            s_score = round(RNG.uniform(60, 95), 2)
+            c_score = round(RNG.uniform(60, 95), 2)
+            overall = round((q_score + s_score + c_score) / 3, 2)
+
+            audits.append({
+                "id": gen_deterministic_uuid("qsc_audit", idx),
+                "tenant_id": TENANT_ID,
+                "store_id": store["id"],
+                "auditor_user_id": None,
+                "audit_date": audit_date,
+                "quality_score": Decimal(str(q_score)),
+                "service_score": Decimal(str(s_score)),
+                "cleanliness_score": Decimal(str(c_score)),
+                "overall_score": Decimal(str(overall)),
+                "template_id": template_id,
+                "answers": {},
+                "photos": [],
+                "notes": None,
+            })
+            idx += 1
+
+    return templates, audits
+
+
+def generate_haccp_data(stores, products):
+    ccps = []
+    for i, (name, t_min, t_max, freq, method) in enumerate(CCP_DEFS):
+        ccps.append({
+            "id": gen_deterministic_uuid("ccp", i),
+            "tenant_id": TENANT_ID,
+            "name": name,
+            "threshold_min": Decimal(str(t_min)) if t_min is not None else None,
+            "threshold_max": Decimal(str(t_max)) if t_max is not None else None,
+            "monitoring_frequency": freq,
+            "monitoring_method": method,
+        })
+
+    monitoring = []
+    m_idx = 0
+    base_date = date(2025, 6, 1)
+    target_stores = stores[:15]
+
+    for day_offset in range(60):
+        current_date = base_date + timedelta(days=day_offset)
+        for store in target_stores:
+            for ccp in ccps:
+                # compliance 85-98%
+                is_compliant = RNG.random() < 0.93
+
+                if ccp["threshold_min"] is not None:
+                    target = float(ccp["threshold_min"])
+                    if is_compliant:
+                        measured = target + RNG.uniform(0, 15)
+                    else:
+                        measured = target - RNG.uniform(1, 10)
+                elif ccp["threshold_max"] is not None:
+                    target = float(ccp["threshold_max"])
+                    if is_compliant:
+                        measured = target - RNG.uniform(0, abs(target) * 0.3)
+                    else:
+                        measured = target + RNG.uniform(1, 5)
+                else:
+                    measured = RNG.uniform(0, 100)
+
+                deviation_action = None
+                if not is_compliant:
+                    deviation_action = RNG.choice([
+                        "再加熱実施", "食材廃棄", "機器点検・修理依頼",
+                        "温度調整実施", "衛生管理者に報告",
+                    ])
+
+                monitoring.append({
+                    "id": gen_deterministic_uuid("haccp_mon", m_idx),
+                    "tenant_id": TENANT_ID,
+                    "store_id": store["id"],
+                    "ccp_id": ccp["id"],
+                    "monitoring_date_time": datetime(
+                        current_date.year, current_date.month, current_date.day,
+                        RNG.randint(6, 22), RNG.randint(0, 59)
+                    ),
+                    "measured_value": Decimal(str(round(measured, 2))),
+                    "is_compliant": is_compliant,
+                    "deviation_action": deviation_action,
+                })
+                m_idx += 1
+
+    # allergen matrix for products
+    allergen_matrix = []
+    am_idx = 0
+    product_allergen_map = {
+        "牛丼": ["牛肉", "大豆", "小麦"],
+        "豚丼": ["豚肉", "大豆", "小麦"],
+        "まぐろ": [],
+        "サーモン": ["さけ"],
+        "えび": ["えび"],
+        "いか": ["いか"],
+        "鉄火巻": [],
+        "バーガー": ["小麦", "卵", "乳", "牛肉"],
+        "チーズ": ["小麦", "卵", "乳", "牛肉"],
+        "チキン": ["小麦", "卵", "鶏肉"],
+        "フィッシュ": ["小麦", "卵"],
+        "てりやき": ["小麦", "卵", "大豆"],
+        "フライ": ["小麦"],
+        "ナゲット": ["小麦", "鶏肉"],
+        "味噌汁": ["大豆"],
+        "茶碗蒸し": ["卵", "えび", "鶏肉"],
+        "たまご": ["卵"],
+        "シェイク": ["乳"],
+    }
+
+    for product in products[:50]:
+        matched_allergens = set()
+        for keyword, allergens in product_allergen_map.items():
+            if keyword in product["name"]:
+                matched_allergens.update(allergens)
+
+        for allergen in ALL_ALLERGENS:
+            if allergen in matched_allergens:
+                presence = "contains"
+            elif RNG.random() < 0.05:
+                presence = "trace"
+            else:
+                presence = "none"
+
+            cross_risk = presence == "trace" or (presence == "none" and RNG.random() < 0.02)
+
+            allergen_matrix.append({
+                "id": gen_deterministic_uuid("allergen", am_idx),
+                "tenant_id": TENANT_ID,
+                "product_id": product["id"],
+                "allergen_code": allergen,
+                "presence": presence,
+                "cross_contamination_risk": cross_risk,
+            })
+            am_idx += 1
+
+    return ccps, monitoring, allergen_matrix
+
+
+def generate_franchise_data(stores):
+    fc_stores = stores[5:20]
+
+    agreements = []
+    royalty_calcs = []
+    a_idx = 0
+    r_idx = 0
+
+    royalty_structures = [
+        {"type": "revenue_pct", "rate": 0.05},
+        {"type": "revenue_pct", "rate": 0.04},
+        {"type": "revenue_pct", "rate": 0.06},
+        {"type": "tiered", "tiers": [
+            {"threshold": 10000000, "rate": 0.04},
+            {"threshold": 20000000, "rate": 0.05},
+            {"threshold": 0, "rate": 0.06},
+        ]},
+        {"type": "fixed", "fixed_amount": 500000},
+    ]
+
+    for i, store in enumerate(fc_stores):
+        structure = royalty_structures[i % len(royalty_structures)]
+        agreement_id = gen_deterministic_uuid("fc_agreement", a_idx)
+
+        agreements.append({
+            "id": agreement_id,
+            "tenant_id": TENANT_ID,
+            "franchisee_company_id": None,
+            "store_id": store["id"],
+            "agreement_type": "franchise",
+            "effective_from": date(2020, 1, 1) + timedelta(days=RNG.randint(0, 1000)),
+            "effective_to": None,
+            "royalty_structure": structure,
+            "advertising_fund_rate": Decimal(str(RNG.choice([0.01, 0.015, 0.02]))),
+            "territory_rights": {"radius_km": RNG.choice([3, 5, 10])},
+            "minimum_revenue_guarantee": Decimal(str(RNG.choice([8000000, 10000000, 12000000]))),
+        })
+        a_idx += 1
+
+        # 6 months of royalty calcs
+        for month_offset in range(6):
+            m = 10 + month_offset  # Oct 2025 - Mar 2026
+            y = 2025 if m <= 12 else 2026
+            if m > 12:
+                m -= 12
+
+            monthly_revenue = Decimal(str(RNG.randint(8000000, 20000000)))
+            rate_val = Decimal(str(structure.get("rate", 0.05)))
+
+            if structure["type"] == "revenue_pct":
+                royalty_amount = monthly_revenue * rate_val
+            elif structure["type"] == "fixed":
+                royalty_amount = Decimal(str(structure.get("fixed_amount", 500000)))
+            else:
+                royalty_amount = monthly_revenue * Decimal("0.05")
+
+            ad_rate = Decimal(str(RNG.choice([0.01, 0.015, 0.02])))
+            ad_amount = monthly_revenue * ad_rate
+            net = royalty_amount + ad_amount
+
+            status = "paid" if month_offset < 4 else ("invoiced" if month_offset == 4 else "draft")
+
+            royalty_calcs.append({
+                "id": gen_deterministic_uuid("fc_royalty", r_idx),
+                "tenant_id": TENANT_ID,
+                "agreement_id": agreement_id,
+                "store_id": store["id"],
+                "period_year": y,
+                "period_month": m,
+                "gross_revenue": monthly_revenue,
+                "royalty_base": monthly_revenue,
+                "royalty_amount": royalty_amount,
+                "advertising_amount": ad_amount,
+                "net_payable": net,
+                "status": status,
+                "invoice_id": f"INV-{y}{m:02d}-{i+1:03d}" if status != "draft" else None,
+            })
+            r_idx += 1
+
+    return agreements, royalty_calcs
+
+
+def generate_industry_benchmarks():
+    results = []
+    idx = 0
+
+    categories = {
+        "牛丼": {
+            "food_cost_ratio": (0.28, 0.32, 0.36, 0.40),
+            "labor_ratio": (0.24, 0.28, 0.32, 0.36),
+            "rent_ratio": (0.08, 0.10, 0.12, 0.15),
+            "operating_margin": (0.02, 0.05, 0.08, 0.12),
+            "avg_ticket": (450, 550, 650, 800),
+            "turnover": (2.5, 3.0, 3.5, 4.2),
+            "customer_count_per_seat": (8, 12, 16, 22),
+            "waste_ratio": (0.01, 0.02, 0.03, 0.05),
+        },
+        "寿司": {
+            "food_cost_ratio": (0.34, 0.38, 0.42, 0.48),
+            "labor_ratio": (0.22, 0.26, 0.30, 0.34),
+            "rent_ratio": (0.08, 0.10, 0.13, 0.16),
+            "operating_margin": (0.01, 0.04, 0.07, 0.11),
+            "avg_ticket": (1000, 1400, 1800, 2500),
+            "turnover": (1.8, 2.5, 3.2, 4.0),
+            "customer_count_per_seat": (5, 8, 12, 16),
+            "waste_ratio": (0.02, 0.03, 0.05, 0.08),
+        },
+        "バーガー": {
+            "food_cost_ratio": (0.26, 0.30, 0.34, 0.38),
+            "labor_ratio": (0.26, 0.30, 0.34, 0.38),
+            "rent_ratio": (0.09, 0.11, 0.14, 0.17),
+            "operating_margin": (0.03, 0.06, 0.09, 0.13),
+            "avg_ticket": (600, 800, 1000, 1300),
+            "turnover": (2.0, 2.8, 3.5, 4.5),
+            "customer_count_per_seat": (6, 10, 14, 20),
+            "waste_ratio": (0.01, 0.02, 0.04, 0.06),
+        },
+        "ファミレス": {
+            "food_cost_ratio": (0.28, 0.32, 0.36, 0.42),
+            "labor_ratio": (0.28, 0.32, 0.36, 0.40),
+            "rent_ratio": (0.07, 0.09, 0.12, 0.15),
+            "operating_margin": (0.01, 0.03, 0.06, 0.10),
+            "avg_ticket": (800, 1000, 1300, 1600),
+            "turnover": (1.5, 2.0, 2.8, 3.5),
+            "customer_count_per_seat": (4, 6, 9, 13),
+            "waste_ratio": (0.02, 0.03, 0.05, 0.07),
+        },
+        "居酒屋": {
+            "food_cost_ratio": (0.26, 0.30, 0.35, 0.40),
+            "labor_ratio": (0.26, 0.30, 0.35, 0.40),
+            "rent_ratio": (0.08, 0.10, 0.13, 0.16),
+            "operating_margin": (0.00, 0.03, 0.06, 0.10),
+            "avg_ticket": (2500, 3200, 4000, 5000),
+            "turnover": (1.0, 1.5, 2.0, 2.8),
+            "customer_count_per_seat": (2, 3, 5, 7),
+            "waste_ratio": (0.03, 0.04, 0.06, 0.09),
+        },
+    }
+
+    for cat_name, metrics in categories.items():
+        for metric_name, (p25, p50, p75, p90) in metrics.items():
+            for year in [2024, 2025]:
+                results.append({
+                    "id": gen_deterministic_uuid("benchmark", idx),
+                    "business_category": cat_name,
+                    "metric_name": metric_name,
+                    "period_year": year,
+                    "period_month": None,
+                    "p25": Decimal(str(p25)),
+                    "p50": Decimal(str(p50)),
+                    "p75": Decimal(str(p75)),
+                    "p90": Decimal(str(p90)),
+                    "sample_size": RNG.randint(80, 500),
+                    "source": "日本フードサービス協会",
+                })
+                idx += 1
+
+    return results

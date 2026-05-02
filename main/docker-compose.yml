@@ -25,6 +25,8 @@ services:
       DATABASE_URL: postgresql+asyncpg://aentro:aentro_dev@db:5432/restaurant_os
       DATABASE_URL_SYNC: postgresql://aentro:aentro_dev@db:5432/restaurant_os
       ENVIRONMENT: local
+    env_file:
+      - ./backend/.env
     depends_on:
       db:
         condition: service_healthy
