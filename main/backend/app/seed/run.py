@@ -192,7 +192,7 @@ def run():
         bulk_insert(session, Product, products)
         session.commit()
 
-        start_date = date(2024, 4, 1)
+        start_date = date(2023, 4, 1)
         end_date = date(2026, 4, 30)
 
         # 7. Reviews (needed for KPI calculation)
@@ -213,7 +213,7 @@ def run():
         print("Creating daily sales (this will take a moment)...")
         daily_sales = generate_daily_sales(stores, start_date, end_date)
         # Insert in batches
-        batch_size = 10000
+        batch_size = 50000
         for i in range(0, len(daily_sales), batch_size):
             batch = daily_sales[i:i+batch_size]
             bulk_insert(session, DailyStoreSales, batch)

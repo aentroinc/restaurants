@@ -175,21 +175,61 @@ JOLLYPASTA_PRODUCTS = {
 REVIEW_SOURCES = ["google", "tabelog", "hotpepper", "gurunavi"]
 
 REVIEW_TEMPLATES_GOOD = [
-    "味もサービスも素晴らしい。さすがゼンショー。",
-    "コスパが良く、大満足です。",
+    # すき家
+    "牛丼のタレが絶妙。何度来ても飽きない。",
+    "24時間営業がありがたい。深夜でもクオリティが安定している。",
+    "テイクアウトの注文が簡単になった。アプリが便利。",
+    "セルフレジの導入で回転が速くなった。",
+    # はま寿司
+    "160円でこの品質は驚き。ネタが新鮮。",
+    "タッチパネルの注文が子供でも使いやすい。",
+    "期間限定メニューが毎回楽しみ。",
+    # ココス
+    "包み焼きハンバーグは鉄板メニュー。ジューシーで美味しい。",
+    "ドリンクバーの種類が豊富。ゆっくりできる。",
+    "子供連れに最適。キッズメニューが充実。",
+    # なか卯
+    "親子丼の卵がトロトロで最高。",
+    "京風うどんのダシが本格的。関西出身としても満足。",
+    # ジョリーパスタ
+    "生パスタのモチモチ感が他チェーンとは違う。",
+    "ランチセットがお得。スープバー付きで嬉しい。",
+    # 共通
     "清潔で快適な店内でした。",
     "スタッフの対応が丁寧で気持ちよく食事できました。",
+    "コスパが良く、大満足です。",
+    "駐車場が広くて停めやすい。",
     "何度来ても安定した美味しさ。",
-    "テイクアウトの対応が早くて助かりました。",
-    "子連れでも安心して食事できます。",
+    "テイクアウトの包装が丁寧。",
 ]
 
 REVIEW_TEMPLATES_BAD = [
-    "待ち時間が長すぎる。",
-    "店内が汚れていた。",
-    "接客態度が悪い。",
-    "料理が冷めていた。",
-    "価格に見合わない品質。最近値上げしすぎでは。",
+    # すき家（異物混入関連）
+    "最近のニュースが気になる。安全管理は大丈夫なのか。",
+    "以前より明らかに味が落ちた。コストカットしすぎ。",
+    "深夜のワンオペが心配。店員さんが大変そう。",
+    # はま寿司
+    "値上げ後のコスパが微妙。160円は高く感じる。",
+    "待ち時間が30分以上。回転が悪すぎる。",
+    "ネタが小さくなった気がする。",
+    # ココス
+    "ランチの提供が遅い。15分以上待った。",
+    "人手不足なのか、呼んでもなかなか来ない。",
+    # なか卯
+    "券売機の操作がわかりにくい。年配者には厳しい。",
+    "うどんの量が減った。",
+    # ジョリーパスタ
+    "価格に見合わない。もう少し安くしてほしい。",
+    # 共通
+    "店内が汚れていた。テーブルが拭かれていない。",
+    "接客態度が悪い。挨拶もない。",
+    "料理が冷めていた。作り置き感がある。",
+    "トイレが不衛生。",
+    "混雑時の対応が雑。",
+    "エアコンが効きすぎて寒い。",
+    "メニューの写真と実物が違いすぎる。",
+    "配膳間違いがあった。",
+    "騒がしい客がいても注意しない。",
 ]
 
 # Brand-specific bad review templates for anomaly stores
@@ -216,18 +256,29 @@ REVIEW_TEMPLATES_COCOS_WAIT = [
 # Anomaly store indices per brand (global store indices)
 # すき家 = 0-49, はま寿司 = 50-69, ココス = 70-84, なか卯 = 85-94, ジョリーパスタ = 95-99
 
-# ココス: 人件費超過 — 首都圏ファミレスで人件費率35%超
-LABOR_OVERRUN_STORES = [70, 71, 72, 73, 74]
-# はま寿司: コメ価格高騰 — 全店で原価率2-3pt上昇、郊外店舗で顕著
-COGS_OVERRUN_STORES = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-# すき家: 異物混入問題影響 — 首都圏3-5店舗で客数-15%
-# ジョリーパスタ: 値上げ影響 — 客数減少
-SALES_DECLINE_STORES = [3, 4, 5, 6, 7, 95, 96, 97]
-# すき家: 異物混入問題影響 — レビュー悪化
-REVIEW_DECLINE_STORES = [3, 4, 5, 6, 7]
+# --- Existing 6 ---
+LABOR_OVERRUN_STORES = [2, 8, 15, 22, 38]
+COGS_OVERRUN_STORES = [5, 12, 25, 33, 45]
+SALES_DECLINE_STORES = [7, 18, 30, 42, 55]
+REVIEW_DECLINE_STORES = [10, 28, 50]
 DISCOUNT_OVERUSE_STORES = [14, 35, 60]
-# なか卯: 好調店舗 — 都市型で客数増加、テイクアウト比率向上
-IMPROVEMENT_SUCCESS_STORES = [85, 86, 87, 88, 89]
+IMPROVEMENT_SUCCESS_STORES = [3, 20, 40, 52, 65]
+
+# --- New 14 ---
+CONTAMINATION_IMPACT_STORES = [1, 6, 11, 16, 21]       # すき家 異物混入
+LATE_NIGHT_LABOR_STORES = [0, 4, 9, 13, 19, 23, 27, 31, 36, 39]  # すき家 深夜帯
+TAKEOUT_RATIO_DROP_STORES = [3, 17, 24]                 # テイクアウト低下
+RICE_COST_SURGE_STORES = [50, 52, 54, 56, 58, 60, 62, 64, 66, 68]  # はま寿司 コメ高騰
+WASTE_INCREASE_STORES = [51, 53, 57, 61]                # はま寿司 廃棄増
+WAIT_TIME_LONG_STORES = [55, 59, 63]                    # はま寿司 待ち時間
+PEAK_UNDERSTAFFED_STORES = [70, 73, 76, 79, 82]         # ココス ピーク人員不足
+MINIMUM_WAGE_IMPACT_STORES = [4, 9, 14, 19, 24, 29, 34, 39, 44, 49]  # 全ブランド 最低賃金
+DELIVERY_MARGIN_STORES = [6, 16, 26, 36, 46]            # デリバリー利益率悪化
+ENERGY_COST_STORES = [3, 13, 23, 33, 43, 53, 63, 73, 83, 93]  # 光熱費高騰
+NEW_STORE_RAMPUP_STORES = [97, 98, 99]                  # 新店立ち上がり好調
+UDON_SEASON_STORES = [90, 91, 92]                       # なか卯 うどん季節需要
+TICKET_MACHINE_ISSUE_STORES = [93, 94]                   # なか卯 券売機トラブル
+DRINK_BAR_COST_STORES = [75, 78]                         # ココス ドリンクバー原価上昇
 
 
 def make_uuid(namespace: int) -> uuid.UUID:
@@ -515,7 +566,7 @@ def _dow_factor(d: date) -> float:
     return factors.get(dow, 1.0)
 
 
-def _growth_factor(d: date, base_date: date = date(2024, 4, 1)) -> float:
+def _growth_factor(d: date, base_date: date = date(2023, 4, 1)) -> float:
     days = (d - base_date).days
     return 1.0 + days * 0.00005
 
@@ -523,16 +574,47 @@ def _growth_factor(d: date, base_date: date = date(2024, 4, 1)) -> float:
 def _anomaly_factor(global_idx: int, d: date, anomaly_type: str) -> float:
     """Returns multiplier for anomaly stores, only in recent months."""
     recent_start = date(2026, 2, 1)
-    if d < recent_start:
-        if anomaly_type == "improvement_success" and global_idx in IMPROVEMENT_SUCCESS_STORES:
-            if d >= date(2025, 10, 1) and d < date(2026, 1, 1):
-                return 0.80  # bad period before improvement
+
+    # Pre-improvement bad period (always applies before recent)
+    if anomaly_type == "improvement_success" and global_idx in IMPROVEMENT_SUCCESS_STORES:
+        if d >= date(2025, 10, 1) and d < date(2026, 1, 1):
+            return 0.80
+        if d >= recent_start:
+            return 1.10
         return 1.0
 
+    # New store ramp-up: starts low, grows quickly
+    if anomaly_type == "new_store_rampup" and global_idx in NEW_STORE_RAMPUP_STORES:
+        if d >= date(2025, 11, 1) and d < date(2026, 1, 1):
+            return 0.65  # just opened, ramping
+        if d >= date(2026, 1, 1) and d < recent_start:
+            return 0.85
+        if d >= recent_start:
+            return 1.15  # now performing well
+        return 1.0
+
+    # Udon seasonal: boost in winter months
+    if anomaly_type == "udon_season" and global_idx in UDON_SEASON_STORES:
+        if d.month in (11, 12, 1, 2):
+            return 1.12
+        if d.month in (7, 8):
+            return 0.88
+        return 1.0
+
+    if d < recent_start:
+        return 1.0
+
+    # --- Recent-period anomalies (2026-02+) ---
     if anomaly_type == "sales_decline" and global_idx in SALES_DECLINE_STORES:
         return 0.75
-    if anomaly_type == "improvement_success" and global_idx in IMPROVEMENT_SUCCESS_STORES:
-        return 1.10  # improved
+    if anomaly_type == "contamination_impact" and global_idx in CONTAMINATION_IMPACT_STORES:
+        return 0.82
+    if anomaly_type == "takeout_ratio_drop" and global_idx in TAKEOUT_RATIO_DROP_STORES:
+        return 0.90
+    if anomaly_type == "ticket_machine_issue" and global_idx in TICKET_MACHINE_ISSUE_STORES:
+        return 0.88
+    if anomaly_type == "wait_time_long" and global_idx in WAIT_TIME_LONG_STORES:
+        return 0.92
     return 1.0
 
 
@@ -560,8 +642,16 @@ def generate_daily_sales(stores, start_date: date, end_date: date):
 
             sales_anomaly = _anomaly_factor(global_idx, d, "sales_decline")
             improvement = _anomaly_factor(global_idx, d, "improvement_success")
+            contamination = _anomaly_factor(global_idx, d, "contamination_impact")
+            takeout_drop = _anomaly_factor(global_idx, d, "takeout_ratio_drop")
+            new_ramp = _anomaly_factor(global_idx, d, "new_store_rampup")
+            udon = _anomaly_factor(global_idx, d, "udon_season")
+            ticket_issue = _anomaly_factor(global_idx, d, "ticket_machine_issue")
+            wait_long = _anomaly_factor(global_idx, d, "wait_time_long")
 
-            day_sales = base_sales * seasonal * dow * growth * noise * sales_anomaly * improvement
+            day_sales = (base_sales * seasonal * dow * growth * noise
+                         * sales_anomaly * improvement * contamination
+                         * takeout_drop * new_ramp * udon * ticket_issue * wait_long)
             net_sales = int(day_sales)
             avg_ticket = base_ticket * RNG.uniform(0.95, 1.05)
             customer_count = max(1, int(net_sales / avg_ticket))
@@ -576,6 +666,8 @@ def generate_daily_sales(stores, start_date: date, end_date: date):
 
             dine_in_pct = RNG.uniform(0.6, 0.8)
             takeout_pct = RNG.uniform(0.1, 0.25)
+            if global_idx in TAKEOUT_RATIO_DROP_STORES and d >= date(2026, 2, 1):
+                takeout_pct *= 0.6
             delivery_pct = 1.0 - dine_in_pct - takeout_pct
             if delivery_pct < 0:
                 delivery_pct = 0
@@ -652,9 +744,10 @@ def generate_product_sales(stores, products, start_date: date, end_date: date):
     for p in products:
         brand_products.setdefault(str(p["brand_id"]), []).append(p)
 
-    # Sample one day per week for product sales
+    # Product sales: last 6 months only (2025-11 to 2026-04)
+    product_sales_start = date(2025, 11, 1)
     sample_dates = []
-    d = start_date
+    d = max(start_date, product_sales_start)
     while d <= end_date:
         if d.weekday() == 2:  # Wednesday
             sample_dates.append(d)
@@ -722,6 +815,20 @@ def generate_labor(stores, start_date: date, end_date: date):
             if global_idx in LABOR_OVERRUN_STORES and d >= date(2026, 2, 1):
                 hours *= RNG.uniform(1.15, 1.30)
                 cost = hours * base_hourly_wage
+
+            # Late night labor: higher cost due to night premium
+            if global_idx in LATE_NIGHT_LABOR_STORES and d >= date(2026, 2, 1):
+                hours *= RNG.uniform(1.05, 1.15)
+                cost = hours * base_hourly_wage * 1.10  # night premium effect
+
+            # Peak understaffed: fewer hours but lower productivity
+            if global_idx in PEAK_UNDERSTAFFED_STORES and d >= date(2026, 2, 1):
+                hours *= RNG.uniform(0.85, 0.92)
+                cost = hours * base_hourly_wage * RNG.uniform(1.10, 1.20)  # higher wage to attract
+
+            # Minimum wage impact: same hours, higher cost
+            if global_idx in MINIMUM_WAGE_IMPACT_STORES and d >= date(2026, 1, 1):
+                cost = hours * (base_hourly_wage * RNG.uniform(1.05, 1.12))
 
             # Improvement success: labor was bad, now better
             if global_idx in IMPROVEMENT_SUCCESS_STORES:
@@ -794,6 +901,12 @@ def generate_store_pl(stores, daily_sales, labor_records, start_date: date, end_
             cogs_rate = cogs_target + RNG.uniform(-2, 2)
             if global_idx in COGS_OVERRUN_STORES and d >= date(2026, 2, 1):
                 cogs_rate += RNG.uniform(3, 6)
+            if global_idx in RICE_COST_SURGE_STORES and d >= date(2026, 1, 1):
+                cogs_rate += RNG.uniform(2, 4)
+            if global_idx in WASTE_INCREASE_STORES and d >= date(2026, 2, 1):
+                cogs_rate += RNG.uniform(1.5, 3)
+            if global_idx in DRINK_BAR_COST_STORES and d >= date(2026, 2, 1):
+                cogs_rate += RNG.uniform(1, 2)
 
             if global_idx in IMPROVEMENT_SUCCESS_STORES:
                 if d >= date(2025, 10, 1) and d < date(2026, 1, 1):
@@ -806,6 +919,8 @@ def generate_store_pl(stores, daily_sales, labor_records, start_date: date, end_
             labor_cost = labor_rec["cost"]
             rent = int(net_sales * RNG.uniform(0.08, 0.12))
             utilities = int(net_sales * RNG.uniform(0.03, 0.05))
+            if global_idx in ENERGY_COST_STORES and d >= date(2026, 1, 1):
+                utilities = int(utilities * RNG.uniform(1.20, 1.40))
             promotion = int(net_sales * RNG.uniform(0.01, 0.03))
             other = int(net_sales * RNG.uniform(0.02, 0.04))
             operating_profit = gross_profit - labor_cost - rent - utilities - promotion - other
@@ -893,7 +1008,7 @@ def generate_kpis(stores, daily_sales, labor_records, store_pls, reviews_list, t
 
     # Generate KPIs for end-of-month dates only (to keep volume manageable)
     kpi_dates = []
-    d = date(2024, 4, 30)
+    d = date(2023, 4, 30)
     while d <= date(2026, 4, 30):
         kpi_dates.append(d)
         if d.month == 12:
@@ -931,6 +1046,12 @@ def generate_kpis(stores, daily_sales, labor_records, store_pls, reviews_list, t
             cogs_rate = brand_def["cogs_target"] + RNG.uniform(-2, 2)
             if global_idx in COGS_OVERRUN_STORES and kpi_date >= date(2026, 2, 1):
                 cogs_rate += RNG.uniform(3, 6)
+            if global_idx in RICE_COST_SURGE_STORES and kpi_date >= date(2026, 1, 1):
+                cogs_rate += RNG.uniform(2, 4)
+            if global_idx in WASTE_INCREASE_STORES and kpi_date >= date(2026, 2, 1):
+                cogs_rate += RNG.uniform(1.5, 3)
+            if global_idx in DRINK_BAR_COST_STORES and kpi_date >= date(2026, 2, 1):
+                cogs_rate += RNG.uniform(1, 2)
             if global_idx in IMPROVEMENT_SUCCESS_STORES:
                 if kpi_date >= date(2025, 10, 1) and kpi_date < date(2026, 1, 1):
                     cogs_rate += 4
@@ -994,6 +1115,41 @@ def generate_kpis(stores, daily_sales, labor_records, store_pls, reviews_list, t
             issues = identify_issues(store_metrics, peer_medians)
             improvement_opp = calculate_improvement_opportunity(issues)
 
+            # Enrich issue_types with new anomaly patterns
+            if kpi_date >= date(2026, 2, 1):
+                if issues is None:
+                    issues = []
+                if global_idx in CONTAMINATION_IMPACT_STORES:
+                    issues.append({"issue_type": "contamination_impact", "severity": "critical", "detail": "異物混入後の客数減少", "gap": 0, "impact_amount": 0})
+                if global_idx in LATE_NIGHT_LABOR_STORES:
+                    issues.append({"issue_type": "late_night_labor", "severity": "medium", "detail": "深夜帯人件費過多", "gap": 0, "impact_amount": 0})
+                if global_idx in TAKEOUT_RATIO_DROP_STORES:
+                    issues.append({"issue_type": "takeout_ratio_drop", "severity": "low", "detail": "テイクアウト比率低下", "gap": 0, "impact_amount": 0})
+                if global_idx in RICE_COST_SURGE_STORES:
+                    issues.append({"issue_type": "rice_cost_surge", "severity": "high", "detail": "コメ高騰による原価率上昇", "gap": 0, "impact_amount": 0})
+                if global_idx in WASTE_INCREASE_STORES:
+                    issues.append({"issue_type": "waste_increase", "severity": "medium", "detail": "廃棄率上昇", "gap": 0, "impact_amount": 0})
+                if global_idx in WAIT_TIME_LONG_STORES:
+                    issues.append({"issue_type": "wait_time_long", "severity": "medium", "detail": "待ち時間長期化", "gap": 0, "impact_amount": 0})
+                if global_idx in PEAK_UNDERSTAFFED_STORES:
+                    issues.append({"issue_type": "peak_understaffed", "severity": "high", "detail": "ピーク帯人員不足", "gap": 0, "impact_amount": 0})
+                if global_idx in MINIMUM_WAGE_IMPACT_STORES:
+                    issues.append({"issue_type": "minimum_wage_impact", "severity": "medium", "detail": "最低賃金改定影響", "gap": 0, "impact_amount": 0})
+                if global_idx in DELIVERY_MARGIN_STORES:
+                    issues.append({"issue_type": "delivery_margin_squeeze", "severity": "medium", "detail": "デリバリー利益率悪化", "gap": 0, "impact_amount": 0})
+                if global_idx in ENERGY_COST_STORES:
+                    issues.append({"issue_type": "energy_cost_spike", "severity": "medium", "detail": "光熱費高騰", "gap": 0, "impact_amount": 0})
+                if global_idx in TICKET_MACHINE_ISSUE_STORES:
+                    issues.append({"issue_type": "ticket_machine_issue", "severity": "medium", "detail": "券売機トラブル", "gap": 0, "impact_amount": 0})
+                if global_idx in DRINK_BAR_COST_STORES:
+                    issues.append({"issue_type": "drink_bar_cost", "severity": "low", "detail": "ドリンクバー原価上昇", "gap": 0, "impact_amount": 0})
+                if global_idx in NEW_STORE_RAMPUP_STORES:
+                    issues.append({"issue_type": "new_store_rampup", "severity": "positive", "detail": "新店立ち上がり好調", "gap": 0, "impact_amount": 0})
+                if global_idx in UDON_SEASON_STORES and kpi_date.month in (11, 12, 1, 2):
+                    issues.append({"issue_type": "udon_season_surge", "severity": "positive", "detail": "うどん季節需要急増", "gap": 0, "impact_amount": 0})
+                if not issues:
+                    issues = None
+
             results.append({
                 "id": gen_deterministic_uuid("kpi", idx),
                 "tenant_id": TENANT_ID,
@@ -1044,13 +1200,21 @@ def generate_reviews(stores, start_date: date, end_date: date):
                 rating = base_rating + RNG.uniform(-0.5, 0.5)
                 if global_idx in REVIEW_DECLINE_STORES and review_date >= date(2026, 2, 1):
                     rating -= RNG.uniform(0.5, 1.0)
+                if global_idx in CONTAMINATION_IMPACT_STORES and review_date >= date(2026, 2, 1):
+                    rating -= RNG.uniform(0.3, 0.8)
+                if global_idx in WAIT_TIME_LONG_STORES and review_date >= date(2026, 2, 1):
+                    rating -= RNG.uniform(0.2, 0.5)
+                if global_idx in TICKET_MACHINE_ISSUE_STORES and review_date >= date(2026, 2, 1):
+                    rating -= RNG.uniform(0.2, 0.4)
                 rating = max(1.0, min(5.0, rating))
 
                 if rating >= 3.5:
                     text = RNG.choice(REVIEW_TEMPLATES_GOOD)
                 else:
                     # Brand-specific bad review templates
-                    if global_idx in REVIEW_DECLINE_STORES and brand_idx == 0 and review_date >= date(2026, 2, 1):
+                    if global_idx in CONTAMINATION_IMPACT_STORES and brand_idx == 0 and review_date >= date(2026, 2, 1):
+                        text = RNG.choice(REVIEW_TEMPLATES_SUKIYA_INCIDENT)
+                    elif global_idx in REVIEW_DECLINE_STORES and brand_idx == 0 and review_date >= date(2026, 2, 1):
                         text = RNG.choice(REVIEW_TEMPLATES_SUKIYA_INCIDENT)
                     elif brand_idx == 1 and review_date >= date(2026, 1, 1):
                         text = RNG.choice(REVIEW_TEMPLATES_HAMAZUSHI_PRICE + REVIEW_TEMPLATES_BAD)
@@ -1118,7 +1282,13 @@ def generate_tasks(stores, employees):
     sv_employees = [e for e in employees if e["role"] == "sv"]
     manager_employees = [e for e in employees if e["role"] == "manager"]
 
-    issue_types = ["labor_overrun", "cogs_overrun", "sales_decline", "review_decline", "discount_overuse"]
+    issue_types = [
+        "labor_overrun", "cogs_overrun", "sales_decline", "review_decline", "discount_overuse",
+        "contamination_impact", "late_night_labor", "takeout_ratio_drop", "rice_cost_surge",
+        "waste_increase", "wait_time_long", "peak_understaffed", "minimum_wage_impact",
+        "delivery_margin_squeeze", "energy_cost_spike", "new_store_rampup", "udon_season_surge",
+        "ticket_machine_issue", "drink_bar_cost",
+    ]
     statuses = ["open", "in_progress", "done", "done", "cancelled"]
     priorities = ["high", "medium", "medium", "low"]
 
@@ -1128,6 +1298,20 @@ def generate_tasks(stores, employees):
         "sales_decline": "売上回復: 集客施策実施",
         "review_decline": "口コミ改善: サービス品質向上",
         "discount_overuse": "割引適正化: キャンペーン見直し",
+        "contamination_impact": "異物混入対策: 衛生管理強化",
+        "late_night_labor": "深夜帯コスト最適化: シフト見直し",
+        "takeout_ratio_drop": "テイクアウト比率向上: アプリ施策",
+        "rice_cost_surge": "コメ高騰対策: メニュー最適化",
+        "waste_increase": "廃棄ロス削減: 需要予測改善",
+        "wait_time_long": "待ち時間短縮: オペレーション改善",
+        "peak_understaffed": "ピーク帯人員配置: シフト増強",
+        "minimum_wage_impact": "最低賃金対応: 生産性向上",
+        "delivery_margin_squeeze": "デリバリー利益率改善: 手数料交渉",
+        "energy_cost_spike": "光熱費削減: 省エネ施策",
+        "new_store_rampup": "新店立ち上がり加速: 集客強化",
+        "udon_season_surge": "うどん季節需要対応: 仕入れ調整",
+        "ticket_machine_issue": "券売機改善: UI見直し",
+        "drink_bar_cost": "ドリンクバー原価管理: 仕入れ最適化",
     }
 
     for store in stores:
@@ -1171,28 +1355,96 @@ def generate_tasks(stores, employees):
 
 
 def generate_value_cases(stores):
-    improvement_stores = [s for s in stores if s["_global_idx"] in IMPROVEMENT_SUCCESS_STORES[:3]]
+    store_by_idx = {s["_global_idx"]: s for s in stores}
     results_cases = []
     results_metrics = []
 
     cases_data = [
-        {"name": "ココス首都圏人件費改善プロジェクト", "issue_type": "labor_overrun",
-         "baseline_start": date(2025, 10, 1), "baseline_end": date(2025, 12, 31),
-         "measurement_start": date(2026, 2, 1), "measurement_end": date(2026, 4, 30),
-         "expected": 12000000, "realized": 8500000},
-        {"name": "はま寿司コメ高騰対策", "issue_type": "cogs_overrun",
-         "baseline_start": date(2025, 10, 1), "baseline_end": date(2025, 12, 31),
-         "measurement_start": date(2026, 2, 1), "measurement_end": date(2026, 4, 30),
-         "expected": 8000000, "realized": 6200000},
-        {"name": "なか卯テイクアウト強化施策", "issue_type": "sales_decline",
-         "baseline_start": date(2025, 10, 1), "baseline_end": date(2025, 12, 31),
-         "measurement_start": date(2026, 2, 1), "measurement_end": date(2026, 4, 30),
-         "expected": 15000000, "realized": 11000000},
+        {"name": "すき家首都圏 異物混入後の客数回復", "issue_type": "contamination_impact",
+         "store_idxs": [1, 6, 11], "status": "active",
+         "expected": 18000000, "realized": None,
+         "metrics": [
+             {"metric_name": "来客数", "baseline": 9200, "measured": 8100, "peer_adjusted": 8300, "share": 0.5},
+             {"metric_name": "口コミスコア", "baseline": 3.8, "measured": 3.1, "peer_adjusted": 3.2, "share": 0.3},
+             {"metric_name": "月次売上", "baseline": 14000000, "measured": 12500000, "peer_adjusted": 12800000, "share": 0.2},
+         ]},
+        {"name": "はま寿司 コメ高騰対策メニュー最適化", "issue_type": "cogs_overrun",
+         "store_idxs": [50, 52, 54], "status": "completed",
+         "expected": 8000000, "realized": 6200000,
+         "metrics": [
+             {"metric_name": "原価率", "baseline": 46.0, "measured": 43.0, "peer_adjusted": 43.5, "share": 0.6},
+             {"metric_name": "理論原価乖離率", "baseline": 4.5, "measured": 1.8, "peer_adjusted": 2.0, "share": 0.2},
+             {"metric_name": "粗利率", "baseline": 54.0, "measured": 57.0, "peer_adjusted": 56.5, "share": 0.2},
+         ]},
+        {"name": "ココス 首都圏シフト最適化", "issue_type": "labor_overrun",
+         "store_idxs": [70, 73, 76], "status": "completed",
+         "expected": 12000000, "realized": 8500000,
+         "metrics": [
+             {"metric_name": "人件費率", "baseline": 36.0, "measured": 31.5, "peer_adjusted": 32.0, "share": 0.6},
+             {"metric_name": "人時売上高", "baseline": 4200, "measured": 5100, "peer_adjusted": 4950, "share": 0.2},
+             {"metric_name": "営業利益率", "baseline": 4.8, "measured": 7.5, "peer_adjusted": 7.2, "share": 0.2},
+         ]},
+        {"name": "なか卯 テイクアウト比率向上", "issue_type": "sales_decline",
+         "store_idxs": [90, 91], "status": "completed",
+         "expected": 10000000, "realized": 7800000,
+         "metrics": [
+             {"metric_name": "テイクアウト比率", "baseline": 22.0, "measured": 31.0, "peer_adjusted": 30.0, "share": 0.5},
+             {"metric_name": "月次売上", "baseline": 8500000, "measured": 9800000, "peer_adjusted": 9600000, "share": 0.3},
+             {"metric_name": "客単価", "baseline": 580, "measured": 610, "peer_adjusted": 600, "share": 0.2},
+         ]},
+        {"name": "ジョリーパスタ 値上げ後の客数維持", "issue_type": "sales_decline",
+         "store_idxs": [95, 96], "status": "active",
+         "expected": 6000000, "realized": None,
+         "metrics": [
+             {"metric_name": "来客数", "baseline": 280, "measured": 245, "peer_adjusted": 250, "share": 0.5},
+             {"metric_name": "客単価", "baseline": 1050, "measured": 1120, "peer_adjusted": 1100, "share": 0.3},
+             {"metric_name": "月次売上", "baseline": 9000000, "measured": 8400000, "peer_adjusted": 8500000, "share": 0.2},
+         ]},
+        {"name": "全社 深夜帯労働コスト最適化", "issue_type": "labor_overrun",
+         "store_idxs": [0, 4, 9], "status": "completed",
+         "expected": 15000000, "realized": 11000000,
+         "metrics": [
+             {"metric_name": "深夜人件費率", "baseline": 38.0, "measured": 32.0, "peer_adjusted": 33.0, "share": 0.6},
+             {"metric_name": "人時売上高", "baseline": 3800, "measured": 4600, "peer_adjusted": 4400, "share": 0.2},
+             {"metric_name": "営業利益率", "baseline": 3.5, "measured": 6.2, "peer_adjusted": 5.8, "share": 0.2},
+         ]},
+        {"name": "はま寿司 廃棄ロス削減", "issue_type": "cogs_overrun",
+         "store_idxs": [51, 53, 57], "status": "active",
+         "expected": 5000000, "realized": None,
+         "metrics": [
+             {"metric_name": "廃棄率", "baseline": 5.2, "measured": 4.8, "peer_adjusted": 4.9, "share": 0.5},
+             {"metric_name": "原価率", "baseline": 44.0, "measured": 43.0, "peer_adjusted": 43.2, "share": 0.3},
+             {"metric_name": "粗利率", "baseline": 56.0, "measured": 57.0, "peer_adjusted": 56.8, "share": 0.2},
+         ]},
+        {"name": "ココス ピーク帯人員配置最適化", "issue_type": "labor_overrun",
+         "store_idxs": [79, 82], "status": "completed",
+         "expected": 7000000, "realized": 5500000,
+         "metrics": [
+             {"metric_name": "ピーク待ち時間", "baseline": 25, "measured": 12, "peer_adjusted": 14, "share": 0.4},
+             {"metric_name": "人件費率", "baseline": 34.0, "measured": 31.0, "peer_adjusted": 31.5, "share": 0.3},
+             {"metric_name": "テーブル回転", "baseline": 2.1, "measured": 2.8, "peer_adjusted": 2.6, "share": 0.3},
+         ]},
+        {"name": "全社 最低賃金改定対応", "issue_type": "labor_overrun",
+         "store_idxs": [14, 19, 24], "status": "active",
+         "expected": 20000000, "realized": None,
+         "metrics": [
+             {"metric_name": "人件費率", "baseline": 30.0, "measured": 32.5, "peer_adjusted": 32.0, "share": 0.5},
+             {"metric_name": "人時売上高", "baseline": 5000, "measured": 4600, "peer_adjusted": 4700, "share": 0.3},
+             {"metric_name": "営業利益率", "baseline": 7.0, "measured": 5.5, "peer_adjusted": 5.8, "share": 0.2},
+         ]},
+        {"name": "すき家 新店立ち上がり加速", "issue_type": "improvement_success",
+         "store_idxs": [97, 98, 99], "status": "completed",
+         "expected": 9000000, "realized": 10500000,
+         "metrics": [
+             {"metric_name": "月次売上", "baseline": 6000000, "measured": 9500000, "peer_adjusted": 9000000, "share": 0.5},
+             {"metric_name": "来客数", "baseline": 5500, "measured": 8200, "peer_adjusted": 7800, "share": 0.3},
+             {"metric_name": "口コミスコア", "baseline": 3.5, "measured": 4.1, "peer_adjusted": 4.0, "share": 0.2},
+         ]},
     ]
 
     for i, cd in enumerate(cases_data):
         case_id = gen_deterministic_uuid("value_case", i)
-        target_ids = [s["id"] for s in improvement_stores] if improvement_stores else None
+        target_ids = [store_by_idx[idx]["id"] for idx in cd["store_idxs"] if idx in store_by_idx]
 
         results_cases.append({
             "id": case_id,
@@ -1200,44 +1452,18 @@ def generate_value_cases(stores):
             "company_id": COMPANY_ID,
             "name": cd["name"],
             "issue_type": cd["issue_type"],
-            "target_store_ids": target_ids,
-            "baseline_start": cd["baseline_start"],
-            "baseline_end": cd["baseline_end"],
-            "measurement_start": cd["measurement_start"],
-            "measurement_end": cd["measurement_end"],
-            "status": "completed",
+            "target_store_ids": target_ids if target_ids else None,
+            "baseline_start": date(2025, 10, 1),
+            "baseline_end": date(2025, 12, 31),
+            "measurement_start": date(2026, 2, 1),
+            "measurement_end": date(2026, 4, 30),
+            "status": cd["status"],
             "expected_impact_amount": cd["expected"],
             "realized_impact_amount": cd["realized"],
         })
 
-        if cd["issue_type"] == "labor_overrun":
-            metrics = [
-                {"metric_name": "人件費率", "baseline": 35.0, "measured": 30.0,
-                 "peer_adjusted": 30.5, "impact": cd["realized"] * 6 // 10},
-                {"metric_name": "人時売上高", "baseline": 4200, "measured": 5100,
-                 "peer_adjusted": 4950, "impact": cd["realized"] * 2 // 10},
-                {"metric_name": "営業利益率", "baseline": 5.2, "measured": 8.1,
-                 "peer_adjusted": 7.8, "impact": cd["realized"] * 2 // 10},
-            ]
-        elif cd["issue_type"] == "cogs_overrun":
-            metrics = [
-                {"metric_name": "原価率", "baseline": 38.0, "measured": 34.0,
-                 "peer_adjusted": 34.5, "impact": cd["realized"] * 6 // 10},
-                {"metric_name": "理論原価乖離率", "baseline": 4.5, "measured": 1.8,
-                 "peer_adjusted": 2.0, "impact": cd["realized"] * 2 // 10},
-                {"metric_name": "粗利率", "baseline": 62.0, "measured": 66.0,
-                 "peer_adjusted": 65.5, "impact": cd["realized"] * 2 // 10},
-            ]
-        else:  # sales_decline
-            metrics = [
-                {"metric_name": "月次売上", "baseline": 12000000, "measured": 13800000,
-                 "peer_adjusted": 13500000, "impact": cd["realized"] * 6 // 10},
-                {"metric_name": "来客数", "baseline": 8500, "measured": 9800,
-                 "peer_adjusted": 9600, "impact": cd["realized"] * 2 // 10},
-                {"metric_name": "客単価", "baseline": 1410, "measured": 1410,
-                 "peer_adjusted": 1410, "impact": cd["realized"] * 2 // 10},
-            ]
-        for mi, m in enumerate(metrics):
+        realized_or_expected = cd["realized"] if cd["realized"] else cd["expected"]
+        for mi, m in enumerate(cd["metrics"]):
             results_metrics.append({
                 "id": gen_deterministic_uuid("value_metric", i * 10 + mi),
                 "value_case_id": case_id,
@@ -1245,7 +1471,7 @@ def generate_value_cases(stores):
                 "baseline_value": m["baseline"],
                 "measured_value": m["measured"],
                 "peer_adjusted_value": m["peer_adjusted"],
-                "estimated_impact_amount": m["impact"],
+                "estimated_impact_amount": int(realized_or_expected * m["share"]),
             })
 
     return results_cases, results_metrics
@@ -1681,18 +1907,27 @@ def generate_workflow_instances(templates, stores, tasks_list, employees):
     results_events = []
     sv_employees = [e for e in employees if e["role"] == "sv"]
 
-    anomaly_stores = [s for s in stores if s["_global_idx"] in LABOR_OVERRUN_STORES + COGS_OVERRUN_STORES]
-    if len(anomaly_stores) < 8:
-        anomaly_stores = stores[:8]
+    # Collect anomaly stores across all patterns for 20 instances
+    all_anomaly_idxs = (
+        LABOR_OVERRUN_STORES[:3] + COGS_OVERRUN_STORES[:3] +
+        CONTAMINATION_IMPACT_STORES[:2] + RICE_COST_SURGE_STORES[:2] +
+        PEAK_UNDERSTAFFED_STORES[:2] + LATE_NIGHT_LABOR_STORES[:2] +
+        MINIMUM_WAGE_IMPACT_STORES[:2] + ENERGY_COST_STORES[:2]
+    )
+    store_by_idx = {s["_global_idx"]: s for s in stores}
+    anomaly_stores = [store_by_idx[idx] for idx in all_anomaly_idxs if idx in store_by_idx]
+    # Pad if needed
+    while len(anomaly_stores) < 20:
+        anomaly_stores.append(stores[len(anomaly_stores) % len(stores)])
 
     event_idx = 0
-    for i in range(min(8, len(anomaly_stores))):
+    for i in range(20):
         store = anomaly_stores[i]
         template = templates[i % len(templates)]
         instance_id = gen_deterministic_uuid("wf_instance", i)
         sv = sv_employees[i % len(sv_employees)]
 
-        is_completed = i < 3
+        is_completed = i < 8
         status = "completed" if is_completed else "active"
         current_step = len(template["steps"]) - 1 if is_completed else RNG.randint(0, 2)
 
@@ -1736,7 +1971,7 @@ def generate_workflow_instances(templates, stores, tasks_list, employees):
         })
         event_idx += 1
 
-        if i < 6:
+        if i < 14:
             results_events.append({
                 "id": gen_deterministic_uuid("wf_event", event_idx),
                 "workflow_instance_id": instance_id,
@@ -2709,10 +2944,10 @@ def generate_ingredients():
 def generate_ingredient_price_history(ingredients):
     results = []
     idx = 0
-    base_date = date(2024, 4, 1)
+    base_date = date(2023, 4, 1)
     for ing in ingredients:
         cost = float(ing["standard_cost_per_unit"])
-        for month_offset in range(24):
+        for month_offset in range(36):
             d = base_date + timedelta(days=month_offset * 30)
             seasonal = 1.0 + RNG.uniform(-0.08, 0.08)
             results.append({

@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import String, Date, Numeric, ForeignKey, DateTime, UniqueConstraint, func
+from sqlalchemy import String, Date, Numeric, ForeignKey, DateTime, UniqueConstraint, Index, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
@@ -9,7 +9,11 @@ from app.database import Base
 
 class StoreDailyKPI(Base):
     __tablename__ = "store_daily_kpi"
-    __table_args__ = (UniqueConstraint("store_id", "business_date", name="uq_kpi_store_date"),)
+    __table_args__ = (
+        UniqueConstraint("store_id", "business_date", name="uq_kpi_store_date"),
+        Index("ix_kpi_tenant_date", "tenant_id", "business_date"),
+        Index("ix_kpi_tenant_store", "tenant_id", "store_id"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
