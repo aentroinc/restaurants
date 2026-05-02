@@ -5,7 +5,7 @@ from app.api.v1 import auth as auth_router
 from app.api.v1 import kpi_engine, audit
 from app.api.v1 import incidents, supply_chain, demand, expansion, campaigns
 from app.api.v1 import ai_chat
-from app.api.v1 import workspace, rbac
+from app.api.v1 import workspace, rbac, connectors
 from app.api.v1 import vertical
 from app.middleware.tenant import TenantMiddleware
 
@@ -49,3 +49,4 @@ app.include_router(ai_chat.router)
 app.include_router(workspace.router)
 app.include_router(rbac.router)
 app.include_router(vertical.router)
+app.include_router(connectors.router)

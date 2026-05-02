@@ -46,6 +46,7 @@ from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
 from app.models.benchmark import IndustryBenchmark
 from app.models.workspace import Analysis, CustomKPI, Cohort, SavedQuery
 from app.models.rbac import Role, Permission, UserRole
+from app.models.pos_connector import POSConnectorConfig
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -72,4 +73,5 @@ __all__ = [
     "IndustryBenchmark",
     "Analysis", "CustomKPI", "Cohort", "SavedQuery",
     "Role", "Permission", "UserRole",
+    "POSConnectorConfig",
 ]

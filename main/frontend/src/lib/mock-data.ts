@@ -6,6 +6,7 @@ import type {
   KPIDefinition, KPISimulationResult, LineageEvent, KPILineage,
   WritebackPolicy, WritebackRequest,
   DataSource, DataContractAdmin, IngestionRunAdmin, SchemaMapping, IDMapping,
+  POSConnectorConfig, POSConnectorProvider,
   AIGovernanceConfig, AIResponseEnhanced,
 } from "./types"
 
@@ -777,6 +778,51 @@ export const mockIDMappings: IDMapping[] = [
   { id: "im-6", source_system: "会計システム連携", source_id: "ACC-S099", canonical_id: "", confidence: 0.35, status: "unresolved", entity_type: "store" },
   { id: "im-7", source_system: "在庫管理CSV", source_id: "INV-A", canonical_id: "store-003", confidence: 0.62, status: "review", entity_type: "store" },
   { id: "im-8", source_system: "顧客レビュー API", source_id: "rev-shop-1", canonical_id: "store-001", confidence: 0.78, status: "confirmed", entity_type: "store" },
+]
+
+export const mockPOSConnectorProviders: POSConnectorProvider[] = [
+  {
+    provider: "smaregi",
+    display_name: "スマレジ Platform API",
+    country: "JP",
+    auth_type: "client_credentials",
+    entity_types: ["daily_sales"],
+    required_credentials: ["contract_id", "client_id_env", "client_secret_env"],
+    required_scopes: ["pos.transactions:read", "pos.stores:read"],
+  },
+  {
+    provider: "enterprise_pos_dwh",
+    display_name: "大手外食 本部DWH / POSデータマート",
+    country: "JP",
+    auth_type: "file_or_private_api",
+    entity_types: ["daily_sales", "hourly_sales", "product_sales", "store_master"],
+    required_credentials: ["connection_owner"],
+    required_scopes: [],
+  },
+]
+
+export const mockPOSConnectorConfigs: POSConnectorConfig[] = [
+  {
+    id: "pc-smaregi-demo",
+    provider: "smaregi",
+    display_name: "スマレジ検証環境",
+    status: "disconnected",
+    credentials: { contract_id: "sandbox-contract", client_id_env: "SMAREGI_CLIENT_ID", client_secret_env: "SMAREGI_CLIENT_SECRET" },
+    settings: { environment: "sandbox", scope: "pos.transactions:read pos.stores:read" },
+    store_mappings: { "1": "S001", "2": "S002" },
+    mapped_store_count: 2,
+  },
+  {
+    id: "pc-zensho-dwh",
+    provider: "enterprise_pos_dwh",
+    display_name: "本部DWH 日次売上データマート",
+    status: "connected",
+    credentials: { connection_owner: "情報システム部" },
+    settings: { contract: "daily_sales/hourly_sales/product_sales canonical bundle" },
+    store_mappings: {},
+    mapped_store_count: 0,
+    last_success_at: "2026-05-01T06:00:00Z",
+  },
 ]
 
 // ============================================

@@ -289,6 +289,7 @@ export interface WritebackRequest {
 export interface DataSource {
   id: string; name: string; source_type: string; system_category: string;
   connection_mode: string; status: string; last_success_at?: string; last_failure_at?: string;
+  display_name?: string; type?: string; entity_types?: string[]; frequency?: string; last_sync?: string;
 }
 export interface DataContractAdmin {
   id: string; contract_name: string; contract_version: number; entity_type: string;
@@ -306,6 +307,46 @@ export interface SchemaMapping {
 export interface IDMapping {
   id: string; source_system: string; source_id: string; canonical_id: string;
   confidence: number; status: string; entity_type: string;
+}
+
+export interface POSConnectorProvider {
+  provider: string;
+  display_name: string;
+  country: string;
+  auth_type: string;
+  entity_types: string[];
+  required_credentials: string[];
+  required_scopes: string[];
+}
+
+export interface POSConnectorConfig {
+  id: string;
+  provider: string;
+  display_name: string;
+  status: string;
+  credentials: Record<string, unknown>;
+  settings: Record<string, unknown>;
+  store_mappings: Record<string, string>;
+  mapped_store_count: number;
+  last_tested_at?: string;
+  last_success_at?: string;
+  last_failure_at?: string;
+  last_error?: string;
+}
+
+export interface POSConnectorActionResult {
+  connected?: boolean;
+  provider?: string;
+  sample_store_count?: number;
+  batch_id?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  transactions_fetched?: number;
+  daily_rows_loaded?: number;
+  daily_rows_skipped?: number;
+  error?: string;
+  errors?: { error: string; external_store_id?: string; business_date?: string }[];
 }
 
 // AI Governance

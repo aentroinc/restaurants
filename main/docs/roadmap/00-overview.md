@@ -1,16 +1,16 @@
 # 00 — 38点 → 100点 ロードマップ総論
 
 ## 現在位置
-**38 / 100点**（"日本の外食専用 Palantir" 軸）
+**48 / 100点**（"日本の外食専用 Palantir" 軸）
 
-骨格は揃った。Foundryの主要概念（Ontology / Lineage / Writeback / DQ / KPI Registry / Workflow / Audit）が型として存在し、外食バーティカルのページも23枚ある。一方、**動的化・実データ化・AI実装・本番運用化**が全部モックの域を出ない。
+骨格は揃った。Foundryの主要概念（Ontology / Lineage / Writeback / DQ / KPI Registry / Workflow / Audit）が型として存在し、外食バーティカルのページも23枚ある。加えて、日本企業向けの最初の実コネクタとしてスマレジ Platform API から日次売上を取り込む導線を追加した。一方、**動的化・AI実装・本番運用化**はまだモック/PoCの域を出ない。
 
 ## ターゲット採点表
 
 | # | 領域 | 現状 | ゴール | 増点 | 仕様書 |
 |---|------|------|--------|------|--------|
 | 01 | 動的オントロジー | 静的 ORM 型 | DB-driven + バージョニング + 編集UI | +10 | [01-dynamic-ontology.md](./01-dynamic-ontology.md) |
-| 02 | 実コネクタ | seed のみ | Airレジ / スマレジ / Square 1本以上 本番接続 | +12 | [02-real-connectors.md](./02-real-connectors.md) |
+| 02 | 実コネクタ | スマレジ API 接続・日次売上同期 | Airレジ / スマレジ / 大手外食DWH 1本以上の検証済み本番接続 | +12 | [02-real-connectors.md](./02-real-connectors.md) |
 | 03 | LLM AI Analyst | 静的 mock insight | claude-opus-4-7 + tool use + RAG | +8 | [03-llm-ai-analyst.md](./03-llm-ai-analyst.md) |
 | 04 | 分析ワークスペース | なし | コホート / Pivot / カスタムKPI builder | +8 | [04-analytical-workspace.md](./04-analytical-workspace.md) |
 | 05 | エンタープライズ認証 | JWT + tenant_id 一段 | SSO (OIDC/SAML) + RBAC + 行列ACL | +7 | [05-enterprise-auth.md](./05-enterprise-auth.md) |

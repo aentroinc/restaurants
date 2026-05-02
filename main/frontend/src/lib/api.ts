@@ -9,6 +9,7 @@ import {
   mockWritebackPolicies, mockWritebackRequests,
   mockDataSources, mockDataContracts, mockIngestionRuns, mockSchemaMappings, mockIDMappings,
   mockAIGovernanceConfig, mockAIResponseEnhanced,
+  mockPOSConnectorProviders, mockPOSConnectorConfigs,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -99,6 +100,20 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/admin/schema-mappings")) return mockSchemaMappings as any
   if (path.startsWith("/api/v1/admin/id-mappings")) return mockIDMappings as any
   if (path.startsWith("/api/v1/admin/ai-governance")) return mockAIGovernanceConfig as any
+  if (path.startsWith("/api/v1/connectors/pos/providers")) return mockPOSConnectorProviders as any
+  if (path.match(/\/api\/v1\/connectors\/pos\/configs\/[^/]+\/test/)) {
+    return { connected: false, provider: "smaregi", error: "API URL is not configured; showing mock connector state" } as any
+  }
+  if (path.match(/\/api\/v1\/connectors\/pos\/configs\/[^/]+\/sync/)) {
+    return { status: "mock", provider: "smaregi", transactions_fetched: 0, daily_rows_loaded: 0, daily_rows_skipped: 0 } as any
+  }
+  if (path.startsWith("/api/v1/connectors/pos/configs")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: "pc-new", mapped_store_count: Object.keys(body.store_mappings || {}).length, ...body } as any
+    }
+    return mockPOSConnectorConfigs as any
+  }
   return {} as T
 }
 
