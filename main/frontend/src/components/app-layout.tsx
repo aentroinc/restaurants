@@ -2,46 +2,42 @@
 
 import { useState } from "react"
 import { Sidebar } from "./sidebar"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { AIPanel } from "./ai-panel"
 import { Button } from "@/components/ui/button"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-[#0a0e14] text-white/85">
+      {/* Left Sidebar */}
       <Sidebar collapsed={collapsed} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-between border-b bg-white px-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)} className="text-gray-500">
-              {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-            </Button>
-            <div className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">開発環境</div>
-          </div>
-          <div className="flex items-center gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-blue-600 text-white text-xs">管</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuItem>プロフィール</DropdownMenuItem>
-                <DropdownMenuItem>設定</DropdownMenuItem>
-                <DropdownMenuItem>ログアウト</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-        <main className="flex-1 overflow-y-auto p-6">
+
+      {/* Center: collapse toggle + main content */}
+      <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
+        {/* Floating sidebar collapse toggle (top-left of main area) */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute top-3 left-3 z-30 h-7 w-7 text-white/40 hover:text-white/80 hover:bg-white/[0.04]"
+          title={collapsed ? "サイドバーを開く" : "サイドバーを折り畳む"}
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
+        </Button>
+
+        <main className="flex-1 overflow-y-auto bg-[#0a0e14]">
           {children}
         </main>
       </div>
+
+      {/* Right AI Panel — fixed 320px, collapsible */}
+      <AIPanel />
     </div>
   )
 }

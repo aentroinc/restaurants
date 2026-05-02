@@ -28,6 +28,11 @@ from app.models.industry_playbook import IndustryPlaybook
 from app.models.lineage import LineageEvent
 from app.models.writeback import WritebackPolicy, WritebackRequest
 from app.models.kpi_definition import KPIDefinition
+from app.models.incident import Incident, IncidentScenario, Action, ActionAuditLog
+from app.models.supply_chain import Factory, DistributionCenter, DeliveryRoute
+from app.models.demand import SKU, InventorySnapshot, DemandForecast, ReplenishmentRecommendation
+from app.models.expansion import LocationCandidate, RenovationProject
+from app.models.campaign import MenuItem, Campaign, CampaignBreakdown
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -39,4 +44,9 @@ __all__ = [
     "OntologyObjectType", "OntologyField", "OntologyRelationType",
     "IngestionBatch", "DataContract", "SchemaMapping", "IndustryPlaybook",
     "LineageEvent", "WritebackPolicy", "WritebackRequest", "KPIDefinition",
+    "Incident", "IncidentScenario", "Action", "ActionAuditLog",
+    "Factory", "DistributionCenter", "DeliveryRoute",
+    "SKU", "InventorySnapshot", "DemandForecast", "ReplenishmentRecommendation",
+    "LocationCandidate", "RenovationProject",
+    "MenuItem", "Campaign", "CampaignBreakdown",
 ]

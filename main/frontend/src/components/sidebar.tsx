@@ -4,116 +4,203 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
-  LayoutDashboard, BarChart3, Target, CheckSquare, Presentation,
-  Shield, TrendingUp, Brain, Boxes, Calculator, Database, GitBranch,
-  ShieldCheck, Lock,
+  LayoutDashboard, Store, AlertTriangle, Target, CheckSquare,
+  Truck, TrendingUp, MapPin, Megaphone,
+  Presentation, Sparkles, ShieldCheck, Brain,
+  Boxes, Network, Calculator, Database, GitBranch, Lock,
+  Hexagon,
+  type LucideIcon,
 } from "lucide-react"
 
-const navItems = [
-  { label: "経営概要", icon: LayoutDashboard, href: "/" },
-  { label: "店舗ランキング", icon: BarChart3, href: "/stores" },
-  { label: "SV ミッション", icon: Target, href: "/sv-missions" },
-  { label: "タスク管理", icon: CheckSquare, href: "/tasks" },
-  { label: "経営会議パック", icon: Presentation, href: "/meeting-packs" },
-  { label: "データ品質", icon: Shield, href: "/data-quality" },
-  { label: "改善効果", icon: TrendingUp, href: "/value-realization" },
-  { label: "AI アナリスト", icon: Brain, href: "/ai-analyst" },
+interface NavItem {
+  label: string
+  icon: LucideIcon
+  href: string
+}
+
+interface NavSection {
+  title: string
+  items: NavItem[]
+}
+
+const sections: NavSection[] = [
+  {
+    title: "経営オペレーション",
+    items: [
+      { label: "経営司令塔", icon: LayoutDashboard, href: "/" },
+      { label: "店舗360", icon: Store, href: "/stores" },
+      { label: "インシデント＆対応", icon: AlertTriangle, href: "/incidents" },
+      { label: "SVミッション", icon: Target, href: "/sv-missions" },
+      { label: "タスク管理", icon: CheckSquare, href: "/tasks" },
+    ],
+  },
+  {
+    title: "サプライ&需要",
+    items: [
+      { label: "サプライチェーン", icon: Truck, href: "/supply-chain" },
+      { label: "需要・在庫", icon: TrendingUp, href: "/demand" },
+    ],
+  },
+  {
+    title: "成長戦略",
+    items: [
+      { label: "出店・改装", icon: MapPin, href: "/expansion" },
+      { label: "キャンペーン分析", icon: Megaphone, href: "/campaigns" },
+    ],
+  },
+  {
+    title: "経営報告",
+    items: [
+      { label: "経営会議パック", icon: Presentation, href: "/meeting-packs" },
+      { label: "改善効果", icon: Sparkles, href: "/value-realization" },
+      { label: "データ品質", icon: ShieldCheck, href: "/data-quality" },
+      { label: "AIアナリスト", icon: Brain, href: "/ai-analyst" },
+    ],
+  },
 ]
 
-const adminItems = [
+const adminItems: NavItem[] = [
   { label: "オントロジー", icon: Boxes, href: "/admin/ontology" },
-  { label: "KPI 定義", icon: Calculator, href: "/admin/kpi-definitions" },
+  { label: "オントロジーグラフ", icon: Network, href: "/admin/ontology/graph" },
+  { label: "KPI定義", icon: Calculator, href: "/admin/kpi-definitions" },
   { label: "データ連携", icon: Database, href: "/admin/data-sources" },
   { label: "データ系譜", icon: GitBranch, href: "/admin/lineage" },
-  { label: "書き戻し管理", icon: ShieldCheck, href: "/admin/writeback" },
-  { label: "AI ガバナンス", icon: Lock, href: "/admin/ai-governance" },
+  { label: "書き戻し", icon: ShieldCheck, href: "/admin/writeback" },
+  { label: "AIガバナンス", icon: Lock, href: "/admin/ai-governance" },
 ]
 
 interface SidebarProps {
   collapsed: boolean
 }
 
+function isActiveHref(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/"
+  // Special case: /admin/ontology should not match /admin/ontology/graph
+  if (href === "/admin/ontology") {
+    return pathname === "/admin/ontology"
+  }
+  return pathname === href || pathname.startsWith(href + "/")
+}
+
 export function Sidebar({ collapsed }: SidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname() || "/"
 
   return (
     <aside
       className={cn(
-        "flex flex-col bg-slate-900 text-white transition-all duration-300",
+        "shrink-0 flex flex-col border-r border-white/[0.06] bg-[#0a0e14] transition-all duration-300",
         collapsed ? "w-[60px]" : "w-[260px]"
       )}
     >
-      <div className={cn("flex h-14 items-center border-b border-slate-700 px-4", collapsed && "justify-center px-2")}>
-        {collapsed ? (
-          <span className="text-lg font-bold text-blue-400">A</span>
-        ) : (
-          <span className="text-lg font-bold tracking-wider text-blue-400">AENTRO</span>
+      {/* Logo */}
+      <div
+        className={cn(
+          "flex h-14 items-center gap-2.5 border-b border-white/[0.06] px-4 shrink-0",
+          collapsed && "justify-center px-2"
+        )}
+      >
+        <Hexagon className="w-6 h-6 text-blue-400 shrink-0" strokeWidth={1.5} />
+        {!collapsed && (
+          <div className="overflow-hidden">
+            <div className="text-[11px] font-bold tracking-[0.16em] text-blue-400 uppercase">
+              AENTRO
+            </div>
+            <div className="text-[9px] text-white/40 tracking-[0.10em]">
+              Restaurant Operations OS
+            </div>
+          </div>
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-blue-600/20 text-blue-400"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white",
-                collapsed && "justify-center px-2"
-              )}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          )
-        })}
-
-        {/* Admin Section Divider */}
-        <div className={cn("pt-4 pb-2", collapsed && "pt-3 pb-1")}>
-          {collapsed ? (
-            <div className="mx-auto h-px w-6 bg-slate-700" />
-          ) : (
-            <div className="flex items-center gap-2 px-3">
-              <div className="h-px flex-1 bg-slate-700" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">管理</span>
-              <div className="h-px flex-1 bg-slate-700" />
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto py-2">
+        {sections.map((section) => (
+          <div key={section.title} className="mb-2">
+            {!collapsed && (
+              <div className="px-4 pt-2 pb-1">
+                <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30">
+                  {section.title}
+                </span>
+              </div>
+            )}
+            {collapsed && (
+              <div className="mx-auto my-2 h-px w-6 bg-white/[0.06]" />
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = isActiveHref(pathname, item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    title={collapsed ? item.label : undefined}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-2 text-[13px] transition-colors",
+                      active
+                        ? "bg-blue-500/10 text-blue-400 border-r-2 border-blue-400"
+                        : "text-white/50 hover:text-white/85 hover:bg-white/[0.03]",
+                      collapsed && "justify-center px-2"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                  </Link>
+                )
+              })}
             </div>
-          )}
-        </div>
+          </div>
+        ))}
 
-        {adminItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href)
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
-                isActive
-                  ? "bg-blue-600/15 text-blue-400/90"
-                  : "text-slate-500 hover:bg-slate-800 hover:text-slate-300",
-                collapsed && "justify-center px-2"
-              )}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          )
-        })}
+        {/* Admin Section */}
+        <div className="mt-2 pt-2 border-t border-white/[0.06]">
+          {!collapsed ? (
+            <div className="px-4 pt-2 pb-1">
+              <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/30">
+                管理
+              </span>
+            </div>
+          ) : (
+            <div className="mx-auto my-2 h-px w-6 bg-white/[0.06]" />
+          )}
+          <div className="space-y-0.5">
+            {adminItems.map((item) => {
+              const active = isActiveHref(pathname, item.href)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  title={collapsed ? item.label : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-1.5 text-[12px] transition-colors",
+                    active
+                      ? "bg-blue-500/10 text-blue-400 border-r-2 border-blue-400"
+                      : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]",
+                    collapsed && "justify-center px-2"
+                  )}
+                >
+                  <item.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
       </nav>
 
-      {!collapsed && (
-        <div className="border-t border-slate-700 p-4">
-          <div className="text-xs text-slate-500">期間</div>
-          <div className="mt-1 text-sm text-slate-300">2026年4月</div>
-        </div>
-      )}
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-white/[0.06] shrink-0">
+        {!collapsed ? (
+          <>
+            <div className="text-[9px] uppercase tracking-[0.10em] text-white/30">期間</div>
+            <div className="mt-1 text-[12px] text-white/70 font-mono tabular-nums">2026年4月</div>
+            <div className="mt-2 text-[9px] text-white/20 text-center">
+              Demo data / illustrative only
+            </div>
+          </>
+        ) : (
+          <div className="text-center text-[9px] text-white/20">v0.4</div>
+        )}
+      </div>
     </aside>
   )
 }
