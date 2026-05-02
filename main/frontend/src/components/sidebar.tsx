@@ -120,7 +120,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
               AENTRO
             </div>
             <div className="text-[9px] text-white/40 tracking-[0.10em]">
-              Restaurant Operations OS
+              ゼンショーグループ 経営OS
             </div>
           </div>
         )}
@@ -208,7 +208,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
             <div className="text-[9px] uppercase tracking-[0.10em] text-white/30">期間</div>
             <div className="mt-1 text-[12px] text-white/70 font-mono tabular-nums">2026年4月</div>
             <div className="mt-2 text-[9px] text-white/20 text-center">
-              Demo data / illustrative only
+              ゼンショーホールディングス
             </div>
           </>
         ) : (

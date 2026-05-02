@@ -27,12 +27,11 @@ const rand = (min: number, max: number) => Math.round((rng() * (max - min) + min
 const randInt = (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
 
 const brands = [
-  { brand_id: "gyudon-a", name: "牛丼A", category: "牛丼", color: "#f59e0b" },
-  { brand_id: "tonkatsu-b", name: "とんかつB", category: "とんかつ", color: "#8b5cf6" },
-  { brand_id: "curry-c", name: "カレーC", category: "カレー", color: "#ef4444" },
-  { brand_id: "sushi-d", name: "寿司D", category: "寿司", color: "#06b6d4" },
-  { brand_id: "chinese-e", name: "中華E", category: "中華", color: "#22c55e" },
-  { brand_id: "famires-f", name: "ファミレスF", category: "ファミレス", color: "#ec4899" },
+  { brand_id: "sukiya", name: "すき家", category: "牛丼", color: "#f59e0b" },
+  { brand_id: "hamazushi", name: "はま寿司", category: "回転寿司", color: "#06b6d4" },
+  { brand_id: "cocos", name: "ココス", category: "ファミレス", color: "#ef4444" },
+  { brand_id: "nakau", name: "なか卯", category: "丼・うどん", color: "#8b5cf6" },
+  { brand_id: "jolly-pasta", name: "ジョリーパスタ", category: "パスタ", color: "#22c55e" },
 ] as const
 
 type BrandId = (typeof brands)[number]["brand_id"]
@@ -66,6 +65,14 @@ const areasByRegion: Record<Region, string[]> = {
   "九州":     ["福岡","熊本","鹿児島","北九州","長崎"],
 }
 
+const brandStoreNames: Record<BrandId, string[]> = {
+  "sukiya": ["品川港南店","渋谷道玄坂店","新宿靖国通り店","池袋東口店","横浜鶴見店","大宮駅前店","千葉中央店","川崎駅前店","船橋店","柏旭町店","上野浅草口店","蒲田東口店","八王子旭町店","町田駅前店","立川北口店","札幌南3条店","仙台中央店","名古屋栄店","静岡呉服町店","大阪梅田店","大阪難波店","京都河原町店","神戸三宮店","広島中央店","福岡天神店","熊本下通店","鹿児島中央店","北九州小倉店","金沢片町店","松山大街道店"],
+  "hamazushi": ["横浜六角橋店","川崎鷺沼店","大宮東口店","千葉みなと店","船橋習志野店","柏松葉店","八王子堀之内店","町田鶴川店","立川砂川店","札幌白石店","仙台泉店","名古屋港店","浜松入野店","大阪鶴見店","堺中百舌鳥店","京都伏見店","神戸垂水店","広島海田店","福岡東店","熊本光の森店"],
+  "cocos": ["大宮店","横浜港北店","千葉幕張店","川崎宮前店","船橋市場店","柏増尾店","八王子南大沢店","町田小山店","立川若葉店","仙台長町店","名古屋守山店","浜松志都呂店","大阪東住吉店","堺深井店","京都桂店","岡山庭瀬店","福岡春日店"],
+  "nakau": ["品川店","渋谷宮益坂店","新宿三丁目店","池袋西口店","横浜西口店","大宮桜木町店","千葉富士見店","上野御徒町店","名古屋錦店","大阪本町店","京都四条店","神戸元町店","福岡大名店","札幌大通店","仙台一番町店"],
+  "jolly-pasta": ["横浜青葉台店","川崎宮崎台店","大宮七里店","千葉おゆみ野店","柏豊四季店","八王子みなみ野店","名古屋天白店","浜松佐鳴台店","大阪狭山店","堺泉北店","京都宇治店","神戸西店","岡山福浜店","広島祇園店","福岡大野城店"],
+}
+
 const locationTypes = ["駅前","ロードサイド","商業施設","住宅地"] as const
 
 interface Store {
@@ -89,19 +96,31 @@ interface Store {
 }
 
 const brandDistribution: BrandId[] = [
-  ...Array(70).fill("gyudon-a"),
-  ...Array(45).fill("tonkatsu-b"),
-  ...Array(35).fill("curry-c"),
-  ...Array(40).fill("sushi-d"),
-  ...Array(50).fill("chinese-e"),
-  ...Array(60).fill("famires-f"),
+  ...Array(80).fill("sukiya"),
+  ...Array(55).fill("hamazushi"),
+  ...Array(40).fill("cocos"),
+  ...Array(35).fill("nakau"),
+  ...Array(30).fill("jolly-pasta"),
 ]
 
 const TOTAL_STORES = 240
 
+// Brand-specific KPI ranges
+const brandKPIs: Record<BrandId, { avgTicketMin: number; avgTicketMax: number; dailySalesMin: number; dailySalesMax: number; seatsMin: number; seatsMax: number }> = {
+  "sukiya":       { avgTicketMin: 450, avgTicketMax: 600,  dailySalesMin: 350000,  dailySalesMax: 900000,  seatsMin: 30, seatsMax: 55 },
+  "hamazushi":    { avgTicketMin: 1000, avgTicketMax: 1200, dailySalesMin: 500000,  dailySalesMax: 1500000, seatsMin: 80, seatsMax: 140 },
+  "cocos":        { avgTicketMin: 1000, avgTicketMax: 1500, dailySalesMin: 400000,  dailySalesMax: 1000000, seatsMin: 70, seatsMax: 120 },
+  "nakau":        { avgTicketMin: 500, avgTicketMax: 700,  dailySalesMin: 250000,  dailySalesMax: 600000,  seatsMin: 25, seatsMax: 45 },
+  "jolly-pasta":  { avgTicketMin: 900, avgTicketMax: 1200, dailySalesMin: 350000,  dailySalesMax: 800000,  seatsMin: 60, seatsMax: 100 },
+}
+
+// Track store name counters per brand
+const brandStoreCounter: Record<BrandId, number> = { "sukiya": 0, "hamazushi": 0, "cocos": 0, "nakau": 0, "jolly-pasta": 0 }
+
 const stores: Store[] = Array.from({ length: TOTAL_STORES }, (_, i) => {
   const brandId = brandDistribution[i % brandDistribution.length]
   const brandObj = brands.find(b => b.brand_id === brandId)!
+  const kpiRange = brandKPIs[brandId]
   // Skew distribution toward 首都圏/関西
   const r = rng()
   let region: Region
@@ -117,18 +136,24 @@ const stores: Store[] = Array.from({ length: TOTAL_STORES }, (_, i) => {
   const base = baseLatLon[region]
   const lat = base[0] + (rng() - 0.5) * 1.4
   const lon = base[1] + (rng() - 0.5) * 1.4
-  const seats = randInt(40, 120)
-  const daily_customers = randInt(180, 720)
-  const avg_ticket = randInt(620, 1480)
-  const daily_sales = daily_customers * avg_ticket
+  const seats = randInt(kpiRange.seatsMin, kpiRange.seatsMax)
+  const avg_ticket = randInt(kpiRange.avgTicketMin, kpiRange.avgTicketMax)
+  const daily_sales = randInt(kpiRange.dailySalesMin, kpiRange.dailySalesMax)
+  const daily_customers = Math.round(daily_sales / avg_ticket)
   const health_score = randInt(28, 96)
   const stockout_risk = rng() < 0.16
   const staff_coverage = rand(0.72, 1.06)
   const is_critical = health_score < 50 || stockout_risk
 
+  // Use realistic store names from the brand list, cycling through
+  const nameList = brandStoreNames[brandId]
+  const nameIdx = brandStoreCounter[brandId] % nameList.length
+  brandStoreCounter[brandId]++
+  const storeName = `${brandObj.name} ${nameList[nameIdx]}`
+
   return {
     store_id: `S-${String(1001 + i).padStart(4, "0")}`,
-    name: `${brandObj.name} ${area}店`,
+    name: storeName,
     brand: brandId,
     brand_name: brandObj.name,
     region,
@@ -189,51 +214,51 @@ interface Incident {
 
 const incidents: Incident[] = [
   {
-    incident_id: "I-2401", type: "demand-surge", severity: "high",
-    title: "首都圏ランチ帯で需要急増",
-    description: "首都圏駅前22店舗でランチ客数が予測比+18%。牛バラ系SKUの欠品リスク上昇中。",
-    region: "首都圏", brand: "gyudon-a", impacted_stores: 22, ago: "23分前", status: "active",
+    incident_id: "I-2401", type: "quality-alert", severity: "high",
+    title: "すき家 首都圏駅前で異物混入報道後の客数回復中",
+    description: "先週の報道を受けて首都圏22店舗の客数が予測比-12%。回復施策を実施中、回復率は日次+3%で推移。",
+    region: "首都圏", brand: "sukiya", impacted_stores: 22, ago: "23分前", status: "active",
   },
   {
-    incident_id: "I-2402", type: "weather-delay", severity: "critical",
-    title: "関西配送便に遅延リスク",
-    description: "関西14:00-20:00 強雨予報 (降水確率85%)。8ルート、計34店舗のディナー帯に影響。",
-    region: "関西", impacted_stores: 34, ago: "1時間前", status: "active",
+    incident_id: "I-2402", type: "stockout-risk", severity: "critical",
+    title: "はま寿司 コメ価格高騰で原価率2pt上昇",
+    description: "国産米の仕入価格が前月比+15%。はま寿司全店の原価率が32.8%→34.8%に悪化。代替調達先を緊急選定中。",
+    region: "全国", brand: "hamazushi", impacted_stores: 55, ago: "1時間前", status: "active",
   },
   {
-    incident_id: "I-2403", type: "stockout-risk", severity: "high",
-    title: "とんかつBで肉類在庫切迫",
-    description: "ロース肉の供給が想定比-12%。明日午後にとんかつB 14店舗で安全在庫割れ予測。",
-    region: "全国", brand: "tonkatsu-b", impacted_stores: 14, ago: "2時間前", status: "active",
+    incident_id: "I-2403", type: "staff-shortage", severity: "high",
+    title: "ココス 首都圏で人件費率35%超過、シフト充足率82%",
+    description: "GW期間中の人員確保が困難。首都圏14店舗で人件費率が35%を超過、シフト充足率82%。ヘルプ要員調整中。",
+    region: "首都圏", brand: "cocos", impacted_stores: 14, ago: "2時間前", status: "active",
   },
   {
-    incident_id: "I-2404", type: "staff-shortage", severity: "medium",
-    title: "九州エリアで人員不足",
-    description: "福岡・熊本の17店舗でディナー帯シフトが充足率82%。代替シフト調整中。",
-    region: "九州", impacted_stores: 17, ago: "3時間前", status: "active",
+    incident_id: "I-2404", type: "demand-surge", severity: "medium",
+    title: "なか卯 親子丼キャンペーンで想定超の需要",
+    description: "4月投入の親子丼リニューアルが好調。関西・東海15店舗で卵の消費量が予測比+25%、在庫管理に注意。",
+    region: "関西", brand: "nakau", impacted_stores: 15, ago: "3時間前", status: "active",
   },
   {
     incident_id: "I-2405", type: "equipment-failure", severity: "high",
-    title: "中華E 大宮店で厨房設備不調",
-    description: "蒸し器2号機が停止。修理手配中、復旧見込み18:00。",
-    region: "首都圏", brand: "chinese-e", impacted_stores: 1, ago: "3時間前", status: "active",
+    title: "ジョリーパスタ 横浜青葉台店でオーブン故障",
+    description: "メインオーブンが停止。パスタグラタン系メニューの提供不可。修理手配中、復旧見込み18:00。",
+    region: "首都圏", brand: "jolly-pasta", impacted_stores: 1, ago: "3時間前", status: "active",
   },
   {
-    incident_id: "I-2406", type: "quality-alert", severity: "medium",
-    title: "ファミレスF 品質スコア低下",
-    description: "ファミレスF 関西エリア6店舗の品質スコアが基準値を下回る。改善行動着手。",
-    region: "関西", brand: "famires-f", impacted_stores: 6, ago: "5時間前", status: "active",
+    incident_id: "I-2406", type: "weather-delay", severity: "medium",
+    title: "関西配送便に遅延リスク（強雨予報）",
+    description: "関西14:00-20:00 強雨予報 (降水確率85%)。8ルート、計34店舗のディナー帯に食材配送遅延リスク。",
+    region: "関西", impacted_stores: 34, ago: "5時間前", status: "active",
   },
   {
     incident_id: "I-2407", type: "renovation-lift", severity: "low",
-    title: "改装12店舗で客単価+7.4%",
-    description: "改装完了から30日経過の12店舗で客単価が想定超過。次期投資を前倒し検討。",
-    region: "全国", impacted_stores: 12, ago: "本日", status: "active",
+    title: "すき家 改装12店舗で客単価+7.4%",
+    description: "改装完了から30日経過のすき家12店舗で客単価が想定超過。次期投資を前倒し検討。",
+    region: "全国", brand: "sukiya", impacted_stores: 12, ago: "本日", status: "active",
   },
   {
     incident_id: "I-2408", type: "expansion-constraint", severity: "medium",
     title: "出店候補18件、立地審査待ち",
-    description: "首都圏8件、関西6件、九州4件で立地審査が滞留。出店ペースに影響可能性。",
+    description: "すき家8件、はま寿司6件、ココス4件で立地審査が滞留。出店ペースに影響可能性。",
     region: "全国", impacted_stores: 18, ago: "本日", status: "active",
   },
 ]
@@ -252,12 +277,12 @@ interface ActionItem {
 }
 
 const actions: ActionItem[] = [
-  { action_id: "A-3101", title: "首都圏向け牛バラ12ケースを朝便で前倒し補充", owner_role: "SCM", owner_name: "佐藤", due_date: "本日 11:00", status: "approved", expected_impact: "欠品22→4店舗", confidence: "High" },
-  { action_id: "A-3102", title: "関西午後便を大阪DC経由ルートに切替", owner_role: "Logistics", owner_name: "山田", due_date: "本日 13:30", status: "pending", expected_impact: "遅延90→15分", confidence: "Medium" },
-  { action_id: "A-3103", title: "とんかつB 14店舗のメニュー推奨をヒレに一時変更", owner_role: "Marketing", owner_name: "中村", due_date: "本日 16:00", status: "in-progress", expected_impact: "売上機会損失320万円回避", confidence: "High" },
-  { action_id: "A-3104", title: "九州エリア人員不足17店舗にヘルプシフト派遣", owner_role: "HR", owner_name: "鈴木", due_date: "本日 17:00", status: "in-progress", expected_impact: "充足率82→96%", confidence: "Medium" },
-  { action_id: "A-3105", title: "中華E 大宮店の厨房設備緊急修理", owner_role: "Facilities", owner_name: "高橋", due_date: "本日 18:00", status: "approved", expected_impact: "ディナー営業継続", confidence: "High" },
-  { action_id: "A-3106", title: "次期改装候補5店舗の投資承認を前倒し", owner_role: "Strategy", owner_name: "田中", due_date: "今週中", status: "pending", expected_impact: "年間利益+1.2億円", confidence: "High" },
+  { action_id: "A-3101", title: "すき家 首都圏22店舗で衛生管理強化と広報対応", owner_role: "品質管理", owner_name: "佐藤", due_date: "本日 11:00", status: "approved", expected_impact: "客数回復+8%見込", confidence: "High" },
+  { action_id: "A-3102", title: "はま寿司 コメ代替調達先3社と緊急交渉", owner_role: "SCM", owner_name: "山田", due_date: "本日 13:30", status: "pending", expected_impact: "原価率2pt改善", confidence: "Medium" },
+  { action_id: "A-3103", title: "ココス 首都圏14店舗にヘルプシフト派遣", owner_role: "HR", owner_name: "中村", due_date: "本日 16:00", status: "in-progress", expected_impact: "充足率82→96%", confidence: "High" },
+  { action_id: "A-3104", title: "なか卯 卵の追加発注（関西・東海DC）", owner_role: "SCM", owner_name: "鈴木", due_date: "本日 17:00", status: "in-progress", expected_impact: "欠品リスク回避15店舗", confidence: "Medium" },
+  { action_id: "A-3105", title: "ジョリーパスタ 横浜青葉台店のオーブン緊急修理", owner_role: "設備管理", owner_name: "高橋", due_date: "本日 18:00", status: "approved", expected_impact: "ディナー営業継続", confidence: "High" },
+  { action_id: "A-3106", title: "すき家 次期改装候補5店舗の投資承認を前倒し", owner_role: "経営企画", owner_name: "田中", due_date: "今週中", status: "pending", expected_impact: "年間利益+1.2億円", confidence: "High" },
 ]
 
 // --- KPI cards definition ---

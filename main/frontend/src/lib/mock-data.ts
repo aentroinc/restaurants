@@ -24,7 +24,7 @@ function mulberry32(seed: number) {
 }
 const seededRandom = mulberry32(42);
 
-const brands = ["焼肉キング", "丸源ラーメン", "寿司まどか", "鳥貴族", "サイゼリヤ"]
+const brands = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
 const areas = ["関東", "関西", "中部", "九州", "東北"]
 const prefectures: Record<string, string[]> = {
   "関東": ["東京都", "神奈川県", "千葉県", "埼玉県"],
@@ -198,7 +198,7 @@ export const mockMeetingPacks: MeetingPack[] = [
     created_at: "2026-04-28T10:00:00Z",
     items: [
       { id: "mpi-1", type: "kpi", title: "全店KPIサマリー", content: "売上前年比98.2%、FL比率59.0%で前月比+0.8pt悪化。人件費率の上昇が主因。", order: 1 },
-      { id: "mpi-2", type: "alert", title: "要注意店舗: 焼肉キング東京中央店", content: "健全度スコア40。人件費率38.2%、原価率35.1%。FL比率73.3%で全店ワースト。", store_id: "store-001", store_name: "焼肉キング東京中央店", order: 2 },
+      { id: "mpi-2", type: "alert", title: "要注意店舗: すき家 品川港南店", content: "健全度スコア40。人件費率38.2%、原価率35.1%。FL比率73.3%で全店ワースト。", store_id: "store-001", store_name: "すき家 品川港南店", order: 2 },
       { id: "mpi-3", type: "improvement", title: "シフト最適化施策の進捗", content: "対象5店舗中3店舗で実施完了。平均人件費率2.1pt改善。残り2店舗は5月第1週に実施予定。", order: 3 },
       { id: "mpi-4", type: "discussion", title: "夏季メニュー戦略について", content: "原価率上昇傾向を踏まえ、夏季限定メニューの原価設計を議論。目標原価率30%以下。", order: 4 },
     ],
@@ -211,7 +211,7 @@ export const mockMeetingPacks: MeetingPack[] = [
     created_at: "2026-04-21T10:00:00Z",
     items: [
       { id: "mpi-5", type: "kpi", title: "全店KPIサマリー", content: "売上前年比99.1%。FL比率58.2%で基準値内。", order: 1 },
-      { id: "mpi-6", type: "alert", title: "要注意店舗: 丸源ラーメン大阪駅前店", content: "客数減少が継続。近隣の競合出店の影響と推定。", store_id: "store-002", store_name: "丸源ラーメン大阪駅前店", order: 2 },
+      { id: "mpi-6", type: "alert", title: "要注意店舗: はま寿司 横浜六角橋店", content: "客数減少が継続。近隣の競合出店の影響と推定。", store_id: "store-002", store_name: "はま寿司 横浜六角橋店", order: 2 },
     ],
   },
   {
@@ -318,34 +318,34 @@ export const mockValueRealizationSummary: ValueRealizationSummary = {
 
 export const mockAIResponses: Record<string, AIResponse> = {
   "先月利益が悪化した店舗は？": {
-    conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特に焼肉キング東京中央店（-4.2pt）、丸源ラーメン大阪駅前店（-3.1pt）、寿司まどか愛知南店（-2.8pt）の3店舗が顕著です。",
+    conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にすき家 品川港南店（-4.2pt）、はま寿司 横浜六角橋店（-3.1pt）、ココス 大宮店（-2.8pt）の3店舗が顕著です。",
     facts: [
-      { statement: "焼肉キング東京中央店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate" },
-      { statement: "丸源ラーメン大阪駅前店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate" },
-      { statement: "寿司まどか愛知南店の原価率は36.2%で前月比+3.1pt", source_metric: "cogs_rate" },
+      { statement: "すき家 品川港南店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate" },
+      { statement: "はま寿司 横浜六角橋店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate" },
+      { statement: "ココス 大宮店の原価率は36.2%で前月比+3.1pt", source_metric: "cogs_rate" },
       { statement: "悪化8店舗の共通点として、FL比率が65%を超えている", source_metric: "fl_ratio" },
     ],
     hypotheses: [
-      { statement: "焼肉キング東京中央店は、GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high" },
-      { statement: "丸源ラーメン大阪駅前店は、近隣の競合出店（3月末オープン）による客数減少が影響", confidence: "medium" },
-      { statement: "原価率悪化店舗は、4月の食材価格上昇（特に鶏肉+8%、豚肉+5%）の影響を受けている可能性", confidence: "medium" },
+      { statement: "すき家 品川港南店は、GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high" },
+      { statement: "はま寿司 横浜六角橋店は、近隣の競合出店（3月末オープン）による客数減少が影響", confidence: "medium" },
+      { statement: "原価率悪化店舗は、4月の食材価格上昇（特にコメ+15%、鮮魚+12%）の影響を受けている可能性", confidence: "medium" },
     ],
     recommendations: [
-      { action: "焼肉キング東京中央店：シフト表の見直しと、ピークタイム以外の人員を1名削減", expected_impact_amount: 320_000 },
-      { action: "丸源ラーメン大阪駅前店：差別化メニューの投入と、SNS集客施策の強化", expected_impact_amount: 250_000 },
+      { action: "すき家 品川港南店：シフト表の見直しと、ピークタイム以外の人員を1名削減", expected_impact_amount: 320_000 },
+      { action: "はま寿司 横浜六角橋店：差別化メニューの投入と、SNS集客施策の強化", expected_impact_amount: 250_000 },
       { action: "原価率悪化店舗：仕入れ先の相見積もりを実施し、代替食材の検討", expected_impact_amount: 480_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "焼肉キング東京中央店" },
-      { type: "store", id: "store-002", name: "丸源ラーメン大阪駅前店" },
-      { type: "store", id: "store-003", name: "寿司まどか愛知南店" },
+      { type: "store", id: "store-001", name: "すき家 品川港南店" },
+      { type: "store", id: "store-002", name: "はま寿司 横浜六角橋店" },
+      { type: "store", id: "store-003", name: "ココス 大宮店" },
     ],
   },
   "人件費率が最も高い店舗の原因は？": {
-    conclusion: "人件費率が最も高いのは焼肉キング東京中央店（38.2%）で、全店平均28.8%を9.4pt上回っています。主因はピークタイム以外の過剰配置と新人研修の長期化です。",
+    conclusion: "人件費率が最も高いのはすき家 品川港南店（38.2%）で、全店平均28.8%を9.4pt上回っています。主因はピークタイム以外の過剰配置と新人研修の長期化です。",
     facts: [
-      { statement: "焼肉キング東京中央店の人件費率は38.2%で全店ワースト1位", source_metric: "labor_cost_rate" },
+      { statement: "すき家 品川港南店の人件費率は38.2%で全店ワースト1位", source_metric: "labor_cost_rate" },
       { statement: "同店の人時売上は3,200円で、全店平均4,500円を大幅に下回る", source_metric: "sales_per_labor_hour" },
       { statement: "アイドルタイム（14:00-17:00）の配置人数が平均4.2名で、同規模他店の2.8名を上回る", source_metric: "labor_hours" },
       { statement: "新人スタッフの比率が42%で全店平均25%を大きく超過", source_metric: "employee_ratio" },
@@ -362,8 +362,8 @@ export const mockAIResponses: Record<string, AIResponse> = {
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "焼肉キング東京中央店" },
-      { type: "store", id: "store-003", name: "寿司まどか愛知南店" },
+      { type: "store", id: "store-001", name: "すき家 品川港南店" },
+      { type: "store", id: "store-003", name: "ココス 大宮店" },
     ],
   },
   "改善施策の効果は出ていますか？": {
@@ -379,67 +379,67 @@ export const mockAIResponses: Record<string, AIResponse> = {
       { statement: "ピークタイム施策が目標超過したのは、メニューリニューアルとの相乗効果が想定以上だった", confidence: "medium" },
     ],
     recommendations: [
-      { action: "シフト最適化の残り2店舗（寿司まどか愛知南店、鳥貴族福岡北店）への展開を5月第1週に前倒し", expected_impact_amount: 280_000 },
+      { action: "シフト最適化の残り2店舗（ココス 大宮店、なか卯 品川店）への展開を5月第1週に前倒し", expected_impact_amount: 280_000 },
       { action: "仕入れ先見直しについて、契約更新を待たず主要3品目のスポット相見積もりを先行実施", expected_impact_amount: 350_000 },
       { action: "ピークタイム売上最大化の成功パターンを他6店舗へ横展開", expected_impact_amount: 600_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "焼肉キング東京中央店" },
-      { type: "store", id: "store-003", name: "寿司まどか愛知南店" },
-      { type: "store", id: "store-004", name: "鳥貴族福岡北店" },
+      { type: "store", id: "store-001", name: "すき家 品川港南店" },
+      { type: "store", id: "store-003", name: "ココス 大宮店" },
+      { type: "store", id: "store-004", name: "なか卯 品川店" },
     ],
   },
   "今週SVが訪問すべき店舗は？": {
-    conclusion: "今週SVが優先訪問すべき店舗は3店舗です。焼肉キング東京中央店（優先度95）、丸源ラーメン大阪駅前店（優先度87）、寿司まどか愛知南店（優先度79）の順で訪問を推奨します。",
+    conclusion: "今週SVが優先訪問すべき店舗は3店舗です。すき家 品川港南店（優先度95）、はま寿司 横浜六角橋店（優先度87）、ココス 大宮店（優先度79）の順で訪問を推奨します。",
     facts: [
-      { statement: "焼肉キング東京中央店: 健全度40、最終訪問から14日経過、未完了タスク3件", source_metric: "health_score" },
-      { statement: "丸源ラーメン大阪駅前店: 健全度48、売上前月比-8.2%、客数減少が3週連続", source_metric: "net_sales_trend" },
-      { statement: "寿司まどか愛知南店: 健全度56、原価率36.2%で全店ワースト、新店長着任1ヶ月", source_metric: "cogs_rate" },
+      { statement: "すき家 品川港南店: 健全度40、最終訪問から14日経過、未完了タスク3件", source_metric: "health_score" },
+      { statement: "はま寿司 横浜六角橋店: 健全度48、売上前月比-8.2%、客数減少が3週連続", source_metric: "net_sales_trend" },
+      { statement: "ココス 大宮店: 健全度56、原価率36.2%で全店ワースト、新店長着任1ヶ月", source_metric: "cogs_rate" },
       { statement: "全10店舗中、健全度60未満の要注意店舗は上記3店舗", source_metric: "health_score" },
     ],
     hypotheses: [
-      { statement: "焼肉キング東京中央店はSV訪問ブランクが長く、現場のモチベーション低下リスクあり", confidence: "high" },
-      { statement: "丸源ラーメン大阪駅前店の客数減少は競合出店の影響が大きいが、接客品質低下も一因", confidence: "medium" },
-      { statement: "寿司まどか愛知南店は新店長のオペレーション習熟不足が原価管理に影響", confidence: "medium" },
+      { statement: "すき家 品川港南店はSV訪問ブランクが長く、現場のモチベーション低下リスクあり", confidence: "high" },
+      { statement: "はま寿司 横浜六角橋店の客数減少は競合出店の影響が大きいが、接客品質低下も一因", confidence: "medium" },
+      { statement: "ココス 大宮店は新店長のオペレーション習熟不足が原価管理に影響", confidence: "medium" },
     ],
     recommendations: [
-      { action: "焼肉キング東京中央店: 田中SVが月曜に訪問し、シフト改善の進捗確認と店長1on1を実施", expected_impact_amount: 320_000 },
-      { action: "丸源ラーメン大阪駅前店: 鈴木SVが水曜に訪問し、競合対策メニューの検討と接客トレーニング", expected_impact_amount: 250_000 },
-      { action: "寿司まどか愛知南店: 佐藤SVが木曜に訪問し、発注・仕込み量の適正化を指導", expected_impact_amount: 180_000 },
+      { action: "すき家 品川港南店: 田中SVが月曜に訪問し、シフト改善の進捗確認と店長1on1を実施", expected_impact_amount: 320_000 },
+      { action: "はま寿司 横浜六角橋店: 鈴木SVが水曜に訪問し、競合対策メニューの検討と接客トレーニング", expected_impact_amount: 250_000 },
+      { action: "ココス 大宮店: 佐藤SVが木曜に訪問し、発注・仕込み量の適正化を指導", expected_impact_amount: 180_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "焼肉キング東京中央店" },
-      { type: "store", id: "store-002", name: "丸源ラーメン大阪駅前店" },
-      { type: "store", id: "store-003", name: "寿司まどか愛知南店" },
+      { type: "store", id: "store-001", name: "すき家 品川港南店" },
+      { type: "store", id: "store-002", name: "はま寿司 横浜六角橋店" },
+      { type: "store", id: "store-003", name: "ココス 大宮店" },
     ],
   },
   "原価率が悪化しているブランドは？": {
-    conclusion: "原価率が最も悪化しているブランドは寿司まどかで、前月比+2.8ptの33.8%です。次いで焼肉キング（+1.5pt、32.1%）が続きます。主因は4月の食材価格上昇（鮮魚+12%、牛肉+8%）です。",
+    conclusion: "原価率が最も悪化しているブランドはココスで、前月比+2.8ptの33.8%です。次いですき家（+1.5pt、32.1%）が続きます。主因は4月の食材価格上昇（鮮魚+12%、牛肉+8%）です。",
     facts: [
-      { statement: "寿司まどか: 原価率33.8%（前月比+2.8pt）、鮮魚仕入価格が前年比+12%上昇", source_metric: "cogs_rate" },
-      { statement: "焼肉キング: 原価率32.1%（前月比+1.5pt）、牛肉仕入価格が前年比+8%上昇", source_metric: "cogs_rate" },
-      { statement: "丸源ラーメン: 原価率29.5%（前月比+0.3pt）、小麦粉価格は安定", source_metric: "cogs_rate" },
-      { statement: "鳥貴族: 原価率28.2%（前月比-0.5pt）、鶏肉価格は下落傾向", source_metric: "cogs_rate" },
-      { statement: "サイゼリヤ: 原価率30.0%（前月比+0.2pt）、ほぼ横ばい", source_metric: "cogs_rate" },
+      { statement: "ココス: 原価率33.8%（前月比+2.8pt）、コメ仕入価格が前年比+15%上昇", source_metric: "cogs_rate" },
+      { statement: "すき家: 原価率32.1%（前月比+1.5pt）、牛肉仕入価格が前年比+10%上昇", source_metric: "cogs_rate" },
+      { statement: "はま寿司: 原価率29.5%（前月比+0.3pt）、小麦粉価格は安定", source_metric: "cogs_rate" },
+      { statement: "なか卯: 原価率28.2%（前月比-0.5pt）、鶏肉価格は下落傾向", source_metric: "cogs_rate" },
+      { statement: "ジョリーパスタ: 原価率30.0%（前月比+0.2pt）、ほぼ横ばい", source_metric: "cogs_rate" },
     ],
     hypotheses: [
-      { statement: "寿司まどかの悪化は、不漁による鮮魚価格高騰が直接的な原因。特にマグロとサーモンが影響大", confidence: "high" },
-      { statement: "焼肉キングは円安による輸入牛肉コスト増が主因。国産切替が検討余地あり", confidence: "medium" },
-      { statement: "廃棄ロスの増加も一因。寿司まどかの廃棄率は4.2%で前月比+1.1pt", confidence: "medium" },
+      { statement: "ココスの悪化は、コメ価格高騰と鮮魚の不漁が直接的な原因。特にマグロとサーモンが影響大", confidence: "high" },
+      { statement: "すき家は円安による輸入牛肉コスト増が主因。仕入先の多様化を検討", confidence: "medium" },
+      { statement: "廃棄ロスの増加も一因。はま寿司の廃棄率は4.2%で前月比+1.1pt", confidence: "medium" },
     ],
     recommendations: [
-      { action: "寿司まどかで季節メニューの原価設計を見直し、高騰食材の使用量を20%削減", expected_impact_amount: 380_000 },
-      { action: "焼肉キングで国産牛肉（部位変更含む）への一部切替を検討。テスト導入を2店舗で開始", expected_impact_amount: 450_000 },
+      { action: "はま寿司で季節メニューの原価設計を見直し、高騰食材の使用量を20%削減", expected_impact_amount: 380_000 },
+      { action: "すき家で仕入先の多様化と代替部位の活用を検討。テスト導入を2店舗で開始", expected_impact_amount: 450_000 },
       { action: "全ブランドで廃棄ロス削減プログラムを5月に開始。目標: 廃棄率3.0%以下", expected_impact_amount: 280_000 },
     ],
     confidence: "medium",
     referenced_entities: [
-      { type: "brand", id: "brand-001", name: "寿司まどか" },
-      { type: "brand", id: "brand-002", name: "焼肉キング" },
-      { type: "brand", id: "brand-003", name: "丸源ラーメン" },
-      { type: "brand", id: "brand-004", name: "鳥貴族" },
+      { type: "brand", id: "brand-001", name: "ココス" },
+      { type: "brand", id: "brand-002", name: "すき家" },
+      { type: "brand", id: "brand-003", name: "はま寿司" },
+      { type: "brand", id: "brand-004", name: "なか卯" },
     ],
   },
   "default": {
@@ -562,31 +562,31 @@ export const mockOntologyObjectTypes: OntologyObjectType[] = [
 
 export const mockOntologyObjects: OntologyObject[] = [
   {
-    id: "obj-001", object_type: "store", canonical_id: "store-001", display_name: "焼肉キング東京中央店",
+    id: "obj-001", object_type: "store", canonical_id: "store-001", display_name: "すき家 品川港南店",
     attributes: { store_code: "S001", brand_id: "brand-001", area_id: "area-001", prefecture: "東京都", seat_count: 80, floor_area_sqm: 120.5 },
     status: "active",
     relations: [
-      { id: "rel-1", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b1", object_type: "brand", display_name: "焼肉キング" }, attributes: {} },
+      { id: "rel-1", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b1", object_type: "brand", display_name: "すき家" }, attributes: {} },
       { id: "rel-2", relation_type: "belongs_to_area", direction: "outgoing", related_object: { id: "obj-a1", object_type: "area", display_name: "関東" }, attributes: {} },
       { id: "rel-3", relation_type: "employs", direction: "outgoing", related_object: { id: "obj-e1", object_type: "employee", display_name: "山田店長" }, attributes: { role: "店長" } },
     ],
   },
   {
-    id: "obj-002", object_type: "store", canonical_id: "store-002", display_name: "丸源ラーメン大阪駅前店",
+    id: "obj-002", object_type: "store", canonical_id: "store-002", display_name: "はま寿司 横浜六角橋店",
     attributes: { store_code: "S002", brand_id: "brand-002", area_id: "area-002", prefecture: "大阪府", seat_count: 45, floor_area_sqm: 85.0 },
     status: "active",
     relations: [
-      { id: "rel-4", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b2", object_type: "brand", display_name: "丸源ラーメン" }, attributes: {} },
+      { id: "rel-4", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b2", object_type: "brand", display_name: "はま寿司" }, attributes: {} },
     ],
   },
   {
-    id: "obj-003", object_type: "brand", canonical_id: "brand-001", display_name: "焼肉キング",
-    attributes: { brand_code: "YK", cuisine_type: "焼肉", avg_ticket_target: 3500 },
+    id: "obj-003", object_type: "brand", canonical_id: "brand-001", display_name: "すき家",
+    attributes: { brand_code: "SK", cuisine_type: "牛丼", avg_ticket_target: 550 },
     status: "active", relations: [],
   },
   {
-    id: "obj-004", object_type: "brand", canonical_id: "brand-002", display_name: "丸源ラーメン",
-    attributes: { brand_code: "MR", cuisine_type: "ラーメン", avg_ticket_target: 1200 },
+    id: "obj-004", object_type: "brand", canonical_id: "brand-002", display_name: "はま寿司",
+    attributes: { brand_code: "HZ", cuisine_type: "回転寿司", avg_ticket_target: 1100 },
     status: "active", relations: [],
   },
   {
@@ -605,8 +605,8 @@ export const mockOntologyObjects: OntologyObject[] = [
     status: "active", relations: [],
   },
   {
-    id: "obj-008", object_type: "menu_item", canonical_id: "menu-001", display_name: "特選カルビ",
-    attributes: { item_code: "M001", category: "焼肉", price: 1580, cost: 632, allergens: "なし", calories: 450 },
+    id: "obj-008", object_type: "menu_item", canonical_id: "menu-001", display_name: "牛丼（並盛）",
+    attributes: { item_code: "M001", category: "牛丼", price: 430, cost: 180, allergens: "小麦", calories: 650 },
     status: "active", relations: [],
   },
 ]
@@ -678,11 +678,11 @@ export const mockKPIDefinitions: KPIDefinition[] = [
 export const mockKPISimulationResult: KPISimulationResult = {
   affected_stores: 48,
   sample_before_after: [
-    { store_name: "焼肉キング東京中央店", old_value: 34.2, new_value: 33.8 },
-    { store_name: "丸源ラーメン大阪駅前店", old_value: 31.5, new_value: 31.2 },
-    { store_name: "寿司まどか愛知南店", old_value: 36.1, new_value: 35.6 },
-    { store_name: "鳥貴族福岡北店", old_value: 29.8, new_value: 29.5 },
-    { store_name: "サイゼリヤ宮城東店", old_value: 30.2, new_value: 29.9 },
+    { store_name: "すき家 品川港南店", old_value: 34.2, new_value: 33.8 },
+    { store_name: "はま寿司 横浜六角橋店", old_value: 31.5, new_value: 31.2 },
+    { store_name: "ココス 大宮店", old_value: 36.1, new_value: 35.6 },
+    { store_name: "なか卯 品川店", old_value: 29.8, new_value: 29.5 },
+    { store_name: "ジョリーパスタ 横浜青葉台店", old_value: 30.2, new_value: 29.9 },
   ],
   ranking_changes: 7,
 }
@@ -818,17 +818,17 @@ export const mockAIGovernanceConfig: AIGovernanceConfig = {
 
 export const mockAIResponseEnhanced: AIResponseEnhanced = {
   answer_type: "analysis",
-  conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特に焼肉キング東京中央店（-4.2pt）が顕著です。",
+  conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にすき家 品川港南店（-4.2pt）が顕著です。",
   facts: [
-    { statement: "焼肉キング東京中央店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate", source_entity: "store-001", period: "2026-04" },
-    { statement: "丸源ラーメン大阪駅前店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate", source_entity: "store-002", period: "2026-04" },
+    { statement: "すき家 品川港南店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate", source_entity: "store-001", period: "2026-04" },
+    { statement: "はま寿司 横浜六角橋店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate", source_entity: "store-002", period: "2026-04" },
   ],
   calculations: [
     { name: "原価率", formula: "cogs / net_sales * 100", value: 34.2, kpi_definition_id: "kpi-1" },
     { name: "FL比率", formula: "cogs_rate + labor_cost_rate", value: 69.4, kpi_definition_id: "kpi-3" },
   ],
   hypotheses: [
-    { statement: "GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high", supporting_facts: ["焼肉キング東京中央店の営業利益率は3.2%"] },
+    { statement: "GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high", supporting_facts: ["すき家 品川港南店の営業利益率は3.2%"] },
   ],
   recommendations: [
     { action: "シフト表の見直しと、ピークタイム以外の人員を1名削減", owner_role: "sv", expected_impact_amount: 320000, requires_human_approval: true },
@@ -841,8 +841,8 @@ export const mockAIResponseEnhanced: AIResponseEnhanced = {
       { kpi_code: "fl_ratio", version: 2 },
     ],
     referenced_objects: [
-      { object_type: "store", object_id: "store-001", display_name: "焼肉キング東京中央店" },
-      { object_type: "store", object_id: "store-002", display_name: "丸源ラーメン大阪駅前店" },
+      { object_type: "store", object_id: "store-001", display_name: "すき家 品川港南店" },
+      { object_type: "store", object_id: "store-002", display_name: "はま寿司 横浜六角橋店" },
     ],
     data_period: "2026-04",
     data_freshness: "2026-05-01T06:10:00Z",
@@ -877,7 +877,7 @@ export const mockCustomKPIDefs: CustomKPIDef[] = [
 export const mockCohortDefs: CohortDef[] = [
   { id: "co-1", name: "高収益店舗群", object_type: "store", filter_spec: { health_score: { gte: 80 } }, instance_count: 42 },
   { id: "co-2", name: "要改善店舗", object_type: "store", filter_spec: { health_score: { lt: 60 } }, instance_count: 8 },
-  { id: "co-3", name: "首都圏ブランドA", object_type: "store", filter_spec: { region: "首都圏", brand: "gyudon-a" }, instance_count: 18 },
+  { id: "co-3", name: "首都圏すき家", object_type: "store", filter_spec: { region: "首都圏", brand: "sukiya" }, instance_count: 18 },
   { id: "co-4", name: "新規出店（1年以内）", object_type: "store", filter_spec: { opened_within_months: 12 }, instance_count: 15 },
   { id: "co-5", name: "FC加盟店", object_type: "store", filter_spec: { agreement_type: "FC" }, instance_count: 35 },
 ]
@@ -887,12 +887,12 @@ export const mockCohortDefs: CohortDef[] = [
 // ============================================
 
 export const mockRecipes: RecipeItem[] = [
-  { id: "rc-1", product_name: "特選カルビ定食", version: 3, yield_quantity: 1, cooking_time_minutes: 12, status: "active", theoretical_cost: 485, bom_count: 8 },
-  { id: "rc-2", product_name: "味噌ラーメン", version: 2, yield_quantity: 1, cooking_time_minutes: 8, status: "active", theoretical_cost: 320, bom_count: 12 },
-  { id: "rc-3", product_name: "海鮮丼", version: 4, yield_quantity: 1, cooking_time_minutes: 5, status: "active", theoretical_cost: 580, bom_count: 10 },
-  { id: "rc-4", product_name: "チキン南蛮定食", version: 1, yield_quantity: 1, cooking_time_minutes: 15, status: "draft", theoretical_cost: 410, bom_count: 9 },
-  { id: "rc-5", product_name: "抹茶パフェ", version: 2, yield_quantity: 1, cooking_time_minutes: 6, status: "active", theoretical_cost: 280, bom_count: 7 },
-  { id: "rc-6", product_name: "麻婆豆腐定食", version: 3, yield_quantity: 1, cooking_time_minutes: 10, status: "active", theoretical_cost: 350, bom_count: 11 },
+  { id: "rc-1", product_name: "牛丼（並盛）", version: 3, yield_quantity: 1, cooking_time_minutes: 3, status: "active", theoretical_cost: 180, bom_count: 6 },
+  { id: "rc-2", product_name: "まぐろ三種盛り", version: 2, yield_quantity: 1, cooking_time_minutes: 4, status: "active", theoretical_cost: 320, bom_count: 8 },
+  { id: "rc-3", product_name: "包み焼きハンバーグ", version: 4, yield_quantity: 1, cooking_time_minutes: 15, status: "active", theoretical_cost: 480, bom_count: 10 },
+  { id: "rc-4", product_name: "親子丼", version: 1, yield_quantity: 1, cooking_time_minutes: 5, status: "active", theoretical_cost: 210, bom_count: 7 },
+  { id: "rc-5", product_name: "ペペロンチーノ", version: 2, yield_quantity: 1, cooking_time_minutes: 8, status: "active", theoretical_cost: 280, bom_count: 9 },
+  { id: "rc-6", product_name: "牛すき鍋定食", version: 3, yield_quantity: 1, cooking_time_minutes: 10, status: "active", theoretical_cost: 350, bom_count: 11 },
 ]
 
 export const mockIngredients: IngredientItem[] = [
@@ -911,13 +911,13 @@ export const mockIngredients: IngredientItem[] = [
 // ============================================
 
 export const mockShifts: ShiftItem[] = [
-  { id: "sh-1", store_name: "焼肉キング東京中央店", employee_name: "田中一郎", role: "ホール", start_at: "2026-04-28T09:00:00Z", end_at: "2026-04-28T22:00:00Z", violations: ["overtime"] },
-  { id: "sh-2", store_name: "焼肉キング東京中央店", employee_name: "佐藤花子", role: "キッチン", start_at: "2026-04-28T17:00:00Z", end_at: "2026-04-29T02:00:00Z", violations: ["rest_interval"] },
-  { id: "sh-3", store_name: "丸源ラーメン大阪駅前店", employee_name: "山田太郎", role: "店長", start_at: "2026-04-28T08:00:00Z", end_at: "2026-04-28T23:00:00Z", violations: ["overtime", "short_break"] },
-  { id: "sh-4", store_name: "寿司まどか愛知南店", employee_name: "鈴木次郎", role: "ホール", start_at: "2026-04-28T11:00:00Z", end_at: "2026-04-28T20:00:00Z", violations: [] },
-  { id: "sh-5", store_name: "鳥貴族福岡北店", employee_name: "高橋美咲", role: "キッチン", start_at: "2026-04-28T16:00:00Z", end_at: "2026-04-29T01:30:00Z", violations: ["short_break"] },
-  { id: "sh-6", store_name: "サイゼリヤ宮城東店", employee_name: "伊藤健", role: "ホール", start_at: "2026-04-27T09:00:00Z", end_at: "2026-04-27T21:00:00Z", violations: ["overtime"] },
-  { id: "sh-7", store_name: "焼肉キング東京中央店", employee_name: "渡辺翔", role: "キッチン", start_at: "2026-04-27T06:00:00Z", end_at: "2026-04-27T15:00:00Z", violations: [] },
+  { id: "sh-1", store_name: "すき家 品川港南店", employee_name: "田中一郎", role: "ホール", start_at: "2026-04-28T09:00:00Z", end_at: "2026-04-28T22:00:00Z", violations: ["overtime"] },
+  { id: "sh-2", store_name: "すき家 品川港南店", employee_name: "佐藤花子", role: "キッチン", start_at: "2026-04-28T17:00:00Z", end_at: "2026-04-29T02:00:00Z", violations: ["rest_interval"] },
+  { id: "sh-3", store_name: "はま寿司 横浜六角橋店", employee_name: "山田太郎", role: "店長", start_at: "2026-04-28T08:00:00Z", end_at: "2026-04-28T23:00:00Z", violations: ["overtime", "short_break"] },
+  { id: "sh-4", store_name: "ココス 大宮店", employee_name: "鈴木次郎", role: "ホール", start_at: "2026-04-28T11:00:00Z", end_at: "2026-04-28T20:00:00Z", violations: [] },
+  { id: "sh-5", store_name: "なか卯 品川店", employee_name: "高橋美咲", role: "調理", start_at: "2026-04-28T16:00:00Z", end_at: "2026-04-29T01:30:00Z", violations: ["short_break"] },
+  { id: "sh-6", store_name: "ジョリーパスタ 横浜青葉台店", employee_name: "伊藤健", role: "ホール", start_at: "2026-04-27T09:00:00Z", end_at: "2026-04-27T21:00:00Z", violations: ["overtime"] },
+  { id: "sh-7", store_name: "すき家 渋谷道玄坂店", employee_name: "渡辺翔", role: "調理", start_at: "2026-04-27T06:00:00Z", end_at: "2026-04-27T15:00:00Z", violations: [] },
 ]
 
 export const mockLaborCompliance: LaborComplianceReport = {
@@ -936,13 +936,13 @@ export const mockLaborCompliance: LaborComplianceReport = {
 // ============================================
 
 export const mockQSCAudits: QSCAuditItem[] = [
-  { id: "qsc-1", store_name: "焼肉キング東京中央店", audit_date: "2026-04-25", quality_score: 72, service_score: 68, cleanliness_score: 75, overall_score: 71.7 },
-  { id: "qsc-2", store_name: "丸源ラーメン大阪駅前店", audit_date: "2026-04-24", quality_score: 88, service_score: 85, cleanliness_score: 90, overall_score: 87.7 },
-  { id: "qsc-3", store_name: "寿司まどか愛知南店", audit_date: "2026-04-23", quality_score: 65, service_score: 70, cleanliness_score: 60, overall_score: 65.0 },
-  { id: "qsc-4", store_name: "鳥貴族福岡北店", audit_date: "2026-04-22", quality_score: 92, service_score: 90, cleanliness_score: 88, overall_score: 90.0 },
-  { id: "qsc-5", store_name: "サイゼリヤ宮城東店", audit_date: "2026-04-21", quality_score: 80, service_score: 78, cleanliness_score: 82, overall_score: 80.0 },
-  { id: "qsc-6", store_name: "中華E 横浜店", audit_date: "2026-04-20", quality_score: 55, service_score: 60, cleanliness_score: 50, overall_score: 55.0 },
-  { id: "qsc-7", store_name: "ファミレスF 千葉店", audit_date: "2026-04-19", quality_score: 85, service_score: 82, cleanliness_score: 86, overall_score: 84.3 },
+  { id: "qsc-1", store_name: "すき家 品川港南店", audit_date: "2026-04-25", quality_score: 72, service_score: 68, cleanliness_score: 75, overall_score: 71.7 },
+  { id: "qsc-2", store_name: "はま寿司 横浜六角橋店", audit_date: "2026-04-24", quality_score: 88, service_score: 85, cleanliness_score: 90, overall_score: 87.7 },
+  { id: "qsc-3", store_name: "ココス 大宮店", audit_date: "2026-04-23", quality_score: 65, service_score: 70, cleanliness_score: 60, overall_score: 65.0 },
+  { id: "qsc-4", store_name: "なか卯 品川店", audit_date: "2026-04-22", quality_score: 92, service_score: 90, cleanliness_score: 88, overall_score: 90.0 },
+  { id: "qsc-5", store_name: "ジョリーパスタ 横浜青葉台店", audit_date: "2026-04-21", quality_score: 80, service_score: 78, cleanliness_score: 82, overall_score: 80.0 },
+  { id: "qsc-6", store_name: "すき家 渋谷道玄坂店", audit_date: "2026-04-20", quality_score: 55, service_score: 60, cleanliness_score: 50, overall_score: 55.0 },
+  { id: "qsc-7", store_name: "はま寿司 川崎鷺沼店", audit_date: "2026-04-19", quality_score: 85, service_score: 82, cleanliness_score: 86, overall_score: 84.3 },
 ]
 
 // ============================================
@@ -956,21 +956,21 @@ export const mockHACCPCompliance: HACCPComplianceRate = {
 }
 
 export const mockHACCPMonitoring = [
-  { id: "hm-1", store_name: "焼肉キング東京中央店", checkpoint: "冷蔵庫温度", recorded_value: "3.2℃", threshold: "0-5℃", compliant: true, recorded_at: "2026-04-30T08:00:00Z" },
-  { id: "hm-2", store_name: "焼肉キング東京中央店", checkpoint: "調理温度（中心）", recorded_value: "78℃", threshold: "75℃以上", compliant: true, recorded_at: "2026-04-30T12:00:00Z" },
-  { id: "hm-3", store_name: "丸源ラーメン大阪駅前店", checkpoint: "冷蔵庫温度", recorded_value: "7.1℃", threshold: "0-5℃", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
-  { id: "hm-4", store_name: "寿司まどか愛知南店", checkpoint: "手洗い記録", recorded_value: "実施済", threshold: "全員実施", compliant: true, recorded_at: "2026-04-30T07:00:00Z" },
-  { id: "hm-5", store_name: "鳥貴族福岡北店", checkpoint: "揚げ油温度", recorded_value: "172℃", threshold: "170-180℃", compliant: true, recorded_at: "2026-04-30T11:30:00Z" },
-  { id: "hm-6", store_name: "サイゼリヤ宮城東店", checkpoint: "冷凍庫温度", recorded_value: "-15℃", threshold: "-18℃以下", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-1", store_name: "すき家 品川港南店", checkpoint: "冷蔵庫温度", recorded_value: "3.2℃", threshold: "0-5℃", compliant: true, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-2", store_name: "すき家 品川港南店", checkpoint: "調理温度（中心）", recorded_value: "78℃", threshold: "75℃以上", compliant: true, recorded_at: "2026-04-30T12:00:00Z" },
+  { id: "hm-3", store_name: "はま寿司 横浜六角橋店", checkpoint: "冷蔵庫温度", recorded_value: "7.1℃", threshold: "0-5℃", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-4", store_name: "ココス 大宮店", checkpoint: "手洗い記録", recorded_value: "実施済", threshold: "全員実施", compliant: true, recorded_at: "2026-04-30T07:00:00Z" },
+  { id: "hm-5", store_name: "なか卯 品川店", checkpoint: "揚げ油温度", recorded_value: "172℃", threshold: "170-180℃", compliant: true, recorded_at: "2026-04-30T11:30:00Z" },
+  { id: "hm-6", store_name: "ジョリーパスタ 横浜青葉台店", checkpoint: "冷凍庫温度", recorded_value: "-15℃", threshold: "-18℃以下", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
 ]
 
 export const mockAllergenMatrix = [
-  { product: "特選カルビ定食", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "味噌ラーメン", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "海鮮丼", allergens: { "小麦": true, "卵": true, "乳": false, "えび": true, "かに": true, "そば": false, "落花生": false } },
-  { product: "チキン南蛮定食", allergens: { "小麦": true, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "抹茶パフェ", allergens: { "小麦": false, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "麻婆豆腐定食", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": true } },
+  { product: "牛丼（並盛）", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "まぐろ三種盛り", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "包み焼きハンバーグ", allergens: { "小麦": true, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "親子丼", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "ペペロンチーノ", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "牛すき鍋定食", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
 ]
 
 // ============================================
@@ -978,21 +978,21 @@ export const mockAllergenMatrix = [
 // ============================================
 
 export const mockFranchiseAgreements: FranchiseAgreementItem[] = [
-  { id: "fa-1", store_name: "焼肉キング東京中央店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2021-04-01" },
-  { id: "fa-2", store_name: "丸源ラーメン大阪駅前店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 5.0 }, effective_from: "2022-01-01" },
-  { id: "fa-3", store_name: "寿司まどか愛知南店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 4.5 }, effective_from: "2023-03-01" },
-  { id: "fa-4", store_name: "鳥貴族福岡北店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-06-01" },
-  { id: "fa-5", store_name: "サイゼリヤ宮城東店", agreement_type: "FC", royalty_structure: { type: "fixed_plus_rate", fixed: 200000, rate: 3.0 }, effective_from: "2024-01-01" },
-  { id: "fa-6", store_name: "中華E 横浜店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 5.5 }, effective_from: "2023-09-01" },
+  { id: "fa-1", store_name: "すき家 品川港南店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2021-04-01" },
+  { id: "fa-2", store_name: "はま寿司 横浜六角橋店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-01-01" },
+  { id: "fa-3", store_name: "ココス 大宮店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 4.5 }, effective_from: "2023-03-01" },
+  { id: "fa-4", store_name: "なか卯 品川店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-06-01" },
+  { id: "fa-5", store_name: "ジョリーパスタ 横浜青葉台店", agreement_type: "FC", royalty_structure: { type: "fixed_plus_rate", fixed: 200000, rate: 3.0 }, effective_from: "2024-01-01" },
+  { id: "fa-6", store_name: "すき家 渋谷道玄坂店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2023-09-01" },
 ]
 
 export const mockRoyaltyCalcs: RoyaltyCalcItem[] = [
-  { id: "ry-1", store_name: "丸源ラーメン大阪駅前店", period: "2026-04", gross_revenue: 4500000, royalty_amount: 225000, net_payable: 4275000, status: "confirmed" },
-  { id: "ry-2", store_name: "寿司まどか愛知南店", period: "2026-04", gross_revenue: 3800000, royalty_amount: 171000, net_payable: 3629000, status: "confirmed" },
-  { id: "ry-3", store_name: "サイゼリヤ宮城東店", period: "2026-04", gross_revenue: 3200000, royalty_amount: 296000, net_payable: 2904000, status: "pending" },
-  { id: "ry-4", store_name: "中華E 横浜店", period: "2026-04", gross_revenue: 4100000, royalty_amount: 225500, net_payable: 3874500, status: "confirmed" },
-  { id: "ry-5", store_name: "丸源ラーメン大阪駅前店", period: "2026-03", gross_revenue: 4200000, royalty_amount: 210000, net_payable: 3990000, status: "paid" },
-  { id: "ry-6", store_name: "寿司まどか愛知南店", period: "2026-03", gross_revenue: 3600000, royalty_amount: 162000, net_payable: 3438000, status: "paid" },
+  { id: "ry-1", store_name: "はま寿司 横浜六角橋店", period: "2026-04", gross_revenue: 4500000, royalty_amount: 225000, net_payable: 4275000, status: "confirmed" },
+  { id: "ry-2", store_name: "ココス 大宮店", period: "2026-04", gross_revenue: 3800000, royalty_amount: 171000, net_payable: 3629000, status: "confirmed" },
+  { id: "ry-3", store_name: "ジョリーパスタ 横浜青葉台店", period: "2026-04", gross_revenue: 3200000, royalty_amount: 296000, net_payable: 2904000, status: "pending" },
+  { id: "ry-4", store_name: "すき家 渋谷道玄坂店", period: "2026-04", gross_revenue: 4100000, royalty_amount: 225500, net_payable: 3874500, status: "confirmed" },
+  { id: "ry-5", store_name: "はま寿司 横浜六角橋店", period: "2026-03", gross_revenue: 4200000, royalty_amount: 210000, net_payable: 3990000, status: "paid" },
+  { id: "ry-6", store_name: "ココス 大宮店", period: "2026-03", gross_revenue: 3600000, royalty_amount: 162000, net_payable: 3438000, status: "paid" },
 ]
 
 // ============================================
@@ -1000,10 +1000,12 @@ export const mockRoyaltyCalcs: RoyaltyCalcItem[] = [
 // ============================================
 
 export const mockBenchmarks: BenchmarkItem[] = [
-  { business_category: "焼肉", metric_name: "原価率", p25: 28.0, p50: 31.0, p75: 34.0, p90: 37.0 },
-  { business_category: "焼肉", metric_name: "人件費率", p25: 25.0, p50: 28.5, p75: 32.0, p90: 36.0 },
-  { business_category: "ラーメン", metric_name: "原価率", p25: 26.0, p50: 29.0, p75: 32.0, p90: 35.0 },
-  { business_category: "ラーメン", metric_name: "人件費率", p25: 24.0, p50: 27.0, p75: 30.0, p90: 33.0 },
+  { business_category: "牛丼", metric_name: "原価率", p25: 28.0, p50: 31.0, p75: 34.0, p90: 37.0 },
+  { business_category: "牛丼", metric_name: "人件費率", p25: 25.0, p50: 28.5, p75: 32.0, p90: 36.0 },
+  { business_category: "回転寿司", metric_name: "原価率", p25: 30.0, p50: 33.0, p75: 36.0, p90: 39.0 },
+  { business_category: "回転寿司", metric_name: "人件費率", p25: 24.0, p50: 27.0, p75: 30.0, p90: 33.0 },
+  { business_category: "ファミレス", metric_name: "原価率", p25: 27.0, p50: 30.0, p75: 33.0, p90: 36.0 },
+  { business_category: "ファミレス", metric_name: "人件費率", p25: 26.0, p50: 29.0, p75: 32.0, p90: 35.0 },
 ]
 
 // ============================================
