@@ -14,8 +14,10 @@ from app.services.ingestion import (
     generate_csv_template,
     ENTITY_SCHEMAS,
 )
+from app.services.ingestion_pipeline import run_pipeline, STAGES
 from app.middleware.audit import log_audit
 from app.auth import get_tenant_id
+from app.auth_rbac import require_permission
 
 router = APIRouter(prefix="/api/v1/ingestion", tags=["ingestion"])
 
@@ -154,6 +156,40 @@ async def promote_batch(
               {"entity_type": entity_type})
 
     return APIResponse(data=result)
+
+
+@router.post("/batches/{batch_id}/run-pipeline")
+async def run_batch_pipeline(
+    batch_id: str,
+    auto_approve: bool = False,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+    _user: dict = Depends(require_permission("ingestion", "write")),
+):
+    """Run the 8-stage ingestion pipeline on a batch."""
+    try:
+        batch_uuid = uuid.UUID(batch_id)
+    except ValueError:
+        raise HTTPException(400, "Invalid batch_id")
+
+    batch_q = await db.execute(
+        select(IngestionBatch).where(
+            IngestionBatch.id == batch_uuid,
+            IngestionBatch.tenant_id == uuid.UUID(tenant_id),
+        )
+    )
+    if not batch_q.scalar_one_or_none():
+        raise HTTPException(404, "Batch not found")
+
+    result = await run_pipeline(db, batch_uuid, auto_approve=auto_approve)
+    log_audit(tenant_id, None, "run_pipeline", "ingestion_batch", batch_id,
+              {"auto_approve": auto_approve})
+    return APIResponse(data=result)
+
+
+@router.get("/pipeline/stages")
+async def pipeline_stages():
+    return {"stages": list(STAGES)}
 
 
 @router.get("/templates/{entity_type}")

@@ -12,11 +12,18 @@ from app.api.v1 import identity_providers, access_logs
 from app.api.v1 import pilots, connector_health, security as security_router
 from app.api.v1 import workflow_ai, deploy_status
 from app.api.v1 import documents as documents_router
+from app.api.v1 import budget as budget_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
+from app.middleware.audit_capture import AuditCaptureMiddleware
+from app.observability import setup_observability
 
 app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0")
 
+setup_observability(app)
+
+# Middleware order: outermost first. CORS → AuditCapture → AccessLog → Tenant.
+app.add_middleware(AuditCaptureMiddleware)
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(TenantMiddleware)
 
@@ -65,3 +72,4 @@ app.include_router(security_router.router)
 app.include_router(workflow_ai.router)
 app.include_router(deploy_status.router)
 app.include_router(documents_router.router)
+app.include_router(budget_router.router)

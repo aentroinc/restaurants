@@ -8,6 +8,7 @@ from app.models.writeback import WritebackPolicy, WritebackRequest
 from app.models.task import Task
 from app.schemas.common import APIResponse, PaginationMeta
 from app.auth import get_tenant_id, require_role
+from app.services.writeback_executor import execute_request as exec_writeback, list_action_types
 
 router = APIRouter(prefix="/api/v1/writeback", tags=["writeback"])
 
@@ -133,37 +134,12 @@ async def execute_request(request_id: UUID = Path(...), db: AsyncSession = Depen
     if not req:
         return APIResponse(errors=[{"detail": "Request not found"}])
 
-    execution_result = {"success": True, "message": "正常に実行されました"}
-
-    # Actually execute the action based on action_type
-    if req.action_type == "task_create":
-        payload = req.payload or {}
-        store_id = payload.get("store_id")
-        if store_id:
-            try:
-                store_uuid = UUID(store_id) if isinstance(store_id, str) else store_id
-            except (ValueError, AttributeError):
-                store_uuid = None
-
-            if store_uuid:
-                task = Task(
-                    tenant_id=tenant_id,
-                    store_id=store_uuid,
-                    title=payload.get("title", "Writeback生成タスク"),
-                    description=payload.get("description"),
-                    issue_type=payload.get("issue_type"),
-                    priority=payload.get("priority", "medium"),
-                    source="writeback",
-                    status="open",
-                )
-                db.add(task)
-                await db.flush()
-                execution_result["task_id"] = str(task.id)
-                execution_result["message"] = f"タスク '{task.title}' を作成しました"
-
-    req.status = "executed"
-    req.executed_at = datetime.now(timezone.utc)
-    req.result = execution_result
+    execution_result = await exec_writeback(db, tenant_id, req)
     await db.commit()
     await db.refresh(req)
     return APIResponse(data=_request_to_dict(req))
+
+
+@router.get("/action-types", response_model=APIResponse[list[str]])
+async def get_action_types(_: str = Depends(get_tenant_id)):
+    return APIResponse(data=list_action_types())

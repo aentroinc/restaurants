@@ -35,13 +35,13 @@ export default function UsersPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="p-6"><ContextHeader title="ユーザー管理" /><LoadingState /></div>
-  if (error) return <div className="p-6"><ContextHeader title="ユーザー管理" /><ErrorState message={error} /></div>
-  if (!users.length) return <div className="p-6"><ContextHeader title="ユーザー管理" /><EmptyState /></div>
+  if (loading) return <div className="p-6"><ContextHeader title="ユーザー管理" description="組織ユーザーと役割の付与" /><LoadingState /></div>
+  if (error) return <div className="p-6"><ContextHeader title="ユーザー管理" description="組織ユーザーと役割の付与" /><ErrorState message={error} /></div>
+  if (!users.length) return <div className="p-6"><ContextHeader title="ユーザー管理" description="組織ユーザーと役割の付与" /><EmptyState /></div>
 
   return (
     <div className="p-6 space-y-6">
-      <ContextHeader title="ユーザー管理" />
+      <ContextHeader title="ユーザー管理" description="組織ユーザーと役割の付与" />
 
       <div className="flex gap-6">
         {/* Table */}

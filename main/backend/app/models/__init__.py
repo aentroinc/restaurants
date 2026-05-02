@@ -55,6 +55,7 @@ from app.models.pricing import PriceDecision, PriceElasticity
 from app.models.rbac import Role, Permission, UserRole
 from app.models.auth_enterprise import IdentityProvider, MFASecret, AccessLog, LoginAttempt, AccountLock
 from app.models.document import Document
+from app.models.budget import BudgetTarget
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -91,4 +92,5 @@ __all__ = [
     "ColumnPolicy", "PIIRedactionLog",
     "ConnectorCredentialRef", "ConnectorSchedule", "DataContractRule",
     "Document",
+    "BudgetTarget",
 ]

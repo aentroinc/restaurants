@@ -43,7 +43,7 @@ interface LiveCounterProps {
   sseField?: string  // source="sse" 時の field 名
 }
 
-export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, format = (n) => n.toLocaleString(), className = "", showLiveDot = true, source = "drift" }: LiveCounterProps) {
+export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, format = (n) => n.toLocaleString(), className = "", showLiveDot = true, source = "drift", sseField }: LiveCounterProps) {
   const [value, setValue] = useState(initial)
   const [flash, setFlash] = useState<"up" | "down" | null>(null)
   const lastRef = useRef<number>(initial)
@@ -60,13 +60,18 @@ export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, for
       setValue(next)
     }
 
+    // SSE push mode
+    if (source === "sse" && sseField) {
+      const unsubscribe = subscribeSSE(sseField, updateValue)
+      return () => { cancelled = true; unsubscribe() }
+    }
+
     const tick = async () => {
       if (typeof source === "object") {
         try {
           const data: any = await fetchAPI(source.endpoint)
           const v = data?.[source.field]
           if (typeof v === "number") {
-            // 実 fetch 値をベースに 0.1% drift で「動いてる感」演出
             const drift = Math.floor((Math.random() - 0.5) * v * 0.002)
             updateValue(v + drift)
           }
@@ -80,7 +85,7 @@ export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, for
     tick()
     const id = setInterval(tick, intervalMs)
     return () => { cancelled = true; clearInterval(id) }
-  }, [driftRange, intervalMs, source])
+  }, [driftRange, intervalMs, source, sseField])
 
   return (
     <span className={`relative inline-flex items-center gap-2 ${className}`}>

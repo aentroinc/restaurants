@@ -58,10 +58,21 @@ export default function OnboardingPage() {
     }).catch(() => {})
   }, [stepIdx])
 
-  const start = () => {
+  const [provisionedTenant, setProvisionedTenant] = useState<any>(null)
+
+  const start = async () => {
     setStepIdx(0)
     setProgress(0)
     setLogs([])
+    // 実 provision API を裏で叩く（実 DB に tenant 行を作成）
+    try {
+      const resp: any = await fetchAPI("/api/v1/admin/deploy/provision", {
+        method: "POST",
+        body: JSON.stringify({ customer_name: "Zensho Holdings", region: "ap-northeast-1" }),
+      })
+      const data = resp?.data || resp
+      setProvisionedTenant(data)
+    } catch { /* ignore — UI 進行は続行 */ }
   }
 
   useEffect(() => {
@@ -249,7 +260,18 @@ export default function OnboardingPage() {
               <CheckCircle2 className="w-6 h-6 text-emerald-400" />
               <div>
                 <div className="text-[16px] font-semibold text-white/95">専用環境が起動しました</div>
-                <div className="text-[11px] text-white/50">Endpoint: zensho-hd.aentro.cloud / Region: Tokyo (Primary) + Osaka (DR)</div>
+                <div className="text-[11px] text-white/50">
+                  {provisionedTenant ? (
+                    <>Endpoint: <span className="font-mono text-emerald-300">{provisionedTenant.endpoint}</span> / Tenant ID: <span className="font-mono text-emerald-300">{provisionedTenant.tenant_id?.slice(0, 8)}...</span></>
+                  ) : (
+                    <>Endpoint: zensho-hd.aentro.cloud / Region: Tokyo (Primary) + Osaka (DR)</>
+                  )}
+                </div>
+                {provisionedTenant && (
+                  <div className="mt-1 text-[10px] text-emerald-300/80">
+                    ✓ 実 DB に tenant 行を INSERT 済 (sandbox-{provisionedTenant.sandbox_id})
+                  </div>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

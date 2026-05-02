@@ -46,13 +46,13 @@ export default function AccessLogsPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  if (loading) return <div className="p-6"><ContextHeader title="アクセスログ" /><LoadingState /></div>
-  if (error) return <div className="p-6"><ContextHeader title="アクセスログ" /><ErrorState message={error} /></div>
-  if (!logs.length) return <div className="p-6"><ContextHeader title="アクセスログ" /><EmptyState /></div>
+  if (loading) return <div className="p-6"><ContextHeader title="アクセスログ" description="監査・操作ログの検索と export" /><LoadingState /></div>
+  if (error) return <div className="p-6"><ContextHeader title="アクセスログ" description="監査・操作ログの検索と export" /><ErrorState message={error} /></div>
+  if (!logs.length) return <div className="p-6"><ContextHeader title="アクセスログ" description="監査・操作ログの検索と export" /><EmptyState /></div>
 
   return (
     <div className="p-6 space-y-6">
-      <ContextHeader title="アクセスログ" />
+      <ContextHeader title="アクセスログ" description="監査・操作ログの検索と export" />
 
       {/* Filters */}
       <div className="flex items-center gap-3">

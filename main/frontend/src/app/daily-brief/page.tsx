@@ -46,7 +46,7 @@ export default function DailyBriefPage() {
           </div>
           <p className="text-[15px] text-white/90 leading-relaxed">
             本日のグループ売上は <span className="font-mono font-bold text-emerald-400 inline-flex items-center gap-1">
-              <LiveCounter initial={3_842_000_000} driftRange={1_500_000} format={(n) => `¥${(n / 1_000_000_000).toFixed(2)}B`} source={{ endpoint: "/api/v1/executive/live-stats", field: "today_sales_jpy" }} />
+              <LiveCounter initial={3_842_000_000} driftRange={1_500_000} format={(n) => `¥${(n / 1_000_000_000).toFixed(2)}B`} source="sse" sseField="today_sales_jpy" />
             </span>（前年比 <span className="text-emerald-400">+2.3%</span>）。
             <span className="text-amber-400"> 異常 3 件 </span>と
             <span className="text-blue-400"> 意思決定待ち 2 件</span>、
@@ -56,19 +56,19 @@ export default function DailyBriefPage() {
             <div>
               <div className="text-[9px] text-white/40 uppercase">本日 客数</div>
               <div className="mt-0.5 font-mono text-emerald-400 text-[14px]">
-                <LiveCounter initial={1_240_000} driftRange={3_000} format={(n) => n.toLocaleString()} showLiveDot={false} source={{ endpoint: "/api/v1/executive/live-stats", field: "today_customers" }} />
+                <LiveCounter initial={1_240_000} driftRange={3_000} format={(n) => n.toLocaleString()} showLiveDot={false} source="sse" sseField="today_customers" />
               </div>
             </div>
             <div>
               <div className="text-[9px] text-white/40 uppercase">店舗稼働中</div>
               <div className="mt-0.5 font-mono text-emerald-400 text-[14px]">
-                <LiveCounter initial={3886} driftRange={3} format={(n) => n.toString()} showLiveDot={false} source={{ endpoint: "/api/v1/executive/live-stats", field: "active_stores" }} />
+                <LiveCounter initial={3886} driftRange={3} format={(n) => n.toString()} showLiveDot={false} source="sse" sseField="active_stores" />
               </div>
             </div>
             <div>
               <div className="text-[9px] text-white/40 uppercase">AI 検出 (本日)</div>
               <div className="mt-0.5 font-mono text-amber-400 text-[14px]">
-                <LiveCounter initial={28} driftRange={2} format={(n) => `${n} 件`} showLiveDot={false} source={{ endpoint: "/api/v1/executive/live-stats", field: "ai_detections_today" }} />
+                <LiveCounter initial={28} driftRange={2} format={(n) => `${n} 件`} showLiveDot={false} source="sse" sseField="ai_detections_today" />
               </div>
             </div>
           </div>
