@@ -2,7 +2,36 @@
 
 毎週金曜にこのファイルを更新する。チェックが付いた領域は `00-overview.md` の合計点に加算。
 
-## 現在: 38 / 100
+Phase 2 ロードマップは [phase2/00-overview.md](./phase2/00-overview.md) 参照。
+
+## 現在: 70 / 100
+
+### Phase 2 残り 30点の内訳
+
+| # | 領域 | 取得済 | 残点 | 仕様書 |
+|---|------|-------|------|--------|
+| 01 | 動的オントロジー | 6/10 | 4 | [phase2/09-ontology-finalize.md](./phase2/09-ontology-finalize.md) |
+| 02 | 実コネクタ | 5/12 | 7 | [phase2/02-connector-real.md](./phase2/02-connector-real.md) |
+| 03 | LLM | 5/8 | 3 | [phase2/03-llm-finalize.md](./phase2/03-llm-finalize.md) |
+| 04 | ワークスペース | 5/8 | 3 | [phase2/04-workspace-finalize.md](./phase2/04-workspace-finalize.md) |
+| 05 | 認証 | 2/7 | 5 | [phase2/05-auth-enterprise.md](./phase2/05-auth-enterprise.md) |
+| 06 | デプロイ | 4/5 | 1 | [phase2/06-deploy-verify.md](./phase2/06-deploy-verify.md) |
+| 07 | パイロット | 0/5 | 5 | [phase2/07-pilot-execution.md](./phase2/07-pilot-execution.md) |
+| 08 | 業界深掘り | 5/7 | 2 | [phase2/08-vertical-final.md](./phase2/08-vertical-final.md) |
+| | **合計** | **32/62** | **30** | |
+
+### Phase 2 スプリントと累計点
+
+| Sprint | 期間 | 増点 | 累計 |
+|--------|------|------|------|
+| S0 配線修正 | 1日 | +3 | 73 |
+| S1 コネクタ | 1.5週 | +7 | 80 |
+| S2 LLM + Workspace | 1.5週 | +6 | 86 |
+| S3 認証 | 2週 | +5 | 91 |
+| S4 ontology + deploy + vertical | 1週 | +4 | 95 |
+| S5 パイロット | 8週 | +5 | 100 |
+
+### 旧 Phase 1 baseline: 38 / 100
 
 | # | 領域 | 進捗 | 増点済 | 増点上限 | 状態 |
 |---|------|------|--------|---------|------|
