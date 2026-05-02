@@ -1,0 +1,72 @@
+{
+  "_comment": "客数→必要FTE 換算表。brand×slot単位。FTE=同時稼働人時/0.5h。slot は 'HH:MM' で30分単位。default は全brand/全slotのフォールバック。役割比率は role_split で。",
+  "default": {
+    "customers_per_fte_per_30m": 8.0,
+    "min_fte": 1.5,
+    "role_split": {
+      "ホール": 0.45,
+      "キッチン": 0.40,
+      "レジ": 0.15
+    },
+    "hourly_wage_yen": 1200
+  },
+  "brands": {
+    "すき家": {
+      "customers_per_fte_per_30m": 12.0,
+      "min_fte": 1.0,
+      "role_split": {
+        "ホール": 0.35,
+        "キッチン": 0.50,
+        "レジ": 0.15
+      },
+      "hourly_wage_yen": 1150,
+      "slot_overrides": {
+        "11:30": { "customers_per_fte_per_30m": 14.0 },
+        "12:00": { "customers_per_fte_per_30m": 14.0 },
+        "12:30": { "customers_per_fte_per_30m": 14.0 },
+        "18:30": { "customers_per_fte_per_30m": 13.0 },
+        "19:00": { "customers_per_fte_per_30m": 13.0 }
+      }
+    },
+    "なか卯": {
+      "customers_per_fte_per_30m": 10.0,
+      "min_fte": 1.0,
+      "role_split": {
+        "ホール": 0.40,
+        "キッチン": 0.45,
+        "レジ": 0.15
+      },
+      "hourly_wage_yen": 1180
+    },
+    "ココス": {
+      "customers_per_fte_per_30m": 6.0,
+      "min_fte": 2.0,
+      "role_split": {
+        "ホール": 0.50,
+        "キッチン": 0.40,
+        "レジ": 0.10
+      },
+      "hourly_wage_yen": 1250
+    },
+    "ジョリーパスタ": {
+      "customers_per_fte_per_30m": 6.5,
+      "min_fte": 2.0,
+      "role_split": {
+        "ホール": 0.50,
+        "キッチン": 0.40,
+        "レジ": 0.10
+      },
+      "hourly_wage_yen": 1280
+    },
+    "はま寿司": {
+      "customers_per_fte_per_30m": 11.0,
+      "min_fte": 2.0,
+      "role_split": {
+        "ホール": 0.40,
+        "キッチン": 0.50,
+        "レジ": 0.10
+      },
+      "hourly_wage_yen": 1220
+    }
+  }
+}

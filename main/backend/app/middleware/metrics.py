@@ -117,7 +117,9 @@ def inc_lockout():
         LOCKOUTS.inc()
 
 
-def inc_access_deny():
+def inc_access_deny(resource: str | None = None, action: str | None = None):
+    """Record an RBAC deny. resource/action are accepted for caller convenience
+    but are not labels (label cardinality kept low for Prometheus)."""
     if _PROM:
         ACCESS_DENY.inc()
 

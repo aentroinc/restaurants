@@ -21,10 +21,16 @@ from app.api.v1 import ontology_branches as ontology_branches_router
 from app.api.v1 import pipeline as pipeline_router
 from app.api.v1 import oauth as oauth_router
 from app.api.v1 import observability as observability_router
+from app.api.v1 import line_check as line_check_router
+from app.api.v1 import labor_forecast as labor_forecast_router
+from app.api.v1 import markings as markings_router
+from app.api.v1 import cost_variance as cost_variance_router
+from app.api.v1 import aip_logic as aip_logic_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.audit_capture import AuditCaptureMiddleware
 from app.middleware.dq_check import DataQualityCheckMiddleware
+from app.middleware.marking_filter import MarkingFilterMiddleware
 from app.middleware.metrics import register_metrics
 from app.observability import setup_observability, init_observability
 from app.services.lifespan_hooks import on_startup as _pipeline_on_startup, on_shutdown as _pipeline_on_shutdown
@@ -35,10 +41,14 @@ app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0")
 setup_observability(app)
 init_observability(app, _engine)
 
-# Middleware order: outermost first. CORS → DQCheck → AuditCapture → AccessLog → Tenant.
+# Middleware order: outermost first. CORS → DQCheck → AuditCapture → AccessLog → MarkingFilter → Tenant.
+# MarkingFilter は column_mask の後段（よりインナー）として動かしたいが、column_mask は
+# ハンドラ内で適用される PII レイヤなので、middleware は Tenant の直前に置けば
+# レスポンス body 上で marking ACL が最後段に重なる。
 app.add_middleware(DataQualityCheckMiddleware)
 app.add_middleware(AuditCaptureMiddleware)
 app.add_middleware(AccessLogMiddleware)
+app.add_middleware(MarkingFilterMiddleware)
 app.add_middleware(TenantMiddleware)
 
 app.add_middleware(
@@ -108,3 +118,8 @@ app.include_router(ontology_branches_router.router)
 app.include_router(pipeline_router.router)
 app.include_router(oauth_router.router)
 app.include_router(observability_router.router)
+app.include_router(line_check_router.router)
+app.include_router(labor_forecast_router.router)
+app.include_router(markings_router.router)
+app.include_router(cost_variance_router.router)
+app.include_router(aip_logic_router.router)

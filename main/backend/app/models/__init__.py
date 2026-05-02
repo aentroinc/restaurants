@@ -63,6 +63,13 @@ from app.models.connector_credential import ConnectorCredential
 from app.models.pipeline import (
     Pipeline, PipelineRun, PipelineNodeRun, PipelineSchedule, PipelineBranch,
 )
+from app.models.line_check import (
+    ChecklistTemplate, ChecklistItem, ChecklistRun, ChecklistAnswer,
+)
+from app.models.labor_forecast import DemandForecast30m, LaborRequirement, ShiftDraft
+from app.models.aip_logic import LogicFunction, LogicRun
+from app.models.cost_variance import InventoryCount, TheoreticalCost, CostVariance
+from app.models.marking import Marking, MarkingAssignment, UserPurpose
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -105,4 +112,9 @@ __all__ = [
     "Thread", "ThreadMessage",
     "ConnectorCredential",
     "Pipeline", "PipelineRun", "PipelineNodeRun", "PipelineSchedule", "PipelineBranch",
+    "ChecklistTemplate", "ChecklistItem", "ChecklistRun", "ChecklistAnswer",
+    "DemandForecast30m", "LaborRequirement", "ShiftDraft",
+    "LogicFunction", "LogicRun",
+    "InventoryCount", "TheoreticalCost", "CostVariance",
+    "Marking", "MarkingAssignment", "UserPurpose",
 ]

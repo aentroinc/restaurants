@@ -181,11 +181,21 @@ async def run_pipeline(
             await _set_status(db, batch, f"{stage}_failed")
             await _record_event(db, batch, stage, False, e.details)
             await db.commit()
+            try:
+                from app.middleware.metrics import inc_pipeline_run
+                inc_pipeline_run("failed")
+            except Exception:
+                pass
             return results
         except Exception as e:  # noqa: BLE001
             results["stages"][stage] = {"ok": False, "error": str(e)}
             await _set_status(db, batch, f"{stage}_failed")
             await db.commit()
+            try:
+                from app.middleware.metrics import inc_pipeline_run
+                inc_pipeline_run("failed")
+            except Exception:
+                pass
             return results
 
         results["stages"][stage] = {"ok": True, "details": detail}
@@ -194,4 +204,9 @@ async def run_pipeline(
 
     await _set_status(db, batch, "completed")
     await db.commit()
+    try:
+        from app.middleware.metrics import inc_pipeline_run
+        inc_pipeline_run("ok")
+    except Exception:
+        pass
     return results

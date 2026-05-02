@@ -83,12 +83,22 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if not user:
         await record_attempt(db, body.email, False, reason="user_not_found")
+        try:
+            from app.middleware.metrics import inc_login_failure
+            inc_login_failure()
+        except Exception:
+            pass
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     is_demo = body.email in DEMO_EMAILS
     if not is_demo:
         if not user.password_hash or not verify_password(body.password, user.password_hash):
             await record_attempt(db, body.email, False, tenant_id=user.tenant_id, reason="bad_password")
+            try:
+                from app.middleware.metrics import inc_login_failure
+                inc_login_failure()
+            except Exception:
+                pass
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Check if MFA is required for this role
@@ -251,12 +261,22 @@ async def login_v2(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if not user:
         await record_attempt(db, body.email, False, reason="user_not_found")
+        try:
+            from app.middleware.metrics import inc_login_failure
+            inc_login_failure()
+        except Exception:
+            pass
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     is_demo = body.email in DEMO_EMAILS
     if not is_demo:
         if not user.password_hash or not verify_password(body.password, user.password_hash):
             await record_attempt(db, body.email, False, tenant_id=user.tenant_id, reason="bad_password")
+            try:
+                from app.middleware.metrics import inc_login_failure
+                inc_login_failure()
+            except Exception:
+                pass
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
     mfa_q = await db.execute(select(MFASecret).where(MFASecret.user_id == user.id))

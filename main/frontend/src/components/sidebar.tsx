@@ -9,7 +9,7 @@ import {
   Presentation, Sparkles, ShieldCheck, Brain,
   Boxes, Network, Calculator, Database, GitBranch, GitMerge, Lock,
   Hexagon, Activity, Workflow,
-  Utensils, Clock, ClipboardCheck, Thermometer, Receipt,
+  Utensils, Clock, ClipboardCheck, Thermometer, Receipt, Flame,
   FlaskConical, Users as UsersIcon, FileText,
   Award, Rocket, Zap, Repeat,
   type LucideIcon,
@@ -44,6 +44,7 @@ const sections: NavSection[] = [
       { label: "専用環境を起動", icon: Rocket, href: "/onboarding" },
       { label: "Workflow Builder", icon: Zap, href: "/workflow-builder" },
       { label: "パイプライン", icon: Workflow, href: "/pipeline" },
+      { label: "AIロジック", icon: Brain, href: "/aip-logic" },
     ],
   },
   {
@@ -75,8 +76,12 @@ const sections: NavSection[] = [
     title: "業務管理",
     items: [
       { label: "レシピ・原価", icon: Utensils, href: "/recipes" },
+      { label: "フードコスト分析", icon: Flame, href: "/food-cost" },
       { label: "シフト・労務", icon: Clock, href: "/labor" },
+      { label: "└ 需要予測", icon: TrendingUp, href: "/labor/forecast" },
+      { label: "└ シフトビルダー", icon: Zap, href: "/labor/shift-builder" },
       { label: "QSC監査", icon: ClipboardCheck, href: "/qsc" },
+      { label: "現場チェック", icon: ClipboardCheck, href: "/line-check" },
       { label: "HACCP", icon: Thermometer, href: "/haccp" },
       { label: "FC会計", icon: Receipt, href: "/franchise" },
     ],
@@ -114,6 +119,7 @@ const adminItems: NavItem[] = [
   { label: "アクセス監査", icon: FileText, href: "/admin/access-logs" },
   { label: "データ取り込み健全性", icon: Database, href: "/admin/connector-health" },
   { label: "セキュリティ", icon: Lock, href: "/admin/security" },
+  { label: "Marking ACL", icon: Lock, href: "/admin/markings" },
   { label: "システム状態", icon: Activity, href: "/admin/system-status" },
   { label: "AENTRO とは", icon: Hexagon, href: "/about" },
 ]
@@ -127,6 +133,10 @@ function isActiveHref(pathname: string, href: string): boolean {
   // Special case: /admin/ontology should not match /admin/ontology/graph
   if (href === "/admin/ontology") {
     return pathname === "/admin/ontology"
+  }
+  // Special case: /labor 親リンクはサブページ側でアクティブにしない
+  if (href === "/labor") {
+    return pathname === "/labor"
   }
   return pathname === href || pathname.startsWith(href + "/")
 }

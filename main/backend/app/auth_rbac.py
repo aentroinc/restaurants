@@ -88,6 +88,11 @@ def require_permission(resource: str, action: str = "read"):
         if "*" in allowed or action in allowed:
             return user
 
+        try:
+            from app.middleware.metrics import inc_access_deny
+            inc_access_deny(resource, action)
+        except Exception:
+            pass
         raise HTTPException(
             status_code=403,
             detail=f"Permission denied: {resource}.{action}",

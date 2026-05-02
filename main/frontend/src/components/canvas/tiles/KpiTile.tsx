@@ -1,10 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { LineChart, Line, ResponsiveContainer } from "recharts"
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown, Link2 } from "lucide-react"
 import type { KpiTile as KpiTileSpec } from "@/lib/canvas-spec"
 import { kpiLabel, kpiUnit } from "@/lib/canvas-spec"
 import { formatCurrencyCompact } from "@/lib/utils"
+import { ontologyAPI, type OntoObjectInstance, type OntoObjectType } from "@/lib/ontology-api"
 
 const SAMPLE_VALUES: Record<string, { value: number; change: number }> = {
   net_sales: { value: 3250000, change: 4.2 },
@@ -29,8 +31,47 @@ function genSpark(seed: string): { v: number }[] {
 }
 
 export function KpiTile({ tile }: { tile: KpiTileSpec }) {
-  const stat = SAMPLE_VALUES[tile.kpi] ?? { value: 0, change: 0 }
-  const unit = kpiUnit(tile.kpi)
+  const [bound, setBound] = useState<{ inst: OntoObjectInstance; ot: OntoObjectType | null } | null>(null)
+  const binding = tile.objectBinding
+
+  useEffect(() => {
+    if (!binding?.instanceId) { setBound(null); return }
+    ontologyAPI.getInstance(binding.instanceId).then(async (inst) => {
+      let ot: OntoObjectType | null = null
+      try {
+        const types = await ontologyAPI.listObjectTypes()
+        ot = types.find((t) => t.api_name === binding.type || t.id === binding.type || t.id === inst.object_type_id) ?? null
+      } catch { /* noop */ }
+      setBound({ inst, ot })
+    }).catch(() => setBound(null))
+  }, [binding?.instanceId, binding?.type])
+
+  // Object binding が解決していれば、property 値を優先
+  let useValue = SAMPLE_VALUES[tile.kpi]?.value ?? 0
+  let useChange = SAMPLE_VALUES[tile.kpi]?.change ?? 0
+  let useLabel = kpiLabel(tile.kpi)
+  let useUnit = kpiUnit(tile.kpi)
+
+  if (bound) {
+    const propKey = binding?.property ?? tile.kpi
+    const v = bound.inst.properties[propKey]
+    if (typeof v === "number") {
+      useValue = v
+    }
+    const propMeta = bound.ot?.properties.find((p) => p.api_name === propKey)
+    if (propMeta) {
+      useLabel = propMeta.display_name
+      // 数値ならユニットは KPI のまま、それ以外は空
+      if (propMeta.data_type !== "int" && propMeta.data_type !== "float") {
+        useUnit = ""
+      }
+    }
+    // change は object binding 時はサンプルを使わずに 0
+    useChange = 0
+  }
+
+  const stat = { value: useValue, change: useChange }
+  const unit = useUnit
   const isPercent = unit === "%" || unit === "点"
   const display = isPercent
     ? `${stat.value.toFixed(1)}${unit}`
@@ -43,7 +84,11 @@ export function KpiTile({ tile }: { tile: KpiTileSpec }) {
 
   return (
     <div className="h-full w-full flex flex-col justify-between p-4">
-      <div className="text-[11px] text-white/40 truncate">{kpiLabel(tile.kpi)}</div>
+      <div className="text-[11px] text-white/40 truncate flex items-center gap-1">
+        {bound && <Link2 className="h-2.5 w-2.5 text-blue-400/70 shrink-0" />}
+        {useLabel}
+        {bound && <span className="text-[9px] text-blue-300/60 truncate">· {bound.inst.display_name}</span>}
+      </div>
       <div className="flex items-end justify-between gap-2 mt-1">
         <div className="text-[26px] font-semibold text-white/95 tabular-nums leading-none">
           {display}

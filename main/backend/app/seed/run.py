@@ -534,6 +534,15 @@ def run():
         result = index_all_documents(str(TENANT_ID))
         print(f"  {result['indexed']} documents indexed.")
 
+        # AIP Logic seeds (3 standard functions)
+        print("Seeding AIP Logic functions...")
+        try:
+            from app.seed.aip_logic_seed import seed_aip_logic
+            n_logic = seed_aip_logic(session)
+            print(f"  {n_logic} AIP logic functions inserted.")
+        except Exception as e:
+            print(f"  AIP logic seed skipped: {e}")
+
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")
         print(f"  Products: {len(products)}")

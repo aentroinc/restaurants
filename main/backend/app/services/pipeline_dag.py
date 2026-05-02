@@ -347,6 +347,12 @@ async def execute_pipeline(
         },
     )
 
+    try:
+        from app.middleware.metrics import inc_pipeline_run
+        inc_pipeline_run("ok" if run.status == "success" else "failed")
+    except Exception:
+        pass
+
     return {
         "run_id": str(run.id),
         "pipeline_id": str(pipeline.id),

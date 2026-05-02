@@ -44,6 +44,11 @@ async def check_lockout(db: AsyncSession, email: str) -> bool:
             )
             await db.merge(lock)
             await db.commit()
+        try:
+            from app.middleware.metrics import inc_lockout
+            inc_lockout()
+        except Exception:
+            pass
         return True
     return False
 

@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { ArrowUpDown, ArrowUp, ArrowDown, Search, Link2 } from "lucide-react"
 import type { TableTile as TableTileSpec } from "@/lib/canvas-spec"
 import { kpiLabel, kpiUnit } from "@/lib/canvas-spec"
+import { ontologyAPI, type OntoObjectInstance, type OntoObjectType } from "@/lib/ontology-api"
 
 const STORES = [
   "品川店", "渋谷店", "新宿店", "池袋店", "横浜店",
@@ -26,14 +27,43 @@ function sampleValue(kpi: string, idx: number): number {
 export function TableTile({ tile }: { tile: TableTileSpec }) {
   const groupKey = tile.groupBy ?? "store"
   const groups = groupKey === "brand" ? BRANDS : groupKey === "region" ? REGIONS : STORES
+  const binding = tile.objectBinding
+
+  // Object binding 時は実 instance データから行を生成
+  const [bound, setBound] = useState<{ insts: OntoObjectInstance[]; ot: OntoObjectType | null } | null>(null)
+
+  useEffect(() => {
+    if (!binding?.type) { setBound(null); return }
+    Promise.all([
+      ontologyAPI.listInstances(binding.type),
+      ontologyAPI.listObjectTypes(),
+    ]).then(([insts, types]) => {
+      const ot = types.find((t) => t.api_name === binding.type || t.id === binding.type) ?? null
+      // instanceId 指定があれば 1 行に絞る
+      const filtered = binding.instanceId ? insts.filter((i) => i.id === binding.instanceId) : insts
+      setBound({ insts: filtered, ot })
+    }).catch(() => setBound(null))
+  }, [binding?.type, binding?.instanceId])
 
   const rows = useMemo(
-    () => groups.map((g, i) => {
-      const r: Record<string, string | number> = { name: g }
-      tile.kpis.forEach((k) => { r[k] = sampleValue(k, i) })
-      return r
-    }),
-    [groups, tile.kpis]
+    () => {
+      if (bound) {
+        return bound.insts.map((inst) => {
+          const r: Record<string, string | number> = { name: inst.display_name }
+          tile.kpis.forEach((k) => {
+            const v = inst.properties[k]
+            r[k] = typeof v === "number" ? v : (v != null ? String(v) : 0)
+          })
+          return r
+        })
+      }
+      return groups.map((g, i) => {
+        const r: Record<string, string | number> = { name: g }
+        tile.kpis.forEach((k) => { r[k] = sampleValue(k, i) })
+        return r
+      })
+    },
+    [groups, tile.kpis, bound]
   )
 
   const [query, setQuery] = useState("")
@@ -81,6 +111,11 @@ export function TableTile({ tile }: { tile: TableTileSpec }) {
             className="w-full text-[11px] pl-7 pr-2 py-1 bg-white/[0.04] border border-white/[0.06] rounded text-white/80 placeholder:text-white/30 focus:outline-none focus:border-white/20"
           />
         </div>
+        {bound && (
+          <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-300/80 px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-400/30">
+            <Link2 className="h-2.5 w-2.5" /> {bound.ot?.display_name ?? binding?.type}
+          </span>
+        )}
         <span className="text-[10px] text-white/30 tabular-nums">{filtered.length}件</span>
       </div>
       <div className="flex-1 overflow-auto min-h-0">

@@ -13,6 +13,7 @@ import { TableTile } from "./tiles/TableTile"
 import { MarkdownTile } from "./tiles/MarkdownTile"
 import { FilterTile } from "./tiles/FilterTile"
 import { PivotTile } from "./tiles/PivotTile"
+import { ObjectTile } from "./tiles/ObjectTile"
 
 // react-grid-layout は SSR 不可
 const GridLayout = dynamic(() => import("react-grid-layout").then((m) => m.default), { ssr: false })
@@ -106,6 +107,7 @@ export function CanvasGrid({
                    tile.type === "markdown" ? <MarkdownTile tile={tile} /> :
                    tile.type === "filter" ? <FilterTile tile={tile} filters={spec.filters} onChange={onFiltersChange} /> :
                    tile.type === "pivot" ? <PivotTile tile={tile} /> :
+                   tile.type === "object" ? <ObjectTile tile={tile} /> :
                    null}
                 </div>
               </div>

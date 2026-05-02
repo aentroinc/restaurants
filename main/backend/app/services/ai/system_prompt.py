@@ -5,24 +5,48 @@ from app.models.brand import Brand
 from app.models.store import Store
 
 
-async def build_system_prompt(tenant_id: str, db: AsyncSession) -> str:
+async def build_system_prompt(tenant_id: str, db: AsyncSession, user_id: str | None = None) -> str:
     """Return system prompt as a single string (legacy compat)."""
-    blocks = await build_system_blocks(tenant_id, db)
+    blocks = await build_system_blocks(tenant_id, db, user_id=user_id)
     return "\n\n".join(b["text"] for b in blocks)
 
 
-async def build_system_blocks(tenant_id: str, db: AsyncSession) -> list[dict]:
-    """Return system prompt as cacheable content blocks."""
+async def build_system_blocks(tenant_id: str, db: AsyncSession, user_id: str | None = None) -> list[dict]:
+    """Return system prompt as cacheable content blocks.
+
+    現在の purpose-token で露出してよい列だけを ontology block に書くことで、
+    LLM 側にも marking ACL の境界を知らせる。
+    """
     ontology_text = await _build_ontology_schema(db, tenant_id)
     tool_text = _build_tool_instructions()
     tenant_text = await _build_tenant_context(db, tenant_id)
+    purpose_text = await _build_purpose_block(db, tenant_id, user_id)
 
     return [
         {"type": "text", "text": ontology_text, "cache_control": {"type": "ephemeral"}},
         {"type": "text", "text": tool_text, "cache_control": {"type": "ephemeral"}},
         {"type": "text", "text": tenant_text, "cache_control": {"type": "ephemeral"}},
+        {"type": "text", "text": purpose_text},
         {"type": "text", "text": f"今日: {date.today().strftime('%Y年%m月%d日')}"},
     ]
+
+
+async def _build_purpose_block(db: AsyncSession, tenant_id: str, user_id: str | None) -> str:
+    from app.services.marking_engine import get_active_purpose, list_visible_columns
+    purpose = await get_active_purpose(db, user_id)
+    candidate_kpi_cols = [
+        "net_sales", "customer_count", "avg_ticket", "cogs_rate",
+        "labor_cost_rate", "fl_ratio", "operating_profit_rate",
+        "review_score", "health_score", "improvement_opportunity_amount",
+    ]
+    visible = await list_visible_columns(db, tenant_id, user_id, "kpi", candidate_kpi_cols)
+    masked = sorted(set(candidate_kpi_cols) - set(visible))
+    return f"""## 現在のアクセス権限 (Marking ACL)
+- purpose-token: {purpose.get('purpose_token') or '(none)'}
+- 解放 markings: {', '.join(purpose.get('granted_markings') or []) or '(none)'}
+- KPI で露出可能な列: {', '.join(visible) or '(なし)'}
+- KPI で marking により mask される列: {', '.join(masked) or '(なし)'}
+※ marking 付きデータは prompt に含まれません。`***` のフィールドは ACL によりマスクされたものです。"""
 
 
 async def _build_ontology_schema(db: AsyncSession, tenant_id: str) -> str:

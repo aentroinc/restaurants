@@ -1,4 +1,4 @@
-.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down prod-build prod-up prod-test ci bundle promote rollback smoke release-dryrun
+.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down prod-build prod-up prod-test ci bundle promote rollback smoke release-dryrun demo-seed demo-reset demo-up
 
 up:
 	docker compose up -d
@@ -103,3 +103,28 @@ release-dryrun:
 	@DRYRUN=1 SHA=$(SHA) $(MAKE) bundle
 	@DRYRUN=1 $(MAKE) promote FROM=dev TO=staging SHA=$(SHA)
 	@DRYRUN=1 $(MAKE) promote FROM=staging TO=prod SHA=$(SHA)
+
+# --- Zensho demo (商談デモ向け補強データ) -----------------------
+# demo-seed : 既存 demo テナントに ZD-* デモ店舗/sales/SV/incidents/HACCP を上乗せ (冪等)
+# demo-reset: ZD-* レコードだけ削除して seed 再実行
+# demo-up   : compose up + migrate + base seed + demo seed の一括起動
+demo-seed:
+	@echo "[demo-seed] copying script into api container..."
+	@docker compose cp scripts/seed_demo_zensho.py api:/tmp/seed_demo_zensho.py
+	@docker compose exec -T api python /tmp/seed_demo_zensho.py
+
+demo-reset:
+	@echo "[demo-reset] re-running demo seed (idempotent: clears ZD-* first)..."
+	@$(MAKE) demo-seed
+
+demo-up:
+	@echo "[demo-up] full stack + base + zensho demo overlay..."
+	docker compose up -d
+	@sleep 5
+	$(MAKE) migrate
+	$(MAKE) seed
+	$(MAKE) demo-seed
+	@echo ""
+	@echo "  api : http://localhost:8000/docs"
+	@echo "  web : http://localhost:3000"
+	@echo "  demo tenant : 'demo' (slug=demo)"

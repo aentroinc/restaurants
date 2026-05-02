@@ -1,6 +1,6 @@
 "use client"
 
-import { Hash, BarChart3, Table2, FileText, SlidersHorizontal, Grid3X3 } from "lucide-react"
+import { Hash, BarChart3, Table2, FileText, SlidersHorizontal, Grid3X3, Box } from "lucide-react"
 import type { TileType } from "@/lib/canvas-spec"
 
 interface Props {
@@ -14,6 +14,7 @@ const ITEMS: { type: TileType; label: string; icon: React.ComponentType<{ classN
   { type: "markdown", label: "マークダウン", icon: FileText },
   { type: "filter", label: "フィルタ", icon: SlidersHorizontal },
   { type: "pivot", label: "ピボット", icon: Grid3X3 },
+  { type: "object", label: "Object", icon: Box },
 ]
 
 export function AddTilePalette({ onAdd }: Props) {

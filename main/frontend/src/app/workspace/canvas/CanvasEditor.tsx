@@ -38,6 +38,8 @@ function defaultTile(type: TileType, idx: number): Tile {
       return { id, type, title: "共有フィルタ" }
     case "pivot":
       return { id, type, title: "ピボット", kpi: "net_sales", rows: "brand", cols: "month" }
+    case "object":
+      return { id, type, title: "Object", view: "full", objectBinding: { type: "" } }
   }
   // fallback (should be unreachable)
   return { id: `t-${idx}`, type: "markdown", title: "メモ", body: "" }
@@ -51,6 +53,7 @@ function defaultLayout(type: TileType, id: string, yOffset: number): GridItem {
     markdown: { w: 6, h: 4 },
     filter: { w: 12, h: 2 },
     pivot: { w: 12, h: 6 },
+    object: { w: 6, h: 8 },
   }
   return { i: id, x: 0, y: yOffset, ...sizes[type] }
 }

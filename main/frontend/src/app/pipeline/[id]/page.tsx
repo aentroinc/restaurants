@@ -15,7 +15,7 @@ import {
   NODE_TYPE_META,
 } from "@/lib/pipeline-api"
 import {
-  Database, Code2, ShieldCheck, Send, Sparkles, Save, Play, Calendar, GitBranch, Loader2, History, ChevronLeft,
+  Database, Code2, ShieldCheck, Send, Sparkles, Save, Play, Calendar, GitBranch, Loader2, History, ChevronLeft, Sparkle,
 } from "lucide-react"
 
 const PALETTE: { type: PipelineNodeType; Icon: React.ComponentType<{ className?: string }> }[] = [
@@ -179,6 +179,12 @@ export default function PipelineEditorPage() {
         actions={
           <div className="flex items-center gap-2">
             {statusMsg && <span className="text-[11px] text-blue-300 mr-1">{statusMsg}</span>}
+            <Link
+              href={`/pipeline/v2/${pipeline.id}`}
+              className="px-2 py-1 rounded bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 text-[11px] inline-flex items-center gap-1 border border-purple-400/30"
+            >
+              <Sparkle className="w-3 h-3" /> 新エディタへ
+            </Link>
             <Link
               href="/pipeline"
               className="px-2 py-1 rounded text-white/60 hover:bg-white/[0.04] text-[11px] inline-flex items-center gap-1"

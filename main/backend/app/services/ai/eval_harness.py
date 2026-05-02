@@ -149,6 +149,15 @@ async def _live_runner(
                 tools=TOOL_DEFINITIONS,
                 messages=messages,
             )
+            try:
+                from app.middleware.metrics import record_ai_tokens
+                record_ai_tokens(
+                    model,
+                    getattr(resp.usage, "input_tokens", 0) or 0,
+                    getattr(resp.usage, "output_tokens", 0) or 0,
+                )
+            except Exception:
+                pass
             tool_results = []
             has_tool = False
             assistant_blocks: list[dict] = []

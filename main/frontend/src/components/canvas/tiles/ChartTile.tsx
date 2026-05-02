@@ -1,11 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts"
+import { Link2 } from "lucide-react"
 import type { ChartTile as ChartTileSpec } from "@/lib/canvas-spec"
 import { kpiLabel } from "@/lib/canvas-spec"
+import { ontologyAPI, type OntoObjectInstance } from "@/lib/ontology-api"
 
 const COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899"]
 const TOOLTIP_STYLE = { background: "#0c1017", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }
@@ -32,12 +35,33 @@ function buildData(kpi: string, groupBy?: string) {
 }
 
 export function ChartTile({ tile }: { tile: ChartTileSpec }) {
-  const data = buildData(tile.kpi, tile.groupBy)
+  const binding = tile.objectBinding
+  const [boundData, setBoundData] = useState<{ name: string; value: number }[] | null>(null)
+
+  useEffect(() => {
+    if (!binding?.type) { setBoundData(null); return }
+    ontologyAPI.listInstances(binding.type)
+      .then((insts: OntoObjectInstance[]) => {
+        const propKey = binding.property ?? tile.kpi
+        const filtered = binding.instanceId ? insts.filter((i) => i.id === binding.instanceId) : insts
+        const data = filtered.map((inst) => {
+          const v = inst.properties[propKey]
+          return { name: inst.display_name, value: typeof v === "number" ? v : 0 }
+        })
+        setBoundData(data)
+      })
+      .catch(() => setBoundData(null))
+  }, [binding?.type, binding?.instanceId, binding?.property, tile.kpi])
+
+  const data = boundData ?? buildData(tile.kpi, tile.groupBy)
   const color = tile.color ?? COLORS[0]
 
   return (
     <div className="h-full w-full flex flex-col p-3">
-      <div className="text-[11px] text-white/40 px-1 mb-1">{kpiLabel(tile.kpi)}</div>
+      <div className="text-[11px] text-white/40 px-1 mb-1 flex items-center gap-1">
+        {boundData && <Link2 className="h-2.5 w-2.5 text-blue-400/70" />}
+        {kpiLabel(tile.kpi)}
+      </div>
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           {tile.chartKind === "bar" ? (

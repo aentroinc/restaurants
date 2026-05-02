@@ -1,7 +1,8 @@
 "use client"
 
-import type { Tile } from "@/lib/canvas-spec"
+import type { Tile, ObjectBinding } from "@/lib/canvas-spec"
 import { KPI_OPTIONS } from "@/lib/canvas-spec"
+import { ObjectPicker } from "./ObjectPicker"
 
 interface Props {
   tile: Tile | null
@@ -35,6 +36,29 @@ export function PropertyPanel({ tile, onChange }: Props) {
           className={inputCls}
         />
       </div>
+
+      {/* Object binding は object/kpi/chart/table タイプで利用可 */}
+      {(tile.type === "object" || tile.type === "kpi" || tile.type === "chart" || tile.type === "table") && (
+        <ObjectPicker
+          value={tile.objectBinding}
+          onChange={(b: ObjectBinding | undefined) => onChange({ ...tile, objectBinding: b } as Tile)}
+          showPropertyPicker={tile.type !== "object"}
+        />
+      )}
+
+      {tile.type === "object" && (
+        <div>
+          <div className={labelCls}>表示</div>
+          <select
+            value={tile.view ?? "full"}
+            onChange={(e) => onChange({ ...tile, view: e.target.value as "summary" | "full" })}
+            className={inputCls}
+          >
+            <option value="full" className="bg-[#0c1017]">フル（プロパティ＋関連＋アクション）</option>
+            <option value="summary" className="bg-[#0c1017]">プロパティのみ</option>
+          </select>
+        </div>
+      )}
 
       {tile.type === "kpi" && (
         <>

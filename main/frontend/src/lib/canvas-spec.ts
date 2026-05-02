@@ -8,6 +8,19 @@ export type TileType =
   | "markdown"
   | "filter"
   | "pivot"
+  | "object"
+
+// Object-driven binding — タイルを Ontology の Object Type / Instance に紐付ける。
+// type: ObjectType の api_name または id (例: "store", "ot-store")
+// instanceId: 特定の Object インスタンス ID（未指定なら ObjectType レベル / 集計）
+// filter: 任意フィルタ（プロパティ → 値）
+export interface ObjectBinding {
+  type: string
+  instanceId?: string
+  filter?: Record<string, unknown>
+  // KPI / Chart / Table タイル用に「どのプロパティをデータソースにするか」
+  property?: string
+}
 
 export type ChartKind = "line" | "bar" | "pie"
 
@@ -25,6 +38,16 @@ export interface BaseTile {
   id: string
   type: TileType
   title: string
+  // Optional Object binding — ある場合は Ontology Object に bind されてデータが自動表示される
+  objectBinding?: ObjectBinding
+}
+
+// Object-driven Tile — ObjectType のプロパティ / outgoing links / actions を全部出す
+export interface ObjectTile extends BaseTile {
+  type: "object"
+  objectBinding: ObjectBinding
+  // 表示モード: "summary"（プロパティのみ）/ "full"（プロパティ＋リンク＋アクション）
+  view?: "summary" | "full"
 }
 
 export interface KpiTile extends BaseTile {
@@ -75,6 +98,7 @@ export type Tile =
   | MarkdownTile
   | FilterTile
   | PivotTile
+  | ObjectTile
 
 export interface SharedFilter {
   period?: { from?: string; to?: string }

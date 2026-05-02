@@ -10,7 +10,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.auth import get_tenant_id
+from app.auth import get_tenant_id, get_current_user_optional
 from app.middleware.audit import log_audit
 from app.services.ai.client import get_client, get_model, is_llm_available
 from app.services.ai.tools import TOOL_DEFINITIONS, execute_tool
@@ -84,13 +84,15 @@ async def ai_chat(
     request: AIChatRequest,
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: dict | None = Depends(get_current_user_optional),
 ):
     if not is_llm_available():
         return await _rule_based_fallback(request, db, tenant_id)
 
+    user_id = current_user.get("sub") if current_user else None
     client = get_client()
     model = get_model(request.model_tier)
-    system_blocks = await build_system_blocks(tenant_id, db)
+    system_blocks = await build_system_blocks(tenant_id, db, user_id=user_id)
 
     # load or create session
     session_id = request.session_id
@@ -138,6 +140,15 @@ async def ai_chat(
                     tools=TOOL_DEFINITIONS,
                     messages=messages,
                 )
+                try:
+                    from app.middleware.metrics import record_ai_tokens
+                    record_ai_tokens(
+                        model,
+                        getattr(response.usage, "input_tokens", 0) or 0,
+                        getattr(response.usage, "output_tokens", 0) or 0,
+                    )
+                except Exception:
+                    pass
             except Exception as e:
                 # Fallback to rule-based AI on any LLM API failure
                 yield _json_event({"type": "system", "content": "ルールベース分析にフォールバックしました"})
@@ -186,7 +197,7 @@ async def ai_chat(
                     has_tool_use = True
                     yield _json_event({"type": "tool_use", "name": block.name, "input": block.input})
 
-                    result = await execute_tool(block.name, block.input, tenant_id, db)
+                    result = await execute_tool(block.name, block.input, tenant_id, db, user_id=user_id)
                     yield _json_event({"type": "tool_result", "name": block.name, "output": result})
 
                     tool_results.append({

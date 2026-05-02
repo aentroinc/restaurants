@@ -814,11 +814,37 @@ TOOL_EXECUTORS = {
 }
 
 
-async def execute_tool(name: str, input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+# tool 名 -> marking 上の resource_type
+_TOOL_TO_RESOURCE = {
+    "query_kpi": "kpi",
+    "get_store_detail": "store",
+    "get_store_ranking": "kpi",
+    "search_stores": "store",
+    "get_brand_summary": "kpi",
+    "explain_kpi_change": "kpi",
+    "estimate_value_impact": "kpi",
+    "search_documents": "document",
+    "generate_sv_missions": "store",
+    "generate_executive_pack": "store_pl",
+}
+
+
+async def execute_tool(name: str, input_data: dict, tenant_id: str, db: AsyncSession, user_id: str | None = None) -> dict:
     executor = TOOL_EXECUTORS.get(name)
     if not executor:
         return {"error": f"Unknown tool: {name}"}
     try:
-        return await executor(input_data, tenant_id, db)
+        result = await executor(input_data, tenant_id, db)
     except Exception as e:
         return {"error": str(e)}
+
+    # Marking ACL: AI Chat に返す前に marking 付き列を mask / drop する
+    try:
+        from app.services.marking_engine import filter_for_llm
+        resource_type = _TOOL_TO_RESOURCE.get(name)
+        if resource_type and isinstance(result, (dict, list)):
+            result = await filter_for_llm(db, tenant_id, user_id, resource_type, result)
+    except Exception:
+        # 失敗時はフォールバック（ベスト・エフォート）
+        pass
+    return result

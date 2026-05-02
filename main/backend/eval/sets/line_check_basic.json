@@ -1,0 +1,41 @@
+{
+  "name": "line_check_basic",
+  "description": "Line Check（開店/閉店/4h品質）デジタルチェックリスト基本動作の eval セット。",
+  "cases": [
+    {
+      "id": "list_templates",
+      "input_message": "今日の現場チェックのテンプレート一覧を見せて",
+      "expected_tool_calls": ["list_line_check_templates"],
+      "expected_substrings": ["開店", "閉店", "4h"],
+      "scoring_rubric": "schedule_type=opening/closing/4h を含むテンプレート一覧を返す"
+    },
+    {
+      "id": "start_opening_run",
+      "input_message": "新宿店の開店チェックを開始したい",
+      "expected_tool_calls": ["start_line_check_run"],
+      "expected_substrings": ["開始", "in_progress"],
+      "scoring_rubric": "store_id と template_id（opening）を指定して run を作成する"
+    },
+    {
+      "id": "ng_temp_creates_task",
+      "input_message": "冷蔵庫の温度が12℃だった、登録して",
+      "expected_tool_calls": ["submit_line_check_answer", "create_task"],
+      "expected_substrings": ["温度", "NG", "タスク"],
+      "scoring_rubric": "温度範囲外を検出し ok=false にし、タスクを自動発行する"
+    },
+    {
+      "id": "missing_photo_fails_run",
+      "input_message": "写真を撮らずに開店チェックを完了させると？",
+      "expected_tool_calls": ["complete_line_check_run"],
+      "expected_substrings": ["failed", "写真"],
+      "scoring_rubric": "requires_photo=true で写真未添付なら run.status=failed"
+    },
+    {
+      "id": "history_by_store_date",
+      "input_message": "新宿店の昨日の現場チェック履歴を見たい",
+      "expected_tool_calls": ["list_line_check_runs"],
+      "expected_substrings": ["履歴"],
+      "scoring_rubric": "store_id と date クエリで履歴を返す"
+    }
+  ]
+}

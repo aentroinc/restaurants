@@ -9,7 +9,68 @@ export interface CanvasTemplate {
   spec: CanvasSpec
 }
 
+// Object-driven テンプレ用のデフォルト Store インスタンス ID（mock）
+// 実環境では作成時に instanceId を上書きすれば全タイル連動
+export const DEFAULT_STORE_INSTANCE_ID = "inst-store-001"
+
+export function makeStoreObjectTemplate(instanceId: string = DEFAULT_STORE_INSTANCE_ID): CanvasTemplate {
+  return {
+    key: "object-store",
+    name: "Storeダッシュボード（Object-driven）",
+    description: "Store オブジェクト 1 件に紐付き、プロパティ／関連／アクションが連動",
+    spec: {
+      version: 1,
+      filters: {},
+      tiles: [
+        // メイン Object タイル：プロパティ + 関連 + アクション
+        {
+          id: "tplo-obj", type: "object", title: "Store 概要", view: "full",
+          objectBinding: { type: "store", instanceId },
+        },
+        // KPI タイル：Store の net_sales プロパティ
+        {
+          id: "tplo-k1", type: "kpi", title: "売上高", kpi: "net_sales",
+          comparePrev: false, showSparkline: true, color: "#3b82f6",
+          objectBinding: { type: "store", instanceId, property: "net_sales" },
+        },
+        {
+          id: "tplo-k2", type: "kpi", title: "営業利益率", kpi: "operating_profit_rate",
+          comparePrev: false, color: "#10b981",
+          objectBinding: { type: "store", instanceId, property: "operating_profit_rate" },
+        },
+        {
+          id: "tplo-k3", type: "kpi", title: "健全度スコア", kpi: "health_score",
+          comparePrev: false, color: "#f59e0b",
+          objectBinding: { type: "store", instanceId, property: "health_score" },
+        },
+        // チャート：全 Store の同プロパティ比較（instanceId なしで Object Type 全件）
+        {
+          id: "tplo-c1", type: "chart", title: "全店舗の売上比較", chartKind: "bar",
+          kpi: "net_sales", groupBy: "store", color: "#3b82f6",
+          objectBinding: { type: "store", property: "net_sales" },
+        },
+        // テーブル：Store 全件 + 主要プロパティ
+        {
+          id: "tplo-t1", type: "table", title: "Store 一覧",
+          kpis: ["net_sales", "labor_cost_rate", "operating_profit_rate", "health_score"],
+          groupBy: "store",
+          objectBinding: { type: "store" },
+        },
+      ],
+      layout: [
+        { i: "tplo-obj", x: 0, y: 0, w: 6, h: 10 },
+        { i: "tplo-k1",  x: 6, y: 0, w: 6, h: 3 },
+        { i: "tplo-k2",  x: 6, y: 3, w: 3, h: 3 },
+        { i: "tplo-k3",  x: 9, y: 3, w: 3, h: 3 },
+        { i: "tplo-c1",  x: 6, y: 6, w: 6, h: 4 },
+        { i: "tplo-t1",  x: 0, y: 10, w: 12, h: 6 },
+      ],
+    },
+  }
+}
+
 export const CANVAS_TEMPLATES: CanvasTemplate[] = [
+  makeStoreObjectTemplate(),
   {
     key: "store-performance",
     name: "店舗業績ダッシュボード",

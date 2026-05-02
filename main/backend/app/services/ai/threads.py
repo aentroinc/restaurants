@@ -141,6 +141,15 @@ async def summarize_thread(db: AsyncSession, thread_id: str) -> Optional[str]:
                     ),
                 }],
             )
+            try:
+                from app.middleware.metrics import record_ai_tokens
+                record_ai_tokens(
+                    model,
+                    getattr(resp.usage, "input_tokens", 0) or 0,
+                    getattr(resp.usage, "output_tokens", 0) or 0,
+                )
+            except Exception:
+                pass
             for block in resp.content:
                 if getattr(block, "type", None) == "text":
                     summary = (summary or "") + block.text

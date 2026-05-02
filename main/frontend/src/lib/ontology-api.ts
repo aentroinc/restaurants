@@ -53,6 +53,17 @@ export interface OntoAction {
   description?: string
 }
 
+// Object Instance (= Ontology の実データ行)
+export interface OntoObjectInstance {
+  id: string
+  object_type_id: string
+  object_type_api_name?: string
+  display_name: string
+  properties: Record<string, unknown>
+  // 関連オブジェクト（outgoing links）
+  links?: { link_api_name: string; to_instance_id: string; to_display_name: string; to_object_type_id: string }[]
+}
+
 export interface OntoBranch {
   id: string
   name: string
@@ -153,6 +164,58 @@ const mockActions: Record<string, OntoAction[]> = {
     },
   ],
 }
+
+// ============================================
+// Mock Object Instances
+// ============================================
+const mockInstances: OntoObjectInstance[] = [
+  {
+    id: "inst-store-001", object_type_id: "ot-store", object_type_api_name: "store",
+    display_name: "品川店",
+    properties: {
+      store_code: "S-001", name: "品川店", prefecture: "東京都", seat_count: 86,
+      opened_at: "2018-04-01", net_sales: 3250000, labor_cost_rate: 28.5,
+      operating_profit_rate: 8.3, fl_ratio: 59.7, health_score: 72.3,
+    },
+    links: [
+      { link_api_name: "store_brand", to_instance_id: "inst-brand-001", to_display_name: "すき家", to_object_type_id: "ot-brand" },
+      { link_api_name: "store_employee", to_instance_id: "inst-emp-001", to_display_name: "山田 太郎", to_object_type_id: "ot-employee" },
+      { link_api_name: "store_employee", to_instance_id: "inst-emp-002", to_display_name: "佐藤 花子", to_object_type_id: "ot-employee" },
+    ],
+  },
+  {
+    id: "inst-store-002", object_type_id: "ot-store", object_type_api_name: "store",
+    display_name: "渋谷店",
+    properties: {
+      store_code: "S-002", name: "渋谷店", prefecture: "東京都", seat_count: 64,
+      opened_at: "2019-08-15", net_sales: 2950000, labor_cost_rate: 31.2,
+      operating_profit_rate: 6.1, fl_ratio: 62.4, health_score: 65.8,
+    },
+    links: [
+      { link_api_name: "store_brand", to_instance_id: "inst-brand-002", to_display_name: "はま寿司", to_object_type_id: "ot-brand" },
+    ],
+  },
+  {
+    id: "inst-brand-001", object_type_id: "ot-brand", object_type_api_name: "brand",
+    display_name: "すき家",
+    properties: { brand_code: "SK", brand_name: "すき家", cuisine_type: "和食" },
+  },
+  {
+    id: "inst-brand-002", object_type_id: "ot-brand", object_type_api_name: "brand",
+    display_name: "はま寿司",
+    properties: { brand_code: "HM", brand_name: "はま寿司", cuisine_type: "和食" },
+  },
+  {
+    id: "inst-emp-001", object_type_id: "ot-employee", object_type_api_name: "employee",
+    display_name: "山田 太郎",
+    properties: { employee_code: "E-001", name: "山田 太郎", hourly_rate: 1500 },
+  },
+  {
+    id: "inst-emp-002", object_type_id: "ot-employee", object_type_api_name: "employee",
+    display_name: "佐藤 花子",
+    properties: { employee_code: "E-002", name: "佐藤 花子", hourly_rate: 1300 },
+  },
+]
 
 const mockBranches: OntoBranch[] = [
   { id: "br-main", name: "main", base: "", status: "active", created_at: "2026-01-01T00:00:00Z", created_by: "system", description: "本番ブランチ" },
@@ -265,6 +328,22 @@ export const ontologyAPI = {
       to_object_type_id: body.to_object_type_id || "",
       cardinality: body.cardinality || "1:N",
     } as OntoLink)),
+
+  // Instances
+  listInstances: (objectTypeId?: string) =>
+    call<OntoObjectInstance[]>(
+      objectTypeId
+        ? `/api/v1/ontology/instances?object_type_id=${encodeURIComponent(objectTypeId)}`
+        : "/api/v1/ontology/instances",
+      undefined,
+      () => objectTypeId
+        ? mockInstances.filter((i) => i.object_type_id === objectTypeId || i.object_type_api_name === objectTypeId)
+        : mockInstances,
+    ),
+
+  getInstance: (id: string) =>
+    call<OntoObjectInstance>(`/api/v1/ontology/instances/${id}`, undefined,
+      () => mockInstances.find((i) => i.id === id) || mockInstances[0]),
 
   // Actions
   listActions: (objectTypeId: string) =>

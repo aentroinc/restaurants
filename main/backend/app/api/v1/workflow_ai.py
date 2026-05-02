@@ -78,6 +78,15 @@ async def generate_workflow(
                 {"role": "user", "content": f"次の日本語ルールを workflow spec JSON に変換してください。JSON のみで返答:\n\n{body.nl}"}
             ],
         )
+        try:
+            from app.middleware.metrics import record_ai_tokens
+            record_ai_tokens(
+                "claude-sonnet-4-20250514",
+                getattr(resp.usage, "input_tokens", 0) or 0,
+                getattr(resp.usage, "output_tokens", 0) or 0,
+            )
+        except Exception:
+            pass
         text = ""
         for block in resp.content:
             if block.type == "text":
