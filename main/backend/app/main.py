@@ -1,16 +1,68 @@
+"""FastAPI application entrypoint.
+
+Wires up middleware, startup hooks (schema bootstrap + scheduler), and
+all v1 routers.
+"""
+from __future__ import annotations
+
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1 import health, executive, stores, tasks, sv, meeting, data_quality, value, ai, ontology, kpi_registry, lineage, writeback, admin, ingestion, workflow
+
+from app.api.v1 import (
+    admin, ai, ai_chat, audit, campaigns, data_quality, demand,
+    executive, expansion, health, incidents, ingestion, kpi_engine,
+    kpi_registry, lineage, meeting, ontology, rbac, stores,
+    supply_chain, sv, tasks, value, vertical, workflow, workspace, writeback,
+)
 from app.api.v1 import auth as auth_router
-from app.api.v1 import kpi_engine, audit
-from app.api.v1 import incidents, supply_chain, demand, expansion, campaigns
-from app.api.v1 import ai_chat
-from app.api.v1 import workspace, rbac
-from app.api.v1 import vertical
+from app.api.v1 import data_sources as data_sources_router
+from app.api.v1 import ai_governance as ai_governance_router
+from app.api.v1 import workspace_engine as workspace_engine_router
+from app.config import settings
+from app.middleware.audit import AuditMiddleware
+from app.middleware.pii import PIIRedactionMiddleware
 from app.middleware.tenant import TenantMiddleware
 
-app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0")
+logger = logging.getLogger("aentro")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Schema bootstrap (dev / demo only). Production uses alembic.
+    if settings.AUTO_CREATE_SCHEMA:
+        try:
+            from app.database import engine, Base
+            from app import models  # noqa: F401  ensure model registration
+
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("Schema ensured via Base.metadata.create_all")
+        except Exception as e:
+            logger.warning("AUTO_CREATE_SCHEMA failed: %s", e)
+
+    # Optional ingestion scheduler. Off by default — opt in via
+    # SCHEDULER_ENABLED=true to run nightly Smaregi syncs.
+    if settings.SCHEDULER_ENABLED:
+        try:
+            from app.services.scheduler import start_scheduler
+            start_scheduler()
+            logger.info("Ingestion scheduler started")
+        except Exception as e:
+            logger.warning("Scheduler start failed: %s", e)
+
+    yield
+
+
+app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0", lifespan=lifespan)
+
+# Middleware order: outermost is registered LAST. We want
+# tenant context resolved first so downstream middlewares can read it.
+if settings.PII_REDACTION_ENABLED:
+    app.add_middleware(PIIRedactionMiddleware)
+app.add_middleware(AuditMiddleware)
 app.add_middleware(TenantMiddleware)
 
 app.add_middleware(
@@ -21,31 +73,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router)
-app.include_router(auth_router.router)
-app.include_router(executive.router)
-app.include_router(stores.router)
-app.include_router(tasks.router)
-app.include_router(sv.router)
-app.include_router(meeting.router)
-app.include_router(data_quality.router)
-app.include_router(value.router)
-app.include_router(ai.router)
-app.include_router(ontology.router)
-app.include_router(kpi_registry.router)
-app.include_router(lineage.router)
-app.include_router(writeback.router)
-app.include_router(admin.router)
-app.include_router(ingestion.router)
-app.include_router(kpi_engine.router)
-app.include_router(audit.router)
-app.include_router(workflow.router)
-app.include_router(incidents.router)
-app.include_router(supply_chain.router)
-app.include_router(demand.router)
-app.include_router(expansion.router)
-app.include_router(campaigns.router)
-app.include_router(ai_chat.router)
-app.include_router(workspace.router)
-app.include_router(rbac.router)
-app.include_router(vertical.router)
+for router in [
+    health.router,
+    auth_router.router,
+    executive.router,
+    stores.router,
+    tasks.router,
+    sv.router,
+    meeting.router,
+    data_quality.router,
+    value.router,
+    ai.router,
+    ontology.router,
+    kpi_registry.router,
+    lineage.router,
+    writeback.router,
+    admin.router,
+    ingestion.router,
+    kpi_engine.router,
+    audit.router,
+    workflow.router,
+    incidents.router,
+    supply_chain.router,
+    demand.router,
+    expansion.router,
+    campaigns.router,
+    ai_chat.router,
+    workspace.router,
+    rbac.router,
+    vertical.router,
+    data_sources_router.router,
+    ai_governance_router.router,
+    workspace_engine_router.router,
+]:
+    app.include_router(router)

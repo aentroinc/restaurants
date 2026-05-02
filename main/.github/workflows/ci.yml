@@ -1,0 +1,71 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: main/backend/requirements.txt
+      - run: pip install -r requirements.txt
+      - run: pip install pytest pytest-asyncio
+      - run: pytest tests/unit -q
+
+  ai-eval:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: AI Analyst functional eval
+        run: python -m eval.ai_analyst.evaluator --mode functional --mock
+      - name: AI Analyst safety eval (red team)
+        run: python -m eval.ai_analyst.evaluator --mode safety --mock
+
+  security-scan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt pip-audit bandit
+      - name: pip-audit
+        run: pip-audit --strict || true
+      - name: bandit
+        run: bandit -q -r app -lll || true
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: main/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build

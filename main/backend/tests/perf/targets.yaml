@@ -1,0 +1,34 @@
+# Performance SLO targets per endpoint.
+# CI compares actual p95 vs target; >20% regression fails.
+endpoints:
+  exec/summary:
+    p50_ms: 120
+    p95_ms: 500
+    p99_ms: 1000
+  stores/ranking:
+    p50_ms: 180
+    p95_ms: 600
+    p99_ms: 1200
+  workspace/preview:
+    p50_ms: 250
+    p95_ms: 800
+    p99_ms: 1500
+  workspace/cohort:
+    p50_ms: 200
+    p95_ms: 700
+    p99_ms: 1400
+  kpi/store-daily:
+    p50_ms: 100
+    p95_ms: 400
+    p99_ms: 900
+
+slo:
+  api_availability_pct: 99.9
+  ingestion_success_pct: 99.0
+
+scale_targets:
+  tenants: 30
+  stores: 50000
+  daily_rows: 100000000
+  rows_total: 10000000000
+  concurrent_users: 5000

@@ -13,15 +13,36 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
+function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null
+  try {
+    return window.localStorage.getItem("aentro.access_token")
+  } catch {
+    return null
+  }
+}
+
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (!API_URL) return fetchMock<T>(path, options)
 
   try {
+    const token = getStoredToken()
     const res = await fetch(`${API_URL}${path}`, {
-      headers: { "Content-Type": "application/json", ...options?.headers },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      },
       ...options,
     })
 
+    if (res.status === 401) {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("aentro.access_token")
+        window.localStorage.removeItem("aentro.user_payload")
+      }
+      throw new Error("Unauthorized")
+    }
     if (!res.ok) throw new Error(`API error: ${res.status}`)
 
     const json: APIResponse<T> = await res.json()

@@ -7,6 +7,7 @@ from app.schemas.common import APIResponse
 from app.schemas.data_quality import DataQualityResponse, DataQualitySummary
 from app.auth import get_tenant_id
 from app.services.dq_engine import run_quality_checks
+from app.services.dq_reconciliation import reconcile_pos_to_pl
 
 router = APIRouter(prefix="/api/v1/data-quality", tags=["data_quality"])
 
@@ -79,4 +80,20 @@ async def run_checks(
 ):
     with SyncSession() as sync_session:
         result = run_quality_checks(sync_session, tenant_id, entity_type)
+    return APIResponse(data=result)
+
+
+@router.post("/run-reconciliation", response_model=APIResponse[dict])
+async def run_reconciliation(
+    tolerance_pct: float = Query(0.01, ge=0.0, le=0.5),
+    months_back: int = Query(6, ge=1, le=24),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """POS (DailyStoreSales) <-> PL (StorePL) reconciliation."""
+    with SyncSession() as sync_session:
+        result = reconcile_pos_to_pl(
+            sync_session, tenant_id,
+            tolerance_pct=tolerance_pct,
+            months_back=months_back,
+        )
     return APIResponse(data=result)

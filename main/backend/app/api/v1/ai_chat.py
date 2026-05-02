@@ -10,13 +10,19 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.auth import get_tenant_id
+from app.auth import get_tenant_id, get_current_user_optional
+from app.core.tenant_context import get_user
 from app.middleware.audit import log_audit
 from app.services.ai.client import get_client, is_llm_available
 from app.services.ai.tools import TOOL_DEFINITIONS, execute_tool
 from app.services.ai.system_prompt import build_system_prompt
+from app.services.ai.governance import (
+    can_use_tool, filter_tools_for_role, requires_approval,
+)
+from app.services.ai.cost_guard import check_budget, log_usage
 from app.models.ai_session import AISession
 from app.models.ai_query import AIQueryLog
+from app.models.ai_budget import AIRefusalLog
 
 router = APIRouter(prefix="/api/v1/ai", tags=["ai-chat"])
 
@@ -84,6 +90,23 @@ async def ai_chat(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
 ):
+    # Cost guard: deny when monthly budget exhausted
+    status = await check_budget(db, tenant_id)
+    if not status.allowed:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "monthly_budget_exhausted",
+                "used_jpy": float(status.used_jpy),
+                "budget_jpy": float(status.budget_jpy),
+                "ratio": status.ratio,
+            },
+        )
+
+    user_payload = get_user()
+    user_role = user_payload.get("role") if user_payload else None
+    allowed_tools = filter_tools_for_role(user_role, TOOL_DEFINITIONS)
+
     if not is_llm_available():
         return await _rule_based_fallback(request, db, tenant_id)
 
@@ -133,7 +156,7 @@ async def ai_chat(
                     model="claude-sonnet-4-20250514",
                     max_tokens=4096,
                     system=system_prompt,
-                    tools=TOOL_DEFINITIONS,
+                    tools=allowed_tools,
                     messages=messages,
                 )
             except Exception as e:
@@ -153,9 +176,27 @@ async def ai_chat(
                     final_text_parts.append(block.text)
                 elif block.type == "tool_use":
                     has_tool_use = True
-                    yield _json_event({"type": "tool_use", "name": block.name, "input": block.input})
 
-                    result = await execute_tool(block.name, block.input, tenant_id, db)
+                    # Authorization check before tool execution
+                    if not can_use_tool(user_role, block.name):
+                        result = {"error": f"unauthorized_tool: {block.name} not allowed for role={user_role}"}
+                        try:
+                            db.add(AIRefusalLog(
+                                tenant_id=uuid.UUID(tenant_id),
+                                user_id=uuid.UUID(user_payload["sub"]) if user_payload and user_payload.get("sub") else None,
+                                session_id=uuid.UUID(session_id) if session_id else None,
+                                user_message=request.message[:2000],
+                                refusal_reason=f"role_blocked:{block.name}",
+                            ))
+                            await db.flush()
+                        except Exception:
+                            pass
+                    elif requires_approval(user_role, block.name):
+                        result = {"error": "requires_approval", "tool": block.name, "input": block.input}
+                    else:
+                        result = await execute_tool(block.name, block.input, tenant_id, db)
+
+                    yield _json_event({"type": "tool_use", "name": block.name, "input": block.input})
                     yield _json_event({"type": "tool_result", "name": block.name, "output": result})
 
                     tool_results.append({
@@ -207,10 +248,28 @@ async def ai_chat(
         except Exception:
             pass
 
+        # Per-call usage record for cost guard
+        try:
+            await log_usage(
+                db,
+                tenant_id=tenant_id,
+                user_id=user_payload.get("sub") if user_payload else None,
+                session_id=session_id,
+                model="claude-sonnet-4-20250514",
+                input_tokens=total_input,
+                output_tokens=total_output,
+                purpose="chat",
+                request_id=session_id,
+            )
+            await db.commit()
+        except Exception:
+            pass
+
         log_audit(tenant_id, None, "ai_chat", "ai", session_id, {
             "message_length": len(request.message),
             "input_tokens": total_input,
             "output_tokens": total_output,
+            "soft_warning": status.reason == "soft_warning",
         })
 
         yield _json_event({
