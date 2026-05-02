@@ -6,7 +6,7 @@ from app.auth import SECRET_KEY, ALGORITHM, DEMO_TENANT_ID
 
 tenant_var: contextvars.ContextVar[str] = contextvars.ContextVar("tenant_id", default=None)
 
-SKIP_PATHS = {"/health", "/ready", "/docs", "/redoc", "/openapi.json", "/api/v1/auth/login"}
+SKIP_PATHS = {"/health", "/ready", "/docs", "/redoc", "/openapi.json", "/api/v1/auth/login", "/api/v1/identity-providers/oidc/callback"}
 
 
 class TenantMiddleware(BaseHTTPMiddleware):
