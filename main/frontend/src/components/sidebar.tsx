@@ -8,9 +8,10 @@ import {
   Truck, TrendingUp, MapPin, Megaphone,
   Presentation, Sparkles, ShieldCheck, Brain,
   Boxes, Network, Calculator, Database, GitBranch, Lock,
-  Hexagon,
+  Hexagon, Activity,
   Utensils, Clock, ClipboardCheck, Thermometer, Receipt,
   FlaskConical, Users as UsersIcon, FileText,
+  Award, Rocket, Zap, Repeat,
   type LucideIcon,
 } from "lucide-react"
 
@@ -31,7 +32,16 @@ const sections: NavSection[] = [
     items: [
       { label: "Daily Brief（3分朝ブリーフ）", icon: Brain, href: "/daily-brief" },
       { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
+      { label: "Action Loop ライブ", icon: Repeat, href: "/action-loop" },
       { label: "デモツアー（28秒）", icon: Presentation, href: "/demo-tour" },
+    ],
+  },
+  {
+    title: "実証 / 起動",
+    items: [
+      { label: "事例（5社）", icon: Award, href: "/case-studies" },
+      { label: "専用環境を起動", icon: Rocket, href: "/onboarding" },
+      { label: "Workflow Builder", icon: Zap, href: "/workflow-builder" },
     ],
   },
   {
@@ -101,6 +111,7 @@ const adminItems: NavItem[] = [
   { label: "アクセス監査", icon: FileText, href: "/admin/access-logs" },
   { label: "データ取り込み健全性", icon: Database, href: "/admin/connector-health" },
   { label: "セキュリティ", icon: Lock, href: "/admin/security" },
+  { label: "システム状態", icon: Activity, href: "/admin/system-status" },
   { label: "AENTRO とは", icon: Hexagon, href: "/about" },
 ]
 

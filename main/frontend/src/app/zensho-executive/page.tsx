@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ContextHeader } from "@/components/context-header"
 import { fetchAPI } from "@/lib/api"
-import { TrendingUp, AlertTriangle, Sparkles, ArrowRight, CheckCircle2, Building2, Banknote } from "lucide-react"
+import { TrendingUp, AlertTriangle, Sparkles, ArrowRight, CheckCircle2, Building2, Banknote, Activity } from "lucide-react"
+import { LiveCounter, LiveTicker } from "@/components/live-counter"
 
 interface PilotSummary {
   pilot_id: string
@@ -60,9 +61,19 @@ export default function ZenshoExecutivePage() {
         <div className="rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/[0.08] via-emerald-500/[0.03] to-transparent p-6">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-[11px] tracking-wider text-emerald-400/80 uppercase font-bold">年間改善見込み</div>
+              <div className="text-[11px] tracking-wider text-emerald-400/80 uppercase font-bold flex items-center gap-2">
+                年間改善見込み
+                <span className="flex items-center gap-1 text-emerald-400">
+                  <Activity className="w-3 h-3" /> Live
+                </span>
+              </div>
               <div className="mt-2 text-5xl font-mono font-bold text-emerald-400 tabular-nums">
-                {fmt(summary.total_annualized_impact_yen)}
+                <LiveCounter
+                  initial={summary.total_annualized_impact_yen}
+                  driftRange={Math.floor(summary.total_annualized_impact_yen * 0.005)}
+                  format={(n) => `¥${n.toLocaleString()}`}
+                  showLiveDot={false}
+                />
               </div>
               <div className="mt-2 text-[13px] text-white/60">
                 {summary.theme_name}・対象 20 店舗・{summary.significant_kpi_count}/{summary.kpi_count} KPI で統計的有意改善

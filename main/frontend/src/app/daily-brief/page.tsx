@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { AlertTriangle, CheckCircle2, Sparkles, ArrowRight, MessageSquare, Mail, Smartphone, ChevronRight, Banknote, Coffee } from "lucide-react"
+import { AlertTriangle, CheckCircle2, Sparkles, ArrowRight, MessageSquare, Mail, Smartphone, ChevronRight, Banknote, Coffee, Activity } from "lucide-react"
+import { LiveCounter, LiveTicker } from "@/components/live-counter"
 
 const today = new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" })
 
@@ -34,16 +35,54 @@ export default function DailyBriefPage() {
 
         {/* Pre-coffee summary */}
         <div className="rounded-xl border border-amber-400/20 bg-gradient-to-br from-amber-500/[0.08] via-amber-500/[0.03] to-transparent p-5">
-          <div className="flex items-center gap-2 text-[11px] text-amber-400/80 uppercase tracking-wider font-bold mb-2">
-            <Coffee className="w-3.5 h-3.5" /> Coffee Brief（3分で読める）
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-[11px] text-amber-400/80 uppercase tracking-wider font-bold">
+              <Coffee className="w-3.5 h-3.5" /> Coffee Brief（3分で読める）
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-400/80">
+              <Activity className="w-3 h-3" />
+              <span>Live</span>
+            </div>
           </div>
           <p className="text-[15px] text-white/90 leading-relaxed">
-            昨日のグループ売上は <span className="font-mono font-bold text-emerald-400">¥3.84B</span>（前年比 <span className="text-emerald-400">+2.3%</span>）。
+            本日のグループ売上は <span className="font-mono font-bold text-emerald-400 inline-flex items-center gap-1">
+              <LiveCounter initial={3_842_000_000} driftRange={1_500_000} format={(n) => `¥${(n / 1_000_000_000).toFixed(2)}B`} />
+            </span>（前年比 <span className="text-emerald-400">+2.3%</span>）。
             <span className="text-amber-400"> 異常 3 件 </span>と
             <span className="text-blue-400"> 意思決定待ち 2 件</span>、
             AI 提案 <span className="text-purple-400">1 件</span>あります。
           </p>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center pt-3 border-t border-white/[0.06]">
+            <div>
+              <div className="text-[9px] text-white/40 uppercase">本日 客数</div>
+              <div className="mt-0.5 font-mono text-emerald-400 text-[14px]">
+                <LiveCounter initial={1_240_000} driftRange={3_000} format={(n) => n.toLocaleString()} showLiveDot={false} />
+              </div>
+            </div>
+            <div>
+              <div className="text-[9px] text-white/40 uppercase">店舗稼働中</div>
+              <div className="mt-0.5 font-mono text-emerald-400 text-[14px]">
+                <LiveCounter initial={3886} driftRange={3} format={(n) => n.toString()} showLiveDot={false} />
+              </div>
+            </div>
+            <div>
+              <div className="text-[9px] text-white/40 uppercase">AI 検出 (本日)</div>
+              <div className="mt-0.5 font-mono text-amber-400 text-[14px]">
+                <LiveCounter initial={28} driftRange={2} format={(n) => `${n} 件`} showLiveDot={false} />
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Live ticker */}
+        <section>
+          <div className="flex items-center gap-2 mb-3 text-[12px] font-semibold text-white/60 tracking-wide uppercase">
+            <Activity className="w-4 h-4 text-emerald-400" /> ライブイベント
+          </div>
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+            <LiveTicker />
+          </div>
+        </section>
 
         {/* 3 incidents */}
         <section>
