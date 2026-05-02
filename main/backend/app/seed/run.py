@@ -92,6 +92,7 @@ def run():
             "shifts", "shift_patterns", "labor_law_profiles",
             "recipe_bom", "ingredient_price_history", "recipes", "ingredients",
             "industry_benchmarks",
+            "pos_connector_configs",
             "saved_queries", "cohorts", "custom_kpis", "analyses",
             "user_roles", "permissions", "roles",
             "ontology_links", "ontology_instances",

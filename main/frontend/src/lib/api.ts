@@ -9,6 +9,8 @@ import {
   mockWritebackPolicies, mockWritebackRequests,
   mockDataSources, mockDataContracts, mockIngestionRuns, mockSchemaMappings, mockIDMappings,
   mockAIGovernanceConfig, mockAIResponseEnhanced,
+  mockPOSConnectorProviders, mockPOSConnectorConfigs,
+  mockWorkspaceAnalyses, mockWorkspaceCustomKPIs, mockWorkspaceCohorts, mockWorkspaceSavedQueries,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -99,6 +101,72 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/admin/schema-mappings")) return mockSchemaMappings as any
   if (path.startsWith("/api/v1/admin/id-mappings")) return mockIDMappings as any
   if (path.startsWith("/api/v1/admin/ai-governance")) return mockAIGovernanceConfig as any
+  if (path.startsWith("/api/v1/connectors/pos/providers")) return mockPOSConnectorProviders as any
+  if (path.match(/\/api\/v1\/connectors\/pos\/configs\/[^/]+\/test/)) {
+    return { connected: false, provider: "smaregi", error: "API URL is not configured; showing mock connector state" } as any
+  }
+  if (path.match(/\/api\/v1\/connectors\/pos\/configs\/[^/]+\/sync/)) {
+    return {
+      status: "mock",
+      provider: "smaregi",
+      transactions_fetched: 0,
+      daily_rows_loaded: 0,
+      daily_rows_skipped: 0,
+      hourly_rows_loaded: 0,
+      product_rows_loaded: 0,
+      product_rows_skipped: 0,
+      kpi_recalculation: { recalculated_rows: 0 },
+    } as any
+  }
+  if (path.startsWith("/api/v1/connectors/pos/configs")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: "pc-new", mapped_store_count: Object.keys(body.store_mappings || {}).length, ...body } as any
+    }
+    return mockPOSConnectorConfigs as any
+  }
+  // Workspace
+  if (path.match(/\/api\/v1\/workspace\/custom-kpis\/[^/]+\/preview/)) {
+    return [
+      { brand: "すき家", store: "すき家 東京駅前店", value: 496.2 },
+      { brand: "すき家", store: "すき家 新宿南店", value: 421.7 },
+      { brand: "すき家", store: "すき家 川崎中央店", value: 388.4 },
+    ] as any
+  }
+  if (path.match(/\/api\/v1\/workspace\/cohorts\/[^/]+\/instances/)) {
+    return { cohort_id: path.split("/")[5], instance_count: 3, instance_ids: ["store-001", "store-002", "store-004"] } as any
+  }
+  if (path.match(/\/api\/v1\/workspace\/saved-queries\/[^/]+\/run/)) {
+    return { query_id: path.split("/")[5], status: "completed", row_count: 20 } as any
+  }
+  if (path.startsWith("/api/v1/workspace/analyses")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: `analysis-${Date.now()}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...body } as any
+    }
+    return mockWorkspaceAnalyses as any
+  }
+  if (path.startsWith("/api/v1/workspace/custom-kpis")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: `custom-kpi-${Date.now()}`, version: 1, status: body.status || "draft", created_at: new Date().toISOString(), ...body } as any
+    }
+    return mockWorkspaceCustomKPIs as any
+  }
+  if (path.startsWith("/api/v1/workspace/cohorts")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: `cohort-${Date.now()}`, instance_count: null, created_at: new Date().toISOString(), ...body } as any
+    }
+    return mockWorkspaceCohorts as any
+  }
+  if (path.startsWith("/api/v1/workspace/saved-queries")) {
+    if (options?.method === "POST") {
+      const body = options?.body ? JSON.parse(options.body as string) : {}
+      return { id: `saved-query-${Date.now()}`, row_count: null, created_at: new Date().toISOString(), ...body } as any
+    }
+    return mockWorkspaceSavedQueries as any
+  }
   return {} as T
 }
 

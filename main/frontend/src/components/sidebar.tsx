@@ -8,7 +8,7 @@ import {
   Truck, TrendingUp, MapPin, Megaphone,
   Presentation, Sparkles, ShieldCheck, Brain,
   Boxes, Network, Calculator, Database, GitBranch, Lock,
-  Hexagon,
+  Hexagon, Table2,
   type LucideIcon,
 } from "lucide-react"
 
@@ -55,6 +55,7 @@ const sections: NavSection[] = [
       { label: "改善効果", icon: Sparkles, href: "/value-realization" },
       { label: "データ品質", icon: ShieldCheck, href: "/data-quality" },
       { label: "AIアナリスト", icon: Brain, href: "/ai-analyst" },
+      { label: "分析ワークスペース", icon: Table2, href: "/workspace" },
     ],
   },
 ]

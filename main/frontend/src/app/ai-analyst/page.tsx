@@ -21,7 +21,84 @@ const confidenceLabels: Record<string, { label: string; variant: "success" | "wa
   low: { label: "低確度", variant: "secondary" },
 }
 
-type CombinedResponse = AIResponse & Partial<AIResponseEnhanced>
+type ToolEvent = {
+  type: "tool_use" | "tool_result";
+  name: string;
+  input?: unknown;
+  output?: unknown;
+}
+
+type CombinedResponse = AIResponse & Partial<AIResponseEnhanced> & {
+  raw_text?: string;
+  tool_events?: ToolEvent[];
+}
+
+function enhancedRuleResponse(response: AIResponse): CombinedResponse {
+  return {
+    ...response,
+    ...mockAIResponseEnhanced,
+    conclusion: response.conclusion,
+    facts: response.facts as any,
+    hypotheses: response.hypotheses as any,
+    recommendations: response.recommendations as any,
+    confidence: response.confidence,
+    referenced_entities: response.referenced_entities,
+  }
+}
+
+function streamingResponseToCombined(text: string, toolEvents: ToolEvent[]): CombinedResponse {
+  const trimmed = text.trim()
+  return {
+    conclusion: trimmed ? trimmed.slice(0, 280) : "AIチャットAPIから応答がありませんでした。",
+    facts: [],
+    hypotheses: [],
+    recommendations: [],
+    confidence: toolEvents.length > 0 ? "high" : "medium",
+    referenced_entities: [],
+    raw_text: trimmed,
+    tool_events: toolEvents,
+    limitations: toolEvents.length === 0 ? ["LLMまたはバックエンドの設定により、ツール実行なしの回答として表示しています"] : [],
+  }
+}
+
+async function streamAIChat(question: string): Promise<CombinedResponse | null> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+  if (!apiUrl) return null
+
+  const res = await fetch(`${apiUrl}/api/v1/ai/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: question }),
+  })
+  if (!res.ok || !res.body) throw new Error(`AI chat API error: ${res.status}`)
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ""
+  let text = ""
+  const toolEvents: ToolEvent[] = []
+
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split("\n")
+    buffer = lines.pop() || ""
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed.startsWith("data:")) continue
+      const payload = trimmed.slice(5).trim()
+      if (!payload) continue
+      const event = JSON.parse(payload)
+      if (event.type === "text") text += event.content || ""
+      if (event.type === "tool_use") toolEvents.push({ type: "tool_use", name: event.name, input: event.input })
+      if (event.type === "tool_result") toolEvents.push({ type: "tool_result", name: event.name, output: event.output })
+    }
+  }
+
+  return streamingResponseToCombined(text, toolEvents)
+}
 
 export default function AIAnalystPage() {
   const [messages, setMessages] = useState<{ question: string; response: CombinedResponse }[]>([])
@@ -43,22 +120,21 @@ export default function AIAnalystPage() {
     setLoading(true)
     setInput("")
     try {
+      let enhanced = await streamAIChat(question)
+      if (!enhanced) {
+        const response = await fetchAPI<AIResponse>("/api/v1/ai/query", {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        })
+        enhanced = enhancedRuleResponse(response)
+      }
+      setMessages((prev) => [...prev, { question, response: enhanced }])
+    } catch {
       const response = await fetchAPI<AIResponse>("/api/v1/ai/query", {
         method: "POST",
         body: JSON.stringify({ question }),
       })
-      // merge enhanced data for demo
-      const enhanced: CombinedResponse = {
-        ...response,
-        ...mockAIResponseEnhanced,
-        conclusion: response.conclusion,
-        facts: response.facts as any,
-        hypotheses: response.hypotheses as any,
-        recommendations: response.recommendations as any,
-        confidence: response.confidence,
-        referenced_entities: response.referenced_entities,
-      }
-      setMessages((prev) => [...prev, { question, response: enhanced }])
+      setMessages((prev) => [...prev, { question, response: enhancedRuleResponse(response) }])
     } finally {
       setLoading(false)
     }
@@ -194,8 +270,46 @@ export default function AIAnalystPage() {
                   <p className="text-sm text-blue-800 leading-relaxed">{msg.response.conclusion}</p>
                 </div>
 
+                {/* Live Chat Text */}
+                {msg.response.raw_text && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <ShieldCheck className="h-4 w-4 text-slate-500" />
+                      <span className="text-sm font-semibold text-gray-700">AIチャットAPI応答</span>
+                      <Badge variant="outline" className="text-[10px]">Live</Badge>
+                    </div>
+                    <div className="rounded border bg-slate-50 p-3 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap">
+                      {msg.response.raw_text}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tool Events */}
+                {msg.response.tool_events && msg.response.tool_events.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <GitBranch className="h-4 w-4 text-sky-500" />
+                      <span className="text-sm font-semibold text-gray-700">実行ツール</span>
+                      <Badge variant="outline" className="text-[10px] bg-sky-50 text-sky-700 border-sky-200">Tool</Badge>
+                    </div>
+                    <div className="space-y-2">
+                      {msg.response.tool_events.map((event, i) => (
+                        <div key={`${event.name}-${i}`} className="rounded border border-sky-100 bg-sky-50/30 p-2 text-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-xs text-sky-800">{event.name}</span>
+                            <Badge variant="outline" className="text-[10px]">{event.type === "tool_use" ? "入力" : "結果"}</Badge>
+                          </div>
+                          <pre className="mt-2 max-h-40 overflow-auto rounded bg-white p-2 text-[11px] leading-relaxed text-slate-700">
+                            {JSON.stringify(event.type === "tool_use" ? event.input : event.output, null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Facts */}
-                {msg.response.facts.length > 0 && (
+                {(msg.response.facts?.length ?? 0) > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-2 min-w-0">
                       <BarChart3 className="h-4 w-4 shrink-0 text-blue-500" />
@@ -238,7 +352,7 @@ export default function AIAnalystPage() {
                 )}
 
                 {/* Hypotheses */}
-                {msg.response.hypotheses.length > 0 && (
+                {(msg.response.hypotheses?.length ?? 0) > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Brain className="h-4 w-4 text-amber-500" />
@@ -262,7 +376,7 @@ export default function AIAnalystPage() {
                 )}
 
                 {/* Recommendations */}
-                {msg.response.recommendations.length > 0 && (
+                {(msg.response.recommendations?.length ?? 0) > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Target className="h-4 w-4 text-green-500" />
@@ -281,7 +395,7 @@ export default function AIAnalystPage() {
                               )}
                             </div>
                           </div>
-                          <span className="shrink-0 text-blue-600 font-medium ml-2">{formatCurrency(r.expected_impact_amount)}</span>
+                          <span className="shrink-0 text-blue-600 font-medium ml-2">{formatCurrency(r.expected_impact_amount || 0)}</span>
                         </div>
                       ))}
                     </div>
@@ -296,7 +410,7 @@ export default function AIAnalystPage() {
                       <span className="text-sm font-semibold text-gray-700">系譜情報</span>
                     </div>
                     <div className="rounded border border-indigo-100 bg-indigo-50/30 p-3 space-y-3">
-                      {msg.response.lineage.referenced_kpis.length > 0 && (
+                      {(msg.response.lineage.referenced_kpis?.length ?? 0) > 0 && (
                         <div>
                           <div className="text-xs font-medium text-gray-500 mb-1">参照KPI</div>
                           <div className="flex flex-wrap gap-1">
@@ -310,7 +424,7 @@ export default function AIAnalystPage() {
                           </div>
                         </div>
                       )}
-                      {msg.response.lineage.referenced_objects.length > 0 && (
+                      {(msg.response.lineage.referenced_objects?.length ?? 0) > 0 && (
                         <div>
                           <div className="text-xs font-medium text-gray-500 mb-1">参照オブジェクト</div>
                           <div className="flex flex-wrap gap-1">
@@ -371,7 +485,7 @@ export default function AIAnalystPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2 border-t">
-                  <Button variant="outline" size="sm" onClick={() => openTaskFromRecommendation(msg.response.recommendations[0]?.action || msg.question)}>
+                  <Button variant="outline" size="sm" onClick={() => openTaskFromRecommendation(msg.response.recommendations?.[0]?.action || msg.question)}>
                     <Plus className="h-4 w-4 mr-1" />タスク作成
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => openMeetingDialog(msg.question)}>

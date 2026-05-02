@@ -289,6 +289,7 @@ export interface WritebackRequest {
 export interface DataSource {
   id: string; name: string; source_type: string; system_category: string;
   connection_mode: string; status: string; last_success_at?: string; last_failure_at?: string;
+  display_name?: string; type?: string; entity_types?: string[]; frequency?: string; last_sync?: string;
 }
 export interface DataContractAdmin {
   id: string; contract_name: string; contract_version: number; entity_type: string;
@@ -306,6 +307,111 @@ export interface SchemaMapping {
 export interface IDMapping {
   id: string; source_system: string; source_id: string; canonical_id: string;
   confidence: number; status: string; entity_type: string;
+}
+
+export interface POSConnectorProvider {
+  provider: string;
+  display_name: string;
+  country: string;
+  auth_type: string;
+  entity_types: string[];
+  required_credentials: string[];
+  required_scopes: string[];
+}
+
+export interface POSConnectorConfig {
+  id: string;
+  provider: string;
+  display_name: string;
+  status: string;
+  credentials: Record<string, unknown>;
+  settings: Record<string, unknown>;
+  store_mappings: Record<string, string>;
+  mapped_store_count: number;
+  last_tested_at?: string;
+  last_success_at?: string;
+  last_failure_at?: string;
+  last_error?: string;
+}
+
+export interface POSConnectorActionResult {
+  connected?: boolean;
+  provider?: string;
+  sample_store_count?: number;
+  batch_id?: string;
+  status?: string;
+  date_from?: string;
+  date_to?: string;
+  transactions_fetched?: number;
+  daily_rows_loaded?: number;
+  daily_rows_skipped?: number;
+  hourly_rows_loaded?: number;
+  product_rows_loaded?: number;
+  product_rows_skipped?: number;
+  kpi_recalculation?: Record<string, unknown>;
+  error?: string;
+  errors?: { error: string; external_store_id?: string; business_date?: string }[];
+}
+
+// Workspace
+export interface WorkspaceAnalysis {
+  id: string;
+  name: string;
+  description?: string | null;
+  owner_user_id?: string | null;
+  visibility: string;
+  spec: Record<string, any>;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface WorkspaceCustomKPI {
+  id: string;
+  api_name: string;
+  display_name: string;
+  formula: string;
+  target_object_type: string;
+  aggregation_axis: string[];
+  filters?: Record<string, any> | null;
+  unit?: string | null;
+  version?: number;
+  status: string;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceCohort {
+  id: string;
+  name: string;
+  object_type: string;
+  filter_spec: Record<string, any>;
+  instance_count?: number | null;
+  snapshot_at?: string | null;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceSavedQuery {
+  id: string;
+  name: string;
+  query_type: string;
+  query_spec: Record<string, any>;
+  last_run_at?: string | null;
+  row_count?: number | null;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceCohortInstances {
+  cohort_id: string;
+  instance_count: number;
+  instance_ids: string[];
+}
+
+export interface WorkspaceSavedQueryRun {
+  query_id: string;
+  status: string;
+  row_count: number;
 }
 
 // AI Governance

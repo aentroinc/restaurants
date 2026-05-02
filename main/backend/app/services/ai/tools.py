@@ -7,6 +7,10 @@ from app.models.kpi import StoreDailyKPI
 from app.models.store import Store
 from app.models.brand import Brand
 from app.models.daily_sales import DailyStoreSales
+from app.models.product import Product
+from app.models.product_sales import DailyProductSales
+from app.models.qsc import QSCAudit
+from app.models.haccp import HACCPMonitoring
 from app.models.task import Task
 
 
@@ -128,6 +132,48 @@ TOOL_DEFINITIONS = [
                 "expected_impact_amount": {"type": "number", "description": "Expected monthly improvement in JPY"},
             },
             "required": ["store_id", "title"],
+        },
+    },
+    {
+        "name": "get_product_margin_outliers",
+        "description": "Find menu items with low theoretical margin or high sales impact, using daily product sales and recipe/theoretical COGS.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "limit": {"type": "integer", "description": "Number of menu items to return. Default: 10"},
+                "store_id": {"type": "string", "description": "Optional store UUID filter"},
+            },
+        },
+    },
+    {
+        "name": "get_labor_compliance_summary",
+        "description": "Summarize shift compliance violations under Japanese labor-law profile checks.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "store_id": {"type": "string", "description": "Optional store UUID filter"},
+            },
+        },
+    },
+    {
+        "name": "get_qsc_summary",
+        "description": "Summarize QSC audit scores and identify stores with weak quality/service/cleanliness.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "limit": {"type": "integer", "description": "Number of stores to return. Default: 10"},
+            },
+        },
+    },
+    {
+        "name": "get_haccp_summary",
+        "description": "Summarize HACCP monitoring compliance and recent non-compliant records.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "store_id": {"type": "string", "description": "Optional store UUID filter"},
+                "limit": {"type": "integer", "description": "Number of recent violations to return. Default: 20"},
+            },
         },
     },
 ]
@@ -468,6 +514,136 @@ async def execute_create_task_draft(input_data: dict, tenant_id: str, db: AsyncS
     }
 
 
+async def execute_get_product_margin_outliers(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    limit = input_data.get("limit", 10)
+    query = (
+        select(
+            Product.id,
+            Product.name,
+            Product.code,
+            Store.name.label("store_name"),
+            func.sum(DailyProductSales.quantity).label("quantity"),
+            func.sum(DailyProductSales.net_sales).label("net_sales"),
+            func.sum(DailyProductSales.theoretical_cogs).label("theoretical_cogs"),
+        )
+        .join(Product, Product.id == DailyProductSales.product_id)
+        .join(Store, Store.id == DailyProductSales.store_id)
+        .where(DailyProductSales.tenant_id == tenant_id)
+        .group_by(Product.id, Product.name, Product.code, Store.name)
+    )
+    if input_data.get("store_id"):
+        query = query.where(DailyProductSales.store_id == input_data["store_id"])
+    query = query.order_by((func.sum(DailyProductSales.theoretical_cogs) / func.nullif(func.sum(DailyProductSales.net_sales), 0)).desc()).limit(limit)
+
+    rows = (await db.execute(query)).all()
+    return {
+        "items": [
+            {
+                "product_id": str(r[0]),
+                "product_name": r[1],
+                "product_code": r[2],
+                "store_name": r[3],
+                "quantity": int(r[4] or 0),
+                "net_sales": float(r[5] or 0),
+                "theoretical_cogs": float(r[6] or 0),
+                "theoretical_cogs_rate": round(float((r[6] or 0) / r[5] * 100), 2) if r[5] else None,
+            }
+            for r in rows
+        ],
+        "note": "Uses product-level sales joined to theoretical COGS; actual purchasing variance requires ingredient price history.",
+    }
+
+
+async def execute_get_labor_compliance_summary(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    from app.services.labor_compliance import check_shift_violations
+
+    violations = await check_shift_violations(db, tenant_id, input_data.get("store_id"))
+    by_type: dict[str, int] = {}
+    for violation in violations:
+        key = violation.get("violation_type", "unknown")
+        by_type[key] = by_type.get(key, 0) + 1
+    return {
+        "total_violations": len(violations),
+        "by_type": by_type,
+        "sample": violations[:20],
+    }
+
+
+async def execute_get_qsc_summary(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    limit = input_data.get("limit", 10)
+    query = (
+        select(
+            Store.id,
+            Store.name,
+            func.avg(QSCAudit.quality_score).label("quality"),
+            func.avg(QSCAudit.service_score).label("service"),
+            func.avg(QSCAudit.cleanliness_score).label("cleanliness"),
+            func.avg(QSCAudit.overall_score).label("overall"),
+            func.count(QSCAudit.id).label("audit_count"),
+        )
+        .join(Store, Store.id == QSCAudit.store_id)
+        .where(QSCAudit.tenant_id == tenant_id)
+        .group_by(Store.id, Store.name)
+        .order_by(func.avg(QSCAudit.overall_score).asc())
+        .limit(limit)
+    )
+    rows = (await db.execute(query)).all()
+    return {
+        "stores": [
+            {
+                "store_id": str(r[0]),
+                "store_name": r[1],
+                "avg_quality": round(float(r[2]), 2) if r[2] is not None else None,
+                "avg_service": round(float(r[3]), 2) if r[3] is not None else None,
+                "avg_cleanliness": round(float(r[4]), 2) if r[4] is not None else None,
+                "avg_overall": round(float(r[5]), 2) if r[5] is not None else None,
+                "audit_count": r[6],
+            }
+            for r in rows
+        ],
+    }
+
+
+async def execute_get_haccp_summary(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    limit = input_data.get("limit", 20)
+    base_conditions = [HACCPMonitoring.tenant_id == tenant_id]
+    if input_data.get("store_id"):
+        base_conditions.append(HACCPMonitoring.store_id == input_data["store_id"])
+
+    summary = (await db.execute(
+        select(
+            func.count(HACCPMonitoring.id),
+            func.sum(case((HACCPMonitoring.is_compliant == True, 1), else_=0)),
+        ).where(and_(*base_conditions))
+    )).one()
+    total = summary[0] or 0
+    compliant = summary[1] or 0
+
+    rows = (await db.execute(
+        select(HACCPMonitoring, Store.name)
+        .join(Store, Store.id == HACCPMonitoring.store_id)
+        .where(and_(*base_conditions, HACCPMonitoring.is_compliant == False))
+        .order_by(HACCPMonitoring.monitoring_date_time.desc())
+        .limit(limit)
+    )).all()
+
+    return {
+        "total_records": total,
+        "compliant_records": compliant,
+        "compliance_rate": round(compliant / total, 4) if total else None,
+        "recent_violations": [
+            {
+                "store_id": str(record.store_id),
+                "store_name": store_name,
+                "monitoring_date_time": record.monitoring_date_time.isoformat(),
+                "measured_value": float(record.measured_value),
+                "deviation_action": record.deviation_action,
+            }
+            for record, store_name in rows
+        ],
+    }
+
+
 TOOL_EXECUTORS = {
     "query_kpi": execute_query_kpi,
     "get_store_detail": execute_get_store_detail,
@@ -475,6 +651,10 @@ TOOL_EXECUTORS = {
     "search_stores": execute_search_stores,
     "get_brand_summary": execute_get_brand_summary,
     "create_task_draft": execute_create_task_draft,
+    "get_product_margin_outliers": execute_get_product_margin_outliers,
+    "get_labor_compliance_summary": execute_get_labor_compliance_summary,
+    "get_qsc_summary": execute_get_qsc_summary,
+    "get_haccp_summary": execute_get_haccp_summary,
 }
 
 
