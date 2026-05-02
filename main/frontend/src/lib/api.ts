@@ -1,4 +1,5 @@
 import type { APIResponse } from "./types"
+import { getToken } from "./auth"
 import {
   mockExecutiveSummary, mockStores, mockSVMissions, mockTasks,
   mockMeetingPacks, mockDataQualitySummary, mockDataQualityIssues,
@@ -14,6 +15,8 @@ import {
   mockQSCAudits, mockHACCPCompliance, mockHACCPMonitoring, mockAllergenMatrix,
   mockFranchiseAgreements, mockRoyaltyCalcs, mockBenchmarks,
   mockRoles, mockRolePermissions,
+  mockObjectTypesV2, mockImpactReport,
+  mockHuffResult, mockMenuEngineering, mockPriceElasticities, mockPriceDecisions, mockProductDetail,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -22,8 +25,11 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (!API_URL) return fetchMock<T>(path, options)
 
   try {
+    const token = getToken()
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    if (token) headers["Authorization"] = `Bearer ${token}`
     const res = await fetch(`${API_URL}${path}`, {
-      headers: { "Content-Type": "application/json", ...options?.headers },
+      headers: { ...headers, ...options?.headers },
       ...options,
     })
 
@@ -68,7 +74,19 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
     const question = body.question || ""
     return (mockAIResponses[question] || mockAIResponses["default"]) as any
   }
-  // Ontology
+  // Ontology v2
+  if (path.match(/\/api\/v1\/ontology\/object-types\/[^/]+\/impact/)) {
+    const id = path.split("/")[5]
+    return (mockImpactReport[id] || { kpi_count: 0, instance_count: 0, link_count: 0, lineage_count: 0, breaking_changes: [] }) as any
+  }
+  if (path.match(/\/api\/v1\/ontology\/object-types\/[^/]+\/properties/)) {
+    const id = path.split("/")[5]
+    const ot = mockObjectTypesV2.find((t) => t.id === id)
+    return (ot?.properties || []) as any
+  }
+  if (path.match(/\/api\/v1\/ontology\/object-types\/[^/]+\/publish/)) return { status: "published" } as any
+  if (path === "/api/v1/ontology/object-types-v2") return mockObjectTypesV2 as any
+  // Ontology v1
   if (path.startsWith("/api/v1/ontology/object-types")) return mockOntologyObjectTypes as any
   if (path.match(/\/api\/v1\/ontology\/objects\/[^/]+\/relations/)) {
     const id = path.split("/")[5]
@@ -105,6 +123,7 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/admin/id-mappings")) return mockIDMappings as any
   if (path.startsWith("/api/v1/admin/ai-governance")) return mockAIGovernanceConfig as any
   // Workspace
+  if (path.match(/\/api\/v1\/workspace\/custom-kpis\/[^/]+\/promote/)) return { status: "promoted" } as any
   if (path.startsWith("/api/v1/workspace/analyses")) return mockAnalyses as any
   if (path.startsWith("/api/v1/workspace/custom-kpis")) return mockCustomKPIDefs as any
   if (path.startsWith("/api/v1/workspace/cohorts")) return mockCohortDefs as any
@@ -131,6 +150,16 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
     return (mockRolePermissions[id] || []) as any
   }
   if (path.startsWith("/api/v1/rbac/roles")) return mockRoles as any
+  // Huff prediction
+  if (path.startsWith("/api/v1/vertical/trade-areas/predict-huff")) return mockHuffResult as any
+  // Menu engineering
+  if (path.startsWith("/api/v1/vertical/pricing/menu-engineering")) return mockMenuEngineering as any
+  // Elasticities
+  if (path.startsWith("/api/v1/vertical/pricing/elasticities")) return mockPriceElasticities as any
+  // Price decisions
+  if (path.startsWith("/api/v1/vertical/pricing/decisions")) return mockPriceDecisions as any
+  // Product detail
+  if (path.match(/\/api\/v1\/vertical\/products\/[^/]+$/)) return mockProductDetail as any
   return {} as T
 }
 

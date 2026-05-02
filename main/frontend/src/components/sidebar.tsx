@@ -10,7 +10,7 @@ import {
   Boxes, Network, Calculator, Database, GitBranch, Lock,
   Hexagon,
   Utensils, Clock, ClipboardCheck, Thermometer, Receipt,
-  FlaskConical, Users,
+  FlaskConical, Users as UsersIcon, FileText,
   type LucideIcon,
 } from "lucide-react"
 
@@ -80,7 +80,9 @@ const adminItems: NavItem[] = [
   { label: "データ系譜", icon: GitBranch, href: "/admin/lineage" },
   { label: "書き戻し", icon: ShieldCheck, href: "/admin/writeback" },
   { label: "AIガバナンス", icon: Lock, href: "/admin/ai-governance" },
-  { label: "ロール管理", icon: Users, href: "/admin/roles" },
+  { label: "ロール管理", icon: UsersIcon, href: "/admin/roles" },
+  { label: "ユーザー管理", icon: UsersIcon, href: "/admin/users" },
+  { label: "アクセスログ", icon: FileText, href: "/admin/access-logs" },
 ]
 
 interface SidebarProps {

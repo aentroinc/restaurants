@@ -1,13 +1,21 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Sidebar } from "./sidebar"
 import { AIPanel } from "./ai-panel"
 import { Button } from "@/components/ui/button"
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react"
+import { clearToken } from "@/lib/auth"
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
+  const router = useRouter()
+
+  function handleLogout() {
+    clearToken()
+    router.push("/auth/login")
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0a0e14] text-white/85">
@@ -29,6 +37,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           ) : (
             <PanelLeftClose className="h-4 w-4" />
           )}
+        </Button>
+
+        {/* Logout button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          className="absolute top-3 right-3 z-30 h-7 w-7 text-white/40 hover:text-white/80 hover:bg-white/[0.04]"
+          title="ログアウト"
+        >
+          <LogOut className="h-4 w-4" />
         </Button>
 
         <main className="flex-1 overflow-y-auto bg-[#0a0e14] pl-10">

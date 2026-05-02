@@ -16,7 +16,8 @@ from app.models.sv_visit import SVVisit
 from app.models.employee import Employee
 from app.schemas.common import APIResponse, PaginationMeta
 from app.schemas.store import StoreRanking, StoreDetail, KPIHistory, TaskSummary, SVVisitSummary, StoreProfitGraph, PLComponent
-from app.auth import get_tenant_id
+from app.auth import get_tenant_id, get_current_user_optional
+from app.middleware.column_mask import mask_pii
 
 router = APIRouter(prefix="/api/v1/stores", tags=["stores"])
 
@@ -31,6 +32,7 @@ async def store_ranking(
     brand_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: dict = Depends(get_current_user_optional),
 ):
     if as_of is None:
         as_of = date(2026, 4, 30)
@@ -100,7 +102,10 @@ async def store_ranking(
         ))
 
     meta = PaginationMeta(total=total, page=page, page_size=page_size, total_pages=(total + page_size - 1) // page_size)
-    return APIResponse(data=rankings, meta=meta.model_dump())
+    user_roles = [current_user.get("role", "")] if current_user else []
+    response = APIResponse(data=rankings, meta=meta.model_dump())
+    masked = mask_pii(response.model_dump(), user_roles)
+    return masked
 
 
 @router.get("/{store_id}", response_model=APIResponse[StoreDetail])
@@ -108,6 +113,7 @@ async def store_detail(
     store_id: UUID = Path(...),
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: dict = Depends(get_current_user_optional),
 ):
     q = await db.execute(
         select(Store, Brand.name, Area.name, Region.name)
@@ -180,7 +186,10 @@ async def store_detail(
         recent_tasks=tasks,
         recent_sv_visits=visits,
     )
-    return APIResponse(data=detail)
+    user_roles = [current_user.get("role", "")] if current_user else []
+    response = APIResponse(data=detail)
+    masked = mask_pii(response.model_dump(), user_roles)
+    return masked
 
 
 @router.get("/{store_id}/profit-graph", response_model=APIResponse[StoreProfitGraph])

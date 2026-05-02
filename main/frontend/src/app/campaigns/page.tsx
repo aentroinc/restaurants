@@ -11,7 +11,12 @@ import {
   Sparkles,
   CheckCircle2,
   AlertTriangle,
+  BarChart3,
 } from "lucide-react"
+import {
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  ResponsiveContainer, ReferenceLine, Cell,
+} from "recharts"
 
 // ---- deterministic RNG ----
 function seededRandom(seed: number) {
@@ -221,7 +226,34 @@ function statusBadge(status: CampaignStatus) {
   return { label: "予定", color: "text-blue-400 bg-blue-400/10 border-blue-400/20" }
 }
 
+// ---- menu engineering mock ----
+const mockMenuEngineering = [
+  { product_name: "牛丼並盛", sales_count: 45000, gross_margin_pct: 64.9, quadrant: "star" },
+  { product_name: "まぐろ", sales_count: 22000, gross_margin_pct: 52.0, quadrant: "star" },
+  { product_name: "包み焼きハンバーグ", sales_count: 8500, gross_margin_pct: 69.9, quadrant: "puzzle" },
+  { product_name: "うな丼", sales_count: 3200, gross_margin_pct: 60.0, quadrant: "puzzle" },
+  { product_name: "カレー並盛", sales_count: 28000, gross_margin_pct: 70.0, quadrant: "star" },
+  { product_name: "サーモン", sales_count: 35000, gross_margin_pct: 57.3, quadrant: "plowhorse" },
+  { product_name: "中とろ", sales_count: 8000, gross_margin_pct: 50.0, quadrant: "puzzle" },
+  { product_name: "フレンチフライS", sales_count: 18000, gross_margin_pct: 80.0, quadrant: "star" },
+  { product_name: "ビール", sales_count: 5000, gross_margin_pct: 74.9, quadrant: "puzzle" },
+  { product_name: "味噌汁", sales_count: 30000, gross_margin_pct: 80.0, quadrant: "star" },
+  { product_name: "ねぎ玉牛丼", sales_count: 15000, gross_margin_pct: 64.9, quadrant: "plowhorse" },
+  { product_name: "茶碗蒸し", sales_count: 4000, gross_margin_pct: 70.0, quadrant: "puzzle" },
+  { product_name: "日本酒", sales_count: 2000, gross_margin_pct: 74.9, quadrant: "puzzle" },
+  { product_name: "豚丼並盛", sales_count: 12000, gross_margin_pct: 70.0, quadrant: "plowhorse" },
+  { product_name: "ドリンクバー", sales_count: 25000, gross_margin_pct: 89.9, quadrant: "star" },
+]
+
+const quadrantColors: Record<string, string> = {
+  star: "#22c55e",
+  puzzle: "#3b82f6",
+  plowhorse: "#eab308",
+  dog: "#ef4444",
+}
+
 export default function CampaignsPage() {
+  const [mainTab, setMainTab] = useState<"campaigns" | "menu-eng">("campaigns")
   const [selectedId, setSelectedId] = useState(campaigns[0].campaign_id)
   const selected = campaigns.find((c) => c.campaign_id === selectedId)!
 
@@ -268,6 +300,26 @@ export default function CampaignsPage() {
         </div>
       </div>
 
+      {/* Main tab switch */}
+      <div className="mb-4 flex gap-1 bg-white/[0.03] rounded-lg p-1 w-fit border border-white/[0.06]">
+        <button onClick={() => setMainTab("campaigns")}
+          className={`flex items-center gap-2 px-4 py-1.5 rounded text-[12px] transition-colors ${
+            mainTab === "campaigns" ? "bg-blue-500/20 text-blue-400" : "text-white/50 hover:text-white/80"
+          }`}>
+          <Target className="w-3.5 h-3.5" />キャンペーン
+        </button>
+        <button onClick={() => setMainTab("menu-eng")}
+          className={`flex items-center gap-2 px-4 py-1.5 rounded text-[12px] transition-colors ${
+            mainTab === "menu-eng" ? "bg-blue-500/20 text-blue-400" : "text-white/50 hover:text-white/80"
+          }`}>
+          <BarChart3 className="w-3.5 h-3.5" />メニュー工学
+        </button>
+      </div>
+
+      {mainTab === "menu-eng" ? (
+        <MenuEngineeringView />
+      ) : (
+      <>
       {/* Campaign selector */}
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {campaigns.map((c) => {
@@ -510,6 +562,168 @@ export default function CampaignsPage() {
           />
         </div>
       </Panel>
+      </>
+      )}
+    </div>
+  )
+}
+
+// ---- Menu Engineering View ----
+function MenuEngineeringView() {
+  const [meBrand, setMeBrand] = useState("すき家")
+  const [mePeriod, setMePeriod] = useState("3")
+  const data = mockMenuEngineering
+
+  const medianSales = [...data].sort((a, b) => a.sales_count - b.sales_count)[Math.floor(data.length / 2)].sales_count
+  const medianMargin = [...data].sort((a, b) => a.gross_margin_pct - b.gross_margin_pct)[Math.floor(data.length / 2)].gross_margin_pct
+
+  const stars = data.filter((d) => d.quadrant === "star")
+  const puzzles = data.filter((d) => d.quadrant === "puzzle")
+  const plowhorses = data.filter((d) => d.quadrant === "plowhorse")
+  const dogs = data.filter((d) => d.quadrant === "dog")
+
+  const maxSales = Math.max(...data.map((d) => d.sales_count))
+  const maxMargin = Math.max(...data.map((d) => d.gross_margin_pct))
+
+  return (
+    <div className="space-y-4">
+      {/* Controls */}
+      <div className="flex gap-3 items-center">
+        <div>
+          <label className="text-[11px] text-white/50 block mb-1">ブランド</label>
+          <select value={meBrand} onChange={(e) => setMeBrand(e.target.value)}
+            className="text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 focus:outline-none focus:ring-1 focus:ring-blue-400/40">
+            {["すき家","はま寿司","ココス","なか卯","ジョリーパスタ"].map((b) => (
+              <option key={b} value={b} className="bg-[#0a0e14]">{b}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-[11px] text-white/50 block mb-1">期間</label>
+          <select value={mePeriod} onChange={(e) => setMePeriod(e.target.value)}
+            className="text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 focus:outline-none focus:ring-1 focus:ring-blue-400/40">
+            {[["1","1ヶ月"],["3","3ヶ月"],["6","6ヶ月"],["12","12ヶ月"]].map(([v,l]) => (
+              <option key={v} value={v} className="bg-[#0a0e14]">{l}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Scatter chart */}
+      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+        <div className="text-[10px] uppercase tracking-wider text-white/40 mb-3 font-semibold">
+          メニュー工学 4象限マトリクス
+        </div>
+        <div className="relative">
+          {/* Quadrant background labels */}
+          <div className="absolute top-2 right-4 text-[10px] text-emerald-400/60 z-10">Star ⭐</div>
+          <div className="absolute top-2 left-16 text-[10px] text-blue-400/60 z-10">Puzzle 🧩</div>
+          <div className="absolute bottom-10 right-4 text-[10px] text-yellow-400/60 z-10">Plowhorse 🐴</div>
+          <div className="absolute bottom-10 left-16 text-[10px] text-red-400/60 z-10">Dog 🐕</div>
+
+          <ResponsiveContainer width="100%" height={400}>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis type="number" dataKey="sales_count" name="売上量"
+                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
+                label={{ value: "売上量", position: "bottom", fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
+                domain={[0, maxSales * 1.1]}
+              />
+              <YAxis type="number" dataKey="gross_margin_pct" name="粗利率"
+                tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }}
+                tickFormatter={(v: number) => `${v}%`}
+                label={{ value: "粗利率", angle: -90, position: "insideLeft", fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
+                domain={[40, maxMargin * 1.05]}
+              />
+              <ReferenceLine x={medianSales} stroke="rgba(255,255,255,0.2)" strokeDasharray="5 5" />
+              <ReferenceLine y={medianMargin} stroke="rgba(255,255,255,0.2)" strokeDasharray="5 5" />
+              <RechartsTooltip
+                cursor={{ strokeDasharray: "3 3" }}
+                contentStyle={{ backgroundColor: "#111827", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.8)" }}
+                formatter={(value: number, name: string) => {
+                  if (name === "売上量") return [`${value.toLocaleString()}個`, name]
+                  if (name === "粗利率") return [`${value}%`, name]
+                  return [value, name]
+                }}
+                labelFormatter={() => ""}
+                itemStyle={{ color: "rgba(255,255,255,0.7)" }}
+              />
+              <Scatter name="商品" data={data}>
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={quadrantColors[entry.quadrant] || "#666"} fillOpacity={0.8} r={6} />
+                ))}
+              </Scatter>
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 4-column summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <QuadrantPanel
+          title="Star ⭐ 主力商品"
+          subtitle="維持・強化"
+          items={stars}
+          borderColor="border-emerald-400/20"
+          bgColor="bg-emerald-400/[0.03]"
+          textColor="text-emerald-400"
+        />
+        <QuadrantPanel
+          title="Puzzle 🧩 推奨強化候補"
+          subtitle="露出増"
+          items={puzzles}
+          borderColor="border-blue-400/20"
+          bgColor="bg-blue-400/[0.03]"
+          textColor="text-blue-400"
+        />
+        <QuadrantPanel
+          title="Plowhorse 🐴 原価改善候補"
+          subtitle="値上げ/レシピ見直し"
+          items={plowhorses}
+          borderColor="border-yellow-400/20"
+          bgColor="bg-yellow-400/[0.03]"
+          textColor="text-yellow-400"
+        />
+        <QuadrantPanel
+          title="Dog 🐕 廃止検討"
+          subtitle="段階的終売"
+          items={dogs}
+          borderColor="border-red-400/20"
+          bgColor="bg-red-400/[0.03]"
+          textColor="text-red-400"
+        />
+      </div>
+    </div>
+  )
+}
+
+function QuadrantPanel({ title, subtitle, items, borderColor, bgColor, textColor }: {
+  title: string; subtitle: string
+  items: typeof mockMenuEngineering
+  borderColor: string; bgColor: string; textColor: string
+}) {
+  return (
+    <div className={`rounded-lg border ${borderColor} ${bgColor}`}>
+      <div className={`px-4 py-2 border-b ${borderColor}`}>
+        <div className={`text-[11px] font-medium ${textColor}`}>{title}</div>
+        <div className="text-[9px] text-white/40">{subtitle}</div>
+      </div>
+      <div className="p-3 space-y-1.5">
+        {items.length === 0 ? (
+          <div className="text-[11px] text-white/30">該当なし</div>
+        ) : (
+          items.map((item) => (
+            <div key={item.product_name} className="flex items-center justify-between text-[11px]">
+              <span className="text-white/70">{item.product_name}</span>
+              <div className="flex gap-3 text-white/50 font-mono tabular-nums text-[10px]">
+                <span>{(item.sales_count / 1000).toFixed(0)}k</span>
+                <span>{item.gross_margin_pct}%</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   )
 }
