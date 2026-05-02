@@ -10,6 +10,7 @@ from app.models.ontology_v2 import (
 )
 from app.models.kpi_definition import KPIDefinition
 from app.models.lineage import LineageEvent
+from app.models.workspace import CustomKPI, Analysis
 
 
 async def validate_instance(
@@ -170,9 +171,41 @@ async def compute_impact(
         "display_name": lt.display_name,
     } for lt in lt_result.scalars().all()]
 
+    # find CustomKPI formulas referencing this object type
+    custom_kpi_result = await session.execute(
+        select(CustomKPI).where(CustomKPI.tenant_id == tenant_id)
+    )
+    custom_kpis = custom_kpi_result.scalars().all()
+    affected_custom_kpis = []
+    for ck in custom_kpis:
+        formula = ck.formula or ""
+        target = ck.target_object_type or ""
+        if api_name.lower() in formula.lower() or api_name.lower() == target.lower():
+            affected_custom_kpis.append({
+                "id": str(ck.id),
+                "api_name": ck.api_name,
+                "display_name": ck.display_name,
+            })
+
+    # find Analysis specs referencing this object type
+    analysis_result = await session.execute(
+        select(Analysis).where(Analysis.tenant_id == tenant_id)
+    )
+    analyses = analysis_result.scalars().all()
+    affected_analyses = []
+    for a in analyses:
+        spec_str = str(a.spec) if a.spec else ""
+        if api_name.lower() in spec_str.lower():
+            affected_analyses.append({
+                "id": str(a.id),
+                "name": a.name,
+            })
+
     return {
         "kpi_definitions": affected_kpis,
         "lineage_events": lineage_count,
         "instance_count": instance_count,
         "link_types": link_types,
+        "custom_kpis": affected_custom_kpis,
+        "active_dashboards": affected_analyses,
     }

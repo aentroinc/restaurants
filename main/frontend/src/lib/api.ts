@@ -109,28 +109,28 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/workspace/custom-kpis")) return mockCustomKPIDefs as any
   if (path.startsWith("/api/v1/workspace/cohorts")) return mockCohortDefs as any
   // Recipes
-  if (path.startsWith("/api/v1/recipes")) return mockRecipes as any
-  if (path.startsWith("/api/v1/ingredients")) return mockIngredients as any
+  if (path.startsWith("/api/v1/vertical/recipes")) return mockRecipes as any
+  if (path.startsWith("/api/v1/vertical/ingredients")) return mockIngredients as any
   // Labor
-  if (path.startsWith("/api/v1/labor/shifts")) return mockShifts as any
-  if (path.startsWith("/api/v1/labor/compliance")) return mockLaborCompliance as any
+  if (path.startsWith("/api/v1/vertical/labor/shifts")) return mockShifts as any
+  if (path.startsWith("/api/v1/vertical/labor/compliance")) return mockLaborCompliance as any
   // QSC
-  if (path.startsWith("/api/v1/qsc/audits")) return mockQSCAudits as any
+  if (path.startsWith("/api/v1/vertical/qsc/audits")) return mockQSCAudits as any
   // HACCP
-  if (path.startsWith("/api/v1/haccp/compliance")) return mockHACCPCompliance as any
-  if (path.startsWith("/api/v1/haccp/monitoring")) return mockHACCPMonitoring as any
-  if (path.startsWith("/api/v1/haccp/allergens")) return mockAllergenMatrix as any
+  if (path.startsWith("/api/v1/vertical/haccp/compliance")) return mockHACCPCompliance as any
+  if (path.startsWith("/api/v1/vertical/haccp/monitoring")) return mockHACCPMonitoring as any
+  if (path.startsWith("/api/v1/vertical/haccp/allergens")) return mockAllergenMatrix as any
   // Franchise
-  if (path.startsWith("/api/v1/franchise/agreements")) return mockFranchiseAgreements as any
-  if (path.startsWith("/api/v1/franchise/royalties")) return mockRoyaltyCalcs as any
+  if (path.startsWith("/api/v1/vertical/franchise/agreements")) return mockFranchiseAgreements as any
+  if (path.startsWith("/api/v1/vertical/franchise/royalties")) return mockRoyaltyCalcs as any
   // Benchmarks
   if (path.startsWith("/api/v1/benchmarks")) return mockBenchmarks as any
   // Roles
-  if (path.match(/\/api\/v1\/admin\/roles\/[^/]+\/permissions/)) {
+  if (path.match(/\/api\/v1\/rbac\/roles\/[^/]+\/permissions/)) {
     const id = path.split("/")[5]
     return (mockRolePermissions[id] || []) as any
   }
-  if (path.startsWith("/api/v1/admin/roles")) return mockRoles as any
+  if (path.startsWith("/api/v1/rbac/roles")) return mockRoles as any
   return {} as T
 }
 

@@ -19,8 +19,8 @@ export default function LaborPage() {
   const [filterViolation, setFilterViolation] = useState("")
 
   useEffect(() => {
-    fetchAPI<ShiftItem[]>("/api/v1/labor/shifts").then(setShifts)
-    fetchAPI<LaborComplianceReport>("/api/v1/labor/compliance").then(setCompliance)
+    fetchAPI<ShiftItem[]>("/api/v1/vertical/labor/shifts").then(setShifts)
+    fetchAPI<LaborComplianceReport>("/api/v1/vertical/labor/compliance-report").then(setCompliance)
   }, [])
 
   const violationShifts = shifts.filter((s) => s.violations.length > 0)

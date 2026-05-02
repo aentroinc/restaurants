@@ -22,9 +22,9 @@ export default function HACCPPage() {
   const [allergens, setAllergens] = useState<AllergenRow[]>([])
 
   useEffect(() => {
-    fetchAPI<HACCPComplianceRate>("/api/v1/haccp/compliance").then(setCompliance)
-    fetchAPI<MonitoringEntry[]>("/api/v1/haccp/monitoring").then(setMonitoring)
-    fetchAPI<AllergenRow[]>("/api/v1/haccp/allergens").then(setAllergens)
+    fetchAPI<HACCPComplianceRate>("/api/v1/vertical/haccp/compliance").then(setCompliance)
+    fetchAPI<MonitoringEntry[]>("/api/v1/vertical/haccp/monitoring").then(setMonitoring)
+    fetchAPI<AllergenRow[]>("/api/v1/vertical/haccp/allergens").then(setAllergens)
   }, [])
 
   const rate = compliance?.compliance_rate ?? 0

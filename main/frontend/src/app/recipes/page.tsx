@@ -19,8 +19,8 @@ export default function RecipesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<RecipeItem[]>("/api/v1/recipes").then(setRecipes)
-    fetchAPI<IngredientItem[]>("/api/v1/ingredients").then(setIngredients)
+    fetchAPI<RecipeItem[]>("/api/v1/vertical/recipes").then(setRecipes)
+    fetchAPI<IngredientItem[]>("/api/v1/vertical/ingredients").then(setIngredients)
   }, [])
 
   const avgTheoreticalCost = recipes.length ? Math.round(recipes.reduce((s, r) => s + (r.theoretical_cost || 0), 0) / recipes.length) : 0

@@ -23,7 +23,7 @@ export default function QSCPage() {
   const [audits, setAudits] = useState<QSCAuditItem[]>([])
 
   useEffect(() => {
-    fetchAPI<QSCAuditItem[]>("/api/v1/qsc/audits").then((data) => {
+    fetchAPI<QSCAuditItem[]>("/api/v1/vertical/qsc/audits").then((data) => {
       const sorted = [...data].sort((a, b) => b.overall_score - a.overall_score)
       setAudits(sorted)
     })

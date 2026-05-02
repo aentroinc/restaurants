@@ -12,9 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.auth import get_tenant_id
 from app.middleware.audit import log_audit
-from app.services.ai.client import get_client, is_llm_available
+from app.services.ai.client import get_client, get_model, is_llm_available
 from app.services.ai.tools import TOOL_DEFINITIONS, execute_tool
-from app.services.ai.system_prompt import build_system_prompt
+from app.services.ai.system_prompt import build_system_prompt, build_system_blocks
 from app.models.ai_session import AISession
 from app.models.ai_query import AIQueryLog
 
@@ -25,6 +25,7 @@ class AIChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     context: Optional[str] = None
+    model_tier: str = "default"
 
 
 class AIChatResponse(BaseModel):
@@ -88,7 +89,8 @@ async def ai_chat(
         return await _rule_based_fallback(request, db, tenant_id)
 
     client = get_client()
-    system_prompt = await build_system_prompt(tenant_id, db)
+    model = get_model(request.model_tier)
+    system_blocks = await build_system_blocks(tenant_id, db)
 
     # load or create session
     session_id = request.session_id
@@ -130,9 +132,9 @@ async def ai_chat(
         for iteration in range(10):
             try:
                 response = client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model=model,
                     max_tokens=4096,
-                    system=system_prompt,
+                    system=system_blocks,
                     tools=TOOL_DEFINITIONS,
                     messages=messages,
                 )
@@ -199,7 +201,7 @@ async def ai_chat(
             log_entry = AIQueryLog(
                 tenant_id=uuid.UUID(tenant_id),
                 question=request.message,
-                answer={"response": final_text, "model": "claude-sonnet-4-20250514", "tokens": total_input + total_output},
+                answer={"response": final_text, "model": model, "tokens": total_input + total_output},
                 confidence="high",
             )
             db.add(log_entry)

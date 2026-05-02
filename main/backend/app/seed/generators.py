@@ -3294,3 +3294,280 @@ def generate_data_sources():
         })
 
     return sources, jobs
+
+
+def generate_identity_providers():
+    return [
+        {
+            "id": gen_deterministic_uuid("idp", 0),
+            "tenant_id": TENANT_ID,
+            "type": "local",
+            "name": "ローカル認証",
+            "config": {},
+            "is_default": True,
+            "role_mapping": {},
+            "enabled": True,
+        },
+        {
+            "id": gen_deterministic_uuid("idp", 1),
+            "tenant_id": TENANT_ID,
+            "type": "oidc",
+            "name": "Azure AD (テスト)",
+            "config": {
+                "client_id": "00000000-0000-0000-0000-000000000000",
+                "client_secret": "***",
+                "authorize_url": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+                "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                "userinfo_url": "https://graph.microsoft.com/oidc/userinfo",
+                "redirect_uri": "http://localhost:8000/api/v1/identity-providers/oidc/callback",
+            },
+            "is_default": False,
+            "role_mapping": {
+                "engineering": "analyst",
+                "exec": "executive",
+                "managers": "brand_manager",
+            },
+            "enabled": False,
+        },
+    ]
+
+
+def generate_access_logs():
+    results = []
+    user_ids = [gen_deterministic_uuid("user", i) for i in range(3)]
+    methods = ["GET", "GET", "GET", "GET", "POST", "PUT", "DELETE"]
+    paths = [
+        "/api/v1/stores", "/api/v1/executive/summary", "/api/v1/kpi",
+        "/api/v1/tasks", "/api/v1/stores/123", "/api/v1/products",
+        "/api/v1/employees", "/api/v1/daily-sales",
+    ]
+    resources = ["store", "kpi", "task", "product", "employee", "daily_sales"]
+    actions = ["read", "read", "read", "read", "write", "write", "delete"]
+    user_agents = [
+        "Mozilla/5.0 Chrome/120", "Mozilla/5.0 Safari/17", "AENTRO-CLI/1.0",
+    ]
+    ips = ["192.168.1.10", "10.0.0.5", "172.16.0.100", "203.0.113.42"]
+
+    for i in range(50):
+        method = methods[i % len(methods)]
+        action = "read" if method == "GET" else ("write" if method in ("POST", "PUT") else "delete")
+        is_deny = i in (12, 37)
+
+        results.append({
+            "id": gen_deterministic_uuid("access_log", i),
+            "tenant_id": TENANT_ID,
+            "user_id": user_ids[i % len(user_ids)],
+            "timestamp": datetime(2026, 4, 1 + i % 28, 8 + (i * 3) % 14, (i * 17) % 60),
+            "method": method,
+            "path": paths[i % len(paths)],
+            "resource": resources[i % len(resources)],
+            "action": action,
+            "object_ids": [str(gen_deterministic_uuid("obj", i * 10 + j)) for j in range(RNG.randint(0, 3))],
+            "columns_accessed": [],
+            "result": "deny" if is_deny else "allow",
+            "deny_reason": "insufficient_permission" if is_deny else None,
+            "ip_address": ips[i % len(ips)],
+            "user_agent": user_agents[i % len(user_agents)],
+            "request_id": str(gen_deterministic_uuid("reqid", i)),
+        })
+    return results
+
+
+def generate_login_attempts():
+    results = []
+    emails = ["admin@zensho.co.jp", "sv@zensho.co.jp", "manager@zensho.co.jp", "unknown@example.com"]
+    ips = ["192.168.1.10", "10.0.0.5", "172.16.0.100"]
+
+    for i in range(20):
+        if i < 15:
+            success = True
+            email = emails[i % 3]
+            reason = None
+        else:
+            success = False
+            email = emails[(i % 3) if i < 18 else 3]
+            reason = RNG.choice(["bad_password", "user_not_found", "bad_mfa_code"])
+
+        results.append({
+            "id": gen_deterministic_uuid("login_attempt", i),
+            "tenant_id": TENANT_ID,
+            "email": email,
+            "ip_address": ips[i % len(ips)],
+            "success": success,
+            "failure_reason": reason,
+            "attempted_at": datetime(2026, 4, 15 + i % 15, 8 + i % 12, (i * 7) % 60),
+        })
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Trade Areas, Competitors, Population Meshes, Pricing
+# ---------------------------------------------------------------------------
+
+COMPETITOR_BRANDS = [
+    ("マクドナルド", "ハンバーガー"),
+    ("吉野家", "牛丼"),
+    ("スシロー", "回転寿司"),
+    ("ガスト", "ファミレス"),
+    ("松屋", "牛丼"),
+    ("CoCo壱番屋", "カレー"),
+    ("餃子の王将", "中華"),
+    ("サイゼリヤ", "イタリアン"),
+    ("丸亀製麺", "うどん"),
+    ("日高屋", "中華"),
+]
+
+METRO_AREAS = [
+    # (name, center_lat, center_lon, mesh_count)
+    ("東京", 35.6812, 139.7671, 40),
+    ("大阪", 34.6937, 135.5022, 30),
+    ("名古屋", 35.1815, 136.9066, 30),
+]
+
+
+def generate_trade_areas(stores):
+    results = []
+    for i, s in enumerate(stores):
+        pop = 15000 + (i * 7919) % 85000
+        daytime = int(pop * (0.8 + (i % 5) * 0.15))
+        hh = int(pop * 0.42)
+        market = int(pop * 120 * 12)  # 120 yen/person/month eating out
+        results.append({
+            "id": gen_deterministic_uuid("trade_area", i),
+            "tenant_id": TENANT_ID,
+            "store_id": s["id"],
+            "radius_m": RNG.choice([500, 1000, 1500, 2000, 3000]),
+            "population_count": pop,
+            "daytime_population": daytime,
+            "households": hh,
+            "estimated_market_size_jpy": market,
+            "last_calculated_at": datetime(2026, 4, 1),
+        })
+    return results
+
+
+def generate_competitors(stores):
+    results = []
+    store_locs = [(s.get("lat") or 35.68 + (i % 10) * 0.02, s.get("lng") or 139.76 + (i % 10) * 0.015) for i, s in enumerate(stores)]
+
+    for i in range(50):
+        brand_name, category = COMPETITOR_BRANDS[i % len(COMPETITOR_BRANDS)]
+        area_idx = i % len(METRO_AREAS)
+        area_name, center_lat, center_lon, _ = METRO_AREAS[area_idx]
+        lat = center_lat + (RNG.random() - 0.5) * 0.08
+        lon = center_lon + (RNG.random() - 0.5) * 0.1
+
+        # Find nearest own store distance
+        min_dist = None
+        for slat, slng in store_locs[:20]:
+            if slat and slng:
+                d = ((lat - slat) ** 2 + (lon - slng) ** 2) ** 0.5 * 111000
+                if min_dist is None or d < min_dist:
+                    min_dist = d
+
+        suffix_names = ["駅前店", "南口店", "中央店", "東口店", "本町店"]
+        results.append({
+            "id": gen_deterministic_uuid("competitor", i),
+            "tenant_id": TENANT_ID,
+            "name": f"{brand_name}{area_name}{suffix_names[i % len(suffix_names)]}",
+            "brand_name": brand_name,
+            "business_category": category,
+            "lat": round(lat, 7),
+            "lon": round(lon, 7),
+            "estimated_revenue_jpy": RNG.randint(15000000, 80000000),
+            "distance_to_nearest_own_m": round(min_dist, 1) if min_dist else None,
+            "source": RNG.choice(["manual", "google_places"]),
+        })
+    return results
+
+
+def generate_population_meshes():
+    results = []
+    idx = 0
+    for area_name, center_lat, center_lon, mesh_count in METRO_AREAS:
+        for j in range(mesh_count):
+            row = j // int(mesh_count ** 0.5 + 1)
+            col = j % int(mesh_count ** 0.5 + 1)
+            lat = center_lat + (row - mesh_count ** 0.5 / 2) * 0.009
+            lon = center_lon + (col - mesh_count ** 0.5 / 2) * 0.011
+
+            pop = 800 + (idx * 6271) % 12000
+            daytime = int(pop * (1.2 if area_name == "東京" else 1.0))
+
+            results.append({
+                "mesh_code": f"{5300 + idx // 100:04d}-{(idx // 10) % 100:02d}-{idx % 10:02d}",
+                "lat": round(lat, 7),
+                "lon": round(lon, 7),
+                "population": pop,
+                "daytime_population": daytime,
+                "households": int(pop * 0.45),
+                "age_distribution": {
+                    "0-14": round(pop * 0.11),
+                    "15-64": round(pop * 0.63),
+                    "65+": round(pop * 0.26),
+                },
+                "income_class": {"low": 0.2, "middle": 0.55, "high": 0.25},
+                "last_updated": datetime(2026, 1, 1),
+            })
+            idx += 1
+    return results
+
+
+def generate_pricing_data(products):
+    decisions = []
+    elasticities = []
+
+    # 20 price decisions across various products
+    for i in range(min(20, len(products))):
+        p = products[i]
+        price = int(float(p.get("price", 500)))
+        change = RNG.choice([-50, -30, -20, 20, 30, 50, 100])
+        new_price = max(100, price + change)
+        decisions.append({
+            "id": gen_deterministic_uuid("price_decision", i),
+            "tenant_id": TENANT_ID,
+            "product_id": p["id"],
+            "decided_price": new_price,
+            "previous_price": price,
+            "effective_from": date(2026, 1 + i % 4, 1),
+            "effective_to": date(2026, 4 + i % 3, 30) if i % 3 != 0 else None,
+            "rationale": RNG.choice([
+                "原材料費高騰に伴う価格改定",
+                "競合対抗値下げ",
+                "季節メニュー価格設定",
+                "利益率改善のための価格見直し",
+                "弾力性分析に基づく最適化",
+            ]),
+            "decision_method": RNG.choice(["manual", "data_driven", "competitive", "cost_plus"]),
+            "expected_volume_change_pct": round(RNG.uniform(-15, 10), 1),
+            "actual_volume_change_pct": round(RNG.uniform(-12, 8), 1) if i < 15 else None,
+            "decided_by": None,
+            "decided_at": datetime(2025, 12, 15 + i % 15, 10, 0),
+        })
+
+    # 50 elasticity calculations
+    used_products = set()
+    for i in range(min(50, len(products))):
+        p = products[i]
+        if p["id"] in used_products:
+            continue
+        used_products.add(p["id"])
+        e = round(RNG.uniform(-2.5, -0.3), 3)
+        std_err = round(abs(e) * RNG.uniform(0.08, 0.25), 3)
+        r2 = round(RNG.uniform(0.35, 0.92), 4)
+
+        elasticities.append({
+            "id": gen_deterministic_uuid("price_elasticity", i),
+            "tenant_id": TENANT_ID,
+            "product_id": p["id"],
+            "elasticity": e,
+            "confidence_interval_low": round(e - 1.96 * std_err, 3),
+            "confidence_interval_high": round(e + 1.96 * std_err, 3),
+            "sample_period_start": date(2024, 4, 1),
+            "sample_period_end": date(2026, 3, 31),
+            "sample_size": RNG.randint(60, 500),
+            "r_squared": r2,
+            "calculated_at": datetime(2026, 4, 15, 6, 0),
+        })
+
+    return decisions, elasticities

@@ -30,8 +30,8 @@ export default function FranchisePage() {
   const [royalties, setRoyalties] = useState<RoyaltyCalcItem[]>([])
 
   useEffect(() => {
-    fetchAPI<FranchiseAgreementItem[]>("/api/v1/franchise/agreements").then(setAgreements)
-    fetchAPI<RoyaltyCalcItem[]>("/api/v1/franchise/royalties").then(setRoyalties)
+    fetchAPI<FranchiseAgreementItem[]>("/api/v1/vertical/franchise/agreements").then(setAgreements)
+    fetchAPI<RoyaltyCalcItem[]>("/api/v1/vertical/franchise/royalties").then(setRoyalties)
   }, [])
 
   const currentPeriodRoyalties = useMemo(() => royalties.filter((r) => r.period === "2026-04"), [royalties])

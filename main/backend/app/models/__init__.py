@@ -46,7 +46,11 @@ from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
 from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
 from app.models.benchmark import IndustryBenchmark
 from app.models.workspace import Analysis, CustomKPI, Cohort, SavedQuery
+from app.models.ontology_migration import OntologyMigrationJob
+from app.models.trade_area import TradeArea, CompetitorStore, PopulationMesh
+from app.models.pricing import PriceDecision, PriceElasticity
 from app.models.rbac import Role, Permission, UserRole
+from app.models.auth_enterprise import IdentityProvider, MFASecret, AccessLog, LoginAttempt, AccountLock
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -75,4 +79,8 @@ __all__ = [
     "IndustryBenchmark",
     "Analysis", "CustomKPI", "Cohort", "SavedQuery",
     "Role", "Permission", "UserRole",
+    "OntologyMigrationJob",
+    "TradeArea", "CompetitorStore", "PopulationMesh",
+    "PriceDecision", "PriceElasticity",
+    "IdentityProvider", "MFASecret", "AccessLog", "LoginAttempt", "AccountLock",
 ]

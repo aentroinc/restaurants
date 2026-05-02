@@ -14,9 +14,13 @@ from app.models.qsc import QSCTemplate, QSCAudit
 from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
 from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
 from app.models.benchmark import IndustryBenchmark
+from app.models.trade_area import TradeArea, CompetitorStore
+from app.models.pricing import PriceDecision, PriceElasticity
 from app.services.labor_compliance import check_shift_violations
 from app.services.recipe_costing import calculate_theoretical_food_cost, calculate_actual_vs_theoretical_variance
 from app.services.royalty_engine import calculate_monthly_royalties
+from app.services.huff_model import predict_huff
+from app.services.menu_engineering import menu_engineering_matrix
 
 router = APIRouter(prefix="/api/v1/vertical", tags=["vertical"])
 
@@ -667,3 +671,238 @@ async def compare_with_industry(
         "sample_size": benchmark.sample_size,
         "source": benchmark.source,
     })
+
+
+# --- Trade Areas ---
+
+class TradeAreaPredictRequest(BaseModel):
+    candidate_lat: float
+    candidate_lon: float
+    candidate_attractiveness: float = 1.0
+    beta: float = 2.0
+    max_radius_km: float = 5.0
+
+
+@router.get("/trade-areas")
+async def list_trade_areas(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = select(TradeArea).where(TradeArea.tenant_id == tenant_id)
+    q = q.offset((page - 1) * page_size).limit(page_size)
+    rows = (await db.execute(q)).scalars().all()
+    return APIResponse(data=[{
+        "id": str(ta.id), "store_id": str(ta.store_id),
+        "radius_m": ta.radius_m,
+        "population_count": ta.population_count,
+        "daytime_population": ta.daytime_population,
+        "households": ta.households,
+        "estimated_market_size_jpy": ta.estimated_market_size_jpy,
+        "last_calculated_at": ta.last_calculated_at.isoformat() if ta.last_calculated_at else None,
+    } for ta in rows])
+
+
+@router.get("/trade-areas/{store_id}")
+async def get_trade_area(
+    store_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = await db.execute(
+        select(TradeArea).where(
+            and_(TradeArea.store_id == store_id, TradeArea.tenant_id == tenant_id)
+        )
+    )
+    ta = q.scalar_one_or_none()
+    if not ta:
+        return APIResponse(errors=[{"detail": "Trade area not found"}])
+    return APIResponse(data={
+        "id": str(ta.id), "store_id": str(ta.store_id),
+        "radius_m": ta.radius_m,
+        "population_count": ta.population_count,
+        "daytime_population": ta.daytime_population,
+        "households": ta.households,
+        "estimated_market_size_jpy": ta.estimated_market_size_jpy,
+        "last_calculated_at": ta.last_calculated_at.isoformat() if ta.last_calculated_at else None,
+    })
+
+
+@router.post("/trade-areas/predict-huff")
+async def predict_huff_endpoint(
+    payload: TradeAreaPredictRequest = Body(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    result = await predict_huff(
+        db, tenant_id,
+        payload.candidate_lat, payload.candidate_lon,
+        payload.candidate_attractiveness, payload.beta, payload.max_radius_km,
+    )
+    return APIResponse(data=result)
+
+
+# --- Competitors ---
+
+class CompetitorCreate(BaseModel):
+    name: str
+    brand_name: str
+    business_category: str
+    lat: float
+    lon: float
+    estimated_revenue_jpy: int | None = None
+    source: str = "manual"
+
+
+@router.get("/competitors")
+async def list_competitors(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = select(CompetitorStore).where(CompetitorStore.tenant_id == tenant_id)
+    q = q.order_by(CompetitorStore.brand_name)
+    q = q.offset((page - 1) * page_size).limit(page_size)
+    rows = (await db.execute(q)).scalars().all()
+    return APIResponse(data=[{
+        "id": str(c.id), "name": c.name, "brand_name": c.brand_name,
+        "business_category": c.business_category,
+        "lat": float(c.lat), "lon": float(c.lon),
+        "estimated_revenue_jpy": c.estimated_revenue_jpy,
+        "distance_to_nearest_own_m": c.distance_to_nearest_own_m,
+        "source": c.source,
+    } for c in rows])
+
+
+@router.post("/competitors")
+async def create_competitor(
+    payload: CompetitorCreate = Body(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    comp = CompetitorStore(
+        tenant_id=tenant_id,
+        name=payload.name,
+        brand_name=payload.brand_name,
+        business_category=payload.business_category,
+        lat=Decimal(str(payload.lat)),
+        lon=Decimal(str(payload.lon)),
+        estimated_revenue_jpy=payload.estimated_revenue_jpy,
+        source=payload.source,
+    )
+    db.add(comp)
+    await db.commit()
+    await db.refresh(comp)
+    return APIResponse(data={"id": str(comp.id), "name": comp.name})
+
+
+# --- Pricing / Elasticity ---
+
+class PriceDecisionCreate(BaseModel):
+    product_id: UUID
+    decided_price: int
+    previous_price: int
+    effective_from: date
+    effective_to: date | None = None
+    rationale: str | None = None
+    decision_method: str = "manual"
+    expected_volume_change_pct: float | None = None
+
+
+@router.get("/pricing/elasticities")
+async def list_elasticities(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = select(PriceElasticity).where(PriceElasticity.tenant_id == tenant_id)
+    q = q.order_by(PriceElasticity.calculated_at.desc())
+    q = q.offset((page - 1) * page_size).limit(page_size)
+    rows = (await db.execute(q)).scalars().all()
+    return APIResponse(data=[{
+        "id": str(e.id), "product_id": str(e.product_id),
+        "elasticity": float(e.elasticity),
+        "confidence_interval_low": float(e.confidence_interval_low),
+        "confidence_interval_high": float(e.confidence_interval_high),
+        "sample_period_start": e.sample_period_start.isoformat(),
+        "sample_period_end": e.sample_period_end.isoformat(),
+        "sample_size": e.sample_size,
+        "r_squared": float(e.r_squared),
+        "calculated_at": e.calculated_at.isoformat(),
+    } for e in rows])
+
+
+@router.post("/pricing/calculate-elasticities")
+async def calculate_elasticities(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    # Placeholder: actual elasticity calculation requires price-volume history
+    return APIResponse(data={"message": "Elasticity calculation triggered", "status": "queued"})
+
+
+@router.get("/pricing/menu-engineering")
+async def get_menu_engineering(
+    brand_id: UUID = Query(...),
+    period_start: date = Query(...),
+    period_end: date = Query(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    result = await menu_engineering_matrix(db, tenant_id, str(brand_id), period_start, period_end)
+    return APIResponse(data=result)
+
+
+@router.get("/pricing/decisions")
+async def list_price_decisions(
+    product_id: UUID | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    q = select(PriceDecision).where(PriceDecision.tenant_id == tenant_id)
+    if product_id:
+        q = q.where(PriceDecision.product_id == product_id)
+    q = q.order_by(PriceDecision.decided_at.desc())
+    q = q.offset((page - 1) * page_size).limit(page_size)
+    rows = (await db.execute(q)).scalars().all()
+    return APIResponse(data=[{
+        "id": str(d.id), "product_id": str(d.product_id),
+        "decided_price": d.decided_price,
+        "previous_price": d.previous_price,
+        "effective_from": d.effective_from.isoformat(),
+        "effective_to": d.effective_to.isoformat() if d.effective_to else None,
+        "rationale": d.rationale,
+        "decision_method": d.decision_method,
+        "expected_volume_change_pct": float(d.expected_volume_change_pct) if d.expected_volume_change_pct else None,
+        "actual_volume_change_pct": float(d.actual_volume_change_pct) if d.actual_volume_change_pct else None,
+        "decided_at": d.decided_at.isoformat(),
+    } for d in rows])
+
+
+@router.post("/pricing/decisions")
+async def create_price_decision(
+    payload: PriceDecisionCreate = Body(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    decision = PriceDecision(
+        tenant_id=tenant_id,
+        product_id=payload.product_id,
+        decided_price=payload.decided_price,
+        previous_price=payload.previous_price,
+        effective_from=payload.effective_from,
+        effective_to=payload.effective_to,
+        rationale=payload.rationale,
+        decision_method=payload.decision_method,
+        expected_volume_change_pct=Decimal(str(payload.expected_volume_change_pct)) if payload.expected_volume_change_pct else None,
+        decided_at=datetime.utcnow(),
+    )
+    db.add(decision)
+    await db.commit()
+    await db.refresh(decision)
+    return APIResponse(data={"id": str(decision.id), "status": "created"})

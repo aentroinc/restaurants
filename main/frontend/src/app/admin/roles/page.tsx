@@ -21,12 +21,12 @@ export default function RolesPage() {
   const [permissions, setPermissions] = useState<Record<string, Permission[]>>({})
 
   useEffect(() => {
-    fetchAPI<RoleItem[]>("/api/v1/admin/roles").then(setRoles)
+    fetchAPI<RoleItem[]>("/api/v1/rbac/roles").then(setRoles)
   }, [])
 
   const loadPermissions = (roleId: string) => {
     if (permissions[roleId]) return
-    fetchAPI<Permission[]>(`/api/v1/admin/roles/${roleId}/permissions`).then((perms) => {
+    fetchAPI<Permission[]>(`/api/v1/rbac/roles/${roleId}/permissions`).then((perms) => {
       setPermissions((prev) => ({ ...prev, [roleId]: perms }))
     })
   }

@@ -18,6 +18,9 @@ from app.models.ontology_v2 import (
 from app.schemas.common import APIResponse, PaginationMeta
 from app.auth import get_tenant_id
 from app.services.ontology_engine import validate_instance, bump_version, compute_impact
+from app.models.ontology_migration import OntologyMigrationJob
+from app.services.ontology_migration import run_migration, rollback_migration as rollback_migration_svc
+from app.middleware.audit import log_audit
 
 router = APIRouter(prefix="/api/v1/ontology", tags=["ontology"])
 
@@ -130,6 +133,13 @@ async def create_object_type(
     await db.commit()
     await db.refresh(new_type)
 
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_create_type", resource_type="ontology_object_type",
+        resource_id=str(new_type.id),
+        metadata={"api_name": new_type.api_name, "display_name": new_type.display_name},
+    )
+
     return APIResponse(data={
         "id": str(new_type.id),
         "api_name": new_type.api_name,
@@ -167,10 +177,18 @@ async def update_object_type(
     if "primary_key_field" in body:
         ot.primary_key_field = body["primary_key_field"]
 
+    before = {"display_name": ot.display_name, "icon": ot.icon}
     new_ver, is_breaking = await bump_version(db, type_id, tenant_id)
 
     await db.commit()
     await db.refresh(ot)
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_update_type", resource_type="ontology_object_type",
+        resource_id=str(ot.id),
+        metadata={"before": before, "after": body, "new_version": new_ver, "is_breaking": is_breaking},
+    )
 
     return APIResponse(data={
         "id": str(ot.id),
@@ -205,6 +223,13 @@ async def publish_object_type(
     await db.commit()
     await db.refresh(ot)
 
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_publish", resource_type="ontology_object_type",
+        resource_id=str(ot.id),
+        metadata={"api_name": ot.api_name, "version": ot.version},
+    )
+
     return APIResponse(data={
         "id": str(ot.id),
         "api_name": ot.api_name,
@@ -232,6 +257,13 @@ async def deprecate_object_type(
     impact = await compute_impact(db, type_id, tenant_id)
     ot.status = "deprecated"
     await db.commit()
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_deprecate_type", resource_type="ontology_object_type",
+        resource_id=str(ot.id),
+        metadata={"api_name": ot.api_name, "impact": impact},
+    )
 
     return APIResponse(data={
         "id": str(ot.id),
@@ -321,6 +353,13 @@ async def create_property(
     await db.commit()
     await db.refresh(prop)
 
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_create_property", resource_type="ontology_property",
+        resource_id=str(prop.id),
+        metadata={"object_type_id": str(type_id), "api_name": prop.api_name, "data_type": prop.data_type},
+    )
+
     return APIResponse(data={
         "id": str(prop.id),
         "api_name": prop.api_name,
@@ -352,10 +391,18 @@ async def update_property(
         if field in body:
             setattr(prop, field, body[field])
 
+    before_state = {"display_name": prop.display_name, "data_type": prop.data_type, "required": prop.required}
     prop.version += 1
     await bump_version(db, prop.object_type_id, tenant_id)
     await db.commit()
     await db.refresh(prop)
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_update_property", resource_type="ontology_property",
+        resource_id=str(prop.id),
+        metadata={"before": before_state, "after": body},
+    )
 
     return APIResponse(data={
         "id": str(prop.id),
@@ -385,9 +432,17 @@ async def delete_property(
 
     impact = await compute_impact(db, prop.object_type_id, tenant_id)
 
+    deleted_info = {"api_name": prop.api_name, "data_type": prop.data_type, "object_type_id": str(prop.object_type_id)}
     await db.delete(prop)
     await bump_version(db, prop.object_type_id, tenant_id)
     await db.commit()
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_delete_property", resource_type="ontology_property",
+        resource_id=str(prop_id),
+        metadata={"deleted": deleted_info, "impact": impact},
+    )
 
     return APIResponse(data={
         "id": str(prop_id),
@@ -866,3 +921,107 @@ async def list_relation_types(
     } for t in db_types]
 
     return APIResponse(data=data, meta={"total": len(data)})
+
+
+# ===========================================================================
+# Migration Jobs
+# ===========================================================================
+
+@router.post("/migrate", response_model=APIResponse[dict])
+async def start_migration(
+    body: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Start a migration job for an object type version change."""
+    job = OntologyMigrationJob(
+        id=uuid_mod.uuid4(),
+        tenant_id=UUID(tenant_id),
+        object_type_id=UUID(body["object_type_id"]),
+        from_version=body["from_version"],
+        to_version=body["to_version"],
+        migration_spec=body.get("migration_spec", {}),
+        status="pending",
+    )
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+
+    result = await run_migration(db, str(job.id), tenant_id)
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_migrate", resource_type="ontology_migration_job",
+        resource_id=str(job.id),
+        metadata={"from_version": body["from_version"], "to_version": body["to_version"], "result": result},
+    )
+
+    return APIResponse(data={
+        "job_id": str(job.id),
+        **result,
+    })
+
+
+@router.get("/migrate/{job_id}", response_model=APIResponse[dict])
+async def get_migration_status(
+    job_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Get migration job status."""
+    result = await db.execute(
+        select(OntologyMigrationJob).where(
+            OntologyMigrationJob.id == job_id,
+            OntologyMigrationJob.tenant_id == tenant_id,
+        )
+    )
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Migration job not found")
+
+    return APIResponse(data={
+        "id": str(job.id),
+        "object_type_id": str(job.object_type_id),
+        "from_version": job.from_version,
+        "to_version": job.to_version,
+        "status": job.status,
+        "rows_processed": job.rows_processed,
+        "rows_failed": job.rows_failed,
+        "started_at": job.started_at.isoformat() if job.started_at else None,
+        "finished_at": job.finished_at.isoformat() if job.finished_at else None,
+        "created_at": job.created_at.isoformat() if job.created_at else None,
+    })
+
+
+@router.post("/migrate/{job_id}/rollback", response_model=APIResponse[dict])
+async def rollback_migration_endpoint(
+    job_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Rollback a failed migration."""
+    result = await rollback_migration_svc(db, str(job_id))
+
+    log_audit(
+        tenant_id=tenant_id, user_id=None,
+        action="ontology_migrate_rollback", resource_type="ontology_migration_job",
+        resource_id=str(job_id),
+        metadata=result,
+    )
+
+    return APIResponse(data=result)
+
+
+# ===========================================================================
+# Impact Analysis
+# ===========================================================================
+
+@router.get("/object-types/{type_id}/impact", response_model=APIResponse[dict])
+async def get_impact(
+    type_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Get impact analysis for an object type."""
+    impact = await compute_impact(db, type_id, tenant_id)
+    return APIResponse(data=impact)

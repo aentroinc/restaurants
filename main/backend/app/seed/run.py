@@ -48,6 +48,10 @@ from app.models.haccp import CCPDefinition, HACCPMonitoring, AllergenMatrix
 from app.models.franchise import FranchiseAgreement, FranchiseRoyaltyCalc
 from app.models.benchmark import IndustryBenchmark
 from app.models.data_source import DataSourceV2, IngestionJob
+from app.models.auth_enterprise import IdentityProvider, AccessLog, LoginAttempt
+from app.models.ontology_migration import OntologyMigrationJob
+from app.models.trade_area import TradeArea, CompetitorStore, PopulationMesh
+from app.models.pricing import PriceDecision, PriceElasticity
 from app.seed.generators import (
     TENANT_ID, COMPANY_ID, BRANDS,
     generate_regions, generate_areas, generate_brands, generate_employees,
@@ -65,6 +69,9 @@ from app.seed.generators import (
     generate_qsc_audits, generate_haccp_data, generate_franchise_data,
     generate_industry_benchmarks,
     generate_data_sources,
+    generate_identity_providers, generate_access_logs, generate_login_attempts,
+    generate_trade_areas, generate_competitors, generate_population_meshes,
+    generate_pricing_data,
 )
 
 
@@ -88,6 +95,10 @@ def run():
         print("Clearing existing data...")
         # Delete in reverse dependency order
         tables = [
+            "price_elasticities", "price_decisions",
+            "competitor_stores", "trade_areas", "population_meshes",
+            "ontology_migration_jobs",
+            "account_locks", "mfa_secrets", "login_attempts", "access_logs", "identity_providers",
             "ingestion_jobs", "data_sources_v2",
             "franchise_royalty_calcs", "franchise_agreements",
             "allergen_matrix", "haccp_monitoring", "ccp_definitions",
@@ -460,6 +471,57 @@ def run():
         bulk_insert(session, IngestionJob, ingestion_jobs)
         session.commit()
         print(f"  {len(data_sources)} data sources, {len(ingestion_jobs)} ingestion jobs created.")
+
+        # 36. Identity Providers
+        print("Creating identity providers...")
+        idps = generate_identity_providers()
+        bulk_insert(session, IdentityProvider, idps)
+        session.commit()
+        print(f"  {len(idps)} identity providers created.")
+
+        # 37. Access Logs
+        print("Creating access logs...")
+        access_logs_data = generate_access_logs()
+        bulk_insert(session, AccessLog, access_logs_data)
+        session.commit()
+        print(f"  {len(access_logs_data)} access logs created.")
+
+        # 38. Login Attempts
+        print("Creating login attempts...")
+        login_attempts = generate_login_attempts()
+        bulk_insert(session, LoginAttempt, login_attempts)
+        session.commit()
+        print(f"  {len(login_attempts)} login attempts created.")
+
+        # 39. Trade Areas
+        print("Creating trade areas...")
+        trade_areas = generate_trade_areas(stores)
+        bulk_insert(session, TradeArea, trade_areas)
+        session.commit()
+        print(f"  {len(trade_areas)} trade areas created.")
+
+        # 40. Competitor Stores
+        print("Creating competitor stores...")
+        competitors = generate_competitors(stores)
+        bulk_insert(session, CompetitorStore, competitors)
+        session.commit()
+        print(f"  {len(competitors)} competitor stores created.")
+
+        # 41. Population Meshes
+        print("Creating population meshes...")
+        meshes = generate_population_meshes()
+        bulk_insert(session, PopulationMesh, meshes)
+        session.commit()
+        print(f"  {len(meshes)} population meshes created.")
+
+        # 42. Pricing Data (Price Decisions + Elasticities)
+        print("Creating pricing data...")
+        price_decisions, price_elasticities = generate_pricing_data(products)
+        bulk_insert(session, PriceDecision, price_decisions)
+        session.commit()
+        bulk_insert(session, PriceElasticity, price_elasticities)
+        session.commit()
+        print(f"  {len(price_decisions)} price decisions, {len(price_elasticities)} price elasticities created.")
 
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")
