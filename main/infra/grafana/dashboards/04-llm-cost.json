@@ -1,0 +1,43 @@
+{
+  "title": "AENTRO LLM Cost & Usage",
+  "uid": "aentro-llm-cost",
+  "tags": ["aentro", "llm", "cost"],
+  "timezone": "Asia/Tokyo",
+  "schemaVersion": 38,
+  "refresh": "5m",
+  "templating": {
+    "list": [
+      {"name": "tenant_id", "type": "query", "query": "label_values(ai_usage_logs_total, tenant_id)"}
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Month-to-date cost (¥)",
+      "targets": [{"expr": "sum(ai_cost_jpy_total{tenant_id=\"$tenant_id\"})"}],
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "id": 2,
+      "type": "gauge",
+      "title": "Budget consumed",
+      "targets": [{"expr": "sum(ai_cost_jpy_total{tenant_id=\"$tenant_id\"}) / on() group_left tenant_ai_budget_jpy{tenant_id=\"$tenant_id\"}"}],
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Cost per day by model",
+      "targets": [{"expr": "sum by (model) (rate(ai_cost_jpy_total{tenant_id=\"$tenant_id\"}[1d]))"}],
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 4}
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Cache hit ratio",
+      "targets": [{"expr": "sum(ai_cache_read_tokens) / (sum(ai_cache_read_tokens) + sum(ai_cache_write_tokens))"}],
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12}
+    }
+  ]
+}

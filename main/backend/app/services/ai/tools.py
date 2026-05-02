@@ -468,6 +468,36 @@ async def execute_create_task_draft(input_data: dict, tenant_id: str, db: AsyncS
     }
 
 
+async def execute_search_documents(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    """RAG: search meeting notes / reviews / SV reports / playbooks."""
+    from app.services.ai.document_search import search_documents
+
+    query = input_data.get("query", "")
+    if not query:
+        return {"error": "query is required"}
+    types = input_data.get("types") or None
+    limit = int(input_data.get("limit", 5))
+    results = await search_documents(
+        db, tenant_id=tenant_id, query=query, limit=limit, types=types,
+    )
+    return {"results": results, "total": len(results)}
+
+
+TOOL_DEFINITIONS.append({
+    "name": "search_documents",
+    "description": "Semantic search over meeting notes, customer reviews, SV reports, and playbooks. Use to ground answers in past discussions or feedback.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "description": "What to look for"},
+            "types": {"type": "array", "items": {"type": "string"}, "description": "Optional subset of {meeting_note, review, sv_report, playbook}"},
+            "limit": {"type": "integer", "description": "Max results (default 5)"},
+        },
+        "required": ["query"],
+    },
+})
+
+
 TOOL_EXECUTORS = {
     "query_kpi": execute_query_kpi,
     "get_store_detail": execute_get_store_detail,
@@ -475,6 +505,7 @@ TOOL_EXECUTORS = {
     "search_stores": execute_search_stores,
     "get_brand_summary": execute_get_brand_summary,
     "create_task_draft": execute_create_task_draft,
+    "search_documents": execute_search_documents,
 }
 
 

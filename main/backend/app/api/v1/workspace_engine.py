@@ -13,8 +13,10 @@ from __future__ import annotations
 
 from datetime import date
 from typing import Any
+from uuid import UUID as UUIDType
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,11 +26,13 @@ from app.core.tenant_context import get_tenant_or_demo
 from app.database import get_db
 from app.middleware.audit import log_audit
 from app.models.kpi_definition import KPIDefinition
-from app.models.workspace import CustomKPI
+from app.models.meeting_pack import BoardMeetingItem, BoardMeetingPack
+from app.models.workspace import Analysis, CustomKPI
 from app.services.analysis_runner import run_analysis
 from app.services.cohort_builder import evaluate_cohort_rich
 from app.services.custom_kpi_engine import evaluate_formula
 from app.services.dsl import FormulaError, parse_formula
+from app.services.exporters import export as export_result
 
 router = APIRouter(prefix="/api/v1/workspace-engine", tags=["workspace-engine"])
 
@@ -135,3 +139,164 @@ async def promote_custom_kpi(
         {"to_kpi_definition_id": str(kpi.id)},
     )
     return {"kpi_definition_id": str(kpi.id), "api_name": kpi.api_name}
+
+
+# ---- Export ----
+
+class ExportIn(BaseModel):
+    spec: dict[str, Any] | None = None
+    analysis_id: str | None = None
+
+
+@router.post("/export")
+async def export_endpoint(
+    body: ExportIn,
+    format: str = Query("csv", pattern="^(csv|xlsx|parquet)$"),
+    db: AsyncSession = Depends(get_db),
+    user: dict | None = Depends(get_current_user_optional),
+):
+    """Run an Analysis spec (or a saved one) and export the panel results."""
+    tenant_id = get_tenant_or_demo()
+
+    if body.analysis_id:
+        res = await db.execute(
+            select(Analysis).where(
+                Analysis.id == body.analysis_id,
+                Analysis.tenant_id == tenant_id,
+            )
+        )
+        analysis = res.scalar_one_or_none()
+        if not analysis:
+            raise HTTPException(404, "analysis not found")
+        spec = analysis.spec
+    else:
+        if not body.spec:
+            raise HTTPException(400, "spec or analysis_id required")
+        spec = body.spec
+
+    result = await run_analysis(db, tenant_id, spec)
+    body_bytes, mime, suffix = export_result(result, format)
+
+    log_audit(
+        tenant_id, user.get("sub") if user else None,
+        "export", "analysis", body.analysis_id,
+        {"format": format, "byte_size": len(body_bytes)},
+    )
+
+    filename = (result.get("name") or "analysis").replace(" ", "_") + suffix
+    return Response(
+        content=body_bytes,
+        media_type=mime,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+# ---- Meeting Pack integration ----
+
+class FromAnalysisIn(BaseModel):
+    analysis_id: str
+    panel_id: str | None = None
+    refresh_policy: str = "static"  # static | weekly | monthly
+    title: str | None = None
+
+
+@router.post("/meeting-packs/{pack_id}/items/from-analysis")
+async def add_meeting_pack_item_from_analysis(
+    pack_id: str,
+    body: FromAnalysisIn,
+    db: AsyncSession = Depends(get_db),
+    user: dict | None = Depends(get_current_user_optional),
+):
+    """Embed an Analysis (panel) into a Meeting Pack as an item."""
+    tenant_id = get_tenant_or_demo()
+
+    pack_q = await db.execute(
+        select(BoardMeetingPack).where(
+            BoardMeetingPack.id == pack_id,
+            BoardMeetingPack.tenant_id == tenant_id,
+        )
+    )
+    pack = pack_q.scalar_one_or_none()
+    if not pack:
+        raise HTTPException(404, "meeting pack not found")
+
+    analysis_q = await db.execute(
+        select(Analysis).where(
+            Analysis.id == body.analysis_id,
+            Analysis.tenant_id == tenant_id,
+        )
+    )
+    analysis = analysis_q.scalar_one_or_none()
+    if not analysis:
+        raise HTTPException(404, "analysis not found")
+
+    # Run now to capture a snapshot
+    result = await run_analysis(db, tenant_id, analysis.spec)
+    snapshot_panels = result.get("panels", [])
+    if body.panel_id:
+        snapshot_panels = [p for p in snapshot_panels if p.get("id") == body.panel_id]
+
+    item = BoardMeetingItem(
+        pack_id=UUIDType(pack_id),
+        item_type="analysis_panel",
+        title=body.title or analysis.name,
+        content={
+            "analysis_id": str(analysis.id),
+            "panel_id": body.panel_id,
+            "refresh_policy": body.refresh_policy,
+            "snapshot": snapshot_panels,
+        },
+        sort_order=0,
+    )
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+
+    log_audit(
+        tenant_id, user.get("sub") if user else None,
+        "embed_analysis", "meeting_pack_item", str(item.id),
+        {"analysis_id": str(analysis.id), "refresh_policy": body.refresh_policy},
+    )
+    return {
+        "item_id": str(item.id),
+        "pack_id": pack_id,
+        "panels_captured": len(snapshot_panels),
+    }
+
+
+@router.post("/meeting-packs/items/{item_id}/refresh")
+async def refresh_meeting_pack_item(
+    item_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Re-run the embedded analysis and replace the snapshot."""
+    tenant_id = get_tenant_or_demo()
+
+    res = await db.execute(
+        select(BoardMeetingItem).where(BoardMeetingItem.id == item_id)
+    )
+    item = res.scalar_one_or_none()
+    if not item or item.item_type != "analysis_panel":
+        raise HTTPException(404)
+    content = item.content or {}
+    analysis_id = content.get("analysis_id")
+    if not analysis_id:
+        raise HTTPException(400, "item is not analysis-backed")
+
+    a_q = await db.execute(
+        select(Analysis).where(
+            Analysis.id == analysis_id,
+            Analysis.tenant_id == tenant_id,
+        )
+    )
+    analysis = a_q.scalar_one_or_none()
+    if not analysis:
+        raise HTTPException(404, "analysis not found")
+
+    result = await run_analysis(db, tenant_id, analysis.spec)
+    panels = result.get("panels", [])
+    if content.get("panel_id"):
+        panels = [p for p in panels if p.get("id") == content["panel_id"]]
+    item.content = {**content, "snapshot": panels, "refreshed_at": str(__import__("datetime").datetime.utcnow())}
+    await db.commit()
+    return {"item_id": item_id, "panels": panels}

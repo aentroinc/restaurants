@@ -1,0 +1,9 @@
+apiVersion: v2
+name: aentro
+description: AENTRO Restaurant OS — Foundry-style operations platform for Japanese F&B chains
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: AENTRO Engineering
+    email: eng@aentro.co.jp

@@ -5,27 +5,28 @@
 
 ---
 
-## 現在: 62 / 100 (2026-05-02 実装後 v3)
+## 現在: 76 / 100 (2026-05-02 v4 — Tier 1+2+部分 Tier 3 実装後)
 
 | # | 領域 | 配点 | 現状 | 状態 |
 |---|------|------|------|------|
-| 01 | 動的オントロジー | 5/10 | ontology_v2 モデル + CRUD API + impact 既存 service。UI 編集動線が dynamic でない | 🟡 進行中 |
-| 02 | 実コネクタ | 4/10 | BaseConnector + ConnectorRegistry + Smaregi (auth/client/transform/connector)、IngestionRunner + APScheduler、Bronze→Silver writer、OAuth flow + sandbox stub。本番接続 0 件 | 🟡 sandbox 完走 |
-| 03 | LLM AI Analyst | 3/6 | tool 6 種が実 DB クエリ、cost guard + role x tool 強制 + audit log 配線済。RAG / pgvector 未着手、本番利用 0 | 🟡 進行中 |
-| 04 | 分析ワークスペース | 4/8 | DSL safe-eval + custom KPI engine + cohort builder + analysis runner + 4 endpoints + /workspace UI。grid layout / Meeting Pack 統合・export / promotion UI 未着手 | 🟡 進行中 |
-| 05 | エンタープライズ認証 | 3/6 | bcrypt + login + JWT + 行 ACL helper + 列マスキング middleware + 8 role seed。SAML/OIDC/MFA は未着手 | 🟡 進行中 |
-| 06 | デプロイ堅牢化 | 2/4 | multi-stage Dockerfile + non-root + healthcheck、CI workflow（lint/test/sec/build）。Terraform / Helm / OTel / runbooks 未着手 | 🟡 進行中 |
-| 07 | パイロット顧客運用 | 0/5 | 実顧客 0、契約 0 | 🔴 未着手 |
-| 08 | 業界深掘り | 3/7 | Phase A: labor_compliance（労基違反検知）+ royalty_engine（FC 月次計算）+ recipe_costing 既存 functional。Phase B/C は service の枠だけ | 🟡 Phase A 完了 |
-| 09 | 横断プラットフォーム | 2/5 | tenant context 強制 + RLS 切替フラグ + 集計 KPI engine 既存 + alembic baseline + DQ Reconciliation。OTel / Grafana / 5万店舗 load test 未着手 | 🟡 進行中 |
-| 10 | AI 安全性 / ガバナンス | 2/3 | eval 30 問 + red team 50 ケース + CI gate + cost guard + role x tool + refusal log + AI governance API。本番運用ログ 0 | 🟡 進行中 |
-| 11 | コンプライアンス | 2/4 | 監査 middleware（全 mutation 自動）+ Fernet credentials 暗号化 + ベースライン scan + DDQ 文書 + Trust Center 仕様。SOC2 readiness 50%、Type 1/2 / Pマーク / ISMS 未取得 | 🟡 進行中 |
-| | **製品コア小計** | **24/56** | | |
-| | **横断品質小計** | **6/12** | | |
-| | **基礎点（骨格・可視化・モック品質）** | **32/32** | | |
-| | **合計** | **62/100** | | |
+| 01 | 動的オントロジー | 7/10 | T1.B + T3.D: Brand→ontology_instance dual-write + reconcile API + impact endpoint + 30+ vertical ontology seed | 🟡 |
+| 02 | 実コネクタ | 5/10 | T2.D: Smaregi + Square sandbox connector + Webhook HMAC endpoint (Square + Smaregi 検証 helper) | 🟡 |
+| 03 | LLM AI Analyst | 4/6 | T2.C: prompt caching cache_control 配線 + cache_read/write 集計 + pgvector model + synthetic embedder + 8000 件 seeder + search_documents tool | 🟡 |
+| 04 | 分析ワークスペース | 7/8 | T1.A: export (CSV/xlsx/Parquet) + Meeting Pack from analysis (snapshot+refresh) + KPI promotion 既存 | 🟡 |
+| 05 | エンタープライズ認証 | 5/6 | T2.A: OIDC client + SAML SP + TOTP MFA + backup codes + access_logs + IdP 設定 + 全エンドポイント | 🟡 |
+| 06 | デプロイ堅牢化 | 3/4 | T1.D + T2.B: Trivy CI + 5 runbooks + Terraform module 2本 (network/database) + Helm chart + OTel hook + Grafana 3 dashboard JSON | 🟡 |
+| 07 | パイロット顧客運用 | 0/5 | 実顧客 0、契約 0 | 🔴 |
+| 08 | 業界深掘り | 5/7 | T3.A: /api/v1/recipes (CRUD + cost) + /api/v1/haccp (CCP / monitoring / 28 allergen 28 codes) + 既存 Phase A | 🟡 |
+| 09 | 横断プラットフォーム | 3/5 | OTel hook + 3 Grafana dashboard JSON + 既存 tenant strict + Reconciliation | 🟡 |
+| 10 | AI 安全性 / ガバナンス | 3/3 | T1.C: AI Governance UI 完成 (budget edit / role-tool matrix / cost chart / refusal review) + 既存 cost guard + eval/red team CI | ✅ |
+| 11 | コンプライアンス | 2/4 | 既存 + Trivy + 5 runbooks。SOC2 / Pマーク / ISMS は外部監査必須 | 🟡 |
+| | **製品コア小計** | **36/56** | (+12) | |
+| | **横断品質小計** | **8/12** | (+2) | |
+| | **基礎点** | **32/32** | | |
+| | **合計** | **76/100** | (+14) | |
 
-> 1 セッションで 42→62 (+20)。実装可能な層は埋めた。残る 38 点は外部依存（実 OAuth 本番接続 / 本番 SAML / Terraform 本番 / SOC2 監査 / 顧客契約）と長期運用証跡（30 日 SLO 達成 / 本番 DAU / SOC2 Type 2 6ヶ月運用）が必要で 1 セッションでは出せない。
+> 連続 2 セッションで 42→62→76。Tier 1 (4/4) + Tier 2 (4/4) + Tier 3 (2/5: T3.A, T3.D)。
+> 1 セッションでこれ以上の +点は外部依存。残り 24 点 = 顧客 11 (本番OAuth/POC/DAU) + 監査 4 (SOC2/Pマーク/ISMS) + 業界連携 1 + 5 万店舗 prod 運用 2 + Phase B HACCP iPad UI + Phase C QSC/Huff/弾力性 計 6 = 24。
 
 ---
 

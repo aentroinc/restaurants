@@ -21,11 +21,15 @@ def _derive_key(tenant_id: str) -> bytes:
     return base64.urlsafe_b64encode(h)
 
 
-def encrypt_for_tenant(tenant_id: str, plaintext: dict | str) -> str:
-    if isinstance(plaintext, dict):
+def encrypt_for_tenant(tenant_id: str, plaintext) -> str:
+    if isinstance(plaintext, (dict, list)):
         plaintext = json.dumps(plaintext)
+    if isinstance(plaintext, bytes):
+        data = plaintext
+    else:
+        data = str(plaintext).encode()
     f = Fernet(_derive_key(tenant_id))
-    return f.encrypt(plaintext.encode()).decode()
+    return f.encrypt(data).decode()
 
 
 def decrypt_for_tenant(tenant_id: str, ciphertext: str) -> dict | str:

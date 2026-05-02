@@ -18,9 +18,13 @@ from app.api.v1 import (
     supply_chain, sv, tasks, value, vertical, workflow, workspace, writeback,
 )
 from app.api.v1 import auth as auth_router
+from app.api.v1 import auth_sso as auth_sso_router
 from app.api.v1 import data_sources as data_sources_router
 from app.api.v1 import ai_governance as ai_governance_router
 from app.api.v1 import workspace_engine as workspace_engine_router
+from app.api.v1 import webhooks as webhooks_router
+from app.api.v1 import recipes as recipes_router
+from app.api.v1 import haccp as haccp_router
 from app.config import settings
 from app.middleware.audit import AuditMiddleware
 from app.middleware.pii import PIIRedactionMiddleware
@@ -43,6 +47,14 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("AUTO_CREATE_SCHEMA failed: %s", e)
 
+    # Brand <-> OntologyInstance dual-write hooks
+    try:
+        from app.services.ontology_dual_write import register_dual_write
+        register_dual_write()
+        logger.info("Ontology dual-write hooks registered")
+    except Exception as e:
+        logger.warning("Ontology dual-write registration failed: %s", e)
+
     # Optional ingestion scheduler. Off by default — opt in via
     # SCHEDULER_ENABLED=true to run nightly Smaregi syncs.
     if settings.SCHEDULER_ENABLED:
@@ -57,6 +69,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0", lifespan=lifespan)
+
+# OpenTelemetry instrumentation (no-op unless OTEL_ENABLED=true and libs installed)
+try:
+    from app.observability.otel import setup_observability
+    setup_observability(app)
+except Exception as _e:  # pragma: no cover -- defensive
+    logger.warning("OTel setup skipped: %s", _e)
 
 # Middleware order: outermost is registered LAST. We want
 # tenant context resolved first so downstream middlewares can read it.
@@ -105,5 +124,9 @@ for router in [
     data_sources_router.router,
     ai_governance_router.router,
     workspace_engine_router.router,
+    auth_sso_router.router,
+    webhooks_router.router,
+    recipes_router.router,
+    haccp_router.router,
 ]:
     app.include_router(router)

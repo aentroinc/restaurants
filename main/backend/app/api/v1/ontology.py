@@ -866,3 +866,41 @@ async def list_relation_types(
     } for t in db_types]
 
     return APIResponse(data=data, meta={"total": len(data)})
+
+
+# ---- Brand <-> OntologyInstance dual-write (T1.B) ----
+
+@router.post("/dual-write/reconcile-brands", response_model=APIResponse[dict])
+async def reconcile_brands_endpoint(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Backfill / reconcile Brand rows into ontology_instances.
+
+    Idempotent: re-running updates existing instances with the latest Brand
+    properties.
+    """
+    from app.database import SyncSession
+    from app.services.ontology_dual_write import reconcile_brands
+
+    s = SyncSession()
+    try:
+        result = reconcile_brands(s, uuid_mod.UUID(tenant_id))
+    finally:
+        s.close()
+    return APIResponse(data=result)
+
+
+@router.get("/object-types/{type_id}/impact", response_model=APIResponse[dict])
+async def object_type_impact(
+    type_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Return the change-impact report for an ObjectType.
+
+    Includes affected KPI definitions, lineage events, instance count, and
+    related link types. UI uses this to confirm before destructive changes.
+    """
+    impact = await compute_impact(db, type_id, tenant_id)
+    return APIResponse(data=impact)

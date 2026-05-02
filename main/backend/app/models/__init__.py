@@ -50,6 +50,8 @@ from app.models.ai_budget import (
     TenantAIBudget, AIUsageLog, AIRefusalLog, AIRedTeamResult,
 )
 from app.models.data_source import DataSource, IngestionJob, IngestionRecord
+from app.models.identity import IdentityProvider, MFASecret, AccessLog
+from app.models.document import Document
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -78,4 +80,6 @@ __all__ = [
     "Role", "Permission", "UserRole",
     "TenantAIBudget", "AIUsageLog", "AIRefusalLog", "AIRedTeamResult",
     "DataSource", "IngestionJob", "IngestionRecord",
+    "IdentityProvider", "MFASecret", "AccessLog",
+    "Document",
 ]

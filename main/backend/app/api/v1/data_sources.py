@@ -24,6 +24,7 @@ from app.middleware.audit import log_audit
 from app.models.data_source import DataSource, IngestionJob
 from app.services.ingestion_runner import run_sync
 import app.connectors.smaregi  # noqa: F401  registers SmaregiConnector
+import app.connectors.square  # noqa: F401  registers SquareConnector
 
 router = APIRouter(prefix="/api/v1/data-sources", tags=["data-sources"])
 
