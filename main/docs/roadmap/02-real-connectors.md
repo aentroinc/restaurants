@@ -214,6 +214,9 @@ GET    /api/v1/oauth/{connector}/callback                token 交換 + 保存
 ## 完了基準
 - [x] スマレジ Platform API の app access token 取得導線を実装
 - [x] 手動同期で daily_sales が DB に投入される
+- [x] スマレジ transaction details から hourly_sales / product_sales に集約できる
+- [x] POS/DWH CSV 取り込みで hourly_sales / product_sales を canonical table に昇格できる
+- [x] POS取り込み後に対象店舗・対象期間のKPI再計算が走る
 - [ ] スマレジ sandbox に接続完了
 - [ ] 自動同期で hourly_sales / product_sales が DB に投入される
 - [ ] 1日分（約1万件）の同期が10分以内に完了
@@ -224,7 +227,8 @@ GET    /api/v1/oauth/{connector}/callback                token 交換 + 保存
 
 ## 2026-05-02 実装メモ
 - `app/api/v1/connectors.py`: POSコネクタ設定、接続テスト、手動同期APIを追加
-- `app/services/japan_pos_connectors.py`: スマレジ token 取得、取引一覧取得、日次売上集約、`daily_store_sales` upsert を追加
+- `app/services/japan_pos_connectors.py`: スマレジ token 取得、取引一覧取得、日次/時間帯別/商品別売上集約、`daily_store_sales` / `hourly_store_sales` / `daily_product_sales` upsert、KPI再計算を追加
+- `app/services/ingestion.py`: 大手外食DWH/API Gatewayを想定し、CSV経由の `hourly_sales` / `product_sales` canonical promotion と取り込み後KPI再計算を追加
 - `frontend/src/app/admin/data-sources/page.tsx`: POSコネクタ追加/テスト/同期 UI を追加
 - ゼンショー級の大手外食では店舗POS単体より本部DWH/API Gateway連携が本命になるため、`enterprise_pos_dwh` provider も並列で定義
 

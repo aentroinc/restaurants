@@ -374,19 +374,26 @@ class IndustryBenchmark(Base):
 ## 完了基準
 
 ### Phase A
+- [x] AI Analyst から労務法令違反サマリを取得できる
 - [ ] シフト作成時に労基違反が自動検知 → アラート表示
 - [ ] 月次でFC契約30件分のロイヤリティ計算が自動完走
 - [ ] 業界ベンチマーク 5指標で peer comparison が出る
 
 ### Phase B
+- [x] AI Analyst から商品別の理論原価/粗利外れ値を取得できる
+- [x] AI Analyst からHACCP monitoring compliance を取得できる
 - [ ] 100レシピ以上の BOM が登録済み、理論原価が日次計算される
 - [ ] HACCP daily monitoring が iPad で5秒以内に1記録
 - [ ] アレルゲン28品目マトリクスが全商品で完成
 
 ### Phase C
+- [x] AI Analyst からQSC audit score サマリを取得できる
 - [ ] QSC audit が iPad で完走、自動スコア化、写真添付
 - [ ] 出店候補の Huff 予測が国勢調査データに基づき算出
 - [ ] 価格弾力性が過去2年データから自動計算
+
+## 2026-05-02 実装メモ
+- `app/services/ai/tools.py`: 外食ドメインの既存モデルを AI tool surface に接続。商品粗利、労務法令、QSC、HACCPを自然言語質問から参照できる形にした
 
 ## 工数見積
 - Phase A: 4週間（1人）

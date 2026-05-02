@@ -8,13 +8,17 @@ from decimal import Decimal
 from typing import Any
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.daily_sales import DailyStoreSales
+from app.models.hourly_sales import HourlyStoreSales
 from app.models.ingestion import IngestionBatch
 from app.models.pos_connector import POSConnectorConfig
+from app.models.product import Product
+from app.models.product_sales import DailyProductSales
 from app.models.store import Store
+from app.database import SyncSession
 
 
 class POSConnectorError(Exception):
@@ -33,13 +37,33 @@ class DailySalesAggregate:
     source_ids: list[str] = field(default_factory=list)
 
 
+@dataclass
+class HourlySalesAggregate:
+    external_store_id: str
+    business_date: date
+    hour: int
+    net_sales: Decimal = Decimal(0)
+    order_count: int = 0
+    customer_count: int = 0
+
+
+@dataclass
+class ProductSalesAggregate:
+    external_store_id: str
+    external_product_id: str
+    business_date: date
+    quantity: Decimal = Decimal(0)
+    net_sales: Decimal = Decimal(0)
+    discount_amount: Decimal = Decimal(0)
+
+
 JAPAN_POS_PROVIDERS = [
     {
         "provider": "smaregi",
         "display_name": "スマレジ Platform API",
         "country": "JP",
         "auth_type": "client_credentials",
-        "entity_types": ["daily_sales"],
+        "entity_types": ["daily_sales", "hourly_sales", "product_sales"],
         "required_credentials": ["contract_id", "client_id_env", "client_secret_env"],
         "required_scopes": ["pos.transactions:read", "pos.stores:read"],
     },
@@ -199,6 +223,20 @@ def _parse_smaregi_date(value: str | None) -> date | None:
         return None
 
 
+def _parse_smaregi_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    for fmt in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%S.%f%z"):
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 def _decimal_from_transaction(tx: dict, keys: tuple[str, ...]) -> Decimal:
     for key in keys:
         if key in tx and tx[key] not in (None, ""):
@@ -209,8 +247,25 @@ def _decimal_from_transaction(tx: dict, keys: tuple[str, ...]) -> Decimal:
     return Decimal(0)
 
 
-def _aggregate_smaregi_transactions(transactions: list[dict]) -> dict[tuple[str, date], DailySalesAggregate]:
-    aggregates: dict[tuple[str, date], DailySalesAggregate] = {}
+def _transaction_details(tx: dict) -> list[dict]:
+    for key in ("transactionDetails", "details", "TransactionDetails", "transaction_details"):
+        value = tx.get(key)
+        if isinstance(value, list):
+            return value
+    return []
+
+
+def _aggregate_smaregi_transactions(
+    transactions: list[dict],
+) -> tuple[
+    dict[tuple[str, date], DailySalesAggregate],
+    dict[tuple[str, date, int], HourlySalesAggregate],
+    dict[tuple[str, str, date], ProductSalesAggregate],
+]:
+    daily: dict[tuple[str, date], DailySalesAggregate] = {}
+    hourly: dict[tuple[str, date, int], HourlySalesAggregate] = {}
+    product: dict[tuple[str, str, date], ProductSalesAggregate] = {}
+
     for tx in transactions:
         division = str(tx.get("transactionHeadDivision") or tx.get("transaction_head_division") or "1")
         cancel_division = str(tx.get("cancelDivision") or tx.get("cancel_division") or "0")
@@ -225,11 +280,15 @@ def _aggregate_smaregi_transactions(transactions: list[dict]) -> dict[tuple[str,
         )
         if not store_id or not business_date:
             continue
+        transacted_at = (
+            _parse_smaregi_datetime(tx.get("terminalTranDateTime") or tx.get("terminal_tran_date_time"))
+            or _parse_smaregi_datetime(tx.get("transactionDateTime") or tx.get("transaction_date_time"))
+        )
 
-        key = (store_id, business_date)
-        if key not in aggregates:
-            aggregates[key] = DailySalesAggregate(external_store_id=store_id, business_date=business_date)
-        aggregate = aggregates[key]
+        daily_key = (store_id, business_date)
+        if daily_key not in daily:
+            daily[daily_key] = DailySalesAggregate(external_store_id=store_id, business_date=business_date)
+        aggregate = daily[daily_key]
 
         net_sales = _decimal_from_transaction(tx, ("total", "totalAmount", "salesPriceTotal", "amount", "sumTotal"))
         discount = _decimal_from_transaction(
@@ -245,7 +304,48 @@ def _aggregate_smaregi_transactions(transactions: list[dict]) -> dict[tuple[str,
         if source_id:
             aggregate.source_ids.append(str(source_id))
 
-    return aggregates
+        if transacted_at:
+            hour_key = (store_id, business_date, transacted_at.hour)
+            if hour_key not in hourly:
+                hourly[hour_key] = HourlySalesAggregate(
+                    external_store_id=store_id,
+                    business_date=business_date,
+                    hour=transacted_at.hour,
+                )
+            hourly_aggregate = hourly[hour_key]
+            hourly_aggregate.net_sales += net_sales
+            hourly_aggregate.order_count += 1
+            hourly_aggregate.customer_count += int(_decimal_from_transaction(tx, ("customerCount", "headCount")) or Decimal(1))
+
+        for detail in _transaction_details(tx):
+            product_id = str(
+                detail.get("productId")
+                or detail.get("productCode")
+                or detail.get("product_id")
+                or detail.get("product_code")
+                or ""
+            )
+            if not product_id:
+                continue
+            product_key = (store_id, product_id, business_date)
+            if product_key not in product:
+                product[product_key] = ProductSalesAggregate(
+                    external_store_id=store_id,
+                    external_product_id=product_id,
+                    business_date=business_date,
+                )
+            product_aggregate = product[product_key]
+            product_aggregate.quantity += _decimal_from_transaction(detail, ("quantity", "salesQuantity", "sales_quantity"))
+            product_aggregate.net_sales += _decimal_from_transaction(
+                detail,
+                ("salesPrice", "salesPriceSubtotal", "productSalesTotal", "total", "amount"),
+            )
+            product_aggregate.discount_amount += _decimal_from_transaction(
+                detail,
+                ("discountPrice", "discount", "subtotalDiscountPrice"),
+            )
+
+    return daily, hourly, product
 
 
 async def _fetch_smaregi_transactions(config: POSConnectorConfig, date_from: date, date_to: date) -> list[dict]:
@@ -255,9 +355,9 @@ async def _fetch_smaregi_transactions(config: POSConnectorConfig, date_from: dat
     params_base = {
         "sum_date-from": date_from.isoformat(),
         "sum_date-to": date_to.isoformat(),
-        "with_details": "none",
+        "with_details": settings.get("with_details", "summary"),
         "with_payments": "none",
-        "limit": limit,
+        "limit": min(limit, 100 if settings.get("with_details", "summary") != "none" else 1000),
     }
 
     all_rows: list[dict] = []
@@ -280,6 +380,13 @@ async def _store_lookup(db: AsyncSession, tenant_id: str) -> dict[str, uuid.UUID
     return {code: store_id for code, store_id in result.all()}
 
 
+async def _product_lookup(db: AsyncSession, tenant_id: str) -> dict[str, tuple[uuid.UUID, Decimal]]:
+    result = await db.execute(
+        select(Product.code, Product.id, Product.theoretical_cost).where(Product.tenant_id == uuid.UUID(tenant_id))
+    )
+    return {code: (product_id, cost or Decimal(0)) for code, product_id, cost in result.all()}
+
+
 async def sync_pos_daily_sales(
     db: AsyncSession,
     tenant_id: str,
@@ -291,9 +398,11 @@ async def sync_pos_daily_sales(
         raise POSConnectorError("Only the smaregi connector has a built-in API sync. Use CSV ingestion for enterprise_pos_dwh.")
 
     transactions = await _fetch_smaregi_transactions(config, date_from, date_to)
-    aggregates = _aggregate_smaregi_transactions(transactions)
+    daily_aggregates, hourly_aggregates, product_aggregates = _aggregate_smaregi_transactions(transactions)
     store_by_code = await _store_lookup(db, tenant_id)
+    product_by_code = await _product_lookup(db, tenant_id)
     store_mappings = config.store_mappings or {}
+    product_mappings = (config.settings or {}).get("product_mappings", {})
 
     batch = IngestionBatch(
         tenant_id=uuid.UUID(tenant_id),
@@ -313,7 +422,10 @@ async def sync_pos_daily_sales(
     loaded = 0
     skipped = 0
     errors = []
-    for (external_store_id, business_date), aggregate in aggregates.items():
+    affected_store_ids: set[str] = set()
+    affected_dates: set[date] = set()
+
+    for (external_store_id, business_date), aggregate in daily_aggregates.items():
         store_code = store_mappings.get(external_store_id) or external_store_id
         store_id = store_by_code.get(store_code)
         if not store_id:
@@ -358,18 +470,113 @@ async def sync_pos_daily_sales(
                 )
             )
         loaded += 1
+        affected_store_ids.add(str(store_id))
+        affected_dates.add(business_date)
 
-    batch.valid_row_count = loaded
-    batch.invalid_row_count = skipped
+    hourly_loaded = 0
+    if affected_store_ids and affected_dates:
+        await db.execute(
+            delete(HourlyStoreSales).where(
+                HourlyStoreSales.tenant_id == uuid.UUID(tenant_id),
+                HourlyStoreSales.store_id.in_([uuid.UUID(s) for s in affected_store_ids]),
+                HourlyStoreSales.business_date.in_(affected_dates),
+            )
+        )
+
+    for (external_store_id, business_date, hour), aggregate in hourly_aggregates.items():
+        store_code = store_mappings.get(external_store_id) or external_store_id
+        store_id = store_by_code.get(store_code)
+        if not store_id:
+            continue
+        db.add(
+            HourlyStoreSales(
+                tenant_id=uuid.UUID(tenant_id),
+                store_id=store_id,
+                business_date=business_date,
+                hour=hour,
+                net_sales=aggregate.net_sales,
+                customer_count=aggregate.customer_count or aggregate.order_count,
+                order_count=aggregate.order_count,
+            )
+        )
+        hourly_loaded += 1
+
+    product_loaded = 0
+    product_skipped = 0
+    if affected_store_ids and affected_dates:
+        await db.execute(
+            delete(DailyProductSales).where(
+                DailyProductSales.tenant_id == uuid.UUID(tenant_id),
+                DailyProductSales.store_id.in_([uuid.UUID(s) for s in affected_store_ids]),
+                DailyProductSales.business_date.in_(affected_dates),
+            )
+        )
+
+    for (external_store_id, external_product_id, business_date), aggregate in product_aggregates.items():
+        store_code = store_mappings.get(external_store_id) or external_store_id
+        product_code = product_mappings.get(external_product_id) or external_product_id
+        store_id = store_by_code.get(store_code)
+        product_entry = product_by_code.get(product_code)
+        if not store_id:
+            errors.append({
+                "external_store_id": external_store_id,
+                "business_date": business_date.isoformat(),
+                "error": f"Unknown store mapping for product sales: {external_store_id}",
+            })
+            product_skipped += 1
+            continue
+        if not product_entry:
+            errors.append({
+                "external_store_id": external_store_id,
+                "external_product_id": external_product_id,
+                "business_date": business_date.isoformat(),
+                "error": f"Unknown product mapping: {external_product_id}",
+            })
+            product_skipped += 1
+            continue
+        product_id, theoretical_cost = product_entry
+        db.add(
+            DailyProductSales(
+                tenant_id=uuid.UUID(tenant_id),
+                store_id=store_id,
+                product_id=product_id,
+                business_date=business_date,
+                quantity=int(aggregate.quantity),
+                net_sales=aggregate.net_sales,
+                discount_amount=aggregate.discount_amount,
+                theoretical_cogs=theoretical_cost * aggregate.quantity,
+            )
+        )
+        product_loaded += 1
+
+    batch.valid_row_count = loaded + hourly_loaded + product_loaded
+    batch.invalid_row_count = skipped + product_skipped
     batch.validation_errors = errors[:200] if errors else None
-    batch.status = "promoted" if skipped == 0 else "partial"
+    invalid_count = skipped + product_skipped
+    batch.status = "promoted" if invalid_count == 0 else "partial"
     batch.promoted_at = datetime.now(timezone.utc)
 
     config.status = "connected" if loaded > 0 or not errors else "error"
     config.last_success_at = datetime.now(timezone.utc) if loaded > 0 or not errors else config.last_success_at
-    config.last_failure_at = datetime.now(timezone.utc) if skipped and loaded == 0 else config.last_failure_at
+    config.last_failure_at = datetime.now(timezone.utc) if invalid_count and loaded == 0 else config.last_failure_at
     config.last_error = errors[0]["error"] if errors and loaded == 0 else None
     await db.commit()
+
+    kpi_result = {"recalculated_stores": 0, "recalculated_records": 0}
+    if affected_store_ids:
+        try:
+            from app.services.kpi_engine import recalculate_kpis
+
+            with SyncSession() as sync_session:
+                kpi_result = recalculate_kpis(
+                    session=sync_session,
+                    tenant_id=tenant_id,
+                    store_ids=list(affected_store_ids),
+                    start_date=date_from,
+                    end_date=date_to,
+                )
+        except Exception as exc:
+            errors.append({"error": f"kpi recalculation failed: {exc}"})
 
     try:
         from app.services.lineage_tracker import track_lineage
@@ -388,7 +595,11 @@ async def sync_pos_daily_sales(
                 "date_to": date_to.isoformat(),
                 "transactions": len(transactions),
                 "loaded_daily_rows": loaded,
+                "loaded_hourly_rows": hourly_loaded,
+                "loaded_product_rows": product_loaded,
                 "skipped_daily_rows": skipped,
+                "skipped_product_rows": product_skipped,
+                "kpi": kpi_result,
             },
         )
     except Exception:
@@ -401,7 +612,11 @@ async def sync_pos_daily_sales(
         "date_to": date_to.isoformat(),
         "transactions_fetched": len(transactions),
         "daily_rows_loaded": loaded,
+        "hourly_rows_loaded": hourly_loaded,
+        "product_rows_loaded": product_loaded,
         "daily_rows_skipped": skipped,
+        "product_rows_skipped": product_skipped,
+        "kpi_recalculation": kpi_result,
         "status": batch.status,
         "errors": errors[:20],
     }

@@ -6,13 +6,15 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.database import SyncSession
 from app.models.ingestion import IngestionBatch
 from app.models.daily_sales import DailyStoreSales
+from app.models.hourly_sales import HourlyStoreSales
 from app.models.labor import LaborActual
+from app.models.product_sales import DailyProductSales
 from app.models.store_pl import StorePL
 from app.models.store import Store
 from app.models.product import Product
@@ -23,6 +25,14 @@ ENTITY_SCHEMAS = {
     "daily_sales": {
         "required": ["business_date", "store_code", "net_sales", "customer_count"],
         "optional": ["gross_sales", "order_count", "discount_amount", "dine_in_sales", "takeout_sales", "delivery_sales"],
+    },
+    "hourly_sales": {
+        "required": ["business_date", "store_code", "hour", "net_sales"],
+        "optional": ["customer_count", "order_count"],
+    },
+    "product_sales": {
+        "required": ["business_date", "store_code", "product_code", "quantity", "net_sales"],
+        "optional": ["discount_amount", "theoretical_cogs"],
     },
     "labor": {
         "required": ["business_date", "store_code", "labor_hours", "labor_cost"],
@@ -52,10 +62,12 @@ JAPANESE_COLUMN_MAP = {
     "値引額": "discount_amount", "割引額": "discount_amount",
     "人時": "labor_hours", "労働時間": "labor_hours",
     "人件費": "labor_cost",
+    "時間帯": "hour", "時刻": "hour", "時間": "hour",
     "店舗名": "store_name",
     "ブランド": "brand_code", "ブランドコード": "brand_code",
     "商品コード": "product_code", "商品CD": "product_code",
     "商品名": "product_name",
+    "数量": "quantity", "販売数量": "quantity",
     "価格": "price", "売価": "price", "単価": "price",
     "理論原価": "theoretical_cost",
     "カテゴリ": "category_l1",
@@ -93,7 +105,7 @@ NUMERIC_FIELDS = {
     "labor_hours", "labor_cost", "planned_labor_hours", "planned_labor_cost",
     "sales", "cogs", "gross_profit", "labor_cost", "rent", "utilities",
     "promotion_cost", "other_expenses", "operating_profit",
-    "price", "theoretical_cost", "seat_count",
+    "price", "theoretical_cost", "theoretical_cogs", "seat_count", "hour", "quantity",
 }
 
 
@@ -177,6 +189,11 @@ def _get_brand_map(db: Session, tenant_id: str) -> dict[str, uuid.UUID]:
     for sm, bid in result2.all():
         name_map.setdefault(sm, bid)
     return name_map
+
+
+def _get_product_map(db: Session, tenant_id: str) -> dict[str, uuid.UUID]:
+    result = db.execute(select(Product.code, Product.id).where(Product.tenant_id == uuid.UUID(tenant_id)))
+    return {code: pid for code, pid in result.all()}
 
 
 async def process_csv_upload(
@@ -382,6 +399,7 @@ async def promote_csv_upload(
     with SyncSession() as sync_db:
         store_map = _get_store_map(sync_db, tenant_id)
         brand_map = _get_brand_map(sync_db, tenant_id)
+        product_map = _get_product_map(sync_db, tenant_id)
 
         promoted = 0
         skipped = 0
@@ -390,6 +408,10 @@ async def promote_csv_upload(
             promoted, skipped = _promote_daily_sales(sync_db, tenant_id, rows, store_map, schema)
         elif entity_type == "labor":
             promoted, skipped = _promote_labor(sync_db, tenant_id, rows, store_map, schema)
+        elif entity_type == "hourly_sales":
+            promoted, skipped = _promote_hourly_sales(sync_db, tenant_id, rows, store_map)
+        elif entity_type == "product_sales":
+            promoted, skipped = _promote_product_sales(sync_db, tenant_id, rows, store_map, product_map)
         elif entity_type == "store_pl":
             promoted, skipped = _promote_store_pl(sync_db, tenant_id, rows, store_map, schema)
         elif entity_type == "stores":
@@ -398,6 +420,25 @@ async def promote_csv_upload(
             promoted, skipped = _promote_products(sync_db, tenant_id, rows, brand_map)
 
         sync_db.commit()
+
+        if entity_type in ("daily_sales", "labor", "store_pl", "hourly_sales", "product_sales"):
+            dates = [_parse_date(str(row.get("business_date") or row.get("period_start") or "")) for row in rows]
+            dates = [d for d in dates if d is not None]
+            store_codes = {str(row.get("store_code", "")).strip() for row in rows}
+            touched_store_ids = {str(store_map[code]) for code in store_codes if code in store_map}
+            if dates and touched_store_ids:
+                try:
+                    from app.services.kpi_engine import recalculate_kpis
+
+                    recalculate_kpis(
+                        session=sync_db,
+                        tenant_id=tenant_id,
+                        store_ids=list(touched_store_ids),
+                        start_date=min(dates),
+                        end_date=max(dates),
+                    )
+                except Exception:
+                    pass
 
     batch.status = "promoted"
     batch.promoted_at = datetime.utcnow()
@@ -524,6 +565,118 @@ def _promote_labor(db: Session, tenant_id: str, rows: list[dict], store_map: dic
                 **vals,
             )
             db.add(record)
+        promoted += 1
+
+    return promoted, skipped
+
+
+def _promote_hourly_sales(db: Session, tenant_id: str, rows: list[dict], store_map: dict) -> tuple[int, int]:
+    promoted = 0
+    skipped = 0
+    tid = uuid.UUID(tenant_id)
+    grouped: dict[tuple[uuid.UUID, date, int], dict] = {}
+
+    for row in rows:
+        store_code = str(row.get("store_code", "")).strip()
+        store_id = store_map.get(store_code)
+        bdate = _parse_date(str(row.get("business_date", "")))
+        hour_val = _parse_numeric(str(row.get("hour", "")))
+        if not store_id or not bdate or hour_val is None:
+            skipped += 1
+            continue
+        hour = int(hour_val)
+        if hour < 0 or hour > 23:
+            skipped += 1
+            continue
+
+        key = (store_id, bdate, hour)
+        grouped.setdefault(key, {"net_sales": Decimal(0), "customer_count": 0, "order_count": 0})
+        grouped[key]["net_sales"] += _parse_numeric(str(row.get("net_sales", "0"))) or Decimal(0)
+        grouped[key]["customer_count"] += int(_parse_numeric(str(row.get("customer_count", "0"))) or 0)
+        grouped[key]["order_count"] += int(_parse_numeric(str(row.get("order_count", "0"))) or 0)
+
+    for store_id, bdate, hour in grouped:
+        db.execute(
+            delete(HourlyStoreSales).where(
+                HourlyStoreSales.tenant_id == tid,
+                HourlyStoreSales.store_id == store_id,
+                HourlyStoreSales.business_date == bdate,
+                HourlyStoreSales.hour == hour,
+            )
+        )
+        values = grouped[(store_id, bdate, hour)]
+        db.add(
+            HourlyStoreSales(
+                tenant_id=tid,
+                store_id=store_id,
+                business_date=bdate,
+                hour=hour,
+                net_sales=values["net_sales"],
+                customer_count=values["customer_count"] or values["order_count"],
+                order_count=values["order_count"],
+            )
+        )
+        promoted += 1
+
+    return promoted, skipped
+
+
+def _promote_product_sales(
+    db: Session,
+    tenant_id: str,
+    rows: list[dict],
+    store_map: dict,
+    product_map: dict,
+) -> tuple[int, int]:
+    promoted = 0
+    skipped = 0
+    tid = uuid.UUID(tenant_id)
+    grouped: dict[tuple[uuid.UUID, uuid.UUID, date], dict] = {}
+
+    for row in rows:
+        store_code = str(row.get("store_code", "")).strip()
+        product_code = str(row.get("product_code", "")).strip()
+        store_id = store_map.get(store_code)
+        product_id = product_map.get(product_code)
+        bdate = _parse_date(str(row.get("business_date", "")))
+        if not store_id or not product_id or not bdate:
+            skipped += 1
+            continue
+
+        key = (store_id, product_id, bdate)
+        grouped.setdefault(key, {
+            "quantity": Decimal(0),
+            "net_sales": Decimal(0),
+            "discount_amount": Decimal(0),
+            "theoretical_cogs": Decimal(0),
+        })
+        grouped[key]["quantity"] += _parse_numeric(str(row.get("quantity", "0"))) or Decimal(0)
+        grouped[key]["net_sales"] += _parse_numeric(str(row.get("net_sales", "0"))) or Decimal(0)
+        grouped[key]["discount_amount"] += _parse_numeric(str(row.get("discount_amount", "0"))) or Decimal(0)
+        grouped[key]["theoretical_cogs"] += _parse_numeric(str(row.get("theoretical_cogs", "0"))) or Decimal(0)
+
+    for store_id, product_id, bdate in grouped:
+        db.execute(
+            delete(DailyProductSales).where(
+                DailyProductSales.tenant_id == tid,
+                DailyProductSales.store_id == store_id,
+                DailyProductSales.product_id == product_id,
+                DailyProductSales.business_date == bdate,
+            )
+        )
+        values = grouped[(store_id, product_id, bdate)]
+        db.add(
+            DailyProductSales(
+                tenant_id=tid,
+                store_id=store_id,
+                product_id=product_id,
+                business_date=bdate,
+                quantity=int(values["quantity"]),
+                net_sales=values["net_sales"],
+                discount_amount=values["discount_amount"],
+                theoretical_cogs=values["theoretical_cogs"],
+            )
+        )
         promoted += 1
 
     return promoted, skipped

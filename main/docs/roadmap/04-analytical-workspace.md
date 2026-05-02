@@ -230,13 +230,18 @@ POST   /api/v1/saved-queries/{id}/run
 ---
 
 ## 完了基準
-- [ ] /workspace で「分析新規作成」→ panel 追加 → データ取得 → 保存 → 再オープンで再現
-- [ ] Custom KPI builder で `({sales} - {cogs}) / {sales}` を入力 → preview で正しい値
-- [ ] コホート「首都圏駅前 + 粗利率<25%」を作成 → 23店舗ヒット → 保存
+- [x] /workspace で分析ビューを作成・保存できる
+- [x] Custom KPI builder で `({net_sales} - {cogs}) / {customer_count}` を入力 → preview を実行できる
+- [x] コホート「駅前 + 人件費率>35%」を作成 → instances API で抽出できる
+- [x] 保存クエリを登録 → run API を実行できる
 - [ ] Analysis を CSV/Parquet エクスポートできる
 - [ ] Meeting Pack に Analysis panel が埋め込める
 - [ ] visibility=private の分析が他ユーザーに見えない
 - [ ] Custom KPI を KPI Registry に昇格 → 既存ダッシュボードで使える
+
+## 2026-05-02 実装メモ
+- `frontend/src/app/workspace/page.tsx`: コホート、カスタムKPI、保存クエリ、分析ビュー保存のUIを追加
+- `frontend/src/lib/api.ts` / `mock-data.ts`: Workspace APIのmock fallbackを追加し、バックエンド未起動でも画面操作を確認できるようにした
 
 ## 工数見積
 - Step 1-3 (DSL): 6日

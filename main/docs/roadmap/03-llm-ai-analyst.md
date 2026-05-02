@@ -251,6 +251,10 @@ pip install -r requirements.txt
 ---
 
 ## 完了基準
+- [x] `/api/v1/ai/chat` が SSE で応答し、LLM未設定時もルールベースfallbackで回答する
+- [x] frontend の AI Analyst でストリーミングチャットが動作
+- [x] tool use / tool result を frontend の回答内に表示できる
+- [x] 商品粗利、労務法令、QSC、HACCP の外食ドメイン tool が定義されている
 - [ ] `/api/v1/ai/chat` に「首都圏 駅前 粗利率トップ5」と聞いたら、query_kpi を呼んで実DBから集計し、citation 付きで回答する
 - [ ] prompt caching で 90%+ のシステムプロンプトトークンがキャッシュヒット
 - [ ] documents テーブルに meeting_note / review が embedding 付きで投入されている
@@ -258,7 +262,10 @@ pip install -r requirements.txt
 - [ ] 月次予算超過で 429 が返る
 - [ ] 全 LLM 呼び出しが `audit_log` + `ai_call_log` に記録されている
 - [ ] eval set 30問のうち 24問以上で正答（80%）
-- [ ] frontend の AI Analyst でストリーミングチャットが動作
+
+## 2026-05-02 実装メモ
+- `frontend/src/app/ai-analyst/page.tsx`: `NEXT_PUBLIC_API_URL` がある場合は `/api/v1/ai/chat` に直接POSTし、SSEの text / tool_use / tool_result を表示。未設定または失敗時は既存 `/api/v1/ai/query` にfallback
+- `app/services/ai/tools.py`: `get_product_margin_outliers`, `get_labor_compliance_summary`, `get_qsc_summary`, `get_haccp_summary` を追加
 
 ## 工数見積
 - Step 1-2: 1日

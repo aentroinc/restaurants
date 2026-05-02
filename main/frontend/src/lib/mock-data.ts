@@ -7,6 +7,7 @@ import type {
   WritebackPolicy, WritebackRequest,
   DataSource, DataContractAdmin, IngestionRunAdmin, SchemaMapping, IDMapping,
   POSConnectorConfig, POSConnectorProvider,
+  WorkspaceAnalysis, WorkspaceCustomKPI, WorkspaceCohort, WorkspaceSavedQuery,
   AIGovernanceConfig, AIResponseEnhanced,
 } from "./types"
 
@@ -786,7 +787,7 @@ export const mockPOSConnectorProviders: POSConnectorProvider[] = [
     display_name: "スマレジ Platform API",
     country: "JP",
     auth_type: "client_credentials",
-    entity_types: ["daily_sales"],
+    entity_types: ["daily_sales", "hourly_sales", "product_sales"],
     required_credentials: ["contract_id", "client_id_env", "client_secret_env"],
     required_scopes: ["pos.transactions:read", "pos.stores:read"],
   },
@@ -822,6 +823,71 @@ export const mockPOSConnectorConfigs: POSConnectorConfig[] = [
     store_mappings: {},
     mapped_store_count: 0,
     last_success_at: "2026-05-01T06:00:00Z",
+  },
+]
+
+// ============================================
+// Workspace Mock Data
+// ============================================
+
+export const mockWorkspaceAnalyses: WorkspaceAnalysis[] = [
+  {
+    id: "analysis-zensho-priority",
+    name: "ゼンショー想定: 駅前店のFL悪化分析",
+    description: "駅前立地・人件費率高止まり店舗を抽出し、商品別粗利とQSCを重ねる分析",
+    visibility: "team",
+    spec: {
+      cohort_id: "cohort-station-labor",
+      metrics: ["net_sales", "labor_cost_rate", "gross_profit_rate", "qsc_score"],
+      date_range: "2026-04",
+    },
+    created_at: "2026-05-01T10:00:00Z",
+    updated_at: "2026-05-02T09:30:00Z",
+  },
+]
+
+export const mockWorkspaceCustomKPIs: WorkspaceCustomKPI[] = [
+  {
+    id: "custom-kpi-gross-profit-per-guest",
+    api_name: "gross_profit_per_guest",
+    display_name: "客単位粗利",
+    formula: "({net_sales} - {cogs}) / {customer_count}",
+    target_object_type: "Store",
+    aggregation_axis: ["brand", "store"],
+    filters: { brand: "すき家" },
+    unit: "円",
+    version: 1,
+    status: "draft",
+    created_at: "2026-05-02T09:15:00Z",
+  },
+]
+
+export const mockWorkspaceCohorts: WorkspaceCohort[] = [
+  {
+    id: "cohort-station-labor",
+    name: "駅前・人件費率35%超",
+    object_type: "Store",
+    filter_spec: { trade_area_type: "駅前", labor_cost_rate_gt: 35 },
+    instance_count: 14,
+    snapshot_at: "2026-05-01T06:10:00Z",
+    created_at: "2026-05-01T06:00:00Z",
+  },
+]
+
+export const mockWorkspaceSavedQueries: WorkspaceSavedQuery[] = [
+  {
+    id: "saved-query-menu-margin",
+    name: "商品粗利ワースト店舗",
+    query_type: "ontology",
+    query_spec: {
+      object_type: "Product",
+      join: ["Store", "DailyProductSales"],
+      order_by: "theoretical_cogs_rate desc",
+      limit: 20,
+    },
+    row_count: 20,
+    last_run_at: "2026-05-02T08:45:00Z",
+    created_at: "2026-05-01T08:30:00Z",
   },
 ]
 

@@ -345,8 +345,73 @@ export interface POSConnectorActionResult {
   transactions_fetched?: number;
   daily_rows_loaded?: number;
   daily_rows_skipped?: number;
+  hourly_rows_loaded?: number;
+  product_rows_loaded?: number;
+  product_rows_skipped?: number;
+  kpi_recalculation?: Record<string, unknown>;
   error?: string;
   errors?: { error: string; external_store_id?: string; business_date?: string }[];
+}
+
+// Workspace
+export interface WorkspaceAnalysis {
+  id: string;
+  name: string;
+  description?: string | null;
+  owner_user_id?: string | null;
+  visibility: string;
+  spec: Record<string, any>;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface WorkspaceCustomKPI {
+  id: string;
+  api_name: string;
+  display_name: string;
+  formula: string;
+  target_object_type: string;
+  aggregation_axis: string[];
+  filters?: Record<string, any> | null;
+  unit?: string | null;
+  version?: number;
+  status: string;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceCohort {
+  id: string;
+  name: string;
+  object_type: string;
+  filter_spec: Record<string, any>;
+  instance_count?: number | null;
+  snapshot_at?: string | null;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceSavedQuery {
+  id: string;
+  name: string;
+  query_type: string;
+  query_spec: Record<string, any>;
+  last_run_at?: string | null;
+  row_count?: number | null;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface WorkspaceCohortInstances {
+  cohort_id: string;
+  instance_count: number;
+  instance_ids: string[];
+}
+
+export interface WorkspaceSavedQueryRun {
+  query_id: string;
+  status: string;
+  row_count: number;
 }
 
 // AI Governance
