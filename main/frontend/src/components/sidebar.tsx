@@ -27,9 +27,16 @@ interface NavSection {
 
 const sections: NavSection[] = [
   {
+    title: "ゼンショー (毎朝)",
+    items: [
+      { label: "Daily Brief（3分朝ブリーフ）", icon: Brain, href: "/daily-brief" },
+      { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
+      { label: "デモツアー（28秒）", icon: Presentation, href: "/demo-tour" },
+    ],
+  },
+  {
     title: "ゼンショー POC",
     items: [
-      { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
       { label: "POC マネージャ", icon: FlaskConical, href: "/zensho-pilot" },
       { label: "SV プランナー", icon: Target, href: "/sv-planner" },
       { label: "店長ブリーフ", icon: ClipboardCheck, href: "/store-brief" },
@@ -82,18 +89,19 @@ const sections: NavSection[] = [
 ]
 
 const adminItems: NavItem[] = [
-  { label: "オントロジー", icon: Boxes, href: "/admin/ontology" },
-  { label: "オントロジーグラフ", icon: Network, href: "/admin/ontology/graph" },
-  { label: "KPI定義", icon: Calculator, href: "/admin/kpi-definitions" },
+  { label: "データ辞書", icon: Boxes, href: "/admin/ontology" },
+  { label: "データ関係図", icon: Network, href: "/admin/ontology/graph" },
+  { label: "KPI 管理", icon: Calculator, href: "/admin/kpi-definitions" },
   { label: "データ連携", icon: Database, href: "/admin/data-sources" },
-  { label: "データ系譜", icon: GitBranch, href: "/admin/lineage" },
-  { label: "書き戻し", icon: ShieldCheck, href: "/admin/writeback" },
-  { label: "AIガバナンス", icon: Lock, href: "/admin/ai-governance" },
-  { label: "ロール管理", icon: UsersIcon, href: "/admin/roles" },
-  { label: "ユーザー管理", icon: UsersIcon, href: "/admin/users" },
-  { label: "アクセスログ", icon: FileText, href: "/admin/access-logs" },
-  { label: "Connector Health", icon: Database, href: "/admin/connector-health" },
+  { label: "データの流れ", icon: GitBranch, href: "/admin/lineage" },
+  { label: "現場への指示反映", icon: ShieldCheck, href: "/admin/writeback" },
+  { label: "AI 統制", icon: Lock, href: "/admin/ai-governance" },
+  { label: "権限・ロール", icon: UsersIcon, href: "/admin/roles" },
+  { label: "ユーザー", icon: UsersIcon, href: "/admin/users" },
+  { label: "アクセス監査", icon: FileText, href: "/admin/access-logs" },
+  { label: "データ取り込み健全性", icon: Database, href: "/admin/connector-health" },
   { label: "セキュリティ", icon: Lock, href: "/admin/security" },
+  { label: "AENTRO とは", icon: Hexagon, href: "/about" },
 ]
 
 interface SidebarProps {

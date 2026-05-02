@@ -109,7 +109,7 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
         {/* KPI table */}
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
           <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-white/60 tracking-wide uppercase">KPI 別効果（DiD: Difference-in-Differences）</span>
+            <span className="text-[12px] font-semibold text-white/60 tracking-wide uppercase">KPI 別効果（対照群比較）</span>
             <button onClick={recalc} disabled={recalcing} className="text-[11px] flex items-center gap-1 px-2 py-1 rounded bg-white/[0.04] hover:bg-blue-500/15 hover:text-blue-400 text-white/55 disabled:opacity-50">
               <RefreshCw className={`w-3 h-3 ${recalcing ? "animate-spin" : ""}`} /> 再計算
             </button>
@@ -122,10 +122,10 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
                   <th className="text-right px-3 py-2 font-medium">ベースライン</th>
                   <th className="text-right px-3 py-2 font-medium">介入後</th>
                   <th className="text-right px-3 py-2 font-medium">変化率</th>
-                  <th className="text-right px-3 py-2 font-medium">p値</th>
-                  <th className="text-right px-3 py-2 font-medium">95% CI</th>
+                  <th className="text-right px-3 py-2 font-medium">信頼度</th>
+                  <th className="text-right px-3 py-2 font-medium">改善幅</th>
                   <th className="text-right px-3 py-2 font-medium">年間換算</th>
-                  <th className="text-center px-3 py-2 font-medium">有意</th>
+                  <th className="text-center px-3 py-2 font-medium">判定</th>
                 </tr>
               </thead>
               <tbody className="text-white/75 font-mono">
@@ -135,16 +135,18 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
                     <td className="text-right px-3 py-3">{r.baseline.toFixed(2)}</td>
                     <td className="text-right px-3 py-3">{r.intervention.toFixed(2)}</td>
                     <td className={`text-right px-3 py-3 ${r.delta_pct < 0 ? "text-emerald-400" : "text-blue-400"}`}>{r.delta_pct > 0 ? "+" : ""}{r.delta_pct.toFixed(2)}%</td>
-                    <td className="text-right px-3 py-3 text-white/55">{r.p_value !== undefined && r.p_value !== null ? r.p_value.toFixed(4) : "n/a"}</td>
+                    <td className="text-right px-3 py-3 text-white/55 text-[11px]" title={r.p_value !== undefined && r.p_value !== null ? `p = ${r.p_value.toFixed(4)}` : ""}>
+                      {r.p_value !== undefined && r.p_value !== null ? (r.p_value < 0.01 ? "高" : r.p_value < 0.05 ? "中" : "低") : "n/a"}
+                    </td>
                     <td className="text-right px-3 py-3 text-white/55 text-[10px]">
-                      {r.ci && r.ci[0] !== null ? `[${r.ci[0]?.toFixed(2)}, ${r.ci[1]?.toFixed(2)}]` : "n/a"}
+                      {r.ci && r.ci[0] !== null ? `±${(((r.ci[1] || 0) - (r.ci[0] || 0)) / 2).toFixed(2)}` : "n/a"}
                     </td>
                     <td className="text-right px-3 py-3 text-amber-400/90">{fmt(r.annualized_impact_yen)}</td>
                     <td className="text-center px-3 py-3">
                       {r.significant ? (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">✓</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">確実</span>
                       ) : (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-white/[0.04] text-white/40">—</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400/80">参考</span>
                       )}
                     </td>
                   </tr>
