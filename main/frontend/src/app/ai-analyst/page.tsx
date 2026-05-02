@@ -197,16 +197,16 @@ export default function AIAnalystPage() {
                 {/* Facts */}
                 {msg.response.facts.length > 0 && (
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <BarChart3 className="h-4 w-4 text-blue-500" />
+                    <div className="flex items-center gap-2 mb-2 min-w-0">
+                      <BarChart3 className="h-4 w-4 shrink-0 text-blue-500" />
                       <span className="text-sm font-semibold text-gray-700">根拠データ</span>
                       <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700 border-blue-200">Fact</Badge>
                     </div>
                     <div className="space-y-2">
                       {msg.response.facts.map((fact, i) => (
-                        <div key={i} className="flex items-start gap-2 rounded border border-blue-100 bg-blue-50/30 p-2 text-sm">
+                        <div key={i} className="flex items-start gap-2 rounded border border-blue-100 bg-blue-50/30 p-2 text-sm min-w-0">
                           <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
-                          <div className="flex-1">{fact.statement}</div>
+                          <div className="flex-1 min-w-0 break-words">{fact.statement}</div>
                           <Badge variant="outline" className="shrink-0 text-xs">{fact.source_metric}</Badge>
                         </div>
                       ))}

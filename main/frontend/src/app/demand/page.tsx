@@ -190,7 +190,7 @@ export default function DemandPage() {
   const overstockStores = 14
 
   return (
-    <div className="-m-6 min-h-[calc(100vh-3.5rem)] bg-[#0a0e14] text-white/80">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-[#0a0e14] text-white/80">
       <div className="px-6 pt-6">
         <ContextHeader
           title="需要・在庫プランナー"
@@ -200,7 +200,7 @@ export default function DemandPage() {
 
       <div className="px-6 pb-8 space-y-4">
         {/* KPI cards */}
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <KpiCard icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
             label="予測精度 MAPE" value={`${mape.toFixed(1)}%`} sub="直近14日加重平均" tone="emerald" />
           <KpiCard icon={<AlertTriangle className="w-4 h-4 text-red-400" />}
@@ -222,7 +222,7 @@ export default function DemandPage() {
             </span>
             <span className="text-[11px] text-white/40 ml-2">3案比較 — AI推奨: A案</span>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-white/[0.06]">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x divide-white/[0.06]">
             {scenarios.map((sc) => (
               <div key={sc.id} className={`p-4 ${sc.recommended ? "bg-emerald-500/[0.04]" : ""}`}>
                 <div className="flex items-center justify-between mb-2">
@@ -450,8 +450,8 @@ export default function DemandPage() {
         </div>
 
         {/* Waste analysis */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] lg:col-span-2">
             <div className="px-4 py-2 border-b border-white/[0.06] flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">廃棄上位SKU</span>
               <span className="text-[10px] text-white/30">本日推定 / 廃棄理由分布</span>

@@ -214,6 +214,7 @@ export default function LineagePage() {
       {/* Lineage Events Table */}
       <h3 className="text-sm font-semibold text-gray-700 mb-3">系譜イベント一覧</h3>
       <Card>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -251,6 +252,7 @@ export default function LineagePage() {
             })}
           </TableBody>
         </Table>
+        </div>
       </Card>
 
       {/* Click outside to close dropdown */}

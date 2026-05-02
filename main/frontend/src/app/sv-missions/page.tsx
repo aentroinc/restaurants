@@ -158,16 +158,16 @@ export default function SVMissionsPage() {
                   <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold text-sm", priorityColor(mission.priority_score))}>
                     {mission.priority_score}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Link href={`/stores/${mission.store.id}`} className="font-semibold text-blue-600 hover:underline" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Link href={`/stores/${mission.store.id}`} className="font-semibold text-blue-600 hover:underline truncate" onClick={(e) => e.stopPropagation()}>
                         {mission.store.name}
                       </Link>
-                      <Badge variant="secondary" className="text-xs">{mission.store.brand_name}</Badge>
+                      <Badge variant="secondary" className="text-xs shrink-0">{mission.store.brand_name}</Badge>
                     </div>
-                    <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" />最終訪問 {mission.days_since_visit}日前</span>
-                      <span className="flex items-center gap-1"><ListTodo className="h-3 w-3" />未完了タスク {mission.open_tasks}件</span>
+                    <div className="mt-1 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3 shrink-0" />最終訪問 {mission.days_since_visit}日前</span>
+                      <span className="flex items-center gap-1"><ListTodo className="h-3 w-3 shrink-0" />未完了タスク {mission.open_tasks}件</span>
                       <span>健全度 {mission.kpi.health_score}</span>
                       <span>FL比率 {formatPercent(mission.kpi.fl_ratio)}</span>
                     </div>

@@ -67,6 +67,7 @@ export default function WritebackPage() {
         {/* Policies */}
         <TabsContent value="policies" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -105,6 +106,7 @@ export default function WritebackPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
 
@@ -124,6 +126,7 @@ export default function WritebackPage() {
           </div>
 
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -174,6 +177,7 @@ export default function WritebackPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

@@ -330,7 +330,7 @@ export default function ExecutiveCommandPage() {
   }, [])
 
   return (
-    <div className="min-h-full -m-6 bg-[#0a0e14] text-white/80 flex flex-col">
+    <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">
       <ContextHeader
         title="経営司令塔"
         description="全社オペレーションをリアルタイムで把握"
@@ -340,15 +340,15 @@ export default function ExecutiveCommandPage() {
 
       <div className="px-5 py-5 space-y-5">
         {/* Top status strip */}
-        <div className="flex items-center gap-3 text-[11px] text-white/50">
-          <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" /> {filteredStores.length}店舗 / {TOTAL_STORES}店舗</span>
-          <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5" /> 本日売上 ¥{kpiSummary.total_daily_sales_oku}億 ({kpiSummary.today_sales_forecast_pct})</span>
-          <span className="text-white/30">|</span>
-          <span>客数 {(kpiSummary.total_customers / 10000).toFixed(1)}万人 / 客単価 ¥{kpiSummary.avg_ticket}</span>
+        <div className="flex items-center gap-3 text-[11px] text-white/50 flex-wrap">
+          <span className="flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5 shrink-0" /> {filteredStores.length}店舗 / {TOTAL_STORES}店舗</span>
+          <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">本日売上 ¥{kpiSummary.total_daily_sales_oku}億 ({kpiSummary.today_sales_forecast_pct})</span></span>
+          <span className="text-white/30 hidden sm:inline">|</span>
+          <span className="hidden sm:inline">客数 {(kpiSummary.total_customers / 10000).toFixed(1)}万人 / 客単価 ¥{kpiSummary.avg_ticket}</span>
         </div>
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {kpiCards.map((kpi) => {
             const Icon = kpi.icon
             const max = Math.max(...kpi.spark)
@@ -357,9 +357,9 @@ export default function ExecutiveCommandPage() {
                 key={kpi.label}
                 className="rounded-lg border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] p-4 transition-all group"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon className={`w-4 h-4 ${kpi.positive ? "text-emerald-400/70" : "text-amber-400/70"}`} strokeWidth={1.5} />
-                  <span className="text-[10px] uppercase tracking-wider text-white/40">{kpi.label}</span>
+                <div className="flex items-center gap-2 mb-2 min-w-0">
+                  <Icon className={`w-4 h-4 shrink-0 ${kpi.positive ? "text-emerald-400/70" : "text-amber-400/70"}`} strokeWidth={1.5} />
+                  <span className="text-[10px] uppercase tracking-wider text-white/40 truncate">{kpi.label}</span>
                 </div>
                 <div className={`font-mono tabular-nums text-2xl font-semibold tracking-tight ${kpi.positive ? "text-emerald-400" : "text-amber-400"}`}>
                   {kpi.value}
@@ -382,8 +382,8 @@ export default function ExecutiveCommandPage() {
         </div>
 
         {/* Map + Signal Feed */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.02] overflow-hidden">
             <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
               <span className="text-[15px] font-semibold tracking-tight text-white/80">店舗ネットワーク</span>
               <span className="text-[10px] uppercase tracking-wider text-white/40">{filteredStores.length}店舗 / health分布</span>
@@ -484,8 +484,8 @@ export default function ExecutiveCommandPage() {
         </div>
 
         {/* Bottom: Brand breakdown + Actions */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-1 rounded-lg border border-white/[0.06] bg-white/[0.02]">
             <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
               <span className="text-[15px] font-semibold tracking-tight text-white/80">ブランド別内訳</span>
               {selectedBrand && (
@@ -541,7 +541,7 @@ export default function ExecutiveCommandPage() {
           </div>
 
           {/* Action queue */}
-          <div className="col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <div className="lg:col-span-2 rounded-lg border border-white/[0.06] bg-white/[0.02]">
             <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
               <span className="text-[15px] font-semibold tracking-tight text-white/80">対応アクション</span>
               <Link href="/tasks" className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1">

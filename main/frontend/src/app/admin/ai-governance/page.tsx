@@ -161,6 +161,7 @@ export default function AIGovernancePage() {
           <CardTitle className="text-base">最近のAIクエリ</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,6 +187,7 @@ export default function AIGovernancePage() {
               })}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

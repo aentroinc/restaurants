@@ -368,7 +368,7 @@ export default function OntologyGraphPage() {
   const impactMenus = selectedId === "SKU" ? 12 : 0
 
   return (
-    <div className="min-h-full -m-6 bg-[#0a0e14] p-6 text-white/80">
+    <div className="min-h-full bg-[#0a0e14] p-6 text-white/80">
       <div className="mb-5 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
         <ContextHeader
           title="オントロジーグラフ"

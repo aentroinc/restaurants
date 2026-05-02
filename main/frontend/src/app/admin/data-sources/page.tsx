@@ -88,6 +88,7 @@ export default function DataSourcesPage() {
         {/* Data Contracts */}
         <TabsContent value="contracts" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -116,12 +117,14 @@ export default function DataSourcesPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
 
         {/* Ingestion Runs */}
         <TabsContent value="runs" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,12 +175,14 @@ export default function DataSourcesPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
 
         {/* Schema Mappings */}
         <TabsContent value="schema" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -208,12 +213,14 @@ export default function DataSourcesPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
 
         {/* ID Mappings */}
         <TabsContent value="id" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -259,6 +266,7 @@ export default function DataSourcesPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

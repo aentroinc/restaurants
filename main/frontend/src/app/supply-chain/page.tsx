@@ -257,7 +257,7 @@ export default function SupplyChainTwinPage() {
   ]
 
   return (
-    <div className="min-h-full -m-6 bg-[#0a0e14] text-white/80 flex flex-col">
+    <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">
       <ContextHeader
         title="サプライチェーン Twin"
         description="工場・配送・店舗ネットワークの一元監視"
@@ -275,7 +275,7 @@ export default function SupplyChainTwinPage() {
         </div>
 
         {/* Top row: Factories + DCs + Route Status */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Factory utilization */}
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex items-center gap-2 mb-3">

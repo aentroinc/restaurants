@@ -68,25 +68,25 @@ export function ContextHeader({
 
       <div className="flex items-center gap-4 text-[11px] text-white/40 shrink-0">
         <span className="flex items-center gap-1.5">
-          <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse-subtle" />
+          <Radio className="w-3.5 h-3.5 shrink-0 text-emerald-400 animate-pulse-subtle" />
           <span className="text-emerald-400/90 font-semibold tracking-wider">LIVE</span>
           {liveUpdatedAt && (
-            <span className="text-white/40 font-mono tabular-nums ml-1">
+            <span className="hidden md:inline text-white/40 font-mono tabular-nums ml-1">
               最終更新 {liveUpdatedAt}
             </span>
           )}
         </span>
         {asOf && (
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" />
+          <span className="hidden md:flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
             <span className="font-mono tabular-nums">{asOf}</span>
           </span>
         )}
         <span className="hidden lg:flex items-center gap-1.5">
-          <Shield className="w-3.5 h-3.5" />
+          <Shield className="w-3.5 h-3.5 shrink-0" />
           信頼度: High
         </span>
-        {actions && <div className="flex items-center gap-2 ml-1">{actions}</div>}
+        {actions && <div className="flex items-center gap-2 ml-1 shrink-0">{actions}</div>}
       </div>
     </header>
   )

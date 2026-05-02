@@ -187,10 +187,10 @@ export default function StoreDetailPage() {
         title={store.name}
         description={`${store.brand_name} / ${store.area_name} / ${store.prefecture}`}
         actions={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setSvAdded(false); setSvDialogOpen(true) }}><Target className="h-4 w-4 mr-1" />SV ミッション追加</Button>
-            <Button variant="outline" size="sm" onClick={() => { setMeetingAdded(false); setMeetingDialogOpen(true) }}><Presentation className="h-4 w-4 mr-1" />経営会議に追加</Button>
-            <Button size="sm" onClick={() => openTaskDialog()}><Plus className="h-4 w-4 mr-1" />タスク作成</Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => { setSvAdded(false); setSvDialogOpen(true) }}><Target className="h-4 w-4 mr-1 shrink-0" /><span className="hidden sm:inline">SV ミッション追加</span><span className="sm:hidden">SV</span></Button>
+            <Button variant="outline" size="sm" onClick={() => { setMeetingAdded(false); setMeetingDialogOpen(true) }}><Presentation className="h-4 w-4 mr-1 shrink-0" /><span className="hidden sm:inline">経営会議に追加</span><span className="sm:hidden">会議</span></Button>
+            <Button size="sm" onClick={() => openTaskDialog()}><Plus className="h-4 w-4 mr-1 shrink-0" />タスク作成</Button>
           </div>
         }
       />
@@ -313,7 +313,7 @@ export default function StoreDetailPage() {
       </Dialog>
 
       {/* Store Info */}
-      <div className="mb-6 flex gap-4 text-sm text-gray-600">
+      <div className="mb-6 flex gap-4 text-sm text-gray-600 flex-wrap">
         <span>SV: {store.sv_name}</span>
         <span>店長: {store.manager_name}</span>
         <Badge variant={store.status === "営業中" ? "success" : "secondary"}>{store.status}</Badge>

@@ -116,6 +116,7 @@ export default function StoresPage() {
 
       {/* Table */}
       <Card>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -136,7 +137,7 @@ export default function StoresPage() {
             {paged.map((store, idx) => (
               <TableRow key={store.id} className="cursor-pointer" onClick={() => window.location.href = `/stores/${store.id}`}>
                 <TableCell className="font-medium text-gray-500">{page * perPage + idx + 1}</TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   <Link href={`/stores/${store.id}`} className="font-medium text-blue-600 hover:underline">
                     {store.name}
                   </Link>
@@ -167,6 +168,7 @@ export default function StoresPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t p-4">
             <div className="text-sm text-gray-500">{filtered.length}件中 {page * perPage + 1}-{Math.min((page + 1) * perPage, filtered.length)}件</div>

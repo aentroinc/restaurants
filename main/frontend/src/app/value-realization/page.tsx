@@ -113,9 +113,9 @@ export default function ValueRealizationPage() {
               onClick={() => setSelectedCase(isSelected ? null : vc)}
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold">{vc.name}</span>
                       <Badge variant={cfg.variant} className="text-xs flex items-center gap-1">
                         {cfg.icon}{vc.status}

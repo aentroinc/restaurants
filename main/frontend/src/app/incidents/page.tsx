@@ -853,7 +853,7 @@ export default function IncidentsPage() {
     selectedIncident.scenarios[0]?.id
 
   return (
-    <div className="min-h-full -m-6 bg-[#0a0e14] p-6 text-white/80">
+    <div className="min-h-full bg-[#0a0e14] p-6 text-white/80">
       <div className="mb-5 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
         <ContextHeader
           title="インシデント & 対応キュー"
@@ -862,7 +862,7 @@ export default function IncidentsPage() {
       </div>
 
       {/* Status counters */}
-      <div className="mb-4 grid grid-cols-5 gap-3">
+      <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <CounterCard label="承認待ち" value={counts.pending} color="text-amber-400" Icon={Clock} />
         <CounterCard label="承認済" value={counts.approved} color="text-blue-400" Icon={CheckCircle2} />
         <CounterCard label="実行中" value={counts["in-progress"]} color="text-cyan-400" Icon={Zap} />
@@ -870,9 +870,9 @@ export default function IncidentsPage() {
         <CounterCard label="却下" value={counts.rejected} color="text-red-400" Icon={XCircle} />
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Incident list */}
-        <div className="col-span-4 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <div className="lg:col-span-4 rounded-lg border border-white/[0.06] bg-white/[0.02]">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2">
             <span className="text-[10px] uppercase tracking-wider text-white/40">
               Incidents
@@ -938,7 +938,7 @@ export default function IncidentsPage() {
         </div>
 
         {/* Detail */}
-        <div className="col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-4">
           {/* Overview */}
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02]">
             <div className="border-b border-white/[0.06] px-4 py-2 flex items-center gap-2">
@@ -968,7 +968,7 @@ export default function IncidentsPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-4 gap-3 text-center">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                 <ImpactStat
                   Icon={StoreIcon}
                   value={selectedIncident.impacted_stores}

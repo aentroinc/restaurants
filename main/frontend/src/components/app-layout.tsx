@@ -31,7 +31,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           )}
         </Button>
 
-        <main className="flex-1 overflow-y-auto bg-[#0a0e14]">
+        <main className="flex-1 overflow-y-auto bg-[#0a0e14] pl-10">
           {children}
         </main>
       </div>

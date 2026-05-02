@@ -89,10 +89,10 @@ export default function MeetingPacksPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
                   <FileText className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-semibold">{pack.title}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold truncate">{pack.title}</div>
                   <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
-                    <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formatDate(pack.meeting_date)}</span>
+                    <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5 shrink-0" />{formatDate(pack.meeting_date)}</span>
                     <span>{pack.items.length}件のアイテム</span>
                   </div>
                 </div>

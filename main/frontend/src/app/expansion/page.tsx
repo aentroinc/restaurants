@@ -221,7 +221,7 @@ export default function ExpansionPage() {
     .reduce((s, r) => s + r.ticket_lift_pct, 0) / completedCount
 
   return (
-    <div className="-m-6 min-h-[calc(100vh-3.5rem)] bg-[#0a0e14] text-white/80">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-[#0a0e14] text-white/80">
       <div className="px-6 pt-6">
         <ContextHeader
           title="出店・改装プランナー"
@@ -241,7 +241,7 @@ export default function ExpansionPage() {
         {tab === "expansion" ? (
           <>
             {/* KPI summary */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <KpiCard label="候補地数" value={`${candidates.length}`} sub="評価対象" tone="white" />
               <KpiCard label="平均総合スコア" value={(candidates.reduce((s, c) => s + c.total_score, 0) / candidates.length).toFixed(1)} sub="100点満点" tone="blue" />
               <KpiCard label="平均想定日商" value={`¥${Math.round(candidates.reduce((s, c) => s + c.expected_daily_sales, 0) / candidates.length / 10000)}万`} sub="20候補加重平均" tone="emerald" />
@@ -259,7 +259,7 @@ export default function ExpansionPage() {
                   上位3候補の根拠 — 商圏特性 / 競合分布 / 自社カニバリ
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-3 mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                 {top3.map((c, i) => (
                   <div key={c.candidate_id} className="rounded border border-white/[0.06] bg-white/[0.02] p-3">
                     <div className="flex items-center justify-between mb-1.5">
@@ -277,7 +277,7 @@ export default function ExpansionPage() {
             </div>
 
             {/* Top 3 hero cards */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {top3.map((c, i) => (
                 <div key={c.candidate_id} className="rounded-lg border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors overflow-hidden">
                   <div className={`px-4 py-2 border-b border-white/[0.06] flex items-center justify-between ${
@@ -502,7 +502,7 @@ function RenovationView({
   return (
     <>
       {/* Renovation KPI */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiCard label="完了" value={`${completedCount}件`} sub="2025年実績" tone="emerald" />
         <KpiCard label="進行中" value={`${inProgressCount}件`} sub="現在対応中" tone="cyan" />
         <KpiCard label="計画中" value={`${plannedCount}件`} sub="2026下期予定" tone="white" />

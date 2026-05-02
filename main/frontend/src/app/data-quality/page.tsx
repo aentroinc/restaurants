@@ -104,6 +104,7 @@ export default function DataQualityPage() {
 
       {/* Issues Table */}
       <Card>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -137,6 +138,7 @@ export default function DataQualityPage() {
             })}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   )

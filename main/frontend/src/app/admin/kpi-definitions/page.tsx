@@ -101,6 +101,7 @@ export default function KPIDefinitionsPage() {
       />
 
       <Card>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -140,6 +141,7 @@ export default function KPIDefinitionsPage() {
             })}
           </TableBody>
         </Table>
+        </div>
       </Card>
 
       {/* Detail Sheet */}

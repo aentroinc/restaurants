@@ -65,6 +65,7 @@ export default function OntologyPage() {
         {/* Object Types Tab */}
         <TabsContent value="object-types" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -137,6 +138,7 @@ export default function OntologyPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
 
@@ -198,6 +200,7 @@ export default function OntologyPage() {
         {/* Relation Types Tab */}
         <TabsContent value="relations" className="mt-4">
           <Card>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -232,6 +235,7 @@ export default function OntologyPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

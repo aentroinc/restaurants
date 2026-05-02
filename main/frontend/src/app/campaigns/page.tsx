@@ -258,7 +258,7 @@ export default function CampaignsPage() {
   const maxTime = Math.max(...byTime.map((t) => t.lift), 1)
 
   return (
-    <div className="min-h-full -m-6 bg-[#0a0e14] p-6 text-white/80">
+    <div className="min-h-full bg-[#0a0e14] p-6 text-white/80">
       <div className="mb-5">
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
           <ContextHeader
@@ -306,7 +306,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="mb-4 grid grid-cols-5 gap-3">
+      <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <SummaryCard
           icon={<TrendingUp className="h-4 w-4 text-emerald-400" />}
           label="売上リフト"
@@ -345,7 +345,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Breakdowns */}
-      <div className="mb-4 grid grid-cols-3 gap-4">
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Panel title="地域別 Breakdown">
           <div className="space-y-2.5">
             {byRegion.map((r) => (
