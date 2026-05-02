@@ -9,6 +9,7 @@ from app.api.v1 import workspace, rbac
 from app.api.v1 import vertical
 from app.api.v1 import connectors
 from app.api.v1 import identity_providers, access_logs
+from app.api.v1 import pilots, connector_health, security as security_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
 
@@ -56,3 +57,6 @@ app.include_router(vertical.router)
 app.include_router(connectors.router)
 app.include_router(identity_providers.router)
 app.include_router(access_logs.router)
+app.include_router(pilots.router)
+app.include_router(connector_health.router)
+app.include_router(security_router.router)

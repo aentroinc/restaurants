@@ -17,6 +17,9 @@ import {
   mockRoles, mockRolePermissions,
   mockObjectTypesV2, mockImpactReport,
   mockHuffResult, mockMenuEngineering, mockPriceElasticities, mockPriceDecisions, mockProductDetail,
+  mockPilotThemes, mockPilots, mockPilotResults, mockPilotSummary,
+  mockConnectorHealth, mockColumnPolicies, mockPIIRedactionLogs, mockPIISummary,
+  mockSVMissionPlan, mockStoreManagerBrief,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -160,6 +163,30 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/vertical/pricing/decisions")) return mockPriceDecisions as any
   // Product detail
   if (path.match(/\/api\/v1\/vertical\/products\/[^/]+$/)) return mockProductDetail as any
+  // Zensho Pilot
+  if (path === "/api/v1/pilots/themes") return { data: mockPilotThemes } as any
+  if (path.match(/\/api\/v1\/pilots\/themes\/[^/]+$/)) {
+    const id = path.split("/").pop()!
+    return { data: mockPilotThemes.find((t: any) => t.theme_id === id) } as any
+  }
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/summary/)) return { data: mockPilotSummary } as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/results/)) return { data: mockPilotResults } as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/calculate-results/)) return { data: mockPilotResults } as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/export-pack/)) return { data: { audience: "executive", title: mockPilotSummary.name, sections: [] } } as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+$/)) {
+    const id = path.split("/").pop()!
+    return { data: { ...mockPilots[0], id } } as any
+  }
+  if (path === "/api/v1/pilots" || path === "/api/v1/pilots/") return { data: mockPilots } as any
+  // Connector Health
+  if (path === "/api/v1/connector-health" || path === "/api/v1/connector-health/") return { data: mockConnectorHealth } as any
+  // Column Policies / PII / Security
+  if (path.startsWith("/api/v1/admin/security/column-policies")) return { data: mockColumnPolicies } as any
+  if (path.startsWith("/api/v1/admin/security/pii-redaction-logs")) return { data: mockPIIRedactionLogs } as any
+  if (path.startsWith("/api/v1/admin/security/pii-redaction-summary")) return { data: mockPIISummary } as any
+  if (path.startsWith("/api/v1/admin/security/security-review-pack/export")) {
+    return { data: { title: "AENTRO Security Review Pack", sections: [], compliance_status: { tenant_isolation: "✓", encryption_at_rest: "✓" } } } as any
+  }
   return {} as T
 }
 

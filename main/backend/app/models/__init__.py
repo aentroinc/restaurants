@@ -48,6 +48,9 @@ from app.models.benchmark import IndustryBenchmark
 from app.models.workspace import Analysis, CustomKPI, Cohort, SavedQuery
 from app.models.ontology_migration import OntologyMigrationJob
 from app.models.trade_area import TradeArea, CompetitorStore, PopulationMesh
+from app.models.pilot import PilotProject, PilotIntervention, PilotResult
+from app.models.column_policy import ColumnPolicy, PIIRedactionLog
+from app.models.connector_extras import ConnectorCredentialRef, ConnectorSchedule, DataContractRule
 from app.models.pricing import PriceDecision, PriceElasticity
 from app.models.rbac import Role, Permission, UserRole
 from app.models.auth_enterprise import IdentityProvider, MFASecret, AccessLog, LoginAttempt, AccountLock
@@ -83,4 +86,7 @@ __all__ = [
     "TradeArea", "CompetitorStore", "PopulationMesh",
     "PriceDecision", "PriceElasticity",
     "IdentityProvider", "MFASecret", "AccessLog", "LoginAttempt", "AccountLock",
+    "PilotProject", "PilotIntervention", "PilotResult",
+    "ColumnPolicy", "PIIRedactionLog",
+    "ConnectorCredentialRef", "ConnectorSchedule", "DataContractRule",
 ]

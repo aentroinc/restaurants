@@ -27,6 +27,15 @@ interface NavSection {
 
 const sections: NavSection[] = [
   {
+    title: "ゼンショー POC",
+    items: [
+      { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
+      { label: "POC マネージャ", icon: FlaskConical, href: "/zensho-pilot" },
+      { label: "SV プランナー", icon: Target, href: "/sv-planner" },
+      { label: "店長ブリーフ", icon: ClipboardCheck, href: "/store-brief" },
+    ],
+  },
+  {
     title: "経営オペレーション",
     items: [
       { label: "経営司令塔", icon: LayoutDashboard, href: "/" },
@@ -83,6 +92,8 @@ const adminItems: NavItem[] = [
   { label: "ロール管理", icon: UsersIcon, href: "/admin/roles" },
   { label: "ユーザー管理", icon: UsersIcon, href: "/admin/users" },
   { label: "アクセスログ", icon: FileText, href: "/admin/access-logs" },
+  { label: "Connector Health", icon: Database, href: "/admin/connector-health" },
+  { label: "セキュリティ", icon: Lock, href: "/admin/security" },
 ]
 
 interface SidebarProps {

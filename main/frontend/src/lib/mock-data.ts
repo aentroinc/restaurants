@@ -1229,3 +1229,187 @@ export const mockPriceDecisions = [
   { id: "pd-002", product_id: "prod-001", product_name: "牛丼並盛", date: "2025-03-01", old_price: 430, new_price: 480, reason: "原材料費高騰に対応", actual_volume_change: "-5%" },
   { id: "pd-003", product_id: "prod-002", product_name: "カレー並盛", date: "2025-06-01", old_price: 400, new_price: 430, reason: "原価率改善", actual_volume_change: "-3%" },
 ]
+
+// ============================================
+// Zensho Pilot Package Mock
+// ============================================
+export const mockPilotThemes = [
+  {
+    theme_id: "ZP-01",
+    name: "欠品・廃棄削減 POC",
+    description: "需要予測精度向上 → 在庫補充タイミング最適化で廃棄/欠品を同時削減",
+    primary_kpis: ["waste_amount", "stockout_rate", "gross_profit_rate"],
+    default_brands: ["はま寿司", "すき家"],
+  },
+  {
+    theme_id: "ZP-02",
+    name: "深夜帯人員配置最適化 POC",
+    description: "深夜帯のシフト過剰/過少を解消、人時売上を改善",
+    primary_kpis: ["sales_per_labor_hour", "labor_cost_rate", "overtime_hours"],
+    default_brands: ["すき家"],
+  },
+  {
+    theme_id: "ZP-03",
+    name: "SV 訪問優先順位最適化 POC",
+    description: "SV ミッションを improvement opportunity 順に再配分",
+    primary_kpis: ["sv_visit_effectiveness", "underperforming_store_count", "health_score"],
+    default_brands: ["ココス", "ジョリーパスタ"],
+  },
+  {
+    theme_id: "ZP-04",
+    name: "QSC/HACCP 監査統合 POC",
+    description: "監査スコアと実 KPI 連動を可視化、是正完了率を改善",
+    primary_kpis: ["qsc_score", "haccp_compliance_rate", "corrective_action_close_rate"],
+    default_brands: ["全ブランド"],
+  },
+  {
+    theme_id: "ZP-05",
+    name: "M&A ブランド可視化 POC",
+    description: "買収ブランドの KPI 統一・データ接続を進捗可視化",
+    primary_kpis: ["data_integration_rate", "kpi_unification_rate"],
+    default_brands: ["ロッテリア"],
+  },
+]
+
+export const mockPilots = [
+  {
+    id: "pilot-001",
+    name: "はま寿司 廃棄削減 POC",
+    theme: "ZP-01",
+    description: "需要予測精度向上 → 在庫補充タイミング最適化で廃棄/欠品を同時削減",
+    target_store_ids: Array(20).fill("").map((_, i) => `store-${i + 1}`),
+    control_store_ids: Array(10).fill("").map((_, i) => `store-${i + 21}`),
+    baseline_start_date: "2026-02-01",
+    baseline_end_date: "2026-03-02",
+    intervention_start_date: "2026-03-03",
+    intervention_end_date: "2026-03-30",
+    success_kpis: ["waste_amount", "stockout_rate", "gross_profit_rate"],
+    target_improvement_pct: { waste_amount: -3.0, stockout_rate: -5.0 },
+    sponsor_name: "ゼンショーHD 経営企画 山本 太郎",
+    status: "running",
+    overlay_mode: "read_only",
+    weekly_plan: [
+      "W1: データ取り込み + DQ レビュー",
+      "W2: ベースライン KPI 確定 + 介入店舗選定",
+      "W3-4: 介入実施 + 日次モニタリング",
+      "W5-6: 効果計測 + 仮説検証",
+      "W7: 中間レポート",
+      "W8: 最終報告書 + 本展開提案",
+    ],
+    data_required: ["daily_sales", "product_sales", "inventory_snapshot"],
+  },
+]
+
+export const mockPilotResults = [
+  { kpi_name: "waste_amount", baseline_value: 18500, intervention_value: 14200, delta_pct: -23.2, p_value: 0.012, significant: true, annualized_impact_yen: 31_400_000, sample_size: 560, calculation_method: "did" },
+  { kpi_name: "stockout_rate", baseline_value: 2.8, intervention_value: 1.4, delta_pct: -50.0, p_value: 0.003, significant: true, annualized_impact_yen: 25_200_000, sample_size: 560, calculation_method: "did" },
+  { kpi_name: "gross_profit_rate", baseline_value: 31.2, intervention_value: 32.1, delta_pct: 2.9, p_value: 0.18, significant: false, annualized_impact_yen: 16_200_000, sample_size: 560, calculation_method: "did" },
+]
+
+export const mockPilotSummary = {
+  pilot_id: "pilot-001",
+  name: "はま寿司 廃棄削減 POC",
+  theme: "ZP-01",
+  theme_name: "欠品・廃棄削減 POC",
+  sponsor_name: "ゼンショーHD 経営企画 山本 太郎",
+  status: "running",
+  overlay_mode: "read_only",
+  target_store_count: 20,
+  control_store_count: 10,
+  baseline_period: "2026-02-01 〜 2026-03-02",
+  intervention_period: "2026-03-03 〜 2026-03-30",
+  results: mockPilotResults.map((r) => ({
+    kpi_name: r.kpi_name,
+    baseline: r.baseline_value,
+    intervention: r.intervention_value,
+    delta_pct: r.delta_pct,
+    p_value: r.p_value,
+    significant: r.significant,
+    annualized_impact_yen: r.annualized_impact_yen,
+    ci: [r.intervention_value * 0.92, r.intervention_value * 1.08],
+    method: r.calculation_method,
+  })),
+  total_annualized_impact_yen: 72_800_000,
+  significant_kpi_count: 2,
+  kpi_count: 3,
+  verdict: "成功: 統計的有意 2/3 KPI、年間 72,800,000円 改善見込み",
+  next_actions: [
+    "有意改善が出た KPI（waste_amount, stockout_rate）について本契約スコープでの全店展開を提案",
+    "Read-only から writeback approved への移行を IT 部門と協議",
+  ],
+}
+
+// ============================================
+// Connector Health Mock
+// ============================================
+export const mockConnectorHealth = [
+  { data_source_id: "ds-001", name: "スマレジ POS", source_type: "smaregi", status: "connected", health_score: 95, health_badge: "good", last_sync_at: "2026-05-02T03:15:00Z", freshness_hours: 7.2, recent_failures_7d: 0, last_error: null },
+  { data_source_id: "ds-002", name: "KING OF TIME 勤怠", source_type: "king_of_time", status: "connected", health_score: 78, health_badge: "warning", last_sync_at: "2026-05-01T03:00:00Z", freshness_hours: 31.5, recent_failures_7d: 1, last_error: "Rate limit (429)" },
+  { data_source_id: "ds-003", name: "Hacobu 物流 TMS", source_type: "hacobu", status: "error", health_score: 35, health_badge: "critical", last_sync_at: "2026-04-28T03:00:00Z", freshness_hours: 96.2, recent_failures_7d: 4, last_error: "Authentication expired" },
+  { data_source_id: "ds-004", name: "本部 CSV (毎日 03:00)", source_type: "csv_sftp", status: "connected", health_score: 100, health_badge: "good", last_sync_at: "2026-05-02T03:01:00Z", freshness_hours: 7.4, recent_failures_7d: 0, last_error: null },
+]
+
+// ============================================
+// Column Policy Mock
+// ============================================
+export const mockColumnPolicies = [
+  { id: "cp-001", role_id: null, resource_name: "employee", column_name: "name", action: "read", mask_type: "full", enabled: true },
+  { id: "cp-002", role_id: null, resource_name: "employee", column_name: "hourly_rate", action: "read", mask_type: "full", enabled: true },
+  { id: "cp-003", role_id: null, resource_name: "review", column_name: "author_email", action: "read", mask_type: "hash", enabled: true },
+  { id: "cp-004", role_id: null, resource_name: "store", column_name: "manager_name", action: "read", mask_type: "partial", enabled: true },
+]
+
+export const mockPIIRedactionLogs = [
+  { id: "pl-001", pii_type: "email", redaction_method: "mask", occurrences: 3, resource_type: "ai_prompt", created_at: "2026-05-02T10:23:00Z" },
+  { id: "pl-002", pii_type: "phone_jp", redaction_method: "mask", occurrences: 2, resource_type: "api_response", created_at: "2026-05-02T09:45:00Z" },
+  { id: "pl-003", pii_type: "name_jp", redaction_method: "mask", occurrences: 5, resource_type: "ai_prompt", created_at: "2026-05-02T08:12:00Z" },
+]
+
+export const mockPIISummary = [
+  { pii_type: "email", total_occurrences: 124 },
+  { pii_type: "phone_jp", total_occurrences: 87 },
+  { pii_type: "name_jp", total_occurrences: 256 },
+  { pii_type: "employee_id", total_occurrences: 45 },
+]
+
+// ============================================
+// SV Mission Mock (Zensho)
+// ============================================
+export const mockSVMissionPlan = {
+  week_start: "2026-05-05",
+  missions: [
+    { store_id: "store-021", store_name: "すき家 渋谷駅前店", priority: 1, scheduled_date: "2026-05-05", reason: "health_score 52.1 で要改善", expected_impact_yen: 2_800_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）", "改善 task の現場展開状況確認"] },
+    { store_id: "store-103", store_name: "ココス 横浜港北店", priority: 2, scheduled_date: "2026-05-06", reason: "health_score 58.4 で要改善", expected_impact_yen: 1_900_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）"] },
+    { store_id: "store-067", store_name: "はま寿司 千葉ニュータウン店", priority: 3, scheduled_date: "2026-05-07", reason: "health_score 60.8 で要改善", expected_impact_yen: 1_500_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認"] },
+    { store_id: "store-218", store_name: "なか卯 池袋東口店", priority: 4, scheduled_date: "2026-05-08", reason: "health_score 62.3 で要改善", expected_impact_yen: 1_200_000, checklist: ["QSC 状況確認", "店長との 1on1（30分）"] },
+    { store_id: "store-145", store_name: "ジョリーパスタ 大井町店", priority: 5, scheduled_date: "2026-05-09", reason: "health_score 65.0 で要改善", expected_impact_yen: 950_000, checklist: ["QSC 状況確認", "改善 task の現場展開状況確認"] },
+  ],
+  total_expected_impact_yen: 8_350_000,
+  optimization_goal: "improvement_opportunity",
+}
+
+// ============================================
+// Store Manager Brief Mock
+// ============================================
+export const mockStoreManagerBrief = {
+  store_name: "すき家 渋谷駅前店",
+  store_id: "store-021",
+  business_date: "2026-05-02",
+  today_kpis: [
+    { name: "今日の客数（予測）", value: "412人", trend: "+8%", positive: true },
+    { name: "今日の売上（予測）", value: "¥318,000", trend: "+5%", positive: true },
+    { name: "現在の在庫充足率", value: "92%", trend: "良好", positive: true },
+    { name: "本日のシフト人数", value: "9名", trend: "標準", positive: true },
+  ],
+  this_week_actions: [
+    { id: "a-001", title: "深夜帯の在庫補充タイミングを 22:30 → 21:00 に変更", priority: "high", from: "本部", due_date: "2026-05-04" },
+    { id: "a-002", title: "SV 訪問対応（5/5 14:00 山田 SV）", priority: "high", from: "本部", due_date: "2026-05-05" },
+    { id: "a-003", title: "QSC スコア改善: トイレ清掃チェックリスト導入", priority: "medium", from: "SV", due_date: "2026-05-09" },
+  ],
+  yoy_comparison: {
+    sales_yoy: "+3.2%",
+    customer_count_yoy: "-1.5%",
+    avg_ticket_yoy: "+4.8%",
+  },
+  weekly_action_completion: { total: 8, completed: 5, rate: 0.625 },
+}
