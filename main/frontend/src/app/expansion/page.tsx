@@ -4,8 +4,9 @@ import { useMemo, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
 import {
   MapPin, Wrench, ArrowUpDown, Sparkles, TrendingUp, Users,
-  Truck, Building2, ChevronRight, Calendar, DollarSign,
+  Truck, Building2, ChevronRight, Calendar, DollarSign, Crosshair,
 } from "lucide-react"
+import { fetchAPI } from "@/lib/api"
 
 // ---------- seeded RNG ----------
 function seededRandom(seed: number) {
@@ -196,7 +197,7 @@ const statusLabel: Record<RenovStatus, string> = {
 }
 
 export default function ExpansionPage() {
-  const [tab, setTab] = useState<"expansion" | "renovation">("expansion")
+  const [tab, setTab] = useState<"expansion" | "renovation" | "huff">("expansion")
   const [sortKey, setSortKey] = useState<"score" | "sales" | "payback">("score")
 
   const sortedCandidates = useMemo(
@@ -236,9 +237,13 @@ export default function ExpansionPage() {
             icon={<MapPin className="w-3.5 h-3.5" />} label={`出店候補 (${candidates.length})`} />
           <TabButton active={tab === "renovation"} onClick={() => setTab("renovation")}
             icon={<Wrench className="w-3.5 h-3.5" />} label={`改装プロジェクト (${renovations.length})`} />
+          <TabButton active={tab === "huff"} onClick={() => setTab("huff")}
+            icon={<Crosshair className="w-3.5 h-3.5" />} label="Huff 商圏予測" />
         </div>
 
-        {tab === "expansion" ? (
+        {tab === "huff" ? (
+          <HuffPredictionView />
+        ) : tab === "expansion" ? (
           <>
             {/* KPI summary */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -639,6 +644,132 @@ function RenovationView({
         </div>
       </div>
     </>
+  )
+}
+
+// ---------- Huff Prediction View ----------
+interface HuffResult {
+  total_monthly_visits: number
+  monthly_revenue_estimate_jpy: number
+  first_year_revenue_estimate_jpy: number
+  breakeven_months_estimate: number
+  cannibalization_pct: number
+  competitive_density: number
+}
+
+function HuffPredictionView() {
+  const [lat, setLat] = useState(35.6285)
+  const [lng, setLng] = useState(139.7387)
+  const [brand, setBrand] = useState("すき家")
+  const [attractiveness, setAttractiveness] = useState(1.0)
+  const [beta, setBeta] = useState(2.0)
+  const [result, setResult] = useState<HuffResult | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const runPredict = async () => {
+    setLoading(true)
+    try {
+      const res = await fetchAPI<HuffResult>("/api/v1/vertical/trade-areas/predict-huff", {
+        method: "POST",
+        body: JSON.stringify({ lat, lng, brand, attractiveness, beta }),
+      })
+      setResult(res)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const breakevenColor = (m: number) =>
+    m < 12 ? "text-emerald-400" : m <= 24 ? "text-amber-400" : "text-red-400"
+  const cannibalColor = (p: number) =>
+    p < 10 ? "text-emerald-400" : p <= 25 ? "text-amber-400" : "text-red-400"
+  const breakevenBg = (m: number) =>
+    m < 12 ? "border-emerald-400/20 bg-emerald-400/[0.04]" : m <= 24 ? "border-amber-400/20 bg-amber-400/[0.04]" : "border-red-400/20 bg-red-400/[0.04]"
+  const cannibalBg = (p: number) =>
+    p < 10 ? "border-emerald-400/20 bg-emerald-400/[0.04]" : p <= 25 ? "border-amber-400/20 bg-amber-400/[0.04]" : "border-red-400/20 bg-red-400/[0.04]"
+
+  return (
+    <div className="space-y-4">
+      {/* Input form */}
+      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="text-[10px] uppercase tracking-wider text-white/40 mb-4 font-semibold">予測パラメータ</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div>
+            <label className="text-[11px] text-white/50 block mb-1">緯度</label>
+            <input type="number" value={lat} step={0.0001} onChange={(e) => setLat(Number(e.target.value))}
+              className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 font-mono tabular-nums focus:outline-none focus:ring-1 focus:ring-blue-400/40" />
+          </div>
+          <div>
+            <label className="text-[11px] text-white/50 block mb-1">経度</label>
+            <input type="number" value={lng} step={0.0001} onChange={(e) => setLng(Number(e.target.value))}
+              className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 font-mono tabular-nums focus:outline-none focus:ring-1 focus:ring-blue-400/40" />
+          </div>
+          <div>
+            <label className="text-[11px] text-white/50 block mb-1">ブランド</label>
+            <select value={brand} onChange={(e) => setBrand(e.target.value)}
+              className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 focus:outline-none focus:ring-1 focus:ring-blue-400/40">
+              {["すき家","はま寿司","ココス","なか卯","ジョリーパスタ"].map((b) => (
+                <option key={b} value={b} className="bg-[#0a0e14]">{b}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-[11px] text-white/50 block mb-1">魅力度</label>
+            <input type="number" value={attractiveness} step={0.1} min={0.1} max={3.0} onChange={(e) => setAttractiveness(Number(e.target.value))}
+              className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 font-mono tabular-nums focus:outline-none focus:ring-1 focus:ring-blue-400/40" />
+          </div>
+          <div>
+            <label className="text-[11px] text-white/50 block mb-1">距離減衰β</label>
+            <input type="number" value={beta} step={0.1} onChange={(e) => setBeta(Number(e.target.value))}
+              className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 font-mono tabular-nums focus:outline-none focus:ring-1 focus:ring-blue-400/40" />
+          </div>
+          <div className="flex items-end">
+            <button onClick={runPredict} disabled={loading}
+              className="w-full px-4 py-1.5 rounded bg-blue-500/20 border border-blue-400/30 text-blue-400 text-[12px] font-medium hover:bg-blue-500/30 transition-colors disabled:opacity-50">
+              {loading ? "実行中..." : "予測実行"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Results */}
+      {result && (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <ResultCard label="月間来店予測" value={`${result.total_monthly_visits.toLocaleString()}人`} tone="blue" />
+          <ResultCard label="月間売上推定" value={`¥${(result.monthly_revenue_estimate_jpy / 10000).toLocaleString()}万`} tone="emerald" />
+          <ResultCard label="初年度売上推定" value={`¥${(result.first_year_revenue_estimate_jpy / 100000000).toFixed(2)}億`} tone="emerald" />
+          <div className={`rounded-lg border p-4 hover:bg-white/[0.04] transition-colors ${breakevenBg(result.breakeven_months_estimate)}`}>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">損益分岐月</div>
+            <div className={`font-mono tabular-nums text-xl font-semibold ${breakevenColor(result.breakeven_months_estimate)}`}>
+              {result.breakeven_months_estimate}ヶ月
+            </div>
+            <div className="text-[10px] text-white/30 mt-0.5">
+              {result.breakeven_months_estimate < 12 ? "短期回収" : result.breakeven_months_estimate <= 24 ? "標準的" : "長期回収"}
+            </div>
+          </div>
+          <div className={`rounded-lg border p-4 hover:bg-white/[0.04] transition-colors ${cannibalBg(result.cannibalization_pct)}`}>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">自店食い合い率</div>
+            <div className={`font-mono tabular-nums text-xl font-semibold ${cannibalColor(result.cannibalization_pct)}`}>
+              {result.cannibalization_pct}%
+            </div>
+            <div className="text-[10px] text-white/30 mt-0.5">
+              {result.cannibalization_pct < 10 ? "低リスク" : result.cannibalization_pct <= 25 ? "要注意" : "高リスク"}
+            </div>
+          </div>
+          <ResultCard label="周辺競合店数" value={`${result.competitive_density}店`} tone="white" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ResultCard({ label, value, tone }: { label: string; value: string; tone: "emerald" | "blue" | "white" }) {
+  const toneText = { emerald: "text-emerald-400", blue: "text-blue-400", white: "text-white/85" }[tone]
+  return (
+    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-colors">
+      <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">{label}</div>
+      <div className={`font-mono tabular-nums text-xl font-semibold ${toneText}`}>{value}</div>
+    </div>
   )
 }
 

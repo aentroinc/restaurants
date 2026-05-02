@@ -139,7 +139,36 @@ async def ai_chat(
                     messages=messages,
                 )
             except Exception as e:
-                yield _json_event({"type": "error", "content": f"LLM API error: {str(e)}"})
+                # Fallback to rule-based AI on any LLM API failure
+                yield _json_event({"type": "system", "content": "ルールベース分析にフォールバックしました"})
+                try:
+                    from app.api.v1.ai import ai_query as _rule_query, AIQueryRequest
+                    mock_req = AIQueryRequest(question=request.message)
+                    result = await _rule_query(mock_req, db, tenant_id)
+                    data = result.data
+
+                    parts = []
+                    parts.append(f"**結論:** {data.conclusion}\n")
+                    if data.facts:
+                        parts.append("\n**事実:**")
+                        for f in data.facts:
+                            parts.append(f"- {f}")
+                    if data.hypotheses:
+                        parts.append("\n**仮説:**")
+                        for h in data.hypotheses:
+                            parts.append(f"- {h}")
+                    if data.recommended_actions:
+                        parts.append("\n**推奨アクション:**")
+                        for a in data.recommended_actions:
+                            parts.append(f"- {a}")
+                    if data.estimated_impact_amount:
+                        parts.append(f"\n**推定改善インパクト:** {data.estimated_impact_amount:,.0f}円/月")
+
+                    yield _json_event({"type": "text", "content": "\n".join(parts)})
+                    final_text_parts.append("\n".join(parts))
+                except Exception as fallback_err:
+                    yield _json_event({"type": "error", "content": f"フォールバックにも失敗しました: {str(fallback_err)}"})
+                yield _json_event({"type": "done", "usage": {"input_tokens": 0, "output_tokens": 0}})
                 return
 
             total_input += response.usage.input_tokens

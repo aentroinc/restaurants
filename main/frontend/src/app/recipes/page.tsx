@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchAPI } from "@/lib/api"
 import type { RecipeItem, IngredientItem } from "@/lib/types"
 import { ChevronDown, ChevronRight } from "lucide-react"
+import Link from "next/link"
 
 const statusBadge: Record<string, string> = {
   active: "text-emerald-400 bg-emerald-400/10",
@@ -53,7 +54,11 @@ export default function RecipesPage() {
                     <>
                       <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}>
                         <td className="px-2 text-white/30">{expandedId === r.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</td>
-                        <td className="px-4 py-3 text-white/80 font-medium">{r.product_name}</td>
+                        <td className="px-4 py-3 font-medium">
+                          <Link href={`/products/${r.id}`} className="text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                            {r.product_name}
+                          </Link>
+                        </td>
                         <td className="px-4 py-3 font-mono text-white/50">v{r.version}</td>
                         <td className="px-4 py-3 font-mono tabular-nums text-white/70">{r.theoretical_cost ? `¥${r.theoretical_cost}` : "-"}</td>
                         <td className="px-4 py-3 font-mono tabular-nums text-white/50">{r.bom_count}</td>

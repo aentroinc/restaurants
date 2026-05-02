@@ -492,13 +492,13 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db), ten
 @router.get("/suggested-questions", response_model=APIResponse[list[SuggestedQuestion]])
 async def suggested_questions():
     questions = [
-        SuggestedQuestion(question="今月の売上状況を教えてください", category="売上"),
-        SuggestedQuestion(question="人件費率が高い店舗はどこですか？", category="人件費"),
-        SuggestedQuestion(question="原価率が悪化している店舗を教えてください", category="原価"),
-        SuggestedQuestion(question="業績が悪化している店舗はありますか？", category="業績"),
-        SuggestedQuestion(question="口コミスコアが低い店舗を教えてください", category="口コミ"),
-        SuggestedQuestion(question="利益率の改善余地がある店舗はどこですか？", category="利益"),
-        SuggestedQuestion(question="FL比率が高い店舗を特定してください", category="FL比率"),
-        SuggestedQuestion(question="前年比で売上が低下している店舗はどこですか？", category="売上"),
+        SuggestedQuestion(question="すき家の首都圏で原価率が最も高い店舗は？", category="原価"),
+        SuggestedQuestion(question="はま寿司で今月客数が前年割れの店舗を教えて", category="売上"),
+        SuggestedQuestion(question="ココスの人件費率が35%を超えている店舗はどこ？", category="人件費"),
+        SuggestedQuestion(question="改善施策の効果が出ている店舗を教えて", category="改善"),
+        SuggestedQuestion(question="今週SVが訪問すべき優先店舗は？", category="SV"),
+        SuggestedQuestion(question="全ブランドのFL比率を比較して", category="経営"),
+        SuggestedQuestion(question="なか卯のテイクアウト比率の推移は？", category="チャネル"),
+        SuggestedQuestion(question="ジョリーパスタの値上げ後の客数影響は？", category="価格"),
     ]
     return APIResponse(data=questions)

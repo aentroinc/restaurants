@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "local"
     JWT_SECRET_KEY: str = "aentro-dev-secret-key-change-in-production"
     ANTHROPIC_API_KEY: str = ""
+    INGESTION_MASTER_KEY: str = ""
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

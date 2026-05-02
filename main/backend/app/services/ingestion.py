@@ -403,6 +403,21 @@ async def promote_csv_upload(
     batch.promoted_at = datetime.utcnow()
     await db.commit()
 
+    # Trigger KPI recalculation for affected dates
+    try:
+        from app.services.kpi_engine import recalculate_kpis
+        if entity_type in ("daily_sales", "labor") and rows:
+            dates = []
+            for row in rows:
+                d = _parse_date(str(row.get("business_date", "")))
+                if d:
+                    dates.append(d)
+            if dates:
+                with SyncSession() as sync_db:
+                    recalculate_kpis(sync_db, tenant_id, start_date=min(dates), end_date=max(dates))
+    except Exception:
+        pass  # non-critical
+
     # Track lineage for promotion
     try:
         from app.services.lineage_tracker import track_lineage
@@ -411,6 +426,14 @@ async def promote_csv_upload(
             transformation_name="promote_to_canonical",
             metadata={"entity_type": entity_type, "promoted_count": promoted, "skipped_count": skipped},
         )
+    except Exception:
+        pass  # non-critical
+
+    # Audit log
+    try:
+        from app.middleware.audit import log_audit
+        log_audit(tenant_id, None, "promote_batch", "ingestion_batch", str(batch_id),
+                  {"entity_type": entity_type, "promoted_count": promoted, "skipped_count": skipped})
     except Exception:
         pass  # non-critical
 

@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import Date, Numeric, ForeignKey, DateTime, func
+from sqlalchemy import Date, Numeric, ForeignKey, DateTime, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
@@ -9,6 +9,9 @@ from app.database import Base
 
 class LaborActual(Base):
     __tablename__ = "labor_actuals"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "store_id", "business_date", name="uq_labor_store_date"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)

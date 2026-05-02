@@ -7,7 +7,7 @@ import type {
   WritebackPolicy, WritebackRequest,
   DataSource, DataContractAdmin, IngestionRunAdmin, SchemaMapping, IDMapping,
   AIGovernanceConfig, AIResponseEnhanced,
-  Analysis, CustomKPIDef, CohortDef,
+  Analysis, CustomKPIDef, CohortDef, PanelSpec, OntologyObjectTypeV2, OntologyImpactReport,
   RecipeItem, IngredientItem, ShiftItem, LaborComplianceReport,
   QSCAuditItem, HACCPComplianceRate,
   FranchiseAgreementItem, RoyaltyCalcItem, BenchmarkItem, RoleItem,
@@ -858,12 +858,34 @@ export const mockAIResponseEnhanced: AIResponseEnhanced = {
 // Workspace Mock Data
 // ============================================
 
+export const mockAnalysisPanels: Record<string, PanelSpec[]> = {
+  "an-1": [
+    { id: "p-1", type: "bar_chart", title: "ブランド別売上", kpi: "net_sales", group_by: "brand" },
+    { id: "p-2", type: "metric_card", title: "平均客単価", kpi: "avg_ticket" },
+    { id: "p-3", type: "pivot_table", title: "エリア×月次売上", kpi: "net_sales", group_by: "brand" },
+  ],
+  "an-2": [
+    { id: "p-4", type: "bar_chart", title: "ブランド別原価率", kpi: "cogs_rate", group_by: "brand" },
+    { id: "p-5", type: "scatter", title: "原価率 vs 健全度", kpi: "cogs_rate" },
+  ],
+  "an-3": [
+    { id: "p-6", type: "metric_card", title: "全社平均人件費率", kpi: "labor_cost_rate" },
+    { id: "p-7", type: "bar_chart", title: "エリア別人件費率", kpi: "labor_cost_rate", group_by: "region" },
+  ],
+  "an-4": [
+    { id: "p-8", type: "metric_card", title: "客単価変動", kpi: "avg_ticket" },
+  ],
+  "an-5": [
+    { id: "p-9", type: "scatter", title: "売上 vs 健全度", kpi: "net_sales" },
+  ],
+}
+
 export const mockAnalyses: Analysis[] = [
-  { id: "an-1", name: "関東エリア売上トレンド分析", description: "首都圏店舗の売上推移と要因分析", visibility: "private", spec: {}, created_at: "2026-04-28T10:00:00Z" },
-  { id: "an-2", name: "ブランド別原価率比較", description: "5ブランドの原価率の月次推移", visibility: "team", spec: {}, created_at: "2026-04-25T14:00:00Z" },
-  { id: "an-3", name: "人件費率改善効果レポート", description: "シフト最適化施策の効果測定", visibility: "public", spec: {}, created_at: "2026-04-20T09:00:00Z" },
-  { id: "an-4", name: "季節メニュー影響分析", description: "夏メニュー投入後の客単価変動", visibility: "private", spec: {}, created_at: "2026-04-15T11:00:00Z" },
-  { id: "an-5", name: "競合出店インパクト調査", description: "近隣出店による影響店舗の特定", visibility: "team", spec: {}, created_at: "2026-04-10T16:00:00Z" },
+  { id: "an-1", name: "関東エリア売上トレンド分析", description: "首都圏店舗の売上推移と要因分析", visibility: "private", spec: { panels: mockAnalysisPanels["an-1"] }, created_at: "2026-04-28T10:00:00Z" },
+  { id: "an-2", name: "ブランド別原価率比較", description: "5ブランドの原価率の月次推移", visibility: "team", spec: { panels: mockAnalysisPanels["an-2"] }, created_at: "2026-04-25T14:00:00Z" },
+  { id: "an-3", name: "人件費率改善効果レポート", description: "シフト最適化施策の効果測定", visibility: "public", spec: { panels: mockAnalysisPanels["an-3"] }, created_at: "2026-04-20T09:00:00Z" },
+  { id: "an-4", name: "季節メニュー影響分析", description: "夏メニュー投入後の客単価変動", visibility: "private", spec: { panels: mockAnalysisPanels["an-4"] }, created_at: "2026-04-15T11:00:00Z" },
+  { id: "an-5", name: "競合出店インパクト調査", description: "近隣出店による影響店舗の特定", visibility: "team", spec: { panels: mockAnalysisPanels["an-5"] }, created_at: "2026-04-10T16:00:00Z" },
 ]
 
 export const mockCustomKPIDefs: CustomKPIDef[] = [
@@ -1049,3 +1071,161 @@ export const mockRolePermissions: Record<string, { resource: string; action: str
     { resource: "dashboard", action: "read", scope: "all" },
   ],
 }
+
+// ============================================
+// Ontology v2 Mock Data
+// ============================================
+
+export const mockObjectTypesV2: OntologyObjectTypeV2[] = [
+  {
+    id: "otv2-1", api_name: "store", display_name: "店舗", icon: "🏢", version: 2, status: "active",
+    properties: [
+      { id: "pt-1", api_name: "store_code", display_name: "店舗コード", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-2", api_name: "name", display_name: "店舗名", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-3", api_name: "prefecture", display_name: "都道府県", data_type: "string", required: false, pii_level: "none" },
+      { id: "pt-4", api_name: "seat_count", display_name: "座席数", data_type: "int", required: false, pii_level: "none" },
+      { id: "pt-5", api_name: "trade_area", display_name: "商圏タイプ", data_type: "enum", required: false, pii_level: "none" },
+      { id: "pt-6", api_name: "opened_at", display_name: "開店日", data_type: "timestamp", required: true, pii_level: "none" },
+    ],
+  },
+  {
+    id: "otv2-2", api_name: "brand", display_name: "ブランド", icon: "🏷️", version: 3, status: "active",
+    properties: [
+      { id: "pt-7", api_name: "brand_code", display_name: "ブランドコード", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-8", api_name: "brand_name", display_name: "ブランド名", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-9", api_name: "cuisine_type", display_name: "業態", data_type: "enum", required: true, pii_level: "none" },
+      { id: "pt-10", api_name: "avg_ticket_target", display_name: "目標客単価", data_type: "float", required: false, pii_level: "none" },
+    ],
+  },
+  {
+    id: "otv2-3", api_name: "product", display_name: "商品", icon: "🍽️", version: 1, status: "active",
+    properties: [
+      { id: "pt-11", api_name: "product_code", display_name: "商品コード", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-12", api_name: "product_name", display_name: "商品名", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-13", api_name: "price", display_name: "価格", data_type: "float", required: true, pii_level: "none" },
+      { id: "pt-14", api_name: "category", display_name: "カテゴリ", data_type: "enum", required: false, pii_level: "none" },
+    ],
+  },
+  {
+    id: "otv2-4", api_name: "employee", display_name: "従業員", icon: "👤", version: 1, status: "active",
+    properties: [
+      { id: "pt-15", api_name: "employee_code", display_name: "社員番号", data_type: "string", required: true, pii_level: "low" },
+      { id: "pt-16", api_name: "name", display_name: "氏名", data_type: "string", required: true, pii_level: "high" },
+      { id: "pt-17", api_name: "role", display_name: "役職", data_type: "enum", required: true, pii_level: "none" },
+      { id: "pt-18", api_name: "hire_date", display_name: "入社日", data_type: "timestamp", required: true, pii_level: "low" },
+      { id: "pt-19", api_name: "hourly_rate", display_name: "時給", data_type: "float", required: false, pii_level: "high" },
+    ],
+  },
+  {
+    id: "otv2-5", api_name: "task", display_name: "タスク", icon: "📋", version: 1, status: "draft",
+    properties: [
+      { id: "pt-20", api_name: "task_code", display_name: "タスクコード", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-21", api_name: "title", display_name: "タイトル", data_type: "string", required: true, pii_level: "none" },
+      { id: "pt-22", api_name: "status", display_name: "ステータス", data_type: "enum", required: true, pii_level: "none" },
+      { id: "pt-23", api_name: "due_date", display_name: "期限", data_type: "timestamp", required: false, pii_level: "none" },
+    ],
+  },
+]
+
+export const mockImpactReport: Record<string, OntologyImpactReport> = {
+  "otv2-1": { kpi_count: 5, instance_count: 100, link_count: 7, lineage_count: 23, breaking_changes: [] },
+  "otv2-2": { kpi_count: 3, instance_count: 5, link_count: 4, lineage_count: 12, breaking_changes: [] },
+  "otv2-3": { kpi_count: 2, instance_count: 450, link_count: 3, lineage_count: 8, breaking_changes: [] },
+  "otv2-4": { kpi_count: 4, instance_count: 2800, link_count: 5, lineage_count: 15, breaking_changes: [] },
+  "otv2-5": { kpi_count: 1, instance_count: 340, link_count: 2, lineage_count: 5, breaking_changes: [] },
+}
+
+// ============================================
+// Huff Prediction Mock
+// ============================================
+export const mockHuffResult = {
+  total_monthly_visits: 12500,
+  monthly_revenue_estimate_jpy: 8750000,
+  first_year_revenue_estimate_jpy: 73500000,
+  breakeven_months_estimate: 18,
+  cannibalization_pct: 8.3,
+  competitive_density: 7,
+}
+
+// ============================================
+// Menu Engineering Mock
+// ============================================
+export const mockMenuEngineering = [
+  { product_name: "牛丼並盛", sales_count: 45000, gross_margin_pct: 64.9, quadrant: "star" },
+  { product_name: "まぐろ", sales_count: 22000, gross_margin_pct: 52.0, quadrant: "star" },
+  { product_name: "包み焼きハンバーグ", sales_count: 8500, gross_margin_pct: 69.9, quadrant: "puzzle" },
+  { product_name: "うな丼", sales_count: 3200, gross_margin_pct: 60.0, quadrant: "puzzle" },
+  { product_name: "カレー並盛", sales_count: 28000, gross_margin_pct: 70.0, quadrant: "star" },
+  { product_name: "サーモン", sales_count: 35000, gross_margin_pct: 57.3, quadrant: "plowhorse" },
+  { product_name: "中とろ", sales_count: 8000, gross_margin_pct: 50.0, quadrant: "puzzle" },
+  { product_name: "フレンチフライS", sales_count: 18000, gross_margin_pct: 80.0, quadrant: "star" },
+  { product_name: "ビール", sales_count: 5000, gross_margin_pct: 74.9, quadrant: "puzzle" },
+  { product_name: "味噌汁", sales_count: 30000, gross_margin_pct: 80.0, quadrant: "star" },
+  { product_name: "ねぎ玉牛丼", sales_count: 15000, gross_margin_pct: 64.9, quadrant: "plowhorse" },
+  { product_name: "茶碗蒸し", sales_count: 4000, gross_margin_pct: 70.0, quadrant: "puzzle" },
+  { product_name: "日本酒", sales_count: 2000, gross_margin_pct: 74.9, quadrant: "puzzle" },
+  { product_name: "豚丼並盛", sales_count: 12000, gross_margin_pct: 70.0, quadrant: "plowhorse" },
+  { product_name: "ドリンクバー", sales_count: 25000, gross_margin_pct: 89.9, quadrant: "star" },
+]
+
+// ============================================
+// Product Detail Mock
+// ============================================
+export const mockProductDetail = {
+  id: "prod-001",
+  name: "牛丼並盛",
+  brand_name: "すき家",
+  category: "メイン",
+  price: 450,
+  theoretical_cost: 158,
+  cost_rate: 35.1,
+  monthly_sales: 45000,
+  elasticity: -0.42,
+  elasticity_ci: [-0.58, -0.26],
+  monthly_trend: [
+    { month: "2025-05", sales: 38000000, quantity: 42000 },
+    { month: "2025-06", sales: 39500000, quantity: 43500 },
+    { month: "2025-07", sales: 41200000, quantity: 44800 },
+    { month: "2025-08", sales: 43000000, quantity: 46200 },
+    { month: "2025-09", sales: 40500000, quantity: 44000 },
+    { month: "2025-10", sales: 39800000, quantity: 43200 },
+    { month: "2025-11", sales: 38500000, quantity: 42500 },
+    { month: "2025-12", sales: 42000000, quantity: 45000 },
+    { month: "2026-01", sales: 40000000, quantity: 43800 },
+    { month: "2026-02", sales: 38800000, quantity: 42800 },
+    { month: "2026-03", sales: 41500000, quantity: 44500 },
+    { month: "2026-04", sales: 42500000, quantity: 45000 },
+  ],
+  price_history: [
+    { date: "2025-09-01", old_price: 480, new_price: 450, reason: "客数回復のため値下げ", actual_volume_change: "+12%" },
+    { date: "2025-03-01", old_price: 430, new_price: 480, reason: "原材料費高騰に対応", actual_volume_change: "-5%" },
+    { date: "2024-10-01", old_price: 400, new_price: 430, reason: "原価率改善", actual_volume_change: "-3%" },
+  ],
+  bom: [
+    { ingredient: "牛バラ肉", quantity: 80, unit: "g", unit_price: 1.2, subtotal: 96 },
+    { ingredient: "白米", quantity: 200, unit: "g", unit_price: 0.15, subtotal: 30 },
+    { ingredient: "玉ねぎ", quantity: 30, unit: "g", unit_price: 0.3, subtotal: 9 },
+    { ingredient: "醤油タレ", quantity: 20, unit: "ml", unit_price: 0.5, subtotal: 10 },
+    { ingredient: "紅しょうが", quantity: 5, unit: "g", unit_price: 0.8, subtotal: 4 },
+  ],
+}
+
+// ============================================
+// Price Elasticity Mock
+// ============================================
+export const mockPriceElasticities = [
+  { product_id: "prod-001", product_name: "牛丼並盛", elasticity: -0.42, ci_low: -0.58, ci_high: -0.26 },
+  { product_id: "prod-002", product_name: "カレー並盛", elasticity: -0.65, ci_low: -0.82, ci_high: -0.48 },
+  { product_id: "prod-003", product_name: "味噌汁", elasticity: -0.18, ci_low: -0.30, ci_high: -0.06 },
+  { product_id: "prod-004", product_name: "サーモン", elasticity: -1.12, ci_low: -1.35, ci_high: -0.89 },
+  { product_id: "prod-005", product_name: "フレンチフライS", elasticity: -0.31, ci_low: -0.45, ci_high: -0.17 },
+]
+
+// ============================================
+// Price Decisions Mock
+// ============================================
+export const mockPriceDecisions = [
+  { id: "pd-001", product_id: "prod-001", product_name: "牛丼並盛", date: "2025-09-01", old_price: 480, new_price: 450, reason: "客数回復のため値下げ", actual_volume_change: "+12%" },
+  { id: "pd-002", product_id: "prod-001", product_name: "牛丼並盛", date: "2025-03-01", old_price: 430, new_price: 480, reason: "原材料費高騰に対応", actual_volume_change: "-5%" },
+  { id: "pd-003", product_id: "prod-002", product_name: "カレー並盛", date: "2025-06-01", old_price: 400, new_price: 430, reason: "原価率改善", actual_volume_change: "-3%" },
+]

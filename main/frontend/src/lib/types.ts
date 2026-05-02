@@ -334,14 +334,35 @@ export interface AIResponseEnhanced {
 }
 
 // Workspace
+export interface PanelSpec {
+  id: string;
+  type: 'bar_chart' | 'pivot_table' | 'metric_card' | 'scatter';
+  title: string;
+  kpi: string;
+  scope?: { brand?: string; region?: string };
+  group_by?: string;
+}
 export interface Analysis {
-  id: string; name: string; description?: string; visibility: string; spec: any; created_at: string;
+  id: string; name: string; description?: string; visibility: string; spec: { panels?: PanelSpec[] }; created_at: string;
 }
 export interface CustomKPIDef {
   id: string; api_name: string; display_name: string; formula: string; target_object_type: string; unit?: string; version: number; status: string;
 }
 export interface CohortDef {
   id: string; name: string; object_type: string; filter_spec: any; instance_count?: number;
+}
+
+// Ontology v2
+export interface OntologyPropertyType {
+  id: string; api_name: string; display_name: string; data_type: string; required: boolean; pii_level: string;
+}
+export interface OntologyObjectTypeV2 {
+  id: string; api_name: string; display_name: string; icon: string; version: number; status: string;
+  properties: OntologyPropertyType[];
+}
+export interface OntologyImpactReport {
+  kpi_count: number; instance_count: number; link_count: number; lineage_count: number;
+  breaking_changes: { property: string; change_type: string }[];
 }
 
 // Vertical

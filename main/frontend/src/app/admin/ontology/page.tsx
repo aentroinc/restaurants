@@ -1,323 +1,371 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { ContextHeader } from "@/components/context-header"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { ContextHeader } from "@/components/context-header"
 import { fetchAPI } from "@/lib/api"
-import type { OntologyObjectType, OntologyObject, OntologyRelationType } from "@/lib/types"
-import { ChevronDown, ChevronRight, Search, X } from "lucide-react"
+import type { OntologyObjectTypeV2, OntologyPropertyType, OntologyImpactReport } from "@/lib/types"
+import { Plus, Trash2, AlertTriangle, CheckCircle2 } from "lucide-react"
+
+const statusDot: Record<string, string> = {
+  active: "bg-emerald-400",
+  draft: "bg-amber-400",
+  deprecated: "bg-white/30",
+}
+
+const dataTypes = ["string", "int", "float", "bool", "timestamp", "enum"]
+const piiLevels = ["none", "low", "high"]
 
 export default function OntologyPage() {
-  const [objectTypes, setObjectTypes] = useState<OntologyObjectType[]>([])
-  const [objects, setObjects] = useState<OntologyObject[]>([])
-  const [relationTypes, setRelationTypes] = useState<OntologyRelationType[]>([])
-  const [expandedType, setExpandedType] = useState<string | null>(null)
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [search, setSearch] = useState("")
-  const [selectedObject, setSelectedObject] = useState<OntologyObject | null>(null)
+  const [objectTypes, setObjectTypes] = useState<OntologyObjectTypeV2[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [properties, setProperties] = useState<OntologyPropertyType[]>([])
+  const [impact, setImpact] = useState<OntologyImpactReport | null>(null)
+  const [deletedProps, setDeletedProps] = useState<Set<string>>(new Set())
+  const [hasChanges, setHasChanges] = useState(false)
+  const [newTypeOpen, setNewTypeOpen] = useState(false)
+  const [newTypeForm, setNewTypeForm] = useState({ api_name: "", display_name: "", icon: "" })
+  const [publishOpen, setPublishOpen] = useState(false)
+  const [publishDone, setPublishDone] = useState(false)
+  const [saveDone, setSaveDone] = useState(false)
 
   useEffect(() => {
-    fetchAPI<OntologyObjectType[]>("/api/v1/ontology/object-types").then(setObjectTypes)
-    fetchAPI<OntologyObject[]>("/api/v1/ontology/objects").then(setObjects)
-    fetchAPI<OntologyRelationType[]>("/api/v1/ontology/relation-types").then(setRelationTypes)
+    fetchAPI<OntologyObjectTypeV2[]>("/api/v1/ontology/object-types-v2").then(setObjectTypes)
   }, [])
 
-  const filteredObjects = objects.filter((o) => {
-    if (typeFilter !== "all" && o.object_type !== typeFilter) return false
-    if (search && !o.display_name.toLowerCase().includes(search.toLowerCase()) && !o.canonical_id.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  const selectedType = objectTypes.find((t) => t.id === selectedId)
 
-  const typeBadgeColor: Record<string, string> = {
-    store: "bg-blue-100 text-blue-800",
-    brand: "bg-purple-100 text-purple-800",
-    area: "bg-green-100 text-green-800",
-    employee: "bg-orange-100 text-orange-800",
-    supplier: "bg-red-100 text-red-800",
-    menu_item: "bg-amber-100 text-amber-800",
+  const selectType = (id: string) => {
+    setSelectedId(id)
+    setDeletedProps(new Set())
+    setHasChanges(false)
+    setSaveDone(false)
+    setPublishDone(false)
+    const ot = objectTypes.find((t) => t.id === id)
+    if (ot) {
+      setProperties([...ot.properties])
+      fetchAPI<OntologyImpactReport>(`/api/v1/ontology/object-types/${id}/impact`).then(setImpact)
+    }
   }
 
-  const cardinalityLabels: Record<string, string> = {
-    one_to_one: "1:1",
-    one_to_many: "1:N",
-    many_to_one: "N:1",
-    many_to_many: "N:N",
+  const updateProperty = (index: number, field: keyof OntologyPropertyType, value: any) => {
+    setProperties((prev) => prev.map((p, i) => i === index ? { ...p, [field]: value } : p))
+    setHasChanges(true)
+  }
+
+  const deleteProperty = (index: number) => {
+    const prop = properties[index]
+    setDeletedProps((prev) => new Set(prev).add(prop.api_name))
+    setProperties((prev) => prev.filter((_, i) => i !== index))
+    setHasChanges(true)
+  }
+
+  const addProperty = () => {
+    const newProp: OntologyPropertyType = {
+      id: `pt-new-${Date.now()}`,
+      api_name: "",
+      display_name: "",
+      data_type: "string",
+      required: false,
+      pii_level: "none",
+    }
+    setProperties((prev) => [...prev, newProp])
+    setHasChanges(true)
+  }
+
+  const handleDraftSave = () => {
+    if (selectedType) {
+      setObjectTypes((prev) => prev.map((t) => t.id === selectedType.id ? { ...t, properties: [...properties] } : t))
+    }
+    setHasChanges(false)
+    setSaveDone(true)
+    setTimeout(() => setSaveDone(false), 2000)
+  }
+
+  const breakingChanges = deletedProps.size > 0
+  const affectedInstances = impact?.instance_count || 0
+
+  const handlePublish = () => {
+    if (selectedId) {
+      fetchAPI(`/api/v1/ontology/object-types/${selectedId}/publish`, { method: "POST" })
+      setObjectTypes((prev) => prev.map((t) => t.id === selectedId ? { ...t, status: "active", version: t.version + 1, properties: [...properties] } : t))
+    }
+    setPublishDone(true)
+    setDeletedProps(new Set())
+    setHasChanges(false)
+    setTimeout(() => { setPublishOpen(false); setPublishDone(false) }, 1500)
+  }
+
+  const handleCreateType = () => {
+    const newType: OntologyObjectTypeV2 = {
+      id: `otv2-new-${Date.now()}`,
+      api_name: newTypeForm.api_name,
+      display_name: newTypeForm.display_name || newTypeForm.api_name,
+      icon: newTypeForm.icon || "📦",
+      version: 1,
+      status: "draft",
+      properties: [],
+    }
+    setObjectTypes((prev) => [...prev, newType])
+    setNewTypeOpen(false)
+    setNewTypeForm({ api_name: "", display_name: "", icon: "" })
+    selectType(newType.id)
   }
 
   return (
-    <div>
-      <ContextHeader title="オントロジー管理" description="オブジェクト型・オブジェクト・リレーションの管理" />
+    <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">
+      <ContextHeader title="オントロジー管理" description="オブジェクト型・プロパティ・影響範囲の管理" />
 
-      <Tabs defaultValue="object-types">
-        <TabsList>
-          <TabsTrigger value="object-types">オブジェクト型</TabsTrigger>
-          <TabsTrigger value="objects">オブジェクト</TabsTrigger>
-          <TabsTrigger value="relations">リレーション</TabsTrigger>
-        </TabsList>
-
-        {/* Object Types Tab */}
-        <TabsContent value="object-types" className="mt-4">
-          <Card>
-            <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-8"></TableHead>
-                  <TableHead>オブジェクト型</TableHead>
-                  <TableHead>表示名</TableHead>
-                  <TableHead>基本フィールド数</TableHead>
-                  <TableHead>カスタムフィールド数</TableHead>
-                  <TableHead>説明</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {objectTypes.map((ot) => (
-                  <>
-                    <TableRow
-                      key={ot.id}
-                      className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => setExpandedType(expandedType === ot.id ? null : ot.id)}
-                    >
-                      <TableCell>
-                        {expandedType === ot.id ? (
-                          <ChevronDown className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-gray-400" />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-mono text-sm">{ot.icon} {ot.object_type}</span>
-                      </TableCell>
-                      <TableCell className="font-medium">{ot.display_name}</TableCell>
-                      <TableCell>{Object.keys(ot.base_schema).length}</TableCell>
-                      <TableCell>{Object.keys(ot.custom_schema).length}</TableCell>
-                      <TableCell className="text-sm text-gray-500 max-w-xs truncate">{ot.description}</TableCell>
-                    </TableRow>
-                    {expandedType === ot.id && (
-                      <TableRow key={`${ot.id}-detail`}>
-                        <TableCell colSpan={6} className="bg-slate-50 p-0">
-                          <div className="px-8 py-4">
-                            <div className="grid grid-cols-2 gap-6">
-                              <div>
-                                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">基本スキーマ</h4>
-                                <div className="space-y-1">
-                                  {Object.entries(ot.base_schema).map(([k, v]) => (
-                                    <div key={k} className="flex items-center gap-2 text-sm">
-                                      <span className="font-mono text-gray-700">{k}</span>
-                                      <span className="text-gray-400">:</span>
-                                      <Badge variant="outline" className="text-xs">{v}</Badge>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">カスタムスキーマ</h4>
-                                <div className="space-y-1">
-                                  {Object.entries(ot.custom_schema).map(([k, v]) => (
-                                    <div key={k} className="flex items-center gap-2 text-sm">
-                                      <span className="font-mono text-gray-700">{k}</span>
-                                      <span className="text-gray-400">:</span>
-                                      <Badge variant="outline" className="text-xs">{v}</Badge>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </>
-                ))}
-              </TableBody>
-            </Table>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* Objects Tab */}
-        <TabsContent value="objects" className="mt-4">
-          <div className="mb-4 flex gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="オブジェクトを検索..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="オブジェクト型" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべての型</SelectItem>
-                {objectTypes.map((ot) => (
-                  <SelectItem key={ot.id} value={ot.object_type}>{ot.icon} {ot.display_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 56px)" }}>
+        {/* Left Panel — Object Types */}
+        <div className="w-[220px] border-r border-white/[0.06] bg-[#0b0f15] flex flex-col shrink-0">
+          <div className="px-3 py-3 border-b border-white/[0.06]">
+            <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">Object Types</span>
           </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredObjects.map((obj) => (
-              <Card
-                key={obj.id}
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setSelectedObject(obj)}
+          <div className="flex-1 overflow-y-auto py-1">
+            {objectTypes.map((ot) => (
+              <button
+                key={ot.id}
+                onClick={() => selectType(ot.id)}
+                className={`w-full text-left px-3 py-2.5 flex items-center justify-between hover:bg-white/[0.04] transition-colors ${selectedId === ot.id ? "bg-white/[0.06] border-l-2 border-blue-400" : "border-l-2 border-transparent"}`}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-medium text-gray-900">{obj.display_name}</div>
-                      <div className="mt-0.5 text-xs text-gray-500 font-mono">{obj.canonical_id}</div>
-                    </div>
-                    <Badge className={`text-xs ${typeBadgeColor[obj.object_type] || "bg-gray-100 text-gray-800"}`}>
-                      {objectTypes.find((ot) => ot.object_type === obj.object_type)?.display_name || obj.object_type}
-                    </Badge>
-                  </div>
-                  <div className="mt-3 flex gap-4 text-xs text-gray-500">
-                    <span>属性: {Object.keys(obj.attributes).length}</span>
-                    <span>リレーション: {obj.relations?.length || 0}</span>
-                  </div>
-                  <div className="mt-2">
-                    <Badge variant={obj.status === "active" ? "success" : "secondary"} className="text-xs">
-                      {obj.status === "active" ? "有効" : obj.status}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[14px]">{ot.icon}</span>
+                  <span className="text-[13px] text-white/80 truncate">{ot.display_name}</span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-[10px] text-white/30 font-mono">v{ot.version}</span>
+                  <span className={`w-2 h-2 rounded-full ${statusDot[ot.status] || statusDot.draft}`} />
+                </div>
+              </button>
             ))}
           </div>
-        </TabsContent>
-
-        {/* Relation Types Tab */}
-        <TabsContent value="relations" className="mt-4">
-          <Card>
-            <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>リレーション型</TableHead>
-                  <TableHead>表示名</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead></TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>カーディナリティ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {relationTypes.map((rt) => (
-                  <TableRow key={rt.id}>
-                    <TableCell className="font-mono text-sm">{rt.relation_type}</TableCell>
-                    <TableCell className="font-medium">{rt.display_name}</TableCell>
-                    <TableCell>
-                      <Badge className={`text-xs ${typeBadgeColor[rt.from_object_type] || "bg-gray-100"}`}>
-                        {objectTypes.find((ot) => ot.object_type === rt.from_object_type)?.display_name || rt.from_object_type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-gray-400 text-center">→</TableCell>
-                    <TableCell>
-                      <Badge className={`text-xs ${typeBadgeColor[rt.to_object_type] || "bg-gray-100"}`}>
-                        {objectTypes.find((ot) => ot.object_type === rt.to_object_type)?.display_name || rt.to_object_type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs font-mono">{cardinalityLabels[rt.cardinality] || rt.cardinality}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Object Detail Sheet */}
-      <Sheet open={!!selectedObject} onOpenChange={(open) => !open && setSelectedObject(null)}>
-        <SheetContent className="w-[480px] sm:max-w-lg overflow-y-auto">
-          {selectedObject && (
-            <>
-              <SheetHeader>
-                <SheetTitle>{selectedObject.display_name}</SheetTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge className={`text-xs ${typeBadgeColor[selectedObject.object_type] || "bg-gray-100"}`}>
-                    {objectTypes.find((ot) => ot.object_type === selectedObject.object_type)?.display_name || selectedObject.object_type}
-                  </Badge>
-                  <Badge variant={selectedObject.status === "active" ? "success" : "secondary"} className="text-xs">
-                    {selectedObject.status === "active" ? "有効" : selectedObject.status}
-                  </Badge>
-                </div>
-              </SheetHeader>
-
-              <div className="mt-6 space-y-6">
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">基本情報</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">ID</span>
-                      <span className="font-mono text-gray-700">{selectedObject.id}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Canonical ID</span>
-                      <span className="font-mono text-gray-700">{selectedObject.canonical_id}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">属性</h4>
-                  <div className="space-y-2 rounded-lg bg-slate-50 p-3">
-                    {Object.entries(selectedObject.attributes).map(([k, v]) => (
-                      <div key={k} className="flex justify-between text-sm">
-                        <span className="font-mono text-gray-600">{k}</span>
-                        <span className="text-gray-800">{String(v)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {selectedObject.relations && selectedObject.relations.length > 0 && (
+          <div className="p-3 border-t border-white/[0.06]">
+            <Dialog open={newTypeOpen} onOpenChange={setNewTypeOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="w-full bg-white/[0.04] text-white/50 hover:bg-white/[0.08] border border-white/[0.08] text-[12px] h-8">
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />新規タイプ
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#0c1017] border-white/[0.1] text-white/80 max-w-sm">
+                <DialogHeader><DialogTitle className="text-white/90">新規オブジェクトタイプ</DialogTitle></DialogHeader>
+                <div className="space-y-3 mt-2">
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">リレーション ({selectedObject.relations.length})</h4>
-                    <div className="space-y-2">
-                      {selectedObject.relations.map((rel) => (
-                        <div key={rel.id} className="rounded border p-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{rel.related_object.display_name}</span>
-                            <Badge className={`text-xs ${typeBadgeColor[rel.related_object.object_type] || "bg-gray-100"}`}>
-                              {rel.related_object.object_type}
-                            </Badge>
-                          </div>
-                          <div className="mt-1 text-xs text-gray-500">
-                            {rel.direction === "outgoing" ? "→" : "←"} {rel.relation_type}
-                          </div>
-                          {Object.keys(rel.attributes).length > 0 && (
-                            <div className="mt-2 space-y-1">
-                              {Object.entries(rel.attributes).map(([k, v]) => (
-                                <div key={k} className="text-xs text-gray-600">
-                                  {k}: <span className="text-gray-800">{String(v)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                    <label className="text-[11px] text-white/50 block mb-1">API名（英数スネークケース）</label>
+                    <Input value={newTypeForm.api_name} onChange={(e) => setNewTypeForm({ ...newTypeForm, api_name: e.target.value })} className="bg-white/[0.04] border-white/[0.08] text-white/80 font-mono" placeholder="例: order_item" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-white/50 block mb-1">表示名</label>
+                    <Input value={newTypeForm.display_name} onChange={(e) => setNewTypeForm({ ...newTypeForm, display_name: e.target.value })} className="bg-white/[0.04] border-white/[0.08] text-white/80" placeholder="例: 注文明細" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-white/50 block mb-1">アイコン</label>
+                    <Input value={newTypeForm.icon} onChange={(e) => setNewTypeForm({ ...newTypeForm, icon: e.target.value })} className="bg-white/[0.04] border-white/[0.08] text-white/80" placeholder="例: 📦" />
+                  </div>
+                  <Button onClick={handleCreateType} className="w-full bg-blue-500 hover:bg-blue-600 text-white" disabled={!newTypeForm.api_name}>作成</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        {/* Center Panel — Properties */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {selectedType ? (
+            <>
+              <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between bg-[#0b0f15]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[16px]">{selectedType.icon}</span>
+                  <span className="text-[14px] font-semibold text-white/90">{selectedType.display_name}</span>
+                  <span className="text-[10px] text-white/30 font-mono">({selectedType.api_name})</span>
+                </div>
+                {hasChanges && <span className="text-[11px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">未保存の変更</span>}
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[13px]">
+                    <thead>
+                      <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                        <th className="text-left px-4 py-2.5 text-[10px] uppercase tracking-wider text-white/40 font-medium">api_name</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] uppercase tracking-wider text-white/40 font-medium">表示名</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] uppercase tracking-wider text-white/40 font-medium">型</th>
+                        <th className="text-center px-4 py-2.5 text-[10px] uppercase tracking-wider text-white/40 font-medium">必須</th>
+                        <th className="text-left px-4 py-2.5 text-[10px] uppercase tracking-wider text-white/40 font-medium">PII</th>
+                        <th className="w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {properties.map((prop, idx) => (
+                        <tr key={prop.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                          <td className="px-4 py-2">
+                            <input
+                              value={prop.api_name}
+                              onChange={(e) => updateProperty(idx, "api_name", e.target.value)}
+                              className="bg-transparent text-[12px] font-mono text-white/70 border-none outline-none w-full focus:text-white/90"
+                              placeholder="field_name"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              value={prop.display_name}
+                              onChange={(e) => updateProperty(idx, "display_name", e.target.value)}
+                              className="bg-transparent text-[12px] text-white/70 border-none outline-none w-full focus:text-white/90"
+                              placeholder="表示名"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <select
+                              value={prop.data_type}
+                              onChange={(e) => updateProperty(idx, "data_type", e.target.value)}
+                              className="text-[12px] bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 text-white/70"
+                            >
+                              {dataTypes.map((dt) => <option key={dt} value={dt}>{dt}</option>)}
+                            </select>
+                          </td>
+                          <td className="px-4 py-2 text-center">
+                            <input
+                              type="checkbox"
+                              checked={prop.required}
+                              onChange={(e) => updateProperty(idx, "required", e.target.checked)}
+                              className="accent-blue-500"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <select
+                              value={prop.pii_level}
+                              onChange={(e) => updateProperty(idx, "pii_level", e.target.value)}
+                              className="text-[12px] bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 text-white/70"
+                            >
+                              {piiLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+                            </select>
+                          </td>
+                          <td className="px-2 py-2">
+                            <button onClick={() => deleteProperty(idx)} className="text-white/20 hover:text-red-400 transition-colors p-1">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
                       ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-4 py-3">
+                  <button onClick={addProperty} className="text-[12px] text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                    <Plus className="w-3.5 h-3.5" /> プロパティ追加
+                  </button>
+                </div>
+              </div>
+              <div className="px-4 py-3 border-t border-white/[0.06] bg-[#0b0f15] flex items-center gap-2">
+                <Button size="sm" onClick={handleDraftSave} className="bg-white/[0.06] text-white/60 hover:bg-white/[0.1] border border-white/[0.08] text-[12px] h-8">
+                  Draft保存
+                </Button>
+                {saveDone && <span className="text-[11px] text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />保存しました</span>}
+                <Dialog open={publishOpen} onOpenChange={setPublishOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-400/20 text-[12px] h-8">
+                      Publish
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#0c1017] border-white/[0.1] text-white/80 max-w-sm">
+                    {publishDone ? (
+                      <div className="flex flex-col items-center py-6">
+                        <CheckCircle2 className="w-10 h-10 text-emerald-400 mb-3" />
+                        <p className="text-[14px] text-white/80">公開しました</p>
+                      </div>
+                    ) : breakingChanges ? (
+                      <>
+                        <DialogHeader><DialogTitle className="text-white/90 flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-amber-400" />マイグレーションが必要です</DialogTitle></DialogHeader>
+                        <div className="mt-2 space-y-2">
+                          <p className="text-[13px] text-white/60">{affectedInstances}件のインスタンスが影響を受けます。</p>
+                          <div className="rounded-md bg-amber-400/5 border border-amber-400/20 p-3">
+                            <div className="text-[11px] text-amber-400 font-medium mb-1">削除されるプロパティ:</div>
+                            {Array.from(deletedProps).map((p) => <div key={p} className="text-[12px] text-white/50 font-mono">{p}</div>)}
+                          </div>
+                          <div className="flex gap-2 mt-4">
+                            <DialogClose asChild><Button variant="outline" className="flex-1 bg-transparent border-white/[0.1] text-white/50 hover:bg-white/[0.06]">キャンセル</Button></DialogClose>
+                            <Button onClick={handlePublish} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white">実行</Button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <DialogHeader><DialogTitle className="text-white/90">公開しますか？</DialogTitle></DialogHeader>
+                        <p className="text-[13px] text-white/60 mt-2">{selectedType.display_name} v{selectedType.version + 1} として公開します。</p>
+                        <div className="flex gap-2 mt-4">
+                          <DialogClose asChild><Button variant="outline" className="flex-1 bg-transparent border-white/[0.1] text-white/50 hover:bg-white/[0.06]">キャンセル</Button></DialogClose>
+                          <Button onClick={handlePublish} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white">公開する</Button>
+                        </div>
+                      </>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-white/20 text-[13px]">
+              左のリストからオブジェクトタイプを選択してください
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel — Impact */}
+        <div className="w-[300px] border-l border-white/[0.06] bg-[#0b0f15] flex flex-col shrink-0">
+          <div className="px-4 py-3 border-b border-white/[0.06]">
+            <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">影響範囲</span>
+          </div>
+          {selectedType && impact ? (
+            <div className="p-4 space-y-4">
+              <div className="space-y-3">
+                {[
+                  { label: "KPI定義", value: `${impact.kpi_count}本参照`, color: "text-blue-400" },
+                  { label: "インスタンス", value: `${impact.instance_count}件`, color: "text-emerald-400" },
+                  { label: "リンクタイプ", value: `${impact.link_count}種`, color: "text-purple-400" },
+                  { label: "リネージュ", value: `${impact.lineage_count}件`, color: "text-cyan-400" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between">
+                    <span className="text-[12px] text-white/50">{item.label}</span>
+                    <span className={`text-[13px] font-mono font-medium ${item.color}`}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-white/[0.06] pt-4">
+                {deletedProps.size > 0 ? (
+                  <div className="rounded-md bg-red-400/5 border border-red-400/20 p-3">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <AlertTriangle className="w-4 h-4 text-red-400" />
+                      <span className="text-[12px] text-red-400 font-medium">Breaking Change</span>
                     </div>
+                    <div className="text-[11px] text-white/50">
+                      {deletedProps.size}件のプロパティが削除されます。{impact.instance_count}件のインスタンスに影響します。
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[12px] text-white/30 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400/50" />
+                    変更なし — Breaking Changeはありません
                   </div>
                 )}
               </div>
-            </>
+
+              <div className="border-t border-white/[0.06] pt-4">
+                <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium block mb-2">ステータス</span>
+                <div className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${statusDot[selectedType.status]}`} />
+                  <span className="text-[13px] text-white/70 capitalize">{selectedType.status}</span>
+                  <span className="text-[11px] text-white/30 font-mono ml-auto">v{selectedType.version}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-white/20 text-[13px] p-4 text-center">
+              タイプを選択すると影響範囲が表示されます
+            </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </div>
+      </div>
     </div>
   )
 }

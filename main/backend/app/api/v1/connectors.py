@@ -66,6 +66,15 @@ async def create_data_source(
     except ValueError:
         raise HTTPException(400, f"Unknown connector type: {source_type}")
 
+    # Encrypt credentials if provided
+    credentials_encrypted = None
+    credentials_raw = body.get("credentials")
+    if credentials_raw:
+        import json
+        from app.services.secrets import encrypt_value
+        cred_str = json.dumps(credentials_raw) if isinstance(credentials_raw, dict) else str(credentials_raw)
+        credentials_encrypted = encrypt_value(cred_str)
+
     ds = DataSourceV2(
         id=uuid.uuid4(),
         tenant_id=tenant_id,
@@ -73,6 +82,7 @@ async def create_data_source(
         source_type=source_type,
         system_category=connector.system_category,
         auth_type=connector.auth_type,
+        credentials_encrypted=credentials_encrypted,
         config=body.get("config", {}),
         status="disconnected",
     )
