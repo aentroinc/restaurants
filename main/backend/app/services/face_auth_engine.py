@@ -23,13 +23,25 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import hash_password, verify_password
-from app.models.face_auth import FaceTemplate, StaffPin
+from app.models.face_auth import ClockEvent, FaceTemplate, StaffPin
+from app.services.consent_engine import check_required_consents
+
+
+class DoublePunchError(Exception):
+    """同 employee の同一 event_type が 60秒以内に再発生した場合に raise。"""
+
+    def __init__(self, message: str, last_event_id: UUID | None = None):
+        super().__init__(message)
+        self.last_event_id = last_event_id
 
 
 SIMILARITY_THRESHOLD = 0.7
 QR_TOKEN_TTL_SEC = 30
 PIN_MAX_ATTEMPTS = 3
 PIN_LOCKOUT_MIN = 5
+
+# 二重打刻防止: 同 employee の同一 event_type が 60 秒以内に再発生したら拒否。
+DOUBLE_PUNCH_WINDOW_SEC = 60
 
 
 # ---- pure-python vector math ----
@@ -66,11 +78,15 @@ async def enroll(
     employee_id: UUID,
     embedding: list[float],
     device_info: dict | None = None,
+    skip_consent_check: bool = False,
 ) -> FaceTemplate:
     if not embedding or not isinstance(embedding, list):
         raise ValueError("embedding must be non-empty list")
     if len(embedding) < 32:
         raise ValueError("embedding too short (expected >=32 dims)")
+    # 個人情報保護法 / GDPR: 顔特徴量取得前に同意必須
+    if not skip_consent_check:
+        await check_required_consents(db, tenant_id, employee_id, ["face"])
     tmpl = FaceTemplate(
         tenant_id=tenant_id,
         employee_id=employee_id,
@@ -174,6 +190,88 @@ async def set_pin(db: AsyncSession, tenant_id: UUID, employee_id: UUID, pin: str
         row.failed_attempts = 0
         row.locked_until = None
     await db.commit()
+
+
+# ---- Clock event creation with double-punch + idempotency ----
+
+GPS_LOW_ACCURACY_THRESHOLD_M = 200.0
+
+
+async def clock_in(
+    db: AsyncSession,
+    tenant_id: UUID,
+    employee_id: UUID,
+    store_id: UUID,
+    event_type: str,
+    auth_method: str,
+    lat: float | None = None,
+    lon: float | None = None,
+    geofence_ok: bool = False,
+    confidence: float | None = None,
+    idempotency_key: str | None = None,
+    accuracy_m: float | None = None,
+) -> ClockEvent:
+    """打刻イベントを作成する。
+    - 同じ idempotency_key で既存 ClockEvent があれば、それをそのまま返す（true idempotent）。
+    - 同 employee_id の同一 event_type が 60秒以内にあれば DoublePunchError を raise。
+    - accuracy_m が GPS_LOW_ACCURACY_THRESHOLD_M (200m) を超える場合は
+      geofence_ok を強制的に False にしつつ、ブロックはしない（警告ログのみ）。
+      clock_in_method=gps_low_accuracy 相当として logger.warning に出す。
+    - それ以外は新規 ClockEvent を作成して返す。
+    """
+    if accuracy_m is not None and accuracy_m > GPS_LOW_ACCURACY_THRESHOLD_M:
+        geofence_ok = False
+        import logging
+        logging.getLogger(__name__).warning(
+            "clock_in_method=gps_low_accuracy emp=%s store=%s acc=%.0fm",
+            employee_id, store_id, accuracy_m,
+        )
+    # 1. idempotency key 重複 → 同じレコードを返す
+    if idempotency_key:
+        res = await db.execute(
+            select(ClockEvent).where(ClockEvent.idempotency_key == idempotency_key)
+        )
+        existing = res.scalar_one_or_none()
+        if existing is not None:
+            return existing
+
+    # 2. 60秒以内の同種打刻 → 拒否
+    cutoff = datetime.now(timezone.utc) - timedelta(seconds=DOUBLE_PUNCH_WINDOW_SEC)
+    res = await db.execute(
+        select(ClockEvent)
+        .where(
+            ClockEvent.tenant_id == tenant_id,
+            ClockEvent.employee_id == employee_id,
+            ClockEvent.event_type == event_type,
+            ClockEvent.occurred_at >= cutoff,
+        )
+        .order_by(ClockEvent.occurred_at.desc())
+        .limit(1)
+    )
+    last = res.scalar_one_or_none()
+    if last is not None:
+        raise DoublePunchError(
+            f"Duplicate {event_type} within {DOUBLE_PUNCH_WINDOW_SEC}s for employee {employee_id}",
+            last_event_id=last.id,
+        )
+
+    # 3. 新規作成
+    ev = ClockEvent(
+        tenant_id=tenant_id,
+        employee_id=employee_id,
+        store_id=store_id,
+        event_type=event_type,
+        lat=lat,
+        lon=lon,
+        geofence_ok=geofence_ok,
+        auth_method=auth_method,
+        confidence=confidence,
+        idempotency_key=idempotency_key,
+    )
+    db.add(ev)
+    await db.commit()
+    await db.refresh(ev)
+    return ev
 
 
 async def verify_pin(db: AsyncSession, tenant_id: UUID, employee_id: UUID, pin: str) -> bool:

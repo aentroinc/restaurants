@@ -1,0 +1,400 @@
+{
+  "_meta": { "language": "English", "code": "en", "note": "Translated by AI - human review required. Emergency manual reviewed for accuracy (119/110)." },
+
+  "common": {
+    "appName": "AENTRO Frontline",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "done": "Done",
+    "ok": "OK",
+    "ng": "NG",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "homeReturn": "Back to Home",
+    "continueReport": "Report another",
+    "online": "Online",
+    "offline": "Offline (will sync later)",
+    "language": "Language"
+  },
+
+  "nav": {
+    "home": "Home",
+    "clock": "Clock",
+    "checklist": "Check",
+    "loss": "Loss",
+    "voice": "Voice",
+    "training": "Learn",
+    "settings": "Settings",
+    "toBusinessOS": "Business OS"
+  },
+
+  "home": {
+    "greeting": "Good morning",
+    "todayShift": "Today's shift",
+    "noShift": "No shift today",
+    "clockInCta": "Clock in",
+    "clockInSub": "3 sec via face ID",
+    "lineCheck": "Line check",
+    "lineCheckSub": "Open / 4h / Close",
+    "lossReport": "Loss report",
+    "lossReportSub": "Record waste",
+    "customerVoice": "Customer voice",
+    "customerVoiceSub": "Quick 5-tap",
+    "allergy": "Allergy response",
+    "allergySub": "Log details",
+    "training": "Learn",
+    "trainingSub": "Videos & quiz",
+    "emergency": "Emergency manual",
+    "emergencySub": "Fire / Quake / Robbery",
+    "myTasks": "My tasks",
+    "upcomingShifts": "Upcoming shifts",
+    "fireDrillReminder": "Don't forget your monthly fire drill check.",
+    "checkNow": "Check now"
+  },
+
+  "clock": {
+    "title": "Clock in/out",
+    "subtitle": "3 seconds. Face → detect → done.",
+    "faceCta": "Hold face for clock-in",
+    "faceSub": "Done in 3 seconds",
+    "qrCta": "Scan QR",
+    "pinCta": "Enter PIN",
+    "breakStart": "Start break",
+    "breakEnd": "End break",
+    "clockOut": "Clock out",
+    "todayLog": "Today's punches",
+    "noLog": "No punches yet today",
+    "labelIn": "In",
+    "labelOut": "Out",
+    "labelBreakStart": "Break start",
+    "labelBreakEnd": "Break end",
+    "okFace": "Clocked in via face ID",
+    "okQr": "Clocked in via QR",
+    "okPin": "Clocked in via PIN"
+  },
+
+  "auth": {
+    "faceTitle": "Clock in by face",
+    "faceVerifying": "Verifying...",
+    "faceFail": "Face not recognized ({count}/3). Please align your face inside the frame.",
+    "doneTitle": "Done",
+    "confidence": "Confidence {value}%",
+    "qrTitle": "Clock in by QR",
+    "qrFrameHint": "Place QR inside the frame",
+    "qrFail": "QR is invalid or expired",
+    "qrManualLabel": "Enter token manually if QR doesn't scan",
+    "qrManualPlaceholder": "Token",
+    "qrSend": "Send",
+    "pinTitle": "Clock in by PIN",
+    "pinEmpId": "Employee ID",
+    "pinFail": "Wrong PIN ({count}/3)",
+    "pinLockedTitle": "Locked",
+    "pinLockedDesc": "Locked for 5 minutes after 3 failed tries. Contact your manager.",
+    "switchToFace": "Face",
+    "switchToQr": "QR",
+    "switchToPin": "PIN"
+  },
+
+  "loss": {
+    "title": "Loss report",
+    "step1Item": "Item name",
+    "step1Placeholder": "e.g. Beef bowl topping",
+    "step1Suggestions": "Frequent items",
+    "step1Next": "Next: quantity",
+    "step2Qty": "Quantity",
+    "step2Estimate": "Estimated cost: ¥{amount} (@¥{unit})",
+    "step2UnitLabel": "Unit price (yen, optional)",
+    "step2UnitPlaceholder": "100",
+    "step2Next": "Next: reason",
+    "step3Reason": "Pick a reason",
+    "step3PhotoLabel": "Take photo (optional)",
+    "step3PhotoSelected": "Photo: {name}",
+    "doneTitle": "Submitted",
+    "doneDesc": "Loss recorded (estimated ¥{amount})",
+    "reason": {
+      "expired": "Expired",
+      "spillage": "Spilled",
+      "burnt": "Burnt / failed",
+      "wrong_order": "Wrong order",
+      "other": "Other"
+    },
+    "items": {
+      "gyudon": "Beef bowl topping",
+      "onion": "Onion",
+      "rice": "Rice",
+      "miso": "Miso soup",
+      "salad": "Salad",
+      "egg": "Egg"
+    },
+    "perUnit": "¥{cost}/ea"
+  },
+
+  "voice": {
+    "title": "Customer voice",
+    "pickOne": "Pick one option",
+    "detailLabel": "Detail note (optional)",
+    "detailPlaceholder": "e.g. table for 4 / 50s male / regular beef bowl",
+    "doneTitle": "Submitted",
+    "doneDesc": "Customer voice recorded",
+    "continueRecord": "Record another",
+    "options": {
+      "delicious": "Delicious",
+      "fast": "Fast service",
+      "kind": "Polite staff",
+      "cold": "Was cold",
+      "slow": "Slow service",
+      "rude": "Rude staff",
+      "dirty": "Dirty store",
+      "wrong": "Wrong item",
+      "other": "Other"
+    }
+  },
+
+  "allergy": {
+    "title": "Allergy response",
+    "emergencyLink": "Emergency",
+    "step1Title": "Customer age range",
+    "step1Next": "Next: allergens",
+    "step2Title": "Allergens (multi-select)",
+    "step3Title": "Items / order",
+    "step3Placeholder": "e.g. Beef bowl regular, miso soup (no egg)",
+    "step3Next": "Next: action",
+    "step4Title": "Action taken",
+    "incidentWarning": "If an incident occurs, call 119 immediately and contact the manager.",
+    "doneTitle": "Recorded",
+    "doneDesc": "Allergy response recorded",
+    "openAnaphylaxis": "Open anaphylaxis manual",
+    "ageRange": {
+      "child": "Child (≤12)",
+      "teen": "Teens",
+      "20-40": "20-40",
+      "40-60": "40-60",
+      "60+": "60+",
+      "unknown": "Unknown"
+    },
+    "allergens": {
+      "egg": "Egg",
+      "milk": "Milk",
+      "wheat": "Wheat",
+      "shrimp": "Shrimp",
+      "crab": "Crab",
+      "soba": "Buckwheat",
+      "peanut": "Peanut",
+      "walnut": "Walnut",
+      "soy": "Soy",
+      "fish": "Fish",
+      "beef": "Beef",
+      "other": "Other"
+    },
+    "responses": {
+      "alt_provided": "Provided alternative",
+      "ingredients_explained": "Explained ingredients only",
+      "declined": "Declined to serve",
+      "incident": "Incident — first aid"
+    }
+  },
+
+  "training": {
+    "title": "Training",
+    "roles": { "all": "All", "hall": "Hall", "kitchen": "Kitchen", "register": "Register" },
+    "watchedNext": "Watched → take quiz",
+    "quizCard": "Quiz",
+    "quizDesc": "3 Qs · pass at 2 → certificate",
+    "quizCta": "Take quiz",
+    "quizProgress": "Quiz {cur} / {total}",
+    "passed": "Certified!",
+    "failed": "Try again",
+    "score": "{score} / {total} correct",
+    "certTitle": "AENTRO Certificate",
+    "certBody": "Store Operations Basics — Completed",
+    "certIssued": "Issued {date} · ID: {id}",
+    "retake": "Retake",
+    "backToList": "Back to videos",
+    "videos": {
+      "v-onboard": { "title": "New-hire orientation", "desc": "AENTRO store values & basic rules" },
+      "v-hall-greet": { "title": "Hall: greeting customers", "desc": "Smile, voice, seating basics" },
+      "v-hall-clean": { "title": "Hall: table cleaning", "desc": "5S thoroughness & alcohol disinfection" },
+      "v-kitchen-temp": { "title": "Kitchen: temperature control", "desc": "HACCP-compliant CCP logging" },
+      "v-kitchen-allergen": { "title": "Kitchen: allergen separation", "desc": "Cross-contamination prevention" },
+      "v-register-cash": { "title": "Register: prevent change errors", "desc": "Double-check & POS basics" }
+    },
+    "quiz": {
+      "q1": { "q": "Minimum holding temperature for hot food?", "a": ["55°C", "60°C", "65°C", "75°C"] },
+      "q2": { "q": "What to check first when serving an allergen?", "a": ["Price", "Ingredient label", "Quantity", "Time"] },
+      "q3": { "q": "Mandatory item at closing?", "a": ["Restocking", "Cash reconciliation", "Menu changes", "Job posting"] }
+    }
+  },
+
+  "emergency": {
+    "title": "Emergency manual",
+    "subtitle": "Tap the matching scenario",
+    "stepCount": "{n} steps",
+    "footer": "Stay calm. Speak up. Work as a team.",
+    "listBack": "← List",
+    "scenarios": {
+      "fire": {
+        "title": "Fire",
+        "call": "119 (Fire dept.)",
+        "steps": [
+          "Shout 'KAJI-DA!' (Fire!) loudly. Alert all staff.",
+          "Guide customers to the emergency exit (see evacuation map).",
+          "If safe, do initial firefighting (extinguisher; cover oil fires with cloth).",
+          "Shut off the gas main valve and electrical breaker.",
+          "Call 119. State address and store name.",
+          "Gather at the outside meeting point. Headcount. Notify manager."
+        ]
+      },
+      "earthquake": {
+        "title": "Earthquake",
+        "steps": [
+          "Shout 'EARTHQUAKE! Get LOW!' loudly.",
+          "Guide customers to take cover under tables.",
+          "Kitchen staff turn off the fire and step away from stoves.",
+          "When shaking stops, secure the exit (open the door).",
+          "Check for gas leaks. If any, ventilate — no flames!",
+          "Report to manager and assess damage."
+        ]
+      },
+      "robbery": {
+        "title": "Robbery",
+        "call": "110 (Police)",
+        "steps": [
+          "Do NOT resist. Life is the top priority.",
+          "Follow the robber's instructions and hand over money.",
+          "Observe the robber's features (height, clothes, voice, weapon).",
+          "After the robber leaves, lock the door immediately.",
+          "Call 110. Preserve the scene (do not touch).",
+          "Review CCTV. Notify manager and HQ."
+        ]
+      },
+      "food_poisoning": {
+        "title": "Suspected food poisoning",
+        "steps": [
+          "Ask the customer about symptoms (vomiting, diarrhea, fever). Record time and items consumed.",
+          "If severe, call an ambulance (119).",
+          "Preserve the suspected items and ingredients (DO NOT discard).",
+          "Notify the manager and HQ quality team immediately.",
+          "Prepare service records for the public health office.",
+          "Treat the customer with care. Compensation discussions are HQ's call."
+        ]
+      },
+      "injury": {
+        "title": "Customer injury",
+        "call": "119 (Ambulance)",
+        "steps": [
+          "Check consciousness and breathing. If serious, call 119.",
+          "If bleeding, apply pressure with a clean cloth.",
+          "For burns, cool with running water (10-20 min).",
+          "Bring AED if needed (location on store map).",
+          "Record incident details (time, place, cause).",
+          "Notify manager and HQ. Take customer contact info."
+        ]
+      },
+      "anaphylaxis": {
+        "title": "Anaphylaxis",
+        "call": "119 (Ambulance)",
+        "steps": [
+          "Call 119 immediately. Say 'This is anaphylaxis.'",
+          "Lay the customer on their back, raise their legs (shock position).",
+          "If they have an EpiPen, help them use it (inject outer thigh).",
+          "Keep the airway clear. Monitor consciousness and breathing continuously.",
+          "If vomiting, turn to the side.",
+          "Stay until paramedics arrive. Record items eaten and ingredients."
+        ]
+      }
+    }
+  },
+
+  "settings": {
+    "title": "Settings",
+    "empIdTitle": "Employee ID",
+    "pinTitle": "4-digit PIN",
+    "pinNew": "New PIN",
+    "pinReenter": "Re-enter",
+    "pinUpdate": "Update PIN",
+    "pinSaved": "PIN updated",
+    "pinMismatch": "PINs do not match",
+    "pinDigits": "Enter 4 digits",
+    "empSaved": "Employee ID saved",
+    "installTitle": "Add to home screen",
+    "installCta": "Install as app",
+    "installHint": "iOS Safari: Share → Add to Home Screen\nAndroid Chrome: Menu → Install app",
+    "connectionTitle": "Connection",
+    "localDataTitle": "Local data",
+    "clearLogs": "Clear punch log",
+    "clearConfirm": "Delete local punch log?",
+    "logsCleared": "Log cleared",
+    "languageTitle": "Language",
+    "languageHint": "Switch the app display language. Emergency manual switches too."
+  },
+
+  "lineCheck": {
+    "headerTitle": "Line check",
+    "headerDesc": "Open / Close / 4h quality (photo, temp, geofence)",
+    "startListTitle": "Pick a checklist",
+    "templateEdit": "Edit templates",
+    "items": "{n} items",
+    "photoCount": "{n} photos",
+    "tempCount": "{n} temps",
+    "starting": "Starting…",
+    "start": "Start →",
+    "noTemplates": "No templates",
+    "history": "Recent runs",
+    "noHistory": "No history yet",
+    "th": {
+      "template": "Template",
+      "started": "Started",
+      "completed": "Completed",
+      "geofence": "geofence",
+      "status": "Status"
+    },
+    "schedule": { "opening": "Opening", "closing": "Closing", "4h": "4h Quality", "weekly": "Weekly" },
+    "status": { "in_progress": "In progress", "completed": "Completed", "failed": "Failed" },
+    "geofenceOk": "OK",
+    "geofenceOut": "Out",
+    "startError": "Failed to start: {msg}",
+    "run": {
+      "title": "Run line check",
+      "offline": "Offline",
+      "photoRequired": "Photo required",
+      "tempRange": "{min}°C – {max}°C",
+      "tempLabel": "Measured temp (°C)",
+      "tempBelow": "Below min (limit {min}°C)",
+      "tempAbove": "Above max (limit {max}°C)",
+      "tempOk": "Within range OK",
+      "stateLabel": "State",
+      "selectPlaceholder": "Select",
+      "photoLabel": "Photo",
+      "memo": "Note (optional)",
+      "retake": "Retake",
+      "shoot": "Take photo",
+      "queued": "Saved offline (auto-sync on reconnect)",
+      "captured": "Captured",
+      "back": "Back",
+      "nextItem": "Next",
+      "completeSend": "Complete & send",
+      "doneOk": "Check complete",
+      "doneNg": "Incomplete — NG items",
+      "doneOkDesc": "Great work.",
+      "doneNgDesc": "NG items were issued as tasks. Awaiting HQ approval.",
+      "backToList": "Back to list",
+      "photoMust": "This item requires a photo",
+      "tempMust": "Please enter a temperature",
+      "templateNotFound": "Template not found",
+      "templateNotLoaded": "Template not loaded"
+    }
+  },
+
+  "languageSwitcher": {
+    "label": "Switch language",
+    "current": "Current language"
+  }
+}

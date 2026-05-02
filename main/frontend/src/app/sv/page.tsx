@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { svApi, type SVStore } from "@/lib/sv-api"
 import { StoreHeatmap } from "@/components/sv/StoreHeatmap"
+
+// Leaflet は SSR 不可なので動的 import
+const LeafletStoreMap = dynamic(
+  () => import("@/components/sv/LeafletStoreMap").then((m) => m.LeafletStoreMap),
+  { ssr: false, loading: () => <div className="h-[400px] flex items-center justify-center text-white/40 text-[12px]">地図を読み込み中…</div> },
+)
+
+const USE_LEAFLET = process.env.NEXT_PUBLIC_USE_LEAFLET !== "false"
 import { AlertTriangle, TrendingDown, Calendar, Store as StoreIcon, ChevronRight } from "lucide-react"
 import { formatCurrencyCompact, formatPercent } from "@/lib/utils"
 
@@ -58,7 +67,11 @@ export default function SVDashboardPage() {
             <h2 className="text-[14px] font-semibold text-white/85">担当店舗マップ・ヘルスヒート</h2>
             <span className="text-[11px] text-white/40">{stores.length} 拠点</span>
           </div>
-          <StoreHeatmap stores={stores} selectedId={selectedId} onSelect={setSelectedId} height={400} />
+          {USE_LEAFLET ? (
+            <LeafletStoreMap stores={stores} selectedId={selectedId} onSelect={setSelectedId} height={400} />
+          ) : (
+            <StoreHeatmap stores={stores} selectedId={selectedId} onSelect={setSelectedId} height={400} />
+          )}
           {selected && (
             <div className="mt-3 px-3 py-2 rounded bg-black/30 border border-white/[0.06] flex items-center gap-3">
               <Link href={`/sv/visit/${selected.id}`} className="flex-1 min-w-0 text-[13px] text-blue-400 hover:underline truncate">

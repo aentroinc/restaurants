@@ -10,8 +10,14 @@
  */
 
 import { getToken } from "./auth"
+import { fetchWithRetry } from "./fetch-with-retry"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
+
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
 
 export type Channel = "in_store" | "phone" | "online" | "sns" | "other"
 export type Severity = "low" | "medium" | "high"
@@ -143,12 +149,27 @@ async function call<T>(path: string, init?: RequestInit, mock?: () => T): Promis
   }
   try {
     const token = getToken()
+    const method = (init?.method || "GET").toUpperCase()
     const headers: Record<string, string> = { "Content-Type": "application/json" }
     if (token) headers["Authorization"] = `Bearer ${token}`
-    const res = await fetch(`${API_URL}${path}`, {
-      headers: { ...headers, ...(init?.headers || {}) },
+    // POST には Idempotency-Key を必ず付ける（既に呼び出し側で設定されていれば尊重）
+    const callerHeaders = (init?.headers as Record<string, string> | undefined) || {}
+    if (method === "POST" && !callerHeaders["Idempotency-Key"] && !callerHeaders["idempotency-key"]) {
+      headers["Idempotency-Key"] = newIdempotencyKey()
+    }
+    const res = await fetchWithRetry(`${API_URL}${path}`, {
+      credentials: "include",
       ...init,
+      headers: { ...headers, ...callerHeaders },
     })
+    if (res.status === 401) {
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        const next = encodeURIComponent(window.location.pathname + window.location.search)
+        window.location.href = `/login?next=${next}`
+      }
+      if (mock) return mock()
+      throw new Error("unauthorized")
+    }
     if (res.status === 404 && mock) return mock()
     if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
     const json = (await res.json()) as APIWrap<T>

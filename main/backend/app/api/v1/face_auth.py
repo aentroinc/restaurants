@@ -19,6 +19,7 @@ from app.services.face_auth_engine import (
     enroll, verify, issue_qr_token, consume_qr_token, set_pin, verify_pin,
     QR_TOKEN_TTL_SEC,
 )
+from app.services.consent_engine import ConsentRequiredError
 
 
 router = APIRouter(prefix="/api/v1/face-auth", tags=["face-auth"])
@@ -42,6 +43,11 @@ async def enroll_face(
             raise HTTPException(status_code=403, detail="enrolling another user requires admin")
     try:
         tmpl = await enroll(db, UUID(tenant_id), target_id, body.embedding, body.device_info)
+    except ConsentRequiredError as e:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "consent_required", "missing": e.missing, "message": "顔認証データ取得の同意が必要です"},
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return APIResponse(data=EnrollResponse(

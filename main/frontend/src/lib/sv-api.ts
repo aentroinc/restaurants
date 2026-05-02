@@ -12,6 +12,21 @@ import type { StoreWithKPI } from "./types"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+/** POST には必ず Idempotency-Key を付与してリクエストを構築。*/
+function withIdempotencyKey(options?: RequestInit): RequestInit {
+  if (!options || (options.method || "GET").toUpperCase() !== "POST") return options || {}
+  const headers = new Headers(options.headers || {})
+  if (!headers.has("Idempotency-Key")) {
+    headers.set("Idempotency-Key", newIdempotencyKey())
+  }
+  return { ...options, headers }
+}
+
 // ----- types -----
 
 export interface SVStore extends StoreWithKPI {
@@ -90,7 +105,7 @@ export interface ManagerCoachingRecord {
 
 function safeFetch<T>(path: string, fallback: T, options?: RequestInit): Promise<T> {
   if (!API_URL) return Promise.resolve(fallback)
-  return fetchAPI<T>(path, options).catch(() => fallback)
+  return fetchAPI<T>(path, withIdempotencyKey(options)).catch(() => fallback)
 }
 
 // ----- store enrichment (mock geo + visit dates) -----

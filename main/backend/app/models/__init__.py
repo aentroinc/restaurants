@@ -71,10 +71,16 @@ from app.models.aip_logic import LogicFunction, LogicRun
 from app.models.cost_variance import InventoryCount, TheoreticalCost, CostVariance
 from app.models.marking import Marking, MarkingAssignment, UserPurpose
 from app.models.face_auth import FaceTemplate, ClockEvent, StaffPin
+from app.models.consent import ConsentTemplate, ConsentRecord, DataDeletionRequest
+from app.models.idempotency import IdempotencyRecord
 from app.models.manual_input import (
     DailyReport, WasteLog, Complaint, EquipmentIssue,
     AllergyResponse, LossReport, CustomerVoice, CompetitorScan,
 )
+from app.models.user_assignment import UserStoreAssignment
+from app.models.compliance_violation import ComplianceViolation
+from app.models.support import SupportTicket
+from app.models.sales_tax_breakdown import SalesTaxBreakdown
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -123,6 +129,12 @@ __all__ = [
     "InventoryCount", "TheoreticalCost", "CostVariance",
     "Marking", "MarkingAssignment", "UserPurpose",
     "FaceTemplate", "ClockEvent", "StaffPin",
+    "ConsentTemplate", "ConsentRecord", "DataDeletionRequest",
+    "IdempotencyRecord",
     "DailyReport", "WasteLog", "Complaint", "EquipmentIssue",
     "AllergyResponse", "LossReport", "CustomerVoice", "CompetitorScan",
+    "UserStoreAssignment",
+    "ComplianceViolation",
+    "SupportTicket",
+    "SalesTaxBreakdown",
 ]

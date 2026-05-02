@@ -21,6 +21,10 @@ class Product(Base):
     theoretical_cost: Mapped[Decimal | None] = mapped_column(Numeric(10, 0))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     limited_time_offer: Mapped[bool] = mapped_column(Boolean, default=False)
+    # 軽減税率 (日本): 0.08 (食品/テイクアウト/新聞), 0.10 (酒類/イートイン/その他標準),
+    # 0.00 (非課税)。tax_category: standard / reduced / exempt。
+    tax_rate: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False, server_default="0.10")
+    tax_category: Mapped[str] = mapped_column(String(20), nullable=False, server_default="standard")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

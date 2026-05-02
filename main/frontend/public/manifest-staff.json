@@ -1,0 +1,22 @@
+{
+  "name": "AENTRO 現場スタッフ",
+  "short_name": "AENTRO 現場",
+  "description": "AENTRO 現場スタッフ専用 PWA — 打刻・チェック・ロス・客声・学習",
+  "start_url": "/staff",
+  "scope": "/staff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e14",
+  "theme_color": "#1e3a8a",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/aentro-staff.svg",
+      "sizes": "192x192 512x512 1024x1024",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

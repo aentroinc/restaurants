@@ -30,6 +30,7 @@ from app.models.data_quality import DataQualityIssue
 from app.models.value_case import ValueCase, ValueCaseMetric
 from app.models.workflow import WorkflowTemplate, WorkflowInstance, WorkflowEvent
 from app.models.user import User
+from app.models.user_assignment import UserStoreAssignment
 from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelationType
 from app.models.ontology_v2 import (
     OntologyObjectTypeV2, OntologyPropertyType, OntologyLinkType,
@@ -60,7 +61,8 @@ from app.seed.generators import (
     generate_reviews, generate_sv_visits, generate_tasks, generate_value_cases,
     generate_workflow_templates, generate_workflow_instances,
     generate_meeting_pack, generate_data_quality_issues,
-    generate_users, generate_kpi_definitions, generate_ontology_data,
+    generate_users, generate_user_store_assignments,
+    generate_kpi_definitions, generate_ontology_data,
     generate_industry_playbooks, generate_lineage_events, generate_writeback_data,
     generate_ontology_v2_data,
     generate_roles_and_permissions, generate_workspace_data,
@@ -116,7 +118,7 @@ def run():
             "workflow_events", "workflow_instances", "workflow_templates",
             "board_meeting_items", "board_meeting_packs",
             "value_case_metrics", "value_cases",
-            "ai_query_logs", "audit_logs", "access_scopes", "users",
+            "ai_query_logs", "audit_logs", "user_store_assignments", "access_scopes", "users",
             "data_quality_issues",
             "store_daily_kpi", "store_pl",
             "daily_product_sales", "hourly_store_sales", "daily_store_sales",
@@ -310,9 +312,16 @@ def run():
 
         # 20. Users
         print("Creating users...")
-        users = generate_users()
+        users = generate_users(stores)
         bulk_insert(session, User, users)
         session.commit()
+
+        # 20b. User -> Store assignments (multi-store RBAC)
+        print("Creating user store assignments...")
+        usa = generate_user_store_assignments(users, stores)
+        bulk_insert(session, UserStoreAssignment, usa)
+        session.commit()
+        print(f"  {len(usa)} user-store assignments created.")
 
         # 21. KPI Definitions
         print("Creating KPI definitions...")

@@ -7,7 +7,8 @@ import {
   createShiftDraft, updateShiftDraft, publishShiftDraft, getShiftDraft,
   type ShiftDraft, type ShiftDraftSlot,
 } from "@/lib/labor-api"
-import { CheckCircle2, RefreshCw, AlertCircle, ChevronUp, ChevronDown } from "lucide-react"
+import { CheckCircle2, RefreshCw, AlertCircle, ChevronUp, ChevronDown, AlertOctagon, AlertTriangle } from "lucide-react"
+import { ComplianceBadge, severityCellClass, type ComplianceSeverity } from "@/components/labor/ComplianceBadge"
 
 const DEFAULT_STORE_ID = "00000000-0000-0000-0000-000000000010"
 const DEFAULT_WEEK_START = "2026-05-04"
@@ -55,14 +56,33 @@ export default function ShiftBuilderPage() {
 
   const employees = useMemo(() => {
     if (!draft) return []
-    return draft.draft_json.summary.employee_summary.map((e) => ({
+    return draft.draft_json.summary.employee_summary.map((e: any) => ({
       id: e.employee_id,
       name: e.name,
       hours: e.scheduled_hours,
       days: e.days_worked,
-      warnings: e.warnings,
+      warnings: e.warnings as string[],
+      compliance_skips: (e.compliance_skips || []) as { rule: string; slot: string }[],
     }))
   }, [draft])
+
+  // employeeId -> 各 slot に対する severity (block | warn | null)
+  const cellSeverity = useMemo(() => {
+    const m = new Map<string, Map<string, ComplianceSeverity>>()
+    employees.forEach((e) => {
+      const inner = new Map<string, ComplianceSeverity>()
+      e.compliance_skips.forEach((s) => inner.set(s.slot, "block"))
+      m.set(e.id, inner)
+    })
+    return m
+  }, [employees])
+
+  // 各 employee の row レベル severity (warnings から導出)
+  const rowSeverity = (warnings: string[]): ComplianceSeverity | null => {
+    if (warnings.some((w) => w === "art36:block")) return "block"
+    if (warnings.some((w) => w === "art36:warn")) return "warn"
+    return null
+  }
 
   // employee × slot のマトリクス
   const matrix = useMemo(() => {
@@ -292,33 +312,57 @@ export default function ShiftBuilderPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {employees.map((emp) => (
+                  {employees.map((emp) => {
+                    const rowSev = rowSeverity(emp.warnings)
+                    return (
                     <tr key={emp.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                       <td className="sticky left-0 bg-[#0a0e14] px-3 py-1.5 z-10 whitespace-nowrap">
-                        <div className="text-white/80 text-[12px]">{emp.name}</div>
-                        <div className="text-white/30 text-[9px]">{emp.days}日 / {emp.warnings.length > 0 ? <span className="text-amber-400">⚠</span> : "ok"}</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-white/80 text-[12px]">{emp.name}</span>
+                          {rowSev === "block" && <AlertOctagon className="w-3 h-3 text-red-400" />}
+                          {rowSev === "warn" && <AlertTriangle className="w-3 h-3 text-amber-400" />}
+                        </div>
+                        <div className="text-white/30 text-[9px]">
+                          {emp.days}日 / {emp.warnings.length > 0 ? <span className="text-amber-400" title={emp.warnings.join(", ")}>⚠{emp.warnings.length}</span> : "ok"}
+                        </div>
                       </td>
                       {filteredCols.map((c) => {
                         const a = matrix.get(emp.id)?.get(c.iso)
-                        const cls = a ? ROLE_COLORS[a.role] || "bg-white/20 text-white/80 border-white/30" : "bg-transparent border-white/[0.04]"
+                        const sev = cellSeverity.get(emp.id)?.get(c.iso) || null
+                        const sevCls = severityCellClass(sev)
+                        const baseCls = a ? (ROLE_COLORS[a.role] || "bg-white/20 text-white/80 border-white/30") : "bg-transparent border-white/[0.04]"
+                        const cls = sevCls || baseCls
                         return (
                           <td
                             key={c.iso}
                             onClick={() => toggleAssignment(c.iso, emp.id, emp.name)}
                             className={`w-7 h-6 border ${cls} cursor-pointer text-center align-middle ${draft.status === "published" ? "pointer-events-none opacity-60" : ""}`}
-                            title={a ? `${a.role}` : "（割当なし）"}
+                            title={
+                              sev === "block"
+                                ? `違反 (block): 法令違反のため割当不可`
+                                : sev === "warn"
+                                ? `警告 (warn): 上限近接`
+                                : a
+                                ? `${a.role}`
+                                : "（割当なし）"
+                            }
                           >
-                            {a ? a.role.charAt(0) : ""}
+                            {sev === "block" ? "✕" : sev === "warn" ? "!" : a ? a.role.charAt(0) : ""}
                           </td>
                         )
                       })}
                       <td className="px-2 py-1.5 text-right font-mono tabular-nums text-white/70">{emp.hours.toFixed(1)}h</td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
-              <div className="px-3 py-2 text-[10px] text-white/40 border-t border-white/[0.06]">
-                セルクリックで割当ON/OFF。役割は不足ロールに自動割当。「ホ=ホール / キ=キッチン / レ=レジ」
+              <div className="px-3 py-2 text-[10px] text-white/40 border-t border-white/[0.06] flex flex-wrap items-center gap-3">
+                <span>セルクリックで割当ON/OFF。「ホ=ホール / キ=キッチン / レ=レジ」</span>
+                <span className="ml-auto flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500/30 border border-red-500/50" />違反</span>
+                  <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-500/20 border border-amber-500/40" />警告</span>
+                  <a href="/labor/compliance" className="text-blue-300 hover:underline">違反詳細 →</a>
+                </span>
               </div>
             </div>
 

@@ -12,14 +12,14 @@ import {
   Settings,
 } from "lucide-react"
 
-const tabs = [
-  { href: "/manager", label: "ホーム", icon: Home, exact: true },
-  { href: "/manager/daily-report", label: "日報", icon: FileText },
-  { href: "/manager/waste", label: "廃棄", icon: Trash2 },
+const tabs: { href: string; label: string; icon: any; exact?: boolean; onb?: string }[] = [
+  { href: "/manager", label: "ホーム", icon: Home, exact: true, onb: "manager-kpi" },
+  { href: "/manager/daily-report", label: "日報", icon: FileText, onb: "manager-daily-report" },
+  { href: "/manager/waste", label: "廃棄", icon: Trash2, onb: "manager-waste" },
   { href: "/manager/complaint", label: "クレーム", icon: MessageSquareWarning },
   { href: "/manager/equipment", label: "修理", icon: Wrench },
-  { href: "/manager/shift", label: "シフト", icon: CalendarClock },
-  { href: "/manager/settings", label: "設定", icon: Settings },
+  { href: "/manager/shift", label: "シフト", icon: CalendarClock, onb: "manager-shift" },
+  { href: "/manager/settings", label: "設定", icon: Settings, onb: "manager-settings" },
 ]
 
 export function BottomTabBar() {
@@ -38,6 +38,7 @@ export function BottomTabBar() {
             <li key={t.href}>
               <Link
                 href={t.href}
+                data-onboarding={t.onb}
                 className={`flex flex-col items-center justify-center gap-1 py-2 px-1 text-[10px] tracking-tight transition-colors ${
                   active
                     ? "text-emerald-400"

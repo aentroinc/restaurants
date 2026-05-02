@@ -1,0 +1,400 @@
+{
+  "_meta": { "language": "Tiếng Việt", "code": "vi", "note": "Translated by AI - human review required. Cẩm nang khẩn cấp đã được kiểm tra (119/110)." },
+
+  "common": {
+    "appName": "AENTRO Hiện trường",
+    "back": "Quay lại",
+    "next": "Tiếp",
+    "submit": "Gửi",
+    "submitting": "Đang gửi...",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "loading": "Đang tải...",
+    "done": "Xong",
+    "ok": "OK",
+    "ng": "NG",
+    "close": "Đóng",
+    "yes": "Có",
+    "no": "Không",
+    "confirm": "Xác nhận",
+    "retry": "Thử lại",
+    "homeReturn": "Về trang chính",
+    "continueReport": "Báo cáo tiếp",
+    "online": "Trực tuyến",
+    "offline": "Ngoại tuyến (sẽ đồng bộ sau)",
+    "language": "Ngôn ngữ"
+  },
+
+  "nav": {
+    "home": "Trang chính",
+    "clock": "Chấm công",
+    "checklist": "Kiểm tra",
+    "loss": "Hao hụt",
+    "voice": "Khách",
+    "training": "Học",
+    "settings": "Cài đặt",
+    "toBusinessOS": "OS Quản lý"
+  },
+
+  "home": {
+    "greeting": "Chào buổi sáng",
+    "todayShift": "Ca làm hôm nay",
+    "noShift": "Hôm nay không có ca",
+    "clockInCta": "Bấm giờ vào ca",
+    "clockInSub": "Khuôn mặt 3 giây",
+    "lineCheck": "Kiểm tra line",
+    "lineCheckSub": "Mở/4h/Đóng",
+    "lossReport": "Báo cáo hao hụt",
+    "lossReportSub": "Ghi nhận đồ bỏ",
+    "customerVoice": "Ý kiến khách",
+    "customerVoiceSub": "Chọn nhanh 5 mục",
+    "allergy": "Xử lý dị ứng",
+    "allergySub": "Ghi lại",
+    "training": "Học",
+    "trainingSub": "Video & bài kiểm tra",
+    "emergency": "Cẩm nang khẩn cấp",
+    "emergencySub": "Cháy / Động đất / Cướp",
+    "myTasks": "Công việc của tôi",
+    "upcomingShifts": "Ca sắp tới",
+    "fireDrillReminder": "Đừng quên diễn tập phòng cháy hàng tháng.",
+    "checkNow": "Xem ngay"
+  },
+
+  "clock": {
+    "title": "Chấm công",
+    "subtitle": "Xong trong 3 giây. Mặt → quét → xong.",
+    "faceCta": "Quét khuôn mặt để vào ca",
+    "faceSub": "Hoàn tất trong 3 giây",
+    "qrCta": "Quét QR",
+    "pinCta": "Nhập PIN",
+    "breakStart": "Bắt đầu nghỉ",
+    "breakEnd": "Kết thúc nghỉ",
+    "clockOut": "Tan ca",
+    "todayLog": "Bấm giờ hôm nay",
+    "noLog": "Chưa có bấm giờ hôm nay",
+    "labelIn": "Vào",
+    "labelOut": "Ra",
+    "labelBreakStart": "Bắt đầu nghỉ",
+    "labelBreakEnd": "Kết thúc nghỉ",
+    "okFace": "Đã chấm công bằng khuôn mặt",
+    "okQr": "Đã chấm công bằng QR",
+    "okPin": "Đã chấm công bằng PIN"
+  },
+
+  "auth": {
+    "faceTitle": "Chấm công bằng khuôn mặt",
+    "faceVerifying": "Đang đối chiếu...",
+    "faceFail": "Không nhận diện được khuôn mặt ({count}/3). Hãy đặt mặt vào trong khung.",
+    "doneTitle": "Hoàn tất",
+    "confidence": "Độ tin cậy {value}%",
+    "qrTitle": "Chấm công bằng QR",
+    "qrFrameHint": "Đặt mã QR vào trong khung",
+    "qrFail": "QR không hợp lệ hoặc đã hết hạn",
+    "qrManualLabel": "Nếu QR không quét được, nhập thủ công",
+    "qrManualPlaceholder": "Mã token",
+    "qrSend": "Gửi",
+    "pinTitle": "Chấm công bằng PIN",
+    "pinEmpId": "Mã nhân viên",
+    "pinFail": "Sai PIN ({count}/3)",
+    "pinLockedTitle": "Đã bị khóa",
+    "pinLockedDesc": "Sai 3 lần — khóa 5 phút. Hãy liên hệ quản lý.",
+    "switchToFace": "Khuôn mặt",
+    "switchToQr": "QR",
+    "switchToPin": "PIN"
+  },
+
+  "loss": {
+    "title": "Báo cáo hao hụt",
+    "step1Item": "Tên món/nguyên liệu",
+    "step1Placeholder": "VD: Thịt bò gyudon",
+    "step1Suggestions": "Hay dùng",
+    "step1Next": "Tiếp: số lượng",
+    "step2Qty": "Số lượng",
+    "step2Estimate": "Ước tính: ¥{amount} (@¥{unit})",
+    "step2UnitLabel": "Đơn giá (yên, không bắt buộc)",
+    "step2UnitPlaceholder": "100",
+    "step2Next": "Tiếp: lý do",
+    "step3Reason": "Chọn lý do",
+    "step3PhotoLabel": "Chụp ảnh (không bắt buộc)",
+    "step3PhotoSelected": "Đã chọn ảnh: {name}",
+    "doneTitle": "Đã gửi",
+    "doneDesc": "Đã ghi nhận hao hụt (ước tính ¥{amount})",
+    "reason": {
+      "expired": "Hết hạn",
+      "spillage": "Đổ/rớt",
+      "burnt": "Cháy/lỗi",
+      "wrong_order": "Sai order",
+      "other": "Khác"
+    },
+    "items": {
+      "gyudon": "Thịt bò gyudon",
+      "onion": "Hành tây",
+      "rice": "Cơm",
+      "miso": "Súp miso",
+      "salad": "Salad",
+      "egg": "Trứng"
+    },
+    "perUnit": "¥{cost}/cái"
+  },
+
+  "voice": {
+    "title": "Ý kiến khách",
+    "pickOne": "Chọn 1 mục phù hợp",
+    "detailLabel": "Ghi chú chi tiết (không bắt buộc)",
+    "detailPlaceholder": "VD: bàn 4 / nam 50 tuổi / gyudon thường",
+    "doneTitle": "Đã gửi",
+    "doneDesc": "Đã ghi nhận ý kiến khách",
+    "continueRecord": "Ghi tiếp",
+    "options": {
+      "delicious": "Ngon",
+      "fast": "Phục vụ nhanh",
+      "kind": "NV thân thiện",
+      "cold": "Đồ ăn nguội",
+      "slow": "Phục vụ chậm",
+      "rude": "NV thiếu lịch sự",
+      "dirty": "Quán bẩn",
+      "wrong": "Sai món",
+      "other": "Khác"
+    }
+  },
+
+  "allergy": {
+    "title": "Xử lý dị ứng",
+    "emergencyLink": "Khẩn cấp",
+    "step1Title": "Độ tuổi khách",
+    "step1Next": "Tiếp: chất gây dị ứng",
+    "step2Title": "Chọn chất gây dị ứng (nhiều)",
+    "step3Title": "Món đã phục vụ / order",
+    "step3Placeholder": "VD: gyudon thường, súp miso (không trứng)",
+    "step3Next": "Tiếp: cách xử lý",
+    "step4Title": "Cách xử lý",
+    "incidentWarning": "Khi có sự cố, gọi 119 ngay và báo quản lý.",
+    "doneTitle": "Đã ghi nhận",
+    "doneDesc": "Đã ghi nhận xử lý dị ứng",
+    "openAnaphylaxis": "Mở cẩm nang sốc phản vệ",
+    "ageRange": {
+      "child": "Trẻ em (≤12)",
+      "teen": "Tuổi teen",
+      "20-40": "20-40",
+      "40-60": "40-60",
+      "60+": "60+",
+      "unknown": "Không rõ"
+    },
+    "allergens": {
+      "egg": "Trứng",
+      "milk": "Sữa",
+      "wheat": "Lúa mì",
+      "shrimp": "Tôm",
+      "crab": "Cua",
+      "soba": "Kiều mạch",
+      "peanut": "Đậu phộng",
+      "walnut": "Óc chó",
+      "soy": "Đậu nành",
+      "fish": "Cá",
+      "beef": "Thịt bò",
+      "other": "Khác"
+    },
+    "responses": {
+      "alt_provided": "Đề xuất món thay thế",
+      "ingredients_explained": "Chỉ giải thích thành phần",
+      "declined": "Từ chối phục vụ",
+      "incident": "Có sự cố — sơ cứu"
+    }
+  },
+
+  "training": {
+    "title": "Đào tạo",
+    "roles": { "all": "Tất cả", "hall": "Phòng ăn", "kitchen": "Bếp", "register": "Quầy" },
+    "watchedNext": "Đã xem → làm bài kiểm tra",
+    "quizCard": "Bài kiểm tra",
+    "quizDesc": "3 câu · đúng 2 → cấp chứng chỉ",
+    "quizCta": "Làm bài",
+    "quizProgress": "Bài kiểm tra {cur} / {total}",
+    "passed": "Đã đạt!",
+    "failed": "Thử lại nào",
+    "score": "Đúng {score} / {total}",
+    "certTitle": "Chứng chỉ AENTRO",
+    "certBody": "Hoàn thành: Vận hành cửa hàng cơ bản",
+    "certIssued": "Cấp ngày {date} · ID: {id}",
+    "retake": "Làm lại",
+    "backToList": "Về danh sách video",
+    "videos": {
+      "v-onboard": { "title": "Định hướng nhân viên mới", "desc": "Giá trị & quy tắc cơ bản của AENTRO" },
+      "v-hall-greet": { "title": "Phòng ăn: đón khách", "desc": "Cười, chào, dẫn chỗ" },
+      "v-hall-clean": { "title": "Phòng ăn: lau bàn", "desc": "5S kỹ lưỡng & sát khuẩn cồn" },
+      "v-kitchen-temp": { "title": "Bếp: kiểm soát nhiệt độ", "desc": "Ghi CCP theo HACCP" },
+      "v-kitchen-allergen": { "title": "Bếp: phân tách dị nguyên", "desc": "Ngăn lây nhiễm chéo" },
+      "v-register-cash": { "title": "Quầy: tránh sai tiền thối", "desc": "Kiểm tra 2 lần & POS căn bản" }
+    },
+    "quiz": {
+      "q1": { "q": "Nhiệt độ giữ nóng tối thiểu của thức ăn nóng?", "a": ["55°C", "60°C", "65°C", "75°C"] },
+      "q2": { "q": "Khi phục vụ món có dị nguyên, cần kiểm tra điều gì đầu tiên?", "a": ["Giá", "Bảng nguyên liệu", "Số lượng", "Thời gian"] },
+      "q3": { "q": "Việc bắt buộc khi đóng cửa?", "a": ["Bổ sung tồn kho", "Đối chiếu két tiền", "Đổi menu", "Đăng tuyển"] }
+    }
+  },
+
+  "emergency": {
+    "title": "Cẩm nang khẩn cấp",
+    "subtitle": "Bấm vào tình huống tương ứng",
+    "stepCount": "{n} bước",
+    "footer": "Bình tĩnh. Hô to. Phối hợp đồng đội.",
+    "listBack": "← Danh sách",
+    "scenarios": {
+      "fire": {
+        "title": "Cháy",
+        "call": "119 (Cứu hỏa)",
+        "steps": [
+          "Hô to 'KAJI-DA!' (Cháy!). Báo cho toàn bộ nhân viên.",
+          "Hướng dẫn khách ra cửa thoát hiểm (xem sơ đồ thoát hiểm).",
+          "Nếu an toàn, dập lửa ban đầu (bình chữa cháy; dầu chiên dùng vải đậy).",
+          "Khóa van gas chính và ngắt cầu dao điện.",
+          "Gọi 119. Báo địa chỉ và tên cửa hàng.",
+          "Tập trung tại điểm hẹn ngoài cửa hàng. Đếm người. Báo quản lý."
+        ]
+      },
+      "earthquake": {
+        "title": "Động đất",
+        "steps": [
+          "Hô to 'ĐỘNG ĐẤT! Hạ thấp!'",
+          "Hướng khách núp dưới gầm bàn.",
+          "Nhân viên bếp tắt lửa, rời khỏi bếp.",
+          "Khi hết rung, mở cửa để bảo đảm lối thoát.",
+          "Kiểm tra rò gas. Nếu có, mở thông gió — KHÔNG dùng lửa!",
+          "Báo quản lý, kiểm tra thiệt hại."
+        ]
+      },
+      "robbery": {
+        "title": "Cướp",
+        "call": "110 (Cảnh sát)",
+        "steps": [
+          "KHÔNG chống cự. Mạng sống là trên hết.",
+          "Làm theo yêu cầu của tên cướp, đưa tiền.",
+          "Ghi nhớ đặc điểm (chiều cao, quần áo, giọng nói, vũ khí).",
+          "Khi tên cướp đi, khóa cửa ngay.",
+          "Gọi 110. Giữ nguyên hiện trường (không đụng vào).",
+          "Xem CCTV. Báo quản lý và trụ sở chính."
+        ]
+      },
+      "food_poisoning": {
+        "title": "Nghi ngộ độc thực phẩm",
+        "steps": [
+          "Hỏi triệu chứng khách (nôn, tiêu chảy, sốt). Ghi giờ và món đã ăn.",
+          "Nếu nặng, gọi xe cấp cứu (119).",
+          "Giữ nguyên món và nguyên liệu nghi ngờ (KHÔNG vứt bỏ).",
+          "Báo ngay quản lý và bộ phận chất lượng trụ sở.",
+          "Chuẩn bị hồ sơ phục vụ cho cơ quan y tế.",
+          "Đối xử khách bằng sự chân thành. Bồi thường do trụ sở quyết định."
+        ]
+      },
+      "injury": {
+        "title": "Khách bị thương",
+        "call": "119 (Cấp cứu)",
+        "steps": [
+          "Kiểm tra ý thức và hơi thở. Nếu nặng, gọi 119.",
+          "Nếu chảy máu, dùng vải sạch ép cầm máu.",
+          "Bỏng: làm mát bằng nước chảy (10–20 phút).",
+          "Lấy AED nếu cần (vị trí trên sơ đồ cửa hàng).",
+          "Ghi tình huống tai nạn (giờ, vị trí, nguyên nhân).",
+          "Báo quản lý và trụ sở. Lưu thông tin khách."
+        ]
+      },
+      "anaphylaxis": {
+        "title": "Sốc phản vệ",
+        "call": "119 (Cấp cứu)",
+        "steps": [
+          "Gọi 119 NGAY. Nói 'Đây là sốc phản vệ.'",
+          "Cho khách nằm ngửa, nâng chân (tư thế chống sốc).",
+          "Nếu khách có EpiPen, hỗ trợ tiêm vào mặt ngoài đùi.",
+          "Giữ thông đường thở. Theo dõi ý thức và hơi thở liên tục.",
+          "Nếu nôn, đặt nghiêng người.",
+          "Ở bên khách đến khi xe cấp cứu tới. Ghi món đã ăn và thành phần."
+        ]
+      }
+    }
+  },
+
+  "settings": {
+    "title": "Cài đặt",
+    "empIdTitle": "Mã nhân viên",
+    "pinTitle": "PIN 4 chữ số",
+    "pinNew": "PIN mới",
+    "pinReenter": "Nhập lại",
+    "pinUpdate": "Cập nhật PIN",
+    "pinSaved": "Đã cập nhật PIN",
+    "pinMismatch": "PIN không khớp",
+    "pinDigits": "Hãy nhập đủ 4 chữ số",
+    "empSaved": "Đã lưu mã nhân viên",
+    "installTitle": "Thêm vào màn hình chính",
+    "installCta": "Cài đặt như ứng dụng",
+    "installHint": "iOS Safari: Chia sẻ → Thêm vào màn hình chính\nAndroid Chrome: Menu → Cài đặt ứng dụng",
+    "connectionTitle": "Kết nối",
+    "localDataTitle": "Dữ liệu cục bộ",
+    "clearLogs": "Xóa lịch sử bấm giờ",
+    "clearConfirm": "Xóa lịch sử bấm giờ trên máy?",
+    "logsCleared": "Đã xóa lịch sử",
+    "languageTitle": "Ngôn ngữ",
+    "languageHint": "Đổi ngôn ngữ hiển thị. Cẩm nang khẩn cấp cũng đổi theo."
+  },
+
+  "lineCheck": {
+    "headerTitle": "Kiểm tra line",
+    "headerDesc": "Mở / Đóng / Chất lượng 4h (ảnh, nhiệt độ, geofence)",
+    "startListTitle": "Chọn checklist",
+    "templateEdit": "Sửa template",
+    "items": "{n} mục",
+    "photoCount": "{n} ảnh",
+    "tempCount": "{n} nhiệt độ",
+    "starting": "Đang bắt đầu…",
+    "start": "Bắt đầu →",
+    "noTemplates": "Chưa có template",
+    "history": "Lần chạy gần đây",
+    "noHistory": "Chưa có lịch sử",
+    "th": {
+      "template": "Template",
+      "started": "Bắt đầu",
+      "completed": "Hoàn tất",
+      "geofence": "geofence",
+      "status": "Trạng thái"
+    },
+    "schedule": { "opening": "Mở cửa", "closing": "Đóng cửa", "4h": "Chất lượng 4h", "weekly": "Tuần" },
+    "status": { "in_progress": "Đang chạy", "completed": "Hoàn tất", "failed": "Thất bại" },
+    "geofenceOk": "OK",
+    "geofenceOut": "Ngoài",
+    "startError": "Bắt đầu thất bại: {msg}",
+    "run": {
+      "title": "Chạy kiểm tra line",
+      "offline": "Ngoại tuyến",
+      "photoRequired": "Bắt buộc ảnh",
+      "tempRange": "{min}°C – {max}°C",
+      "tempLabel": "Nhiệt độ đo (°C)",
+      "tempBelow": "Dưới mức (giới hạn {min}°C)",
+      "tempAbove": "Trên mức (giới hạn {max}°C)",
+      "tempOk": "Trong khoảng OK",
+      "stateLabel": "Trạng thái",
+      "selectPlaceholder": "Chọn",
+      "photoLabel": "Ảnh",
+      "memo": "Ghi chú (không bắt buộc)",
+      "retake": "Chụp lại",
+      "shoot": "Chụp ảnh",
+      "queued": "Đã lưu offline (sẽ tự gửi khi có mạng)",
+      "captured": "Đã chụp",
+      "back": "Quay lại",
+      "nextItem": "Tiếp",
+      "completeSend": "Hoàn tất & gửi",
+      "doneOk": "Đã hoàn tất kiểm tra",
+      "doneNg": "Chưa xong — có mục NG",
+      "doneOkDesc": "Tốt lắm.",
+      "doneNgDesc": "Mục NG đã được tạo thành task. Đang chờ trụ sở duyệt.",
+      "backToList": "Về danh sách",
+      "photoMust": "Mục này bắt buộc có ảnh",
+      "tempMust": "Hãy nhập nhiệt độ",
+      "templateNotFound": "Không tìm thấy template",
+      "templateNotLoaded": "Chưa tải template"
+    }
+  },
+
+  "languageSwitcher": {
+    "label": "Đổi ngôn ngữ",
+    "current": "Ngôn ngữ hiện tại"
+  }
+}

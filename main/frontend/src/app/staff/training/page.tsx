@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react"
 import { GraduationCap, Play, Award, Check, X } from "lucide-react"
 import { BigTapButton } from "@/components/staff/BigTapButton"
+import { useTranslations, useLocale } from "@/i18n/I18nProvider"
+import { formatDate } from "@/lib/format"
 
 type Role = "hall" | "kitchen" | "register" | "all"
 
@@ -15,83 +17,41 @@ interface Video {
   description: string
 }
 
-const videos: Video[] = [
-  {
-    id: "v-onboard",
-    title: "新人オリエンテーション",
-    duration: "5:30",
-    role: "all",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "AENTRO店舗の理念と基本ルール",
-  },
-  {
-    id: "v-hall-greet",
-    title: "ホール: お客様お迎え",
-    duration: "3:10",
-    role: "hall",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "笑顔・声かけ・席案内の基本",
-  },
-  {
-    id: "v-hall-clean",
-    title: "ホール: テーブル清掃",
-    duration: "4:00",
-    role: "hall",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "5S徹底とアルコール消毒",
-  },
-  {
-    id: "v-kitchen-temp",
-    title: "キッチン: 温度管理",
-    duration: "6:15",
-    role: "kitchen",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "HACCP準拠のCCP記録方法",
-  },
-  {
-    id: "v-kitchen-allergen",
-    title: "キッチン: アレルゲン分離",
-    duration: "5:45",
-    role: "kitchen",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "クロスコンタミ防止プロトコル",
-  },
-  {
-    id: "v-register-cash",
-    title: "レジ: 釣銭ミスを防ぐ",
-    duration: "4:30",
-    role: "register",
-    youtubeId: "dQw4w9WgXcQ",
-    description: "二度確認とPOS入力の基礎",
-  },
+interface VideoSeed {
+  id: string
+  duration: string
+  role: Role
+  youtubeId: string
+}
+
+const videoSeeds: VideoSeed[] = [
+  { id: "v-onboard", duration: "5:30", role: "all", youtubeId: "dQw4w9WgXcQ" },
+  { id: "v-hall-greet", duration: "3:10", role: "hall", youtubeId: "dQw4w9WgXcQ" },
+  { id: "v-hall-clean", duration: "4:00", role: "hall", youtubeId: "dQw4w9WgXcQ" },
+  { id: "v-kitchen-temp", duration: "6:15", role: "kitchen", youtubeId: "dQw4w9WgXcQ" },
+  { id: "v-kitchen-allergen", duration: "5:45", role: "kitchen", youtubeId: "dQw4w9WgXcQ" },
+  { id: "v-register-cash", duration: "4:30", role: "register", youtubeId: "dQw4w9WgXcQ" },
 ]
 
-const roleTabs: { key: Role; label: string }[] = [
-  { key: "all", label: "全員" },
-  { key: "hall", label: "ホール" },
-  { key: "kitchen", label: "キッチン" },
-  { key: "register", label: "レジ" },
-]
-
-const sampleQuiz = [
-  {
-    q: "ホット商品の保管温度の下限は？",
-    options: ["55℃", "60℃", "65℃", "75℃"],
-    correct: 2,
-  },
-  {
-    q: "アレルゲン提供時に最初に確認すべきことは？",
-    options: ["価格", "材料表示", "数量", "提供時間"],
-    correct: 1,
-  },
-  {
-    q: "閉店点検で必ず行うのは？",
-    options: ["在庫補充", "金庫照合", "メニュー変更", "求人掲載"],
-    correct: 1,
-  },
-]
+const roleKeys: Role[] = ["all", "hall", "kitchen", "register"]
+const quizKeys = ["q1", "q2", "q3"] as const
+const quizCorrect: number[] = [2, 1, 1]
 
 export default function StaffTrainingPage() {
+  const t = useTranslations("training")
+  const tCommon = useTranslations("common")
+  const locale = useLocale()
+  const videos: Video[] = videoSeeds.map((v) => ({
+    ...v,
+    title: t(`videos.${v.id}.title`),
+    description: t(`videos.${v.id}.desc`),
+  }))
+  const roleTabs = roleKeys.map((k) => ({ key: k, label: t(`roles.${k}`) }))
+  const sampleQuiz = quizKeys.map((q, i) => ({
+    q: t(`quiz.${q}.q`),
+    options: t.raw(`quiz.${q}.a`) as string[],
+    correct: quizCorrect[i],
+  }))
   const [role, setRole] = useState<Role>("all")
   const [playing, setPlaying] = useState<Video | null>(null)
   const [quizMode, setQuizMode] = useState(false)
@@ -109,7 +69,7 @@ export default function StaffTrainingPage() {
   if (playing) {
     return (
       <div className="px-4 py-5 space-y-4">
-        <button onClick={() => setPlaying(null)} className="text-sm text-white/60">← 戻る</button>
+        <button onClick={() => setPlaying(null)} className="text-sm text-white/60">← {tCommon("back")}</button>
         <div className="aspect-video rounded-xl overflow-hidden border border-white/10">
           <iframe
             src={`https://www.youtube.com/embed/${playing.youtubeId}`}
@@ -123,7 +83,7 @@ export default function StaffTrainingPage() {
           <h2 className="text-xl font-bold">{playing.title}</h2>
           <p className="text-sm text-white/60 mt-1">{playing.description}</p>
         </div>
-        <BigTapButton tone="success" label="視聴完了 → 確認テスト" onClick={() => { setPlaying(null); setQuizMode(true) }} />
+        <BigTapButton tone="success" label={t("watchedNext")} onClick={() => { setPlaying(null); setQuizMode(true) }} />
       </div>
     )
   }
@@ -143,27 +103,27 @@ export default function StaffTrainingPage() {
             </div>
           )}
           <div>
-            <h2 className="text-3xl font-bold">{passed ? "認定取得！" : "もう一度挑戦"}</h2>
+            <h2 className="text-3xl font-bold">{passed ? t("passed") : t("failed")}</h2>
             <div className="text-white/70 mt-2">
-              {score} / {sampleQuiz.length} 問正解
+              {t("score", { score, total: sampleQuiz.length })}
             </div>
           </div>
           {passed && (
             <div className="mx-auto max-w-sm rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 to-transparent p-5 text-left">
-              <div className="text-xs text-emerald-300/70">AENTRO 認定証</div>
-              <div className="text-lg font-bold mt-1">店舗オペレーション基礎 修了</div>
+              <div className="text-xs text-emerald-300/70">{t("certTitle")}</div>
+              <div className="text-lg font-bold mt-1">{t("certBody")}</div>
               <div className="text-xs text-white/60 mt-2">
-                発行日 {new Date().toLocaleDateString("ja-JP")} ・ ID: CERT-{Math.random().toString(36).slice(2, 8).toUpperCase()}
+                {t("certIssued", { date: formatDate(new Date(), locale), id: "CERT-" + Math.random().toString(36).slice(2, 8).toUpperCase() })}
               </div>
             </div>
           )}
           <div className="flex flex-col gap-3 max-w-xs mx-auto">
             <BigTapButton
               tone="primary"
-              label="もう一度受験"
+              label={t("retake")}
               onClick={() => { setAnswers([]); setQIdx(0); setDone(false) }}
             />
-            <BigTapButton tone="ghost" label="動画一覧に戻る" onClick={() => { setQuizMode(false); setDone(false); setAnswers([]); setQIdx(0) }} />
+            <BigTapButton tone="ghost" label={t("backToList")} onClick={() => { setQuizMode(false); setDone(false); setAnswers([]); setQIdx(0) }} />
           </div>
         </div>
       )
@@ -171,7 +131,7 @@ export default function StaffTrainingPage() {
     const cur = sampleQuiz[qIdx]
     return (
       <div className="px-4 py-5 space-y-5">
-        <div className="text-xs text-white/50">確認テスト {qIdx + 1} / {sampleQuiz.length}</div>
+        <div className="text-xs text-white/50">{t("quizProgress", { cur: qIdx + 1, total: sampleQuiz.length })}</div>
         <h2 className="text-xl font-bold">{cur.q}</h2>
         <div className="space-y-3">
           {cur.options.map((o, i) => (
@@ -197,7 +157,7 @@ export default function StaffTrainingPage() {
     <div className="px-4 py-5 space-y-5">
       <div className="flex items-center gap-2">
         <GraduationCap className="h-6 w-6 text-indigo-400" />
-        <h1 className="text-2xl font-bold">学習・トレーニング</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -236,14 +196,14 @@ export default function StaffTrainingPage() {
       <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3">
         <Check className="h-5 w-5 text-indigo-300" />
         <div className="flex-1">
-          <div className="text-sm font-semibold">確認テスト</div>
-          <div className="text-xs text-white/60 mt-0.5">3問・2問正解で認定証発行</div>
+          <div className="text-sm font-semibold">{t("quizCard")}</div>
+          <div className="text-xs text-white/60 mt-0.5">{t("quizDesc")}</div>
         </div>
         <button
           onClick={() => setQuizMode(true)}
           className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold"
         >
-          受験
+          {t("quizCta")}
         </button>
       </div>
     </div>

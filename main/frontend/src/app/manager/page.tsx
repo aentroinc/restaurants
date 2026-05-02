@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import {
   FileText,
   Trash2,
@@ -10,14 +11,18 @@ import {
   Users,
   TrendingUp,
   Clock,
+  ShieldAlert,
+  Download,
 } from "lucide-react"
 import { managerApi, type ManagerHomeKPI, type ManagerTask } from "@/lib/manager-api"
 import { QuickActionCard } from "@/components/manager/QuickActionCard"
+import { fetchAPI } from "@/lib/api"
 
 export default function ManagerHomePage() {
   const [kpi, setKpi] = useState<ManagerHomeKPI | null>(null)
   const [tasks, setTasks] = useState<ManagerTask[]>([])
   const [loading, setLoading] = useState(true)
+  const [complianceCounts, setComplianceCounts] = useState<{ block: number; warn: number; open: number } | null>(null)
 
   useEffect(() => {
     const sid = (typeof window !== "undefined" && localStorage.getItem("manager.store_id")) || "S-1001"
@@ -27,6 +32,19 @@ export default function ManagerHomePage() {
         setTasks(t)
       })
       .finally(() => setLoading(false))
+
+    // 労務違反集計 (失敗しても無視)
+    fetchAPI<{ data: { by_severity: Record<string, number>; open_count: number } }>(
+      "/api/v1/labor/compliance/dashboard?period_days=30"
+    )
+      .then((r) =>
+        setComplianceCounts({
+          block: r.data?.by_severity?.block || 0,
+          warn: r.data?.by_severity?.warn || 0,
+          open: r.data?.open_count || 0,
+        })
+      )
+      .catch(() => setComplianceCounts({ block: 0, warn: 0, open: 0 }))
   }, [])
 
   const urgent = tasks.filter((t) => t.severity === "high" && t.status !== "done").length
@@ -79,6 +97,41 @@ export default function ManagerHomePage() {
         )}
       </section>
 
+      {/* Labor compliance banner */}
+      {complianceCounts && (complianceCounts.block + complianceCounts.warn) > 0 && (
+        <Link
+          href="/labor/compliance"
+          className={`block rounded-xl border p-4 transition ${
+            complianceCounts.block > 0
+              ? "border-red-500/30 bg-red-500/[0.06] hover:bg-red-500/[0.10]"
+              : "border-amber-500/30 bg-amber-500/[0.06] hover:bg-amber-500/[0.10]"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <ShieldAlert
+              className={`w-5 h-5 ${complianceCounts.block > 0 ? "text-red-400" : "text-amber-400"}`}
+              strokeWidth={1.5}
+            />
+            <div className="flex-1">
+              <div className="text-[11px] uppercase tracking-wider text-white/40">労務違反 (30日)</div>
+              <div className="flex items-baseline gap-3 mt-0.5">
+                <span
+                  className={`font-mono tabular-nums text-2xl font-semibold ${
+                    complianceCounts.block > 0 ? "text-red-400" : "text-amber-400"
+                  }`}
+                >
+                  {complianceCounts.block + complianceCounts.warn}件
+                </span>
+                <span className="text-[12px] text-white/60">
+                  違反 {complianceCounts.block} / 警告 {complianceCounts.warn} / 未対応 {complianceCounts.open}
+                </span>
+              </div>
+            </div>
+            <span className="text-[12px] text-white/50">詳細を見る →</span>
+          </div>
+        </Link>
+      )}
+
       {/* Quick actions */}
       <section>
         <h2 className="text-[11px] uppercase tracking-wider text-white/40 mb-2">
@@ -115,6 +168,12 @@ export default function ManagerHomePage() {
             icon={Users}
           />
         </div>
+      </section>
+
+      {/* PDF download */}
+      <section>
+        <h2 className="text-[11px] uppercase tracking-wider text-white/40 mb-2">帳票</h2>
+        <DailyReportDownload />
       </section>
 
       {/* Tasks */}
@@ -168,6 +227,39 @@ export default function ManagerHomePage() {
           )}
         </ul>
       </section>
+    </div>
+  )
+}
+
+function DailyReportDownload() {
+  const today = new Date().toISOString().slice(0, 10)
+  const [date, setDate] = useState(today)
+  const sid =
+    (typeof window !== "undefined" && localStorage.getItem("manager.store_id")) || "S-1001"
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+  const url = `${apiUrl}/api/v1/reports/daily-report.pdf?store_id=${encodeURIComponent(sid)}&date=${date}`
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 flex items-center gap-3">
+      <FileText className="w-4 h-4 text-emerald-400" />
+      <div className="flex-1 min-w-0">
+        <div className="text-sm text-white/85">日報PDFダウンロード</div>
+        <div className="text-[11px] text-white/40">店長日報 (軽減税率 8%/10% 内訳含む)</div>
+      </div>
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="rounded-md bg-black/30 border border-white/[0.08] px-2 py-1 text-[12px] font-mono"
+      />
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 px-3 py-1.5 text-[12px] font-medium"
+      >
+        <Download className="w-3.5 h-3.5" />
+        PDF
+      </a>
     </div>
   )
 }

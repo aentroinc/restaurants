@@ -1,0 +1,22 @@
+{
+  "name": "AENTRO スーパーバイザー",
+  "short_name": "AENTRO SV",
+  "description": "AENTRO SV 専用 PWA — エリアKPI・訪問計画・店長コーチ",
+  "start_url": "/sv",
+  "scope": "/sv",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e14",
+  "theme_color": "#7c3aed",
+  "lang": "ja",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/aentro-sv.svg",
+      "sizes": "192x192 512x512 1024x1024",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

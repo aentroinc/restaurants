@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { svApi, type SVStore } from "@/lib/sv-api"
+
+const LeafletStoreMap = dynamic(
+  () => import("@/components/sv/LeafletStoreMap").then((m) => m.LeafletStoreMap),
+  { ssr: false, loading: () => <div className="h-[200px] flex items-center justify-center text-white/40 text-[11px]">地図を読み込み中…</div> },
+)
+const USE_LEAFLET = process.env.NEXT_PUBLIC_USE_LEAFLET !== "false"
 import { VisitChecklist, type ChecklistItem, type ChecklistState } from "@/components/sv/VisitChecklist"
 import { offlineStore } from "@/lib/offline-store"
 import { Camera, Save, ArrowLeft, Plus, MessageSquare, Check, AlertTriangle, Loader2 } from "lucide-react"
@@ -101,6 +108,14 @@ export default function SVVisitPage() {
           </div>
         </div>
       </div>
+
+      {/* Mini map */}
+      {USE_LEAFLET && store.lat && store.lon && (
+        <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+          <div className="text-[11px] text-white/50 mb-2">店舗位置</div>
+          <LeafletStoreMap stores={[store]} selectedId={store.id} height={200} />
+        </div>
+      )}
 
       {/* Progress */}
       <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 flex items-center gap-3">

@@ -7,16 +7,28 @@ import {
   LayoutDashboard, CalendarCheck, MapPin, ListTodo, Eye,
   GraduationCap, BarChart3, Sparkles, Menu, X, Wifi, WifiOff,
 } from "lucide-react"
+import { PWAHead } from "@/components/common/PWAHead"
+import { InstallPrompt } from "@/components/common/InstallPrompt"
+import { AppErrorBoundary } from "@/components/common/AppErrorBoundary"
+import { SentryUserBinder } from "@/components/common/SentryUserBinder"
+import { SkipLink } from "@/components/common/SkipLink"
+import { ToastProvider } from "@/components/common/Toast"
+import { NetworkBanner } from "@/components/common/NetworkBanner"
+import { RoleGuard } from "@/components/auth/RoleGuard"
+import { StoreSwitcher } from "@/components/auth/StoreSwitcher"
+import { ConsentGate } from "@/components/consent/ConsentDialog"
+import { OnboardingOverlay } from "@/components/onboarding/OnboardingOverlay"
+import { HelpButton } from "@/components/common/HelpButton"
 
 const NAV = [
-  { href: "/sv", label: "エリアダッシュボード", icon: LayoutDashboard },
-  { href: "/sv/plan", label: "訪問計画", icon: CalendarCheck },
-  { href: "/sv/visit", label: "訪問実行", icon: MapPin },
+  { href: "/sv", label: "エリアダッシュボード", icon: LayoutDashboard, onb: "sv-heatmap" },
+  { href: "/sv/plan", label: "訪問計画", icon: CalendarCheck, onb: "sv-plan" },
+  { href: "/sv/visit", label: "訪問実行", icon: MapPin, onb: "sv-visit" },
   { href: "/sv/improvement", label: "改善宿題", icon: ListTodo },
   { href: "/sv/competitor", label: "競合視察", icon: Eye },
-  { href: "/sv/coaching", label: "店長コーチ", icon: GraduationCap },
+  { href: "/sv/coaching", label: "店長コーチ", icon: GraduationCap, onb: "sv-coaching" },
   { href: "/sv/kpi", label: "エリアKPI", icon: BarChart3 },
-  { href: "/sv/ai-prep", label: "AI訪問前ブリーフ", icon: Sparkles },
+  { href: "/sv/ai-prep", label: "AI訪問前ブリーフ", icon: Sparkles, onb: "sv-ai-prep" },
 ] as const
 
 export default function SVLayout({ children }: { children: React.ReactNode }) {
@@ -37,15 +49,29 @@ export default function SVLayout({ children }: { children: React.ReactNode }) {
     return pathname.startsWith(href)
   }
 
+  // Close drawer on Esc key
+  useEffect(() => {
+    if (!drawerOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawerOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [drawerOpen])
+
   return (
+    <RoleGuard allow={["sv"]}>
+    <ToastProvider>
     <div className="min-h-screen bg-[#0a0e14] text-white/85 flex flex-col">
+      <PWAHead role="sv" />
+      <SentryUserBinder role="sv" />
+      <SkipLink />
+      <NetworkBanner />
       {/* PC: top tab bar (visible md+) */}
-      <header className="hidden md:flex sticky top-0 z-30 h-14 items-center gap-1 px-4 border-b border-white/[0.06] bg-[#0c1017]/95 backdrop-blur">
+      <header role="banner" className="hidden md:flex sticky top-0 z-30 h-14 items-center gap-1 px-4 border-b border-white/[0.06] bg-[#0c1017]/95 backdrop-blur">
         <div className="flex items-center gap-2 mr-4">
           <span className="text-[15px] font-bold tracking-tight bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">AENTRO SV</span>
-          <span className="text-[10px] text-white/40 uppercase">PWA</span>
+          <span className="text-[10px] text-white/60 uppercase">PWA</span>
         </div>
-        <nav className="flex items-center gap-0.5 flex-1 overflow-x-auto">
+        <nav aria-label="SV メインタブ" className="flex items-center gap-0.5 flex-1 overflow-x-auto">
           {NAV.map((n) => {
             const Icon = n.icon
             const active = isActive(n.href)
@@ -53,35 +79,58 @@ export default function SVLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={n.href}
                 href={n.href}
-                className={`flex items-center gap-1.5 px-3 h-10 rounded-md text-[12px] font-medium whitespace-nowrap transition-all ${active ? "bg-white/[0.08] text-white" : "text-white/55 hover:text-white/85 hover:bg-white/[0.04]"}`}
+                aria-current={active ? "page" : undefined}
+                data-onboarding={(n as any).onb}
+                className={`flex items-center gap-1.5 px-3 h-10 rounded-md text-[12px] font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${active ? "bg-white/[0.08] text-white" : "text-white/75 hover:text-white hover:bg-white/[0.04]"}`}
               >
-                <Icon className="w-3.5 h-3.5" />{n.label}
+                <Icon className="w-3.5 h-3.5" aria-hidden="true" />{n.label}
               </Link>
             )
           })}
         </nav>
-        <ConnStatus online={online} />
+        <div className="flex items-center gap-2 ml-2">
+          {/* SV: switcher acts as エリア/担当店舗 selector */}
+          <StoreSwitcher />
+          <ConnStatus online={online} />
+        </div>
       </header>
 
       {/* Tablet: header bar with drawer toggle */}
-      <header className="md:hidden sticky top-0 z-30 h-14 flex items-center justify-between px-4 border-b border-white/[0.06] bg-[#0c1017]">
-        <button onClick={() => setDrawerOpen(true)} className="p-2 -ml-2 rounded hover:bg-white/[0.06]">
-          <Menu className="w-5 h-5" />
+      <header role="banner" className="md:hidden sticky top-0 z-30 h-14 flex items-center justify-between px-4 border-b border-white/[0.06] bg-[#0c1017]">
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="ナビゲーションを開く"
+          aria-expanded={drawerOpen}
+          aria-controls="sv-drawer"
+          className="p-2 -ml-2 rounded hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+        >
+          <Menu className="w-5 h-5" aria-hidden="true" />
         </button>
         <span className="text-[14px] font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">AENTRO SV</span>
-        <ConnStatus online={online} />
+        <div className="flex items-center gap-2">
+          <StoreSwitcher compact />
+          <ConnStatus online={online} />
+        </div>
       </header>
 
       {/* Tablet: drawer sidebar */}
       {drawerOpen && (
-        <div className="md:hidden fixed inset-0 z-40 flex">
+        <div className="md:hidden fixed inset-0 z-40 flex" id="sv-drawer" role="dialog" aria-modal="true" aria-label="ナビゲーション">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDrawerOpen(false)} />
           <aside className="relative w-72 bg-[#0c1017] border-r border-white/[0.06] flex flex-col">
             <div className="h-14 flex items-center justify-between px-4 border-b border-white/[0.06]">
               <span className="text-[14px] font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">AENTRO SV</span>
-              <button onClick={() => setDrawerOpen(false)} className="p-2 -mr-2 rounded hover:bg-white/[0.06]"><X className="w-4 h-4" /></button>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="ナビゲーションを閉じる"
+                className="p-2 -mr-2 rounded hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
             </div>
-            <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+            <nav aria-label="SV ナビゲーション" className="flex-1 p-2 space-y-0.5 overflow-y-auto">
               {NAV.map((n) => {
                 const Icon = n.icon
                 const active = isActive(n.href)
@@ -90,9 +139,11 @@ export default function SVLayout({ children }: { children: React.ReactNode }) {
                     key={n.href}
                     href={n.href}
                     onClick={() => setDrawerOpen(false)}
-                    className={`flex items-center gap-3 px-3 h-12 rounded-md text-[14px] font-medium transition-all ${active ? "bg-white/[0.08] text-white" : "text-white/65 hover:text-white hover:bg-white/[0.04]"}`}
+                    aria-current={active ? "page" : undefined}
+                    data-onboarding={(n as any).onb}
+                    className={`flex items-center gap-3 px-3 h-12 rounded-md text-[14px] font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${active ? "bg-white/[0.08] text-white" : "text-white/80 hover:text-white hover:bg-white/[0.04]"}`}
                   >
-                    <Icon className="w-4 h-4" />{n.label}
+                    <Icon className="w-4 h-4" aria-hidden="true" />{n.label}
                   </Link>
                 )
               })}
@@ -101,16 +152,30 @@ export default function SVLayout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main id="main" role="main" className="flex-1 overflow-y-auto">
+        <AppErrorBoundary role="sv">
+          <ConsentGate>{children}</ConsentGate>
+        </AppErrorBoundary>
+      </main>
+      <InstallPrompt role="sv" appLabel="AENTRO SV" />
+      <OnboardingOverlay role="sv" />
+      <HelpButton />
     </div>
+    </ToastProvider>
+    </RoleGuard>
   )
 }
 
 function ConnStatus({ online }: { online: boolean }) {
   return (
-    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-mono ${online ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>
-      {online ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-      {online ? "ONLINE" : "OFFLINE"}
+    <div
+      role="status"
+      aria-live="polite"
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-mono ${online ? "bg-emerald-500/10 text-emerald-300" : "bg-amber-500/10 text-amber-300"}`}
+    >
+      {online ? <Wifi className="w-3 h-3" aria-hidden="true" /> : <WifiOff className="w-3 h-3" aria-hidden="true" />}
+      <span aria-hidden="true">{online ? "ONLINE" : "OFFLINE"}</span>
+      <span className="sr-only">{online ? "ネットワーク接続あり" : "ネットワーク切断中"}</span>
     </div>
   )
 }

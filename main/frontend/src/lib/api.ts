@@ -1,5 +1,6 @@
 import type { APIResponse } from "./types"
 import { getToken } from "./auth"
+import { fetchWithRetry } from "./fetch-with-retry"
 import {
   mockExecutiveSummary, mockStores, mockSVMissions, mockTasks,
   mockMeetingPacks, mockDataQualitySummary, mockDataQualityIssues,
@@ -31,10 +32,19 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getToken()
   const headers: Record<string, string> = { "Content-Type": "application/json" }
   if (token) headers["Authorization"] = `Bearer ${token}`
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { ...headers, ...options?.headers },
+  const res = await fetchWithRetry(`${API_URL}${path}`, {
+    credentials: "include",
     ...options,
+    headers: { ...headers, ...options?.headers },
   })
+
+  if (res.status === 401) {
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search)
+      window.location.href = `/login?next=${next}`
+    }
+    throw new Error(`API 401: ${path}`)
+  }
 
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
 

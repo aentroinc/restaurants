@@ -1,0 +1,400 @@
+{
+  "_meta": { "language": "日本語", "code": "ja", "note": "Source of truth — edited by humans. 翻訳の元データ。" },
+
+  "common": {
+    "appName": "AENTRO 現場",
+    "back": "戻る",
+    "next": "次へ",
+    "submit": "送信",
+    "submitting": "送信中...",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "loading": "読み込み中...",
+    "done": "完了",
+    "ok": "OK",
+    "ng": "NG",
+    "close": "閉じる",
+    "yes": "はい",
+    "no": "いいえ",
+    "confirm": "確認",
+    "retry": "もう一度",
+    "homeReturn": "ホームに戻る",
+    "continueReport": "続けて報告",
+    "online": "オンライン",
+    "offline": "オフライン（後でまとめて同期されます）",
+    "language": "言語"
+  },
+
+  "nav": {
+    "home": "ホーム",
+    "clock": "打刻",
+    "checklist": "チェック",
+    "loss": "ロス",
+    "voice": "客声",
+    "training": "学習",
+    "settings": "設定",
+    "toBusinessOS": "経営OSへ"
+  },
+
+  "home": {
+    "greeting": "おはようございます",
+    "todayShift": "本日のシフト",
+    "noShift": "本日はシフトがありません",
+    "clockInCta": "出勤打刻する",
+    "clockInSub": "顔認証で3秒",
+    "lineCheck": "ライン点検",
+    "lineCheckSub": "開店/4h/閉店",
+    "lossReport": "ロス報告",
+    "lossReportSub": "廃棄を記録",
+    "customerVoice": "お客様の声",
+    "customerVoiceSub": "5択でクイック",
+    "allergy": "アレルギー対応",
+    "allergySub": "記録を残す",
+    "training": "学習",
+    "trainingSub": "動画 & テスト",
+    "emergency": "緊急マニュアル",
+    "emergencySub": "火災・地震・強盗",
+    "myTasks": "担当タスク",
+    "upcomingShifts": "今後のシフト",
+    "fireDrillReminder": "月1回の防火訓練・確認をお忘れなく。",
+    "checkNow": "今すぐ確認"
+  },
+
+  "clock": {
+    "title": "打刻",
+    "subtitle": "3秒で完了。顔→検出→打刻。",
+    "faceCta": "顔をかざして出勤",
+    "faceSub": "3秒で打刻完了",
+    "qrCta": "QRをかざす",
+    "pinCta": "PIN入力",
+    "breakStart": "休憩開始",
+    "breakEnd": "休憩終了",
+    "clockOut": "退勤",
+    "todayLog": "本日の打刻",
+    "noLog": "まだ打刻がありません",
+    "labelIn": "出勤",
+    "labelOut": "退勤",
+    "labelBreakStart": "休憩開始",
+    "labelBreakEnd": "休憩終了",
+    "okFace": "顔認証で打刻完了",
+    "okQr": "QRで打刻完了",
+    "okPin": "PINで打刻完了"
+  },
+
+  "auth": {
+    "faceTitle": "顔認証で打刻",
+    "faceVerifying": "照合中…",
+    "faceFail": "顔が認識できませんでした（{count}/3回）。フレームに収まるよう調整してください。",
+    "doneTitle": "打刻完了",
+    "confidence": "信頼度 {value}%",
+    "qrTitle": "QRコードで打刻",
+    "qrFrameHint": "QRコードをフレーム内に",
+    "qrFail": "QRが無効または期限切れです",
+    "qrManualLabel": "QRが読めない場合は手入力",
+    "qrManualPlaceholder": "トークン",
+    "qrSend": "送信",
+    "pinTitle": "PINで打刻",
+    "pinEmpId": "従業員ID",
+    "pinFail": "PINが違います（{count}/3）",
+    "pinLockedTitle": "ロックされました",
+    "pinLockedDesc": "3回失敗したため5分間ロックされます。店長に連絡してください。",
+    "switchToFace": "顔認証",
+    "switchToQr": "QR",
+    "switchToPin": "PIN入力"
+  },
+
+  "loss": {
+    "title": "ロス報告",
+    "step1Item": "商品名",
+    "step1Placeholder": "例: 牛丼の具",
+    "step1Suggestions": "よく使う商品",
+    "step1Next": "次へ: 数量",
+    "step2Qty": "数量",
+    "step2Estimate": "推定金額: ¥{amount}（@¥{unit}）",
+    "step2UnitLabel": "単価（円・任意）",
+    "step2UnitPlaceholder": "100",
+    "step2Next": "次へ: 理由",
+    "step3Reason": "理由を選択",
+    "step3PhotoLabel": "写真を撮影 (任意)",
+    "step3PhotoSelected": "写真選択済: {name}",
+    "doneTitle": "送信完了",
+    "doneDesc": "ロス報告を記録しました（推定 ¥{amount}）",
+    "reason": {
+      "expired": "期限切れ",
+      "spillage": "こぼした",
+      "burnt": "焦げた・失敗",
+      "wrong_order": "オーダーミス",
+      "other": "その他"
+    },
+    "items": {
+      "gyudon": "牛丼の具",
+      "onion": "玉ねぎ",
+      "rice": "ご飯",
+      "miso": "味噌汁",
+      "salad": "サラダ",
+      "egg": "卵"
+    },
+    "perUnit": "¥{cost}/個"
+  },
+
+  "voice": {
+    "title": "お客様の声",
+    "pickOne": "該当を1つ選択してください",
+    "detailLabel": "詳細メモ（任意）",
+    "detailPlaceholder": "例: 4人席 / 50代男性 / 牛丼並",
+    "doneTitle": "送信完了",
+    "doneDesc": "お客様の声を記録しました",
+    "continueRecord": "続けて記録",
+    "options": {
+      "delicious": "美味しかった",
+      "fast": "提供が早い",
+      "kind": "店員の対応◎",
+      "cold": "冷めてた",
+      "slow": "提供が遅い",
+      "rude": "店員態度",
+      "dirty": "店内が汚い",
+      "wrong": "提供間違い",
+      "other": "その他"
+    }
+  },
+
+  "allergy": {
+    "title": "アレルギー対応",
+    "emergencyLink": "緊急対応",
+    "step1Title": "お客様の年齢層",
+    "step1Next": "次へ: アレルゲン",
+    "step2Title": "該当アレルゲン（複数選択可）",
+    "step3Title": "提供メニュー / 注文内容",
+    "step3Placeholder": "例: 牛丼並、味噌汁（卵抜き）",
+    "step3Next": "次へ: 対応",
+    "step4Title": "対応内容",
+    "incidentWarning": "事故発生時はただちに 119 通報、店長へ連絡してください。",
+    "doneTitle": "記録完了",
+    "doneDesc": "アレルギー対応を記録しました",
+    "openAnaphylaxis": "アナフィラキシー対応マニュアルを開く",
+    "ageRange": {
+      "child": "子供（〜12）",
+      "teen": "10代",
+      "20-40": "20-40代",
+      "40-60": "40-60代",
+      "60+": "60代以上",
+      "unknown": "不明"
+    },
+    "allergens": {
+      "egg": "卵",
+      "milk": "乳",
+      "wheat": "小麦",
+      "shrimp": "えび",
+      "crab": "かに",
+      "soba": "そば",
+      "peanut": "落花生",
+      "walnut": "くるみ",
+      "soy": "大豆",
+      "fish": "魚介",
+      "beef": "牛肉",
+      "other": "その他"
+    },
+    "responses": {
+      "alt_provided": "代替メニュー提供",
+      "ingredients_explained": "成分説明のみ",
+      "declined": "提供不可と説明",
+      "incident": "事故発生→救護"
+    }
+  },
+
+  "training": {
+    "title": "学習・トレーニング",
+    "roles": { "all": "全員", "hall": "ホール", "kitchen": "キッチン", "register": "レジ" },
+    "watchedNext": "視聴完了 → 確認テスト",
+    "quizCard": "確認テスト",
+    "quizDesc": "3問・2問正解で認定証発行",
+    "quizCta": "受験",
+    "quizProgress": "確認テスト {cur} / {total}",
+    "passed": "認定取得！",
+    "failed": "もう一度挑戦",
+    "score": "{score} / {total} 問正解",
+    "certTitle": "AENTRO 認定証",
+    "certBody": "店舗オペレーション基礎 修了",
+    "certIssued": "発行日 {date} ・ ID: {id}",
+    "retake": "もう一度受験",
+    "backToList": "動画一覧に戻る",
+    "videos": {
+      "v-onboard": { "title": "新人オリエンテーション", "desc": "AENTRO店舗の理念と基本ルール" },
+      "v-hall-greet": { "title": "ホール: お客様お迎え", "desc": "笑顔・声かけ・席案内の基本" },
+      "v-hall-clean": { "title": "ホール: テーブル清掃", "desc": "5S徹底とアルコール消毒" },
+      "v-kitchen-temp": { "title": "キッチン: 温度管理", "desc": "HACCP準拠のCCP記録方法" },
+      "v-kitchen-allergen": { "title": "キッチン: アレルゲン分離", "desc": "クロスコンタミ防止プロトコル" },
+      "v-register-cash": { "title": "レジ: 釣銭ミスを防ぐ", "desc": "二度確認とPOS入力の基礎" }
+    },
+    "quiz": {
+      "q1": { "q": "ホット商品の保管温度の下限は？", "a": ["55℃", "60℃", "65℃", "75℃"] },
+      "q2": { "q": "アレルゲン提供時に最初に確認すべきことは？", "a": ["価格", "材料表示", "数量", "提供時間"] },
+      "q3": { "q": "閉店点検で必ず行うのは？", "a": ["在庫補充", "金庫照合", "メニュー変更", "求人掲載"] }
+    }
+  },
+
+  "emergency": {
+    "title": "緊急マニュアル",
+    "subtitle": "該当シナリオをタップ",
+    "stepCount": "{n} ステップ",
+    "footer": "焦らず、声を出し、仲間と連携。",
+    "listBack": "← 一覧",
+    "scenarios": {
+      "fire": {
+        "title": "火災",
+        "call": "119（消防）",
+        "steps": [
+          "大声で「火事だー！」と叫ぶ。スタッフ全員に周知。",
+          "お客様を非常口へ誘導（避難経路図参照）。",
+          "可能なら初期消火（消火器・天ぷら油は布で蓋）。",
+          "ガス元栓・電気ブレーカーを切る。",
+          "119へ通報。住所・店名を伝える。",
+          "店外集合場所に集合し、人数確認。店長へ連絡。"
+        ]
+      },
+      "earthquake": {
+        "title": "地震",
+        "steps": [
+          "「地震です！身を低く！」と大声で。",
+          "お客様にテーブル下に隠れるよう案内。",
+          "厨房スタッフは火を止める。コンロから離れる。",
+          "揺れが収まったら出口を確保（ドアを開ける）。",
+          "ガス漏れ確認、漏れていたら換気・火気厳禁。",
+          "店長へ報告、被害状況を確認。"
+        ]
+      },
+      "robbery": {
+        "title": "強盗",
+        "call": "110（警察）",
+        "steps": [
+          "抵抗しない。命が最優先。",
+          "犯人の指示に従い金銭を渡す。",
+          "犯人の特徴を観察（身長・服装・声・凶器）。",
+          "犯人が立ち去ったら、すぐにドアを施錠。",
+          "110通報。現場保存（触らない）。",
+          "防犯カメラ映像を確認、店長・本部へ連絡。"
+        ]
+      },
+      "food_poisoning": {
+        "title": "食中毒疑い",
+        "steps": [
+          "お客様の症状を聴取（嘔吐・下痢・発熱）。発生時刻と摂取メニューも記録。",
+          "重症の場合は救急車を要請（119）。",
+          "該当メニュー・原材料を保管（廃棄禁止）。",
+          "店長・本部品質管理に即時連絡。",
+          "保健所からの聞き取りに備え、提供記録を整理。",
+          "お客様には誠意を持って対応。賠償の話は本部判断。"
+        ]
+      },
+      "injury": {
+        "title": "お客様怪我",
+        "call": "119（救急）",
+        "steps": [
+          "お客様の意識・呼吸を確認。重症なら119。",
+          "出血があれば清潔な布で圧迫止血。",
+          "やけどは流水で冷却（10〜20分）。",
+          "AEDが必要なら近くから取得（場所は店舗マップ）。",
+          "怪我の発生状況を記録（時刻・場所・原因）。",
+          "店長・本部へ即時連絡。お客様情報を控える。"
+        ]
+      },
+      "anaphylaxis": {
+        "title": "アナフィラキシー",
+        "call": "119（救急）",
+        "steps": [
+          "ただちに 119 通報。「アナフィラキシーです」と伝える。",
+          "お客様を仰向けに寝かせ、足を上げる（ショック体位）。",
+          "本人がエピペン所持なら使用を支援（太もも外側に注射）。",
+          "気道確保。意識・呼吸を観察し続ける。",
+          "嘔吐の場合は横向きに。",
+          "救急隊到着まで離れない。摂取したメニュー・成分を記録。"
+        ]
+      }
+    }
+  },
+
+  "settings": {
+    "title": "設定",
+    "empIdTitle": "従業員ID",
+    "pinTitle": "4桁PIN",
+    "pinNew": "新PIN",
+    "pinReenter": "再入力",
+    "pinUpdate": "PIN を更新",
+    "pinSaved": "PINを更新しました",
+    "pinMismatch": "PIN が一致しません",
+    "pinDigits": "4桁で入力してください",
+    "empSaved": "従業員IDを保存しました",
+    "installTitle": "ホーム画面に追加",
+    "installCta": "アプリとしてインストール",
+    "installHint": "iOS Safari: 共有 → 「ホーム画面に追加」\nAndroid Chrome: メニュー → 「アプリをインストール」",
+    "connectionTitle": "接続状態",
+    "localDataTitle": "ローカルデータ",
+    "clearLogs": "打刻履歴をクリア",
+    "clearConfirm": "打刻履歴をローカル削除しますか？",
+    "logsCleared": "履歴をクリアしました",
+    "languageTitle": "言語",
+    "languageHint": "アプリ表示言語を切り替えます。緊急マニュアルにも反映されます。"
+  },
+
+  "lineCheck": {
+    "headerTitle": "現場チェック",
+    "headerDesc": "開店・閉店・4h品質チェック（写真・温度・geofence）",
+    "startListTitle": "開始するチェックリスト",
+    "templateEdit": "テンプレート編集",
+    "items": "{n}項目",
+    "photoCount": "写真{n}",
+    "tempCount": "温度{n}",
+    "starting": "開始中…",
+    "start": "開始 →",
+    "noTemplates": "テンプレートがありません",
+    "history": "最近の実行履歴",
+    "noHistory": "履歴はまだありません",
+    "th": {
+      "template": "テンプレート",
+      "started": "開始",
+      "completed": "完了",
+      "geofence": "geofence",
+      "status": "ステータス"
+    },
+    "schedule": { "opening": "開店", "closing": "閉店", "4h": "4h品質", "weekly": "週次" },
+    "status": { "in_progress": "進行中", "completed": "完了", "failed": "失敗" },
+    "geofenceOk": "OK",
+    "geofenceOut": "外",
+    "startError": "開始に失敗しました: {msg}",
+    "run": {
+      "title": "現場チェック実行",
+      "offline": "オフライン",
+      "photoRequired": "写真必須",
+      "tempRange": "{min}℃〜{max}℃",
+      "tempLabel": "測定温度（℃）",
+      "tempBelow": "下限割れ (基準 {min}℃)",
+      "tempAbove": "上限超え (基準 {max}℃)",
+      "tempOk": "範囲内 OK",
+      "stateLabel": "状態",
+      "selectPlaceholder": "選択",
+      "photoLabel": "写真撮影",
+      "memo": "メモ（任意）",
+      "retake": "撮り直す",
+      "shoot": "カメラで撮影",
+      "queued": "オフライン保存済 (復帰時に自動送信)",
+      "captured": "撮影済",
+      "back": "戻る",
+      "nextItem": "次へ",
+      "completeSend": "完了して送信",
+      "doneOk": "チェック完了",
+      "doneNg": "未完了 — NG項目あり",
+      "doneOkDesc": "おつかれさまでした。",
+      "doneNgDesc": "NG項目はタスクとして自動発行されました。本部の承認待ちです。",
+      "backToList": "一覧に戻る",
+      "photoMust": "この項目は写真が必須です",
+      "tempMust": "温度を入力してください",
+      "templateNotFound": "テンプレートが見つかりません",
+      "templateNotLoaded": "テンプレート未取得"
+    }
+  },
+
+  "languageSwitcher": {
+    "label": "言語切替",
+    "current": "現在の言語"
+  }
+}

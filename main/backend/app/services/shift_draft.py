@@ -16,6 +16,14 @@ from datetime import date, datetime, timedelta
 from typing import Any
 
 from app.services.labor_optimizer import Requirement
+from app.services.labor_compliance_engine import (
+    evaluate_36_agreement,
+    evaluate_minor_night,
+    evaluate_consecutive_days,
+    evaluate_minimum_wage,
+    check_interval,
+    _calc_age,
+)
 
 
 MAX_CONSECUTIVE_DAYS = 5
@@ -31,6 +39,9 @@ class EmployeeInput:
     min_hours_per_week: float = 20.0
     off_dates: list[date] = field(default_factory=list)
     hourly_wage_yen: int = 1200
+    birth_date: date | None = None
+    deep_night_allowed: bool = False
+    prefecture: str = "13"  # default: 東京
 
 
 def _slot_hours() -> float:
@@ -67,6 +78,34 @@ def _emp_can_work(
         # 同日連続シフトは許容 (intervalは前日との関係でのみ厳しく見る)
         if last_end.date() != slot.date():
             return False
+
+    # === 労務コンプライアンス: block レベル違反 → 割当不可 ===
+    # 1. 未成年 深夜禁止
+    age = _calc_age(emp.birth_date, slot.date())
+    night_check = evaluate_minor_night(age, slot, deep_night_allowed=emp.deep_night_allowed)
+    if night_check.status == "block":
+        s.setdefault("compliance_skips", []).append({"rule": night_check.rule_code, "slot": slot.isoformat()})
+        return False
+
+    # 2. 連続勤務日数 (block: 14日超)
+    today = slot.date()
+    if today not in s["worked_days"]:
+        consec = 1
+        d = today - timedelta(days=1)
+        while d in s["worked_days"]:
+            consec += 1
+            d -= timedelta(days=1)
+        cd = evaluate_consecutive_days(consec)
+        if cd.status == "block":
+            s.setdefault("compliance_skips", []).append({"rule": cd.rule_code, "slot": slot.isoformat()})
+            return False
+
+    # 3. 最低賃金 (block: 時給<最低賃金)
+    mw = evaluate_minimum_wage(emp.hourly_wage_yen, emp.prefecture)
+    if mw.status == "block":
+        s.setdefault("compliance_skips", []).append({"rule": mw.rule_code, "slot": slot.isoformat()})
+        return False
+
     return True
 
 
@@ -79,7 +118,7 @@ def generate_draft(
     """greedy 割当。slot ごとに必要role量を埋める。"""
     # state: per employee
     state: dict[str, dict[str, Any]] = {
-        e.id: {"hours": 0.0, "worked_days": set(), "last_end": None, "role_count": defaultdict(int)}
+        e.id: {"hours": 0.0, "worked_days": set(), "last_end": None, "role_count": defaultdict(int), "compliance_skips": []}
         for e in employees
     }
     emp_by_id = {e.id: e for e in employees}
@@ -138,15 +177,22 @@ def generate_draft(
     employee_summary = []
     for e in employees:
         s = state[e.id]
+        warnings = []
+        if s["hours"] < e.min_hours_per_week:
+            warnings.append("min_hours_unmet")
+        # 36協定 月次予定見込み (週シフトを4倍で粗く近似)
+        ot_est = max(0.0, s["hours"] * 4 - 160.0)
+        ot_check = evaluate_36_agreement(ot_est, ot_est * 12)
+        if ot_check.status in ("warn", "block"):
+            warnings.append(f"art36:{ot_check.status}")
         employee_summary.append({
             "employee_id": e.id,
             "name": e.name,
             "scheduled_hours": round(s["hours"], 2),
             "days_worked": len(s["worked_days"]),
             "role_distribution": {k: v for k, v in s["role_count"].items()},
-            "warnings": (
-                ["min_hours_unmet"] if s["hours"] < e.min_hours_per_week else []
-            ),
+            "warnings": warnings,
+            "compliance_skips": s.get("compliance_skips", []),
         })
 
     return {

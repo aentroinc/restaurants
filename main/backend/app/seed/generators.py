@@ -1610,7 +1610,21 @@ def generate_data_quality_issues(stores):
     return results
 
 
-def generate_users():
+def generate_users(stores=None):
+    """Demo users.
+
+    Passwords are bcrypt-hashed at seed time. Default password for all demo
+    accounts: ``demo1234`` (matches the email DEMO_EMAILS shortcut in
+    `api/v1/auth.py`, but real hash is set so non-demo flow also works).
+
+    `default_store_id` for manager/staff is store[0]; admin/sv left null and
+    set per-assignment.
+    """
+    from app.auth import hash_password
+
+    pw = hash_password("demo1234")
+    default_store_id = stores[0]["id"] if stores else None
+
     return [
         {
             "id": gen_deterministic_uuid("user", 0),
@@ -1620,7 +1634,8 @@ def generate_users():
             "role": "admin",
             "employee_id": None,
             "active": True,
-            "password_hash": None,
+            "password_hash": pw,
+            "default_store_id": default_store_id,
         },
         {
             "id": gen_deterministic_uuid("user", 1),
@@ -1630,7 +1645,8 @@ def generate_users():
             "role": "sv",
             "employee_id": None,
             "active": True,
-            "password_hash": None,
+            "password_hash": pw,
+            "default_store_id": default_store_id,
         },
         {
             "id": gen_deterministic_uuid("user", 2),
@@ -1640,9 +1656,66 @@ def generate_users():
             "role": "manager",
             "employee_id": None,
             "active": True,
-            "password_hash": None,
+            "password_hash": pw,
+            "default_store_id": default_store_id,
+        },
+        {
+            "id": gen_deterministic_uuid("user", 3),
+            "tenant_id": TENANT_ID,
+            "email": "staff@zensho.co.jp",
+            "name": "現場スタッフ",
+            "role": "staff",
+            "employee_id": None,
+            "active": True,
+            "password_hash": pw,
+            "default_store_id": default_store_id,
         },
     ]
+
+
+def generate_user_store_assignments(users, stores):
+    """Wire up multi-store role assignments.
+
+    - manager → 1 store (the default).
+    - staff → 1 store (same default).
+    - sv → 8 stores (first 8 by code).
+    - admin → all stores in tenant (so handled by API directly, but seed a few
+      anyway so the dropdown isn't empty if API-side admin shortcut is removed).
+    """
+    if not stores:
+        return []
+    by_email = {u["email"]: u for u in users}
+    out = []
+    idx = 0
+
+    def _row(user, store, role, is_default):
+        nonlocal idx
+        rec = {
+            "id": gen_deterministic_uuid("user_store_assignment", idx),
+            "tenant_id": TENANT_ID,
+            "user_id": user["id"],
+            "store_id": store["id"],
+            "role": role,
+            "is_default": is_default,
+            "granted_by": None,
+        }
+        idx += 1
+        return rec
+
+    if "manager@zensho.co.jp" in by_email:
+        out.append(_row(by_email["manager@zensho.co.jp"], stores[0], "manager", True))
+    if "staff@zensho.co.jp" in by_email:
+        out.append(_row(by_email["staff@zensho.co.jp"], stores[0], "staff", True))
+    if "sv@zensho.co.jp" in by_email:
+        sv = by_email["sv@zensho.co.jp"]
+        for i, st in enumerate(stores[:8]):
+            out.append(_row(sv, st, "sv", i == 0))
+    if "admin@zensho.co.jp" in by_email:
+        admin = by_email["admin@zensho.co.jp"]
+        # Seed first 20 explicitly; admin role auto-broadens via API.
+        for i, st in enumerate(stores[:20]):
+            out.append(_row(admin, st, "admin", i == 0))
+    return out
 
 
 def generate_lineage_events(stores):

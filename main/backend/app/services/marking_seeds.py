@@ -10,6 +10,8 @@ from app.models.marking import Marking, MarkingAssignment, UserPurpose
 STANDARD_MARKINGS = [
     {"code": "pii.basic", "display_name": "PII（基本）", "description": "氏名・連絡先など基本個人情報", "level": "medium"},
     {"code": "pii.sensitive", "display_name": "PII（センシティブ）", "description": "マイナンバー / 健康情報等", "level": "high"},
+    {"code": "pii.biometric", "display_name": "PII（生体情報）", "description": "顔特徴量・指紋等の生体情報（要配慮個人情報）", "level": "high"},
+    {"code": "pii.location", "display_name": "PII（位置情報）", "description": "GPS 緯度経度", "level": "medium"},
     {"code": "labor.confidential", "display_name": "労務（機密）", "description": "時給・残業・人事評価", "level": "high"},
     {"code": "fc.financial", "display_name": "FC財務", "description": "店舗 P/L / ロイヤリティ / 財務指標", "level": "high"},
     {"code": "regulatory.haccp", "display_name": "HACCP規制", "description": "食品衛生・規制提出データ", "level": "medium"},
@@ -38,6 +40,11 @@ STANDARD_ASSIGNMENTS = [
     ("store_pl", None, "operating_profit_rate", "fc.financial"),
     ("store_pl", None, "royalty_amount", "fc.financial"),
     ("store_pl", None, "net_sales", "fc.financial"),
+    # 顔・GPS（個人情報保護法 要配慮個人情報）
+    ("face_template", None, "embedding_jsonb", "pii.biometric"),
+    ("clock_event", None, "lat", "pii.location"),
+    ("clock_event", None, "lon", "pii.location"),
+    ("employee", None, "birth_date", "pii.sensitive"),
     # HACCP
     ("haccp", None, "ccp_value", "regulatory.haccp"),
     # store_kpi（ranking などにも乗る）

@@ -5,16 +5,33 @@
  * progresses.
  */
 import { getToken } from "./auth"
+import { fetchWithRetry } from "./fetch-with-retry"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
-async function postJson<T>(path: string, body: unknown, mock: T): Promise<T> {
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+function _on401() {
+  if (typeof window === "undefined") return
+  if (window.location.pathname.startsWith("/login") || window.location.pathname.startsWith("/auth/login")) return
+  const next = encodeURIComponent(window.location.pathname + window.location.search)
+  window.location.href = `/login?next=${next}`
+}
+
+async function postJson<T>(path: string, body: unknown, mock: T, idempotencyKey?: string): Promise<T> {
   if (!API_URL) return mock
   try {
     const token = getToken()
-    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Idempotency-Key": idempotencyKey || newIdempotencyKey(),
+    }
     if (token) headers["Authorization"] = `Bearer ${token}`
-    const res = await fetch(`${API_URL}${path}`, { method: "POST", headers, body: JSON.stringify(body) })
+    const res = await fetchWithRetry(`${API_URL}${path}`, { method: "POST", headers, body: JSON.stringify(body), credentials: "include" })
+    if (res.status === 401) { _on401(); return mock }
     if (res.status === 404) return mock
     if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
     const json = await res.json()
@@ -30,7 +47,8 @@ async function getJson<T>(path: string, mock: T): Promise<T> {
     const token = getToken()
     const headers: Record<string, string> = {}
     if (token) headers["Authorization"] = `Bearer ${token}`
-    const res = await fetch(`${API_URL}${path}`, { headers })
+    const res = await fetchWithRetry(`${API_URL}${path}`, { headers, credentials: "include" })
+    if (res.status === 401) { _on401(); return mock }
     if (res.status === 404) return mock
     if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
     const json = await res.json()
@@ -160,31 +178,42 @@ export const faceAuthApi = {
     ),
 }
 
+type ClockBody = { employee_id: string; store_id: string; lat?: number; lon?: number; auth_method: "face" | "qr" | "pin"; confidence?: number; idempotency_key?: string }
+type BreakBody = { employee_id: string; store_id: string; auth_method: "face" | "qr" | "pin"; idempotency_key?: string }
+
 export const clockApi = {
-  in: (b: { employee_id: string; store_id: string; lat?: number; lon?: number; auth_method: "face" | "qr" | "pin"; confidence?: number }) =>
-    postJson<ClockEventResp>("/api/v1/clock/in", b, {
-      id: crypto.randomUUID(), employee_id: b.employee_id, store_id: b.store_id,
+  in: (b: ClockBody) => {
+    const key = b.idempotency_key || newIdempotencyKey()
+    return postJson<ClockEventResp>("/api/v1/clock/in", { ...b, idempotency_key: key }, {
+      id: key, employee_id: b.employee_id, store_id: b.store_id,
       event_type: "in", geofence_ok: true, auth_method: b.auth_method,
       confidence: b.confidence ?? null, occurred_at: new Date().toISOString(),
-    }),
-  out: (b: { employee_id: string; store_id: string; lat?: number; lon?: number; auth_method: "face" | "qr" | "pin"; confidence?: number }) =>
-    postJson<ClockEventResp>("/api/v1/clock/out", b, {
-      id: crypto.randomUUID(), employee_id: b.employee_id, store_id: b.store_id,
+    }, key)
+  },
+  out: (b: ClockBody) => {
+    const key = b.idempotency_key || newIdempotencyKey()
+    return postJson<ClockEventResp>("/api/v1/clock/out", { ...b, idempotency_key: key }, {
+      id: key, employee_id: b.employee_id, store_id: b.store_id,
       event_type: "out", geofence_ok: true, auth_method: b.auth_method,
       confidence: b.confidence ?? null, occurred_at: new Date().toISOString(),
-    }),
-  breakStart: (b: { employee_id: string; store_id: string; auth_method: "face" | "qr" | "pin" }) =>
-    postJson<ClockEventResp>("/api/v1/clock/break/start", b, {
-      id: crypto.randomUUID(), employee_id: b.employee_id, store_id: b.store_id,
+    }, key)
+  },
+  breakStart: (b: BreakBody) => {
+    const key = b.idempotency_key || newIdempotencyKey()
+    return postJson<ClockEventResp>("/api/v1/clock/break/start", { ...b, idempotency_key: key }, {
+      id: key, employee_id: b.employee_id, store_id: b.store_id,
       event_type: "break_start", geofence_ok: true, auth_method: b.auth_method,
       confidence: null, occurred_at: new Date().toISOString(),
-    }),
-  breakEnd: (b: { employee_id: string; store_id: string; auth_method: "face" | "qr" | "pin" }) =>
-    postJson<ClockEventResp>("/api/v1/clock/break/end", b, {
-      id: crypto.randomUUID(), employee_id: b.employee_id, store_id: b.store_id,
+    }, key)
+  },
+  breakEnd: (b: BreakBody) => {
+    const key = b.idempotency_key || newIdempotencyKey()
+    return postJson<ClockEventResp>("/api/v1/clock/break/end", { ...b, idempotency_key: key }, {
+      id: key, employee_id: b.employee_id, store_id: b.store_id,
       event_type: "break_end", geofence_ok: true, auth_method: b.auth_method,
       confidence: null, occurred_at: new Date().toISOString(),
-    }),
+    }, key)
+  },
   today: (employee_id: string) =>
     getJson<ClockEventResp[]>(`/api/v1/clock/today/${employee_id}`, []),
 }

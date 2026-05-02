@@ -27,6 +27,11 @@ class DailyStoreSales(Base):
     dine_in_sales: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
     takeout_sales: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
     delivery_sales: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
+    # 軽減税率 (8%/10%) 内訳。net_sales_* は税抜売上、tax_* は消費税額。
+    net_sales_8pct: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
+    net_sales_10pct: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
+    tax_8pct: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
+    tax_10pct: Mapped[Decimal] = mapped_column(Numeric(12, 0), default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

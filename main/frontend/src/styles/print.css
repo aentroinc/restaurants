@@ -1,0 +1,105 @@
+/**
+ * 印刷用スタイル — 既存ダッシュボードを A4 縦に最適化。
+ * 使い方: layout.tsx 等で `import "@/styles/print.css"`
+ */
+
+@media print {
+  /* ── レイアウト ───────────────────────── */
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10pt;
+  }
+
+  /* サイドバー / ナビ / フッタはすべて非表示 */
+  nav, header, footer,
+  aside, .no-print, [data-no-print="true"],
+  .sidebar, .topbar, .navbar,
+  button:not(.print-keep),
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  /* メインコンテンツを全幅に */
+  main, [role="main"], .container, .content {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* ── ダッシュボード共通 ────────────────── */
+  .card, [class*="card"] {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  /* ダーク背景 → 白に強制 */
+  [class*="bg-black"], [class*="bg-white/"], [class*="bg-zinc-"],
+  [class*="bg-slate-"], [class*="bg-neutral-"], [class*="bg-gray-"] {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  [class*="text-white"], [class*="text-zinc-"], [class*="text-slate-"] {
+    color: #000000 !important;
+  }
+
+  [class*="border-white"], [class*="border-zinc-"], [class*="border-slate-"] {
+    border-color: #cccccc !important;
+  }
+
+  /* テーブル */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    page-break-inside: auto;
+  }
+  table thead { display: table-header-group; }
+  table tr { page-break-inside: avoid; }
+  th, td {
+    border: 1px solid #999999 !important;
+    padding: 4px 6px;
+    color: #000000 !important;
+  }
+  th {
+    background: #eef2f7 !important;
+    font-weight: 600;
+  }
+
+  /* チャート: SVG はそのまま、Canvas は image-rendering 改善 */
+  svg, canvas {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* リンクの URL を表示 (印刷物の参照性向上) */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #555555;
+  }
+  a[href^="#"]::after,
+  a[href^="javascript:"]::after { content: ""; }
+
+  /* セクション間で改ページ可 */
+  h1, h2, .section-title { page-break-after: avoid; }
+  .page-break { page-break-before: always; }
+}
+
+/* 画面表示中の「印刷ヒント」用クラス */
+.print-only { display: none; }
+@media print {
+  .print-only { display: block !important; }
+}

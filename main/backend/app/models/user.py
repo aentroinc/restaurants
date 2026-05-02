@@ -17,11 +17,19 @@ class User(Base):
     employee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("employees.id"))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     password_hash: Mapped[str | None] = mapped_column(String(255))
+    default_store_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("stores.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     scopes = relationship("AccessScope", back_populates="user")
     employee = relationship("Employee")
+    store_assignments = relationship(
+        "UserStoreAssignment",
+        foreign_keys="UserStoreAssignment.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    default_store = relationship("Store", foreign_keys=[default_store_id])
 
 
 class AccessScope(Base):

@@ -1,0 +1,400 @@
+{
+  "_meta": { "language": "မြန်မာ", "code": "my", "note": "Translated by AI - human review required. အရေးပေါ်လမ်းညွှန် (119/110) တိကျမှု စစ်ဆေးပြီး။" },
+
+  "common": {
+    "appName": "AENTRO ဆိုင်အသုံး",
+    "back": "ပြန်",
+    "next": "ဆက်",
+    "submit": "ပေးပို့",
+    "submitting": "ပေးပို့နေသည်...",
+    "cancel": "ပယ်ဖျက်",
+    "save": "သိမ်းဆည်း",
+    "loading": "တင်နေသည်...",
+    "done": "ပြီးပြီ",
+    "ok": "OK",
+    "ng": "NG",
+    "close": "ပိတ်",
+    "yes": "ဟုတ်",
+    "no": "မဟုတ်",
+    "confirm": "အတည်ပြု",
+    "retry": "ထပ်ကြိုးစား",
+    "homeReturn": "ပင်မသို့ပြန်",
+    "continueReport": "ထပ်တင်",
+    "online": "အွန်လိုင်း",
+    "offline": "အော့ဖ်လိုင်း (နောက်မှ sync လုပ်မည်)",
+    "language": "ဘာသာစကား"
+  },
+
+  "nav": {
+    "home": "ပင်မ",
+    "clock": "လက်မှတ်ထိုး",
+    "checklist": "စစ်",
+    "loss": "ဆုံးရှုံး",
+    "voice": "ဖောက်သည်",
+    "training": "သင်တန်း",
+    "settings": "ဆက်တင်",
+    "toBusinessOS": "စီမံ OS"
+  },
+
+  "home": {
+    "greeting": "မင်္ဂလာပါ",
+    "todayShift": "ယနေ့ shift",
+    "noShift": "ယနေ့ shift မရှိ",
+    "clockInCta": "အလုပ်ဝင် လက်မှတ်ထိုး",
+    "clockInSub": "မျက်နှာဖြင့် ၃ စက္ကန့်",
+    "lineCheck": "Line စစ်",
+    "lineCheckSub": "ဖွင့်/4h/ပိတ်",
+    "lossReport": "ဆုံးရှုံးအစီရင်ခံ",
+    "lossReportSub": "ဖျက်ဆီးသည်ကိုမှတ်",
+    "customerVoice": "ဖောက်သည်အသံ",
+    "customerVoiceSub": "လျင်မြန်စွာ ၅ ခု",
+    "allergy": "Allergy တုံ့ပြန်",
+    "allergySub": "မှတ်တမ်းတင်",
+    "training": "သင်တန်း",
+    "trainingSub": "ဗီဒီယိုနှင့် quiz",
+    "emergency": "အရေးပေါ်လမ်းညွှန်",
+    "emergencySub": "မီး/ငလျင်/လုယက်",
+    "myTasks": "ကျွန်ုပ်အလုပ်",
+    "upcomingShifts": "လာမည့် shift",
+    "fireDrillReminder": "လစဥ် မီးအန္တရာယ်လေ့ကျင့်ခန်းမမေ့ပါ။",
+    "checkNow": "ယခုကြည့်"
+  },
+
+  "clock": {
+    "title": "လက်မှတ်ထိုး",
+    "subtitle": "၃ စက္ကန့်ပြီး။ မျက်နှာ → သိ → ထိုး။",
+    "faceCta": "ဝင်ခြင်းအတွက် မျက်နှာပြ",
+    "faceSub": "၃ စက္ကန့်အတွင်းပြီး",
+    "qrCta": "QR စကင်",
+    "pinCta": "PIN ထည့်",
+    "breakStart": "နားချိန်စ",
+    "breakEnd": "နားချိန်ဆုံး",
+    "clockOut": "ထွက်ခွာ",
+    "todayLog": "ယနေ့လက်မှတ်",
+    "noLog": "ယနေ့လက်မှတ်မရှိသေး",
+    "labelIn": "ဝင်",
+    "labelOut": "ထွက်",
+    "labelBreakStart": "နားစ",
+    "labelBreakEnd": "နားဆုံး",
+    "okFace": "မျက်နှာဖြင့် ဝင်ပြီး",
+    "okQr": "QR ဖြင့် ဝင်ပြီး",
+    "okPin": "PIN ဖြင့် ဝင်ပြီး"
+  },
+
+  "auth": {
+    "faceTitle": "မျက်နှာဖြင့် လက်မှတ်ထိုး",
+    "faceVerifying": "စစ်ဆေးနေသည်...",
+    "faceFail": "မျက်နှာ မမှတ်မိ ({count}/3)။ ဘောင်ထဲကောင်းစွာထား။",
+    "doneTitle": "ပြီးပြီ",
+    "confidence": "ယုံကြည်မှု {value}%",
+    "qrTitle": "QR ဖြင့် လက်မှတ်ထိုး",
+    "qrFrameHint": "QR ကို ဘောင်ထဲထား",
+    "qrFail": "QR မမှန် သို့မဟုတ် သက်တမ်းကုန်",
+    "qrManualLabel": "QR စကင်မရရင် token လက်ဖြင့်ထည့်",
+    "qrManualPlaceholder": "Token",
+    "qrSend": "ပေးပို့",
+    "pinTitle": "PIN ဖြင့် လက်မှတ်ထိုး",
+    "pinEmpId": "ဝန်ထမ်း ID",
+    "pinFail": "PIN မှား ({count}/3)",
+    "pinLockedTitle": "လော့ခ်ပိတ်ပြီး",
+    "pinLockedDesc": "၃ ကြိမ်မှား — ၅ မိနစ် ပိတ်။ မန်နေဂျာထံ ဆက်သွယ်ပါ။",
+    "switchToFace": "မျက်နှာ",
+    "switchToQr": "QR",
+    "switchToPin": "PIN"
+  },
+
+  "loss": {
+    "title": "ဆုံးရှုံးအစီရင်ခံ",
+    "step1Item": "ပစ္စည်းအမည်",
+    "step1Placeholder": "ဥပမာ: Gyudon topping",
+    "step1Suggestions": "မကြာခဏ",
+    "step1Next": "ဆက်: အရေအတွက်",
+    "step2Qty": "အရေအတွက်",
+    "step2Estimate": "ခန့်မှန်း: ¥{amount} (@¥{unit})",
+    "step2UnitLabel": "တစ်ခုစျေး (yen, ရွေးနိုင်)",
+    "step2UnitPlaceholder": "100",
+    "step2Next": "ဆက်: အကြောင်း",
+    "step3Reason": "အကြောင်းရွေးပါ",
+    "step3PhotoLabel": "ဓာတ်ပုံရိုက် (ရွေးနိုင်)",
+    "step3PhotoSelected": "ဓာတ်ပုံ: {name}",
+    "doneTitle": "ပေးပို့ပြီးပြီ",
+    "doneDesc": "ဆုံးရှုံးမှု မှတ်တမ်းတင်ပြီး (ခန့် ¥{amount})",
+    "reason": {
+      "expired": "သက်တမ်းကုန်",
+      "spillage": "ဖိတ်/ကျ",
+      "burnt": "လောင်/ပျက်",
+      "wrong_order": "မှားသော order",
+      "other": "အခြား"
+    },
+    "items": {
+      "gyudon": "Gyudon topping",
+      "onion": "ကြက်သွန်",
+      "rice": "ထမင်း",
+      "miso": "Miso ဆော့",
+      "salad": "သုပ်",
+      "egg": "ဥ"
+    },
+    "perUnit": "¥{cost}/ခု"
+  },
+
+  "voice": {
+    "title": "ဖောက်သည်အသံ",
+    "pickOne": "၁ ခုရွေးပါ",
+    "detailLabel": "အသေးစိတ်မှတ် (ရွေးနိုင်)",
+    "detailPlaceholder": "ဥပမာ: ၄ ယောက်စားပွဲ / အသက် ၅၀ ယောကျာ်း / ရိုးရိုး gyudon",
+    "doneTitle": "ပေးပို့ပြီးပြီ",
+    "doneDesc": "ဖောက်သည်အသံ မှတ်တမ်းတင်ပြီး",
+    "continueRecord": "ထပ်မှတ်",
+    "options": {
+      "delicious": "အရသာရှိ",
+      "fast": "မြန်",
+      "kind": "ဝန်ထမ်းကောင်း",
+      "cold": "အေးနေ",
+      "slow": "နှေးနေ",
+      "rude": "ဝန်ထမ်းရိုင်း",
+      "dirty": "ဆိုင်မသန့်",
+      "wrong": "မှားပေး",
+      "other": "အခြား"
+    }
+  },
+
+  "allergy": {
+    "title": "Allergy တုံ့ပြန်",
+    "emergencyLink": "အရေးပေါ်",
+    "step1Title": "ဖောက်သည်အသက်အုပ်စု",
+    "step1Next": "ဆက်: Allergen",
+    "step2Title": "Allergen (အများအပြားရွေးနိုင်)",
+    "step3Title": "ပေးခဲ့သော menu / order",
+    "step3Placeholder": "ဥပမာ: ရိုးရိုး gyudon, miso ဆော့ (ဥမပါ)",
+    "step3Next": "ဆက်: ဆောင်ရွက်ချက်",
+    "step4Title": "ဆောင်ရွက်ချက်",
+    "incidentWarning": "ဖြစ်ပျက်ရင် ၁၁၉ ကိုချက်ချင်းခေါ်၊ မန်နေဂျာအား ဆက်သွယ်ပါ။",
+    "doneTitle": "မှတ်တမ်းတင်ပြီး",
+    "doneDesc": "Allergy တုံ့ပြန်မှု မှတ်တမ်းတင်ပြီး",
+    "openAnaphylaxis": "Anaphylaxis လမ်းညွှန်ဖွင့်",
+    "ageRange": {
+      "child": "ကလေး (≤12)",
+      "teen": "ဆယ်ကျော်သက်",
+      "20-40": "20-40",
+      "40-60": "40-60",
+      "60+": "60+",
+      "unknown": "မသိ"
+    },
+    "allergens": {
+      "egg": "ဥ",
+      "milk": "နို့",
+      "wheat": "ဂျုံ",
+      "shrimp": "ပုစွန်",
+      "crab": "ဂဏန်း",
+      "soba": "Soba",
+      "peanut": "မြေပဲ",
+      "walnut": "Walnut",
+      "soy": "ပဲ",
+      "fish": "ငါး",
+      "beef": "အမဲသား",
+      "other": "အခြား"
+    },
+    "responses": {
+      "alt_provided": "အစားထိုး menu ပေး",
+      "ingredients_explained": "ပါဝင်ပစ္စည်းသာ ရှင်းပြ",
+      "declined": "မပေးကြောင်းရှင်းပြ",
+      "incident": "ဖြစ်ပျက် — ပထမအကူ"
+    }
+  },
+
+  "training": {
+    "title": "သင်တန်း",
+    "roles": { "all": "အားလုံး", "hall": "ခန်း", "kitchen": "မီးဖို", "register": "ငွေကိုင်" },
+    "watchedNext": "ကြည့်ပြီး → quiz",
+    "quizCard": "Quiz",
+    "quizDesc": "၃ မေး · ၂ မှန်ရင် → certificate",
+    "quizCta": "Quiz စ",
+    "quizProgress": "Quiz {cur} / {total}",
+    "passed": "အောင်!",
+    "failed": "ထပ်စမ်း",
+    "score": "{score} / {total} မှန်",
+    "certTitle": "AENTRO Certificate",
+    "certBody": "ဆိုင်လုပ်ငန်းအခြေခံ ပြီးဆုံးပြီ",
+    "certIssued": "ထုတ် {date} · ID: {id}",
+    "retake": "ပြန်ဆို",
+    "backToList": "ဗီဒီယိုသို့ပြန်",
+    "videos": {
+      "v-onboard": { "title": "ဝန်ထမ်းသစ် မိတ်ဆက်", "desc": "AENTRO တန်ဖိုးနှင့် အခြေခံစည်းမျဥ်း" },
+      "v-hall-greet": { "title": "ခန်း: ဖောက်သည်ကြိုဆို", "desc": "ပြုံး၊ စကား၊ နေရာပြရန်" },
+      "v-hall-clean": { "title": "ခန်း: စားပွဲသန့်ရှင်း", "desc": "5S နှင့် alcohol ပိုးသတ်" },
+      "v-kitchen-temp": { "title": "မီးဖို: အပူချိန်ထိန်း", "desc": "HACCP CCP မှတ်တမ်း" },
+      "v-kitchen-allergen": { "title": "မီးဖို: Allergen ခွဲ", "desc": "Cross contamination ကာကွယ်" },
+      "v-register-cash": { "title": "ငွေကိုင်: အကြွေအမှားကာ", "desc": "နှစ်ကြိမ်စစ် နှင့် POS" }
+    },
+    "quiz": {
+      "q1": { "q": "အပူရှိ အစားအသောက် အနည်းဆုံးထိန်းအပူ?", "a": ["55°C", "60°C", "65°C", "75°C"] },
+      "q2": { "q": "Allergen ပါ menu ပေးတဲ့အခါ ပထမစစ်ရန်?", "a": ["စျေး", "ပါဝင်ပစ္စည်းအညွှန်း", "အရေအတွက်", "အချိန်"] },
+      "q3": { "q": "ဆိုင်ပိတ်ချိန် မဖြစ်မနေလုပ်ရန်?", "a": ["ပစ္စည်းဖြည့်", "ငွေတိုက်တိုက်", "Menu ပြောင်း", "အလုပ်ခေါ်"] }
+    }
+  },
+
+  "emergency": {
+    "title": "အရေးပေါ်လမ်းညွှန်",
+    "subtitle": "သက်ဆိုင်ရာအခြေအနေကို တို့ပါ",
+    "stepCount": "{n} အဆင့်",
+    "footer": "မပြောက်တိုက်နဲ့။ အသံပေး။ အဖွဲ့ပြုလုပ်။",
+    "listBack": "← စာရင်း",
+    "scenarios": {
+      "fire": {
+        "title": "မီးလောင်",
+        "call": "119 (မီးသတ်)",
+        "steps": [
+          "'KAJI-DA!' (မီး!) ဟုကျယ်စွာအော်ပါ။ ဝန်ထမ်းအားလုံးကို အသိပေး။",
+          "ဖောက်သည်များကို အရေးပေါ်အထွက်သို့ ပို့ပါ (ထွက်ပေါက်မြေပုံကြည့်)။",
+          "လုံခြုံပါက ပထမမီးငြိမ်း (သတ်ဆေးဘူး၊ ဆီပုံးကို အဝတ်ဖြင့်ဖုံး)။",
+          "ဂတ်စ်အဓိကဆော့နှင့် လျှပ်စစ် breaker ပိတ်။",
+          "119 ခေါ်။ လိပ်စာနှင့် ဆိုင်အမည် ပြောပါ။",
+          "ဆိုင်အပြင် ဆုံတွေ့နေရာ စုပြီး ဦးရေစစ်။ မန်နေဂျာထံ အသိပေး။"
+        ]
+      },
+      "earthquake": {
+        "title": "ငလျင်",
+        "steps": [
+          "'ငလျင်! နိမ့်နိမ့်ထား!' ဟုကျယ်စွာအော်။",
+          "ဖောက်သည်များကို စားပွဲအောက် ပုန်းခိုင်း။",
+          "မီးဖိုဝန်ထမ်း မီးပိတ်၊ မီးဖိုမှ ခွာ။",
+          "လှုပ်ရှားပြီးနောက် တံခါးဖွင့်ပြီး ထွက်ပေါက်လုံခြုံစေ။",
+          "ဂတ်စ်ယိုစစ်။ ယိုလျှင် လေဝင်လေထွက်ပေး — မီးတားမြစ်!",
+          "မန်နေဂျာသို့ အစီရင်ခံ၊ ပျက်စီးမှုစစ်။"
+        ]
+      },
+      "robbery": {
+        "title": "လုယက်",
+        "call": "110 (ရဲ)",
+        "steps": [
+          "မခုခံပါနှင့်။ အသက်ကအဓိက။",
+          "လူဆိုးအမိန့်ကို လိုက်ပြီး ငွေပေး။",
+          "လူဆိုးပုံ မှတ် (အရပ်၊ အဝတ်၊ အသံ၊ လက်နက်)။",
+          "လူဆိုးထွက်သွားသည်နှင့် တံခါးချက်ချင်းသော့ခတ်။",
+          "110 ခေါ်။ နေရာထိန်းသိမ်း (မထိ)။",
+          "CCTV ကြည့်။ မန်နေဂျာနှင့် ရုံးချုပ်သို့ အသိပေး။"
+        ]
+      },
+      "food_poisoning": {
+        "title": "အစားအသောက် အဆိပ်သင့် သံသယ",
+        "steps": [
+          "ဖောက်သည်ရောဂါလက္ခဏာစစ် (အန်၊ ဝမ်းပျက်၊ ဖျား)။ စားသောအချိန်နှင့် menu မှတ်။",
+          "ပြင်းထန်လျှင် 119 ဆေးကားခေါ်။",
+          "သံသယရှိ menu နှင့် ပါဝင်ပစ္စည်းကို သိမ်းထား (မစွန့်ပစ်)။",
+          "မန်နေဂျာနှင့် ရုံးချုပ်အရည်အသွေးကို ချက်ချင်းအသိပေး။",
+          "ကျန်းမာရေးရုံးအတွက် ပေးပို့မှတ်တမ်းပြင်ဆင်။",
+          "ဖောက်သည်အား ရိုးသားစွာတုံ့ပြန်။ နစ်နာကြေး ရုံးချုပ်ဆုံးဖြတ်။"
+        ]
+      },
+      "injury": {
+        "title": "ဖောက်သည်ဒဏ်ရာ",
+        "call": "119 (ဆေးကား)",
+        "steps": [
+          "သတိနှင့် အသက်ရှူစစ်။ ပြင်းထန်ပါက 119။",
+          "သွေးထွက်ပါက သန့်ရှင်းသောအဝတ်ဖြင့် ဖိ။",
+          "မီးလောင်ဒဏ်ရာ — စမ်းရေဖြင့် ၁၀–၂၀ မိနစ် အေးအောင်လုပ်။",
+          "AED လိုလျှင် နီးနေရာမှ ယူ (ဆိုင်မြေပုံတွင် နေရာ)။",
+          "ဖြစ်ပျက်ရှင်းသည်ကို မှတ်တမ်း (အချိန်၊ နေရာ၊ အကြောင်း)။",
+          "မန်နေဂျာနှင့် ရုံးချုပ်သို့ အသိပေး။ ဖောက်သည်အချက်အလက် မှတ်။"
+        ]
+      },
+      "anaphylaxis": {
+        "title": "Anaphylaxis",
+        "call": "119 (ဆေးကား)",
+        "steps": [
+          "ချက်ချင်း 119 ခေါ်။ 'ဤသည် anaphylaxis' ဟုပြော။",
+          "ဖောက်သည်ကို ကျောပက်လှန်ထား၊ ခြေထောက်မြှင့် (shock အနေအထား)။",
+          "EpiPen ရှိပါက အသုံးပြုနိုင်ရန်ကူ (ပေါင်အပြင်ဘက် ထိုးရန်)။",
+          "လေလမ်းကြောင်းပွင့်ထား။ သတိနှင့် အသက်ရှူ ဆက်စောင့်ကြည့်။",
+          "အန်ပါက ဘေးတိုက်လှည့်။",
+          "ဆေးကားလာသည်အထိ မခွာ။ စားခဲ့သော menu နှင့် ပါဝင်ပစ္စည်း မှတ်။"
+        ]
+      }
+    }
+  },
+
+  "settings": {
+    "title": "ဆက်တင်",
+    "empIdTitle": "ဝန်ထမ်း ID",
+    "pinTitle": "၄ လုံး PIN",
+    "pinNew": "PIN အသစ်",
+    "pinReenter": "ပြန်ထည့်",
+    "pinUpdate": "PIN အသစ်ပြောင်း",
+    "pinSaved": "PIN အသစ်ပြောင်းပြီး",
+    "pinMismatch": "PIN မတူ",
+    "pinDigits": "၄ လုံးထည့်ပါ",
+    "empSaved": "ဝန်ထမ်း ID သိမ်းပြီး",
+    "installTitle": "Home screen သို့ထည့်",
+    "installCta": "App အဖြစ် install",
+    "installHint": "iOS Safari: Share → Home screen သို့ထည့်\nAndroid Chrome: Menu → App install",
+    "connectionTitle": "ချိတ်ဆက်",
+    "localDataTitle": "Local data",
+    "clearLogs": "လက်မှတ်မှတ်တမ်း ဖျက်",
+    "clearConfirm": "Local လက်မှတ်မှတ်တမ်းကို ဖျက်မလား?",
+    "logsCleared": "မှတ်တမ်း ရှင်းပြီး",
+    "languageTitle": "ဘာသာစကား",
+    "languageHint": "App ပြ ဘာသာစကားပြောင်း။ အရေးပေါ်လမ်းညွှန်လည်း ပြောင်းမည်။"
+  },
+
+  "lineCheck": {
+    "headerTitle": "Line စစ်",
+    "headerDesc": "ဖွင့် / ပိတ် / 4h အရည်အသွေး (ဓာတ်ပုံ၊ အပူ၊ geofence)",
+    "startListTitle": "Checklist ရွေးပါ",
+    "templateEdit": "Template ပြင်",
+    "items": "{n} ခု",
+    "photoCount": "ဓာတ်ပုံ {n}",
+    "tempCount": "အပူ {n}",
+    "starting": "စတင်နေသည်…",
+    "start": "စတင် →",
+    "noTemplates": "Template မရှိ",
+    "history": "မကြာသေးခင် run",
+    "noHistory": "မှတ်တမ်းမရှိသေး",
+    "th": {
+      "template": "Template",
+      "started": "စ",
+      "completed": "ပြီး",
+      "geofence": "geofence",
+      "status": "အခြေအနေ"
+    },
+    "schedule": { "opening": "ဖွင့်", "closing": "ပိတ်", "4h": "4h အရည်အသွေး", "weekly": "ပတ်" },
+    "status": { "in_progress": "လုပ်ဆောင်ဆဲ", "completed": "ပြီး", "failed": "မအောင်" },
+    "geofenceOk": "OK",
+    "geofenceOut": "အပြင်",
+    "startError": "စတင်ရန် မအောင်: {msg}",
+    "run": {
+      "title": "Line စစ် run",
+      "offline": "အော့ဖ်လိုင်း",
+      "photoRequired": "ဓာတ်ပုံ မဖြစ်မနေ",
+      "tempRange": "{min}°C – {max}°C",
+      "tempLabel": "တိုင်းအပူ (°C)",
+      "tempBelow": "အနိမ့်ထက်နိမ့် (ကန့်သတ် {min}°C)",
+      "tempAbove": "အမြင့်ထက်မြင့် (ကန့်သတ် {max}°C)",
+      "tempOk": "နယ်ထဲ OK",
+      "stateLabel": "အခြေအနေ",
+      "selectPlaceholder": "ရွေး",
+      "photoLabel": "ဓာတ်ပုံ",
+      "memo": "မှတ်ချက် (ရွေးနိုင်)",
+      "retake": "ပြန်ရိုက်",
+      "shoot": "ဓာတ်ပုံရိုက်",
+      "queued": "အော့ဖ်လိုင်းသိမ်း (ပြန်ချိတ်ရင် auto ပို့)",
+      "captured": "ရိုက်ပြီး",
+      "back": "ပြန်",
+      "nextItem": "ဆက်",
+      "completeSend": "ပြီးပြီး ပို့",
+      "doneOk": "စစ်ပြီး",
+      "doneNg": "မပြီး — NG ခုများ",
+      "doneOkDesc": "ပင်ပန်းပြီ။",
+      "doneNgDesc": "NG ခုများကို task အဖြစ် ထုတ်ပြီး။ ရုံးချုပ် approve စောင့်။",
+      "backToList": "စာရင်းသို့ပြန်",
+      "photoMust": "ဤခုသည် ဓာတ်ပုံ မဖြစ်မနေ",
+      "tempMust": "အပူထည့်ပါ",
+      "templateNotFound": "Template ရှာမတွေ့",
+      "templateNotLoaded": "Template တင်မထား"
+    }
+  },
+
+  "languageSwitcher": {
+    "label": "ဘာသာစကားပြောင်း",
+    "current": "လက်ရှိဘာသာ"
+  }
+}

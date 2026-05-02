@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Hash, Delete, ScanFace, QrCode, Check, Lock } from "lucide-react"
 import { faceAuthApi, clockApi, staffIdentity, clockLog } from "@/lib/staff-api"
+import { useTranslations } from "@/i18n/I18nProvider"
 
 const DEMO_STORE_ID = "11111111-1111-1111-1111-111111111111"
 
 export default function PinAuthPage() {
   const router = useRouter()
+  const t = useTranslations("auth")
   const [empId, setEmpId] = useState<string>(staffIdentity.employeeId)
   const [pin, setPin] = useState("")
   const [phase, setPhase] = useState<"input" | "verifying" | "ok" | "fail" | "locked">("input")
@@ -60,11 +62,11 @@ export default function PinAuthPage() {
     <div className="px-4 py-5 space-y-5 max-w-md mx-auto">
       <div className="flex items-center gap-2">
         <Hash className="h-6 w-6 text-emerald-400" />
-        <h1 className="text-xl font-bold">PINで打刻</h1>
+        <h1 className="text-xl font-bold">{t("pinTitle")}</h1>
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-        <label className="text-xs text-white/50">従業員ID</label>
+        <label className="text-xs text-white/50">{t("pinEmpId")}</label>
         <input
           value={empId}
           onChange={(e) => setEmpId(e.target.value)}
@@ -75,13 +77,13 @@ export default function PinAuthPage() {
       {phase === "ok" ? (
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center">
           <Check className="h-16 w-16 text-emerald-400 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-emerald-300">打刻完了</div>
+          <div className="text-2xl font-bold text-emerald-300">{t("doneTitle")}</div>
         </div>
       ) : phase === "locked" ? (
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center">
           <Lock className="h-12 w-12 text-red-400 mx-auto mb-2" />
-          <div className="text-lg font-bold text-red-300">ロックされました</div>
-          <div className="text-sm text-red-200/80 mt-1">3回失敗したため5分間ロックされます。店長に連絡してください。</div>
+          <div className="text-lg font-bold text-red-300">{t("pinLockedTitle")}</div>
+          <div className="text-sm text-red-200/80 mt-1">{t("pinLockedDesc")}</div>
         </div>
       ) : (
         <>
@@ -98,7 +100,7 @@ export default function PinAuthPage() {
             ))}
           </div>
           {phase === "fail" && (
-            <div className="text-center text-sm text-amber-300">PINが違います（{failCount}/3）</div>
+            <div className="text-center text-sm text-amber-300">{t("pinFail", { count: failCount })}</div>
           )}
           {/* Keypad */}
           <div className="grid grid-cols-3 gap-3">
@@ -131,11 +133,11 @@ export default function PinAuthPage() {
       <div className="grid grid-cols-2 gap-3">
         <Link href="/staff/auth/face" className="rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] p-4 flex flex-col items-center gap-2 text-white/80">
           <ScanFace className="h-6 w-6" />
-          <div className="text-sm font-semibold">顔認証</div>
+          <div className="text-sm font-semibold">{t("switchToFace")}</div>
         </Link>
         <Link href="/staff/auth/qr" className="rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] p-4 flex flex-col items-center gap-2 text-white/80">
           <QrCode className="h-6 w-6" />
-          <div className="text-sm font-semibold">QR</div>
+          <div className="text-sm font-semibold">{t("switchToQr")}</div>
         </Link>
       </div>
     </div>

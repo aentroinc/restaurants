@@ -11,10 +11,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_tenant_id
 from app.database import get_db
+from app.models.compliance_violation import ComplianceViolation
+from app.models.employee import Employee
 from app.models.face_auth import ClockEvent
 from app.models.store import Store
 from app.schemas.common import APIResponse
 from app.schemas.face_auth import ClockEventCreate, ClockEventRead
+from app.services.consent_engine import ConsentRequiredError, check_required_consents
+from app.services.face_auth_engine import DoublePunchError, clock_in as engine_clock_in
+from app.services.labor_compliance_engine import (
+    check_break_taken,
+    evaluate_minor_night,
+    _calc_age,
+)
 
 
 router = APIRouter(prefix="/api/v1/clock", tags=["clock"])
@@ -55,21 +64,89 @@ async def _create_event(
     db: AsyncSession, tenant_id: str, body: ClockEventCreate, event_type: str,
 ) -> ClockEvent:
     geo_ok = await _check_geofence(db, body.store_id, body.lat, body.lon)
-    ev = ClockEvent(
-        tenant_id=UUID(tenant_id),
-        employee_id=body.employee_id,
-        store_id=body.store_id,
-        event_type=event_type,
-        lat=body.lat,
-        lon=body.lon,
-        geofence_ok=geo_ok,
-        auth_method=body.auth_method,
-        confidence=body.confidence,
+    try:
+        return await engine_clock_in(
+            db,
+            tenant_id=UUID(tenant_id),
+            employee_id=body.employee_id,
+            store_id=body.store_id,
+            event_type=event_type,
+            auth_method=body.auth_method,
+            lat=body.lat,
+            lon=body.lon,
+            geofence_ok=geo_ok,
+            confidence=body.confidence,
+            idempotency_key=body.idempotency_key,
+            accuracy_m=body.accuracy_m,
+        )
+    except DoublePunchError as e:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "double_punch",
+                "message": str(e),
+                "last_event_id": str(e.last_event_id) if e.last_event_id else None,
+            },
+        )
+
+
+async def _block_minor_night(db: AsyncSession, tenant_id: str, body: ClockEventCreate) -> None:
+    """未成年(<18) は 22:00-05:00 の clock_in を禁止 (deep_night_allowed フラグで除外可)。"""
+    res = await db.execute(
+        select(Employee).where(
+            Employee.tenant_id == UUID(tenant_id),
+            Employee.id == body.employee_id,
+        )
     )
-    db.add(ev)
-    await db.commit()
-    await db.refresh(ev)
-    return ev
+    emp = res.scalar_one_or_none()
+    if not emp:
+        return
+    birth = getattr(emp, "birth_date", None)
+    deep_ok = bool(getattr(emp, "deep_night_allowed", False))
+    now = datetime.now(timezone.utc)
+    age = _calc_age(birth, now.date())
+    r = evaluate_minor_night(age, now, deep_night_allowed=deep_ok)
+    if r.status == "block":
+        # 違反を永続化してから拒否
+        db.add(ComplianceViolation(
+            tenant_id=UUID(tenant_id),
+            employee_id=body.employee_id,
+            store_id=body.store_id,
+            rule_code=r.rule_code,
+            severity="block",
+            detail_json={"message": r.message, **r.detail},
+        ))
+        await db.commit()
+        raise HTTPException(status_code=403, detail={
+            "code": "minor_night_forbidden",
+            "message": r.message,
+            "rule_code": r.rule_code,
+        })
+
+
+async def _maybe_emit_break_task(db: AsyncSession, tenant_id: str, employee_id: UUID, store_id: UUID) -> None:
+    """6h超 で休憩取得記録がない場合、Task を自動発行 (重複作成を避ける best-effort)。"""
+    today_start = datetime.combine(datetime.now(timezone.utc).date(), time.min, tzinfo=timezone.utc)
+    res = await db.execute(
+        select(ClockEvent).where(
+            ClockEvent.tenant_id == UUID(tenant_id),
+            ClockEvent.employee_id == employee_id,
+            ClockEvent.occurred_at >= today_start,
+        ).order_by(ClockEvent.occurred_at.asc())
+    )
+    evs = [{"event_type": e.event_type, "occurred_at": e.occurred_at} for e in res.scalars().all()]
+    r = check_break_taken(evs)
+    if r.status in ("warn", "block") and r.rule_code in ("BREAK_6H", "BREAK_8H"):
+        # 違反 / 警告として記録
+        db.add(ComplianceViolation(
+            tenant_id=UUID(tenant_id),
+            employee_id=employee_id,
+            store_id=store_id,
+            rule_code=r.rule_code,
+            severity=r.status,
+            detail_json={"message": r.message, **r.detail},
+        ))
+        await db.commit()
 
 
 @router.post("/in", response_model=APIResponse[ClockEventRead])
@@ -78,6 +155,17 @@ async def clock_in(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
 ):
+    # 個人情報保護法: 位置情報取得 + 打刻記録保管の同意を確認
+    try:
+        await check_required_consents(
+            db, UUID(tenant_id), body.employee_id, ["gps", "clock_retention"],
+        )
+    except ConsentRequiredError as e:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "consent_required", "missing": e.missing, "message": "GPS / 打刻記録保管の同意が必要です"},
+        )
+    await _block_minor_night(db, tenant_id, body)
     ev = await _create_event(db, tenant_id, body, "in")
     return APIResponse(data=_to_read(ev))
 
@@ -89,6 +177,11 @@ async def clock_out(
     tenant_id: str = Depends(get_tenant_id),
 ):
     ev = await _create_event(db, tenant_id, body, "out")
+    # 6h超で休憩なしの場合は ComplianceViolation を自動記録
+    try:
+        await _maybe_emit_break_task(db, tenant_id, body.employee_id, body.store_id)
+    except Exception:
+        pass
     return APIResponse(data=_to_read(ev))
 
 

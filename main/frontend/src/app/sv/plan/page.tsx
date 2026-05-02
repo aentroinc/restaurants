@@ -2,9 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { svApi, type SVStore } from "@/lib/sv-api"
 import { RouteOptimizer } from "@/components/sv/RouteOptimizer"
 import { StoreHeatmap } from "@/components/sv/StoreHeatmap"
+
+const LeafletStoreMap = dynamic(
+  () => import("@/components/sv/LeafletStoreMap").then((m) => m.LeafletStoreMap),
+  { ssr: false, loading: () => <div className="h-[360px] flex items-center justify-center text-white/40 text-[12px]">地図を読み込み中…</div> },
+)
+const USE_LEAFLET = process.env.NEXT_PUBLIC_USE_LEAFLET !== "false"
 import { Calendar, MapPin, ChevronRight, Plus, Check } from "lucide-react"
 
 const TOKYO = { lat: 35.681, lon: 139.767, label: "東京駅 (現在地)" }
@@ -61,7 +68,16 @@ export default function SVPlanPage() {
             <h2 className="text-[14px] font-semibold text-white/85">担当エリアマップ</h2>
             <span className="text-[11px] text-white/40">選択中 {picked.size} 店</span>
           </div>
-          <StoreHeatmap stores={pickedStores.length ? pickedStores : stores} height={360} />
+          {USE_LEAFLET ? (
+            <LeafletStoreMap
+              stores={pickedStores.length ? pickedStores : stores}
+              routeStops={pickedStores}
+              startPoint={{ lat: TOKYO.lat, lon: TOKYO.lon, label: TOKYO.label }}
+              height={360}
+            />
+          ) : (
+            <StoreHeatmap stores={pickedStores.length ? pickedStores : stores} height={360} />
+          )}
         </div>
 
         {/* Route */}

@@ -71,8 +71,12 @@ class ClockEventCreate(BaseModel):
     store_id: UUID
     lat: float | None = None
     lon: float | None = None
+    accuracy_m: float | None = None  # GPS 精度 (m)。200m 超は warn ログのみで通す。
     auth_method: str = Field(..., pattern="^(face|qr|pin)$")
     confidence: float | None = None
+    # クライアント生成の冪等キー (UUID 推奨, 8〜64文字)。
+    # 同じ key の再送は 409 ではなく既存 ClockEvent を返す（true idempotent）。
+    idempotency_key: str | None = Field(default=None, min_length=8, max_length=64)
 
 
 class ClockEventRead(BaseModel):

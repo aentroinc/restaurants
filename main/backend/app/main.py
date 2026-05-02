@@ -29,11 +29,18 @@ from app.api.v1 import aip_logic as aip_logic_router
 from app.api.v1 import face_auth as face_auth_router
 from app.api.v1 import clock as clock_router
 from app.api.v1 import manual_input as manual_input_router
+from app.api.v1 import labor_compliance as labor_compliance_router
+from app.api.v1 import consent as consent_router
+from app.api.v1 import geo as geo_router
+from app.api.v1 import tax as tax_router
+from app.api.v1 import reports as reports_router
+from app.api.v1 import support as support_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.audit_capture import AuditCaptureMiddleware
 from app.middleware.dq_check import DataQualityCheckMiddleware
 from app.middleware.marking_filter import MarkingFilterMiddleware
+from app.middleware.idempotency import IdempotencyMiddleware
 from app.middleware.metrics import register_metrics
 from app.observability import setup_observability, init_observability
 from app.services.lifespan_hooks import on_startup as _pipeline_on_startup, on_shutdown as _pipeline_on_shutdown
@@ -53,6 +60,7 @@ app.add_middleware(AuditCaptureMiddleware)
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(MarkingFilterMiddleware)
 app.add_middleware(TenantMiddleware)
+app.add_middleware(IdempotencyMiddleware)  # POST 冪等性（Idempotency-Key ヘッダ）
 
 app.add_middleware(
     CORSMiddleware,
@@ -129,3 +137,9 @@ app.include_router(aip_logic_router.router)
 app.include_router(face_auth_router.router)
 app.include_router(clock_router.router)
 app.include_router(manual_input_router.router)
+app.include_router(labor_compliance_router.router)
+app.include_router(consent_router.router)
+app.include_router(geo_router.router)
+app.include_router(tax_router.router)
+app.include_router(reports_router.router)
+app.include_router(support_router.router)

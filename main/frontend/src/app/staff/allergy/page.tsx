@@ -7,40 +7,37 @@ import { Check, ShieldAlert, AlertTriangle } from "lucide-react"
 import { BigTapButton } from "@/components/staff/BigTapButton"
 import { QuickRadioGrid, type QuickOption } from "@/components/staff/QuickRadioGrid"
 import { staffApi, staffIdentity } from "@/lib/staff-api"
+import { useTranslations } from "@/i18n/I18nProvider"
 
-const ageRanges: QuickOption[] = [
-  { value: "child", label: "子供（〜12）" },
-  { value: "teen", label: "10代" },
-  { value: "20-40", label: "20-40代" },
-  { value: "40-60", label: "40-60代" },
-  { value: "60+", label: "60代以上" },
-  { value: "unknown", label: "不明" },
+const ageKeys = ["child", "teen", "20-40", "40-60", "60+", "unknown"] as const
+const allergenKeys: { value: string; icon: string }[] = [
+  { value: "egg", icon: "🥚" },
+  { value: "milk", icon: "🥛" },
+  { value: "wheat", icon: "🌾" },
+  { value: "shrimp", icon: "🦐" },
+  { value: "crab", icon: "🦀" },
+  { value: "soba", icon: "🍜" },
+  { value: "peanut", icon: "🥜" },
+  { value: "walnut", icon: "🌰" },
+  { value: "soy", icon: "🫘" },
+  { value: "fish", icon: "🐟" },
+  { value: "beef", icon: "🥩" },
+  { value: "other", icon: "❓" },
 ]
-
-const allergens: QuickOption[] = [
-  { value: "egg", label: "卵", icon: "🥚" },
-  { value: "milk", label: "乳", icon: "🥛" },
-  { value: "wheat", label: "小麦", icon: "🌾" },
-  { value: "shrimp", label: "えび", icon: "🦐" },
-  { value: "crab", label: "かに", icon: "🦀" },
-  { value: "soba", label: "そば", icon: "🍜" },
-  { value: "peanut", label: "落花生", icon: "🥜" },
-  { value: "walnut", label: "くるみ", icon: "🌰" },
-  { value: "soy", label: "大豆", icon: "🫘" },
-  { value: "fish", label: "魚介", icon: "🐟" },
-  { value: "beef", label: "牛肉", icon: "🥩" },
-  { value: "other", label: "その他", icon: "❓" },
-]
-
-const responses: QuickOption[] = [
-  { value: "alt_provided", label: "代替メニュー提供", tone: "good" },
-  { value: "ingredients_explained", label: "成分説明のみ", tone: "default" },
-  { value: "declined", label: "提供不可と説明", tone: "warn" },
-  { value: "incident", label: "事故発生→救護", tone: "bad" },
+const responseKeys: { value: string; tone: "good" | "default" | "warn" | "bad" }[] = [
+  { value: "alt_provided", tone: "good" },
+  { value: "ingredients_explained", tone: "default" },
+  { value: "declined", tone: "warn" },
+  { value: "incident", tone: "bad" },
 ]
 
 export default function StaffAllergyPage() {
   const router = useRouter()
+  const t = useTranslations("allergy")
+  const tCommon = useTranslations("common")
+  const ageRanges: QuickOption[] = ageKeys.map((k) => ({ value: k, label: t(`ageRange.${k}`) }))
+  const allergens: QuickOption[] = allergenKeys.map((a) => ({ ...a, label: t(`allergens.${a.value}`) }))
+  const responses: QuickOption[] = responseKeys.map((r) => ({ ...r, label: t(`responses.${r.value}`) }))
   const [step, setStep] = useState<1 | 2 | 3 | 4 | "done">(1)
   const [age, setAge] = useState("")
   const [pickedAllergens, setPickedAllergens] = useState<string[]>([])
@@ -69,18 +66,18 @@ export default function StaffAllergyPage() {
         <div className="mx-auto h-24 w-24 rounded-full bg-emerald-500/20 flex items-center justify-center">
           <Check className="h-12 w-12 text-emerald-400" />
         </div>
-        <h2 className="text-3xl font-bold">記録完了</h2>
-        <div className="text-white/60">アレルギー対応を記録しました</div>
+        <h2 className="text-3xl font-bold">{t("doneTitle")}</h2>
+        <div className="text-white/60">{t("doneDesc")}</div>
         {response === "incident" && (
           <Link
             href="/staff/emergency?scenario=anaphylaxis"
             className="block rounded-xl bg-red-500/20 border border-red-500/40 p-4 text-red-100"
           >
             <AlertTriangle className="inline h-5 w-5 mr-2" />
-            アナフィラキシー対応マニュアルを開く
+            {t("openAnaphylaxis")}
           </Link>
         )}
-        <BigTapButton tone="ghost" label="ホームに戻る" onClick={() => router.push("/staff")} />
+        <BigTapButton tone="ghost" label={tCommon("homeReturn")} onClick={() => router.push("/staff")} />
       </div>
     )
   }
@@ -90,13 +87,13 @@ export default function StaffAllergyPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-6 w-6 text-purple-400" />
-          <h1 className="text-2xl font-bold">アレルギー対応</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
         </div>
         <Link
           href="/staff/emergency?scenario=anaphylaxis"
           className="text-xs text-red-300 underline"
         >
-          緊急対応
+          {t("emergencyLink")}
         </Link>
       </div>
 
@@ -113,15 +110,15 @@ export default function StaffAllergyPage() {
 
       {step === 1 && (
         <div className="space-y-4">
-          <div className="text-sm font-semibold">お客様の年齢層</div>
+          <div className="text-sm font-semibold">{t("step1Title")}</div>
           <QuickRadioGrid options={ageRanges} value={age} onChange={setAge} columns={3} />
-          <BigTapButton tone="primary" label="次へ: アレルゲン" onClick={() => setStep(2)} disabled={!age} />
+          <BigTapButton tone="primary" label={t("step1Next")} onClick={() => setStep(2)} disabled={!age} />
         </div>
       )}
 
       {step === 2 && (
         <div className="space-y-4">
-          <div className="text-sm font-semibold">該当アレルゲン（複数選択可）</div>
+          <div className="text-sm font-semibold">{t("step2Title")}</div>
           <QuickRadioGrid
             options={allergens}
             multi
@@ -130,10 +127,10 @@ export default function StaffAllergyPage() {
             columns={3}
           />
           <div className="flex gap-3">
-            <BigTapButton tone="ghost" label="戻る" onClick={() => setStep(1)} />
+            <BigTapButton tone="ghost" label={tCommon("back")} onClick={() => setStep(1)} />
             <BigTapButton
               tone="primary"
-              label="次へ"
+              label={tCommon("next")}
               onClick={() => setStep(3)}
               disabled={pickedAllergens.length === 0}
             />
@@ -143,35 +140,35 @@ export default function StaffAllergyPage() {
 
       {step === 3 && (
         <div className="space-y-4">
-          <div className="text-sm font-semibold">提供メニュー / 注文内容</div>
+          <div className="text-sm font-semibold">{t("step3Title")}</div>
           <textarea
             value={items}
             onChange={(e) => setItems(e.target.value)}
             rows={4}
-            placeholder="例: 牛丼並、味噌汁（卵抜き）"
+            placeholder={t("step3Placeholder")}
             className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-emerald-400"
           />
           <div className="flex gap-3">
-            <BigTapButton tone="ghost" label="戻る" onClick={() => setStep(2)} />
-            <BigTapButton tone="primary" label="次へ: 対応" onClick={() => setStep(4)} />
+            <BigTapButton tone="ghost" label={tCommon("back")} onClick={() => setStep(2)} />
+            <BigTapButton tone="primary" label={t("step3Next")} onClick={() => setStep(4)} />
           </div>
         </div>
       )}
 
       {step === 4 && (
         <div className="space-y-4">
-          <div className="text-sm font-semibold">対応内容</div>
+          <div className="text-sm font-semibold">{t("step4Title")}</div>
           <QuickRadioGrid options={responses} value={response} onChange={setResponse} columns={2} />
           {response === "incident" && (
             <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-200">
-              事故発生時はただちに 119 通報、店長へ連絡してください。
+              {t("incidentWarning")}
             </div>
           )}
           <div className="flex gap-3">
-            <BigTapButton tone="ghost" label="戻る" onClick={() => setStep(3)} />
+            <BigTapButton tone="ghost" label={tCommon("back")} onClick={() => setStep(3)} />
             <BigTapButton
               tone="success"
-              label={submitting ? "送信中..." : "送信"}
+              label={submitting ? tCommon("submitting") : tCommon("submit")}
               onClick={submit}
               disabled={!response || submitting}
             />

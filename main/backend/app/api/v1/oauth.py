@@ -287,6 +287,8 @@ async def sync_now(
         await _ensure_data_source(db, tenant_id, connector)
         await db.commit()
         log_audit(tenant_id, None, "oauth_sync", "connector", connector, {"batch_id": result.get("batch_id")})
+        # 軽減税率 (8%/10%) 集計を SalesTaxBreakdown に反映
+        await _post_sync_tax_breakdown(db, tenant_id, connector, result)
         return APIResponse(data=result)
 
     # 既存パス
@@ -299,6 +301,8 @@ async def sync_now(
 
     result = await run_sync_job(db, tenant_id, str(ds_id), job_type="incremental")
     log_audit(tenant_id, None, "oauth_sync", "connector", connector, {"job_id": result.get("job_id")})
+    # 軽減税率 (8%/10%) 集計を SalesTaxBreakdown に反映
+    await _post_sync_tax_breakdown(db, tenant_id, connector, result)
     return APIResponse(data=result)
 
 
@@ -353,6 +357,39 @@ _NEW_CONNECTOR_META: dict[str, dict[str, str]] = {
     "ubereats": {"name": "Uber Eats Merchant", "system_category": "delivery", "auth_type": "oauth2_client_credentials"},
     "td": {"name": "T&D 温度ロガー", "system_category": "iot_sensor", "auth_type": "api_key"},
 }
+
+
+async def _post_sync_tax_breakdown(
+    db: AsyncSession,
+    tenant_id: str,
+    connector: str,
+    sync_result: dict[str, Any] | None,
+) -> None:
+    """POS 系コネクタ (square/smaregi/airregi/ubereats) の sync 後に
+    軽減税率 (8%/10%) の日次集計を SalesTaxBreakdown に投入する。
+    エラーは握りつぶす — 集計失敗で sync 全体を落とさない。
+    """
+    if connector not in {"square", "smaregi", "airregi", "ubereats"}:
+        return
+    try:
+        from datetime import date as _date
+        from sqlalchemy import select
+        from app.models.daily_sales import DailyStoreSales
+        from app.services import tax_calculator as _tc
+
+        target_date = _date.today()
+        rows = await db.execute(
+            select(DailyStoreSales.store_id).where(
+                DailyStoreSales.tenant_id == tenant_id,
+                DailyStoreSales.business_date == target_date,
+            )
+        )
+        store_ids = [str(r[0]) for r in rows.all()]
+        for sid in store_ids:
+            await _tc.breakdown_daily_sales(db, tenant_id, sid, target_date)
+        await db.commit()
+    except Exception:
+        await db.rollback()
 
 
 async def _ensure_data_source(

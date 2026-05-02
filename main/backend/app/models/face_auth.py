@@ -41,6 +41,7 @@ class ClockEvent(Base):
     __table_args__ = (
         Index("ix_clock_tenant_emp_time", "tenant_id", "employee_id", "occurred_at"),
         Index("ix_clock_tenant_store_time", "tenant_id", "store_id", "occurred_at"),
+        Index("ix_clock_idem_key", "idempotency_key", unique=True),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -54,6 +55,8 @@ class ClockEvent(Base):
     auth_method: Mapped[str] = mapped_column(String(8), nullable=False)  # face | qr | pin
     confidence: Mapped[float | None] = mapped_column(Numeric(4, 3))
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # クライアント送信の冪等キー（UUID）。同じ key が再送されたら同一 ClockEvent を返す。
+    idempotency_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class StaffPin(Base):
