@@ -1,0 +1,11 @@
+{
+  "merchant": {
+    "id": "MLSANDBOX0000001",
+    "business_name": "AENTRO Sandbox Diner",
+    "country": "JP",
+    "language_code": "ja-JP",
+    "currency": "JPY",
+    "status": "ACTIVE",
+    "main_location_id": "LSANDBOX0000001"
+  }
+}

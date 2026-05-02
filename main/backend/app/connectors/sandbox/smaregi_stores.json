@@ -1,0 +1,5 @@
+[
+  {"storeId": "1", "storeName": "Sandbox 渋谷店", "storeCode": "SHIBUYA"},
+  {"storeId": "2", "storeName": "Sandbox 新宿店", "storeCode": "SHINJUKU"},
+  {"storeId": "3", "storeName": "Sandbox 池袋店", "storeCode": "IKEBUKURO"}
+]

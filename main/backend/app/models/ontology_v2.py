@@ -92,3 +92,84 @@ class OntologyLink(Base):
     to_instance_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("ontology_instances.id"))
     properties: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ===========================================================================
+# Foundry-style Action Types (registered actions per object type)
+# ===========================================================================
+
+class OntologyActionType(Base):
+    __tablename__ = "ontology_action_types"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id"), index=True)
+    object_type_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("ontology_object_types_v2.id"), nullable=True
+    )
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(String, nullable=True)
+    parameters_json: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    side_effects_json: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    requires_approval: Mapped[bool] = mapped_column(Boolean, default=False)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("ix_action_type_tenant_name", "tenant_id", "object_type_id", "name", unique=True),
+    )
+
+
+class OntologyAction(Base):
+    __tablename__ = "ontology_actions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    action_type_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("ontology_action_types.id")
+    )
+    instance_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("ontology_instances.id"), nullable=True
+    )
+    params_json: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    executed_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    executed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    status: Mapped[str] = mapped_column(String, default="pending")  # pending|approved|rejected|executed|failed
+    result_json: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+
+
+# ===========================================================================
+# Branching & Snapshots (Foundry-style ontology versioning)
+# ===========================================================================
+
+class OntologyBranch(Base):
+    __tablename__ = "ontology_branches"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    base_branch: Mapped[str] = mapped_column(String, default="main")
+    status: Mapped[str] = mapped_column(String, default="open")  # open|merged|closed
+    created_by: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    merged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("ix_branch_tenant_name", "tenant_id", "name", unique=True),
+    )
+
+
+class OntologySnapshot(Base):
+    __tablename__ = "ontology_snapshots"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    branch_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("ontology_branches.id"))
+    object_type_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("ontology_object_types_v2.id")
+    )
+    snapshot_json: Mapped[dict] = mapped_column(JSONB, default=dict)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("ix_snapshot_branch_ot", "branch_id", "object_type_id", unique=True),
+    )

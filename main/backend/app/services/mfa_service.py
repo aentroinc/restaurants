@@ -112,3 +112,182 @@ def rotate_secret(old_ciphertext: str) -> str:
     """key rotation: 旧 cipher を decrypt → 新 fernet で再暗号化"""
     plain = decrypt(old_ciphertext)
     return encrypt(plain)
+
+
+# ---------- High-level enroll/verify (DB-backed) ----------
+
+from datetime import datetime, timezone
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.auth_enterprise import MFASecret
+from app.models.user import User
+
+# in-process MFA failure counter: user_id -> count
+_MFA_FAILURES: dict[str, int] = {}
+MFA_MAX_FAILURES = 3
+
+
+class MFAError(Exception):
+    pass
+
+
+async def enroll_totp(db: AsyncSession, user_id: str) -> dict:
+    """Generate TOTP secret + otpauth URL, persist encrypted secret."""
+    user_q = await db.execute(select(User).where(User.id == user_id))
+    user = user_q.scalar_one_or_none()
+    if not user:
+        raise MFAError("user not found")
+
+    existing_q = await db.execute(select(MFASecret).where(MFASecret.user_id == user.id))
+    existing = existing_q.scalar_one_or_none()
+    if existing:
+        raise MFAError("MFA already enrolled")
+
+    enrollment = enroll_mfa(user.email)
+    db.add(MFASecret(
+        user_id=user.id,
+        secret_encrypted=encrypt(enrollment["secret"]),
+        method="totp",
+        backup_codes_encrypted=encrypt(json.dumps(enrollment["backup_codes"])),
+    ))
+    await db.commit()
+    return {
+        "otpauth_url": enrollment["qr_uri"],
+        "secret": enrollment["secret"],
+        "backup_codes": enrollment["backup_codes"],
+    }
+
+
+async def verify_totp_for_user(db: AsyncSession, user_id: str, code: str) -> bool:
+    """Verify TOTP code with 30-sec window. After 3 failures → trigger lockout."""
+    mfa_q = await db.execute(select(MFASecret).where(MFASecret.user_id == user_id))
+    rec = mfa_q.scalar_one_or_none()
+    if not rec:
+        raise MFAError("MFA not enrolled")
+
+    if verify_totp(rec.secret_encrypted, code):
+        rec.last_used_at = datetime.now(timezone.utc)
+        await db.commit()
+        _MFA_FAILURES.pop(user_id, None)
+        return True
+
+    # backup code fallback
+    if rec.backup_codes_encrypted:
+        ok, new_cipher = consume_backup_code(rec.backup_codes_encrypted, code)
+        if ok and new_cipher:
+            rec.backup_codes_encrypted = new_cipher
+            rec.last_used_at = datetime.now(timezone.utc)
+            await db.commit()
+            _MFA_FAILURES.pop(user_id, None)
+            return True
+
+    _MFA_FAILURES[user_id] = _MFA_FAILURES.get(user_id, 0) + 1
+    if _MFA_FAILURES[user_id] >= MFA_MAX_FAILURES:
+        # Trigger account lock via lockout_service
+        try:
+            from datetime import timedelta
+            from app.models.auth_enterprise import AccountLock
+            lock = AccountLock(
+                user_id=user_id,
+                locked_until=datetime.now(timezone.utc) + timedelta(minutes=30),
+                reason="too_many_mfa_failures",
+            )
+            await db.merge(lock)
+            await db.commit()
+        except Exception:
+            pass
+        _MFA_FAILURES.pop(user_id, None)
+        raise MFAError("too many failures, account locked")
+    return False
+
+
+# ---------- WebAuthn (FIDO2) ----------
+
+# Per-user challenge cache for registration / authentication
+_WEBAUTHN_CHALLENGES: dict[str, str] = {}
+
+
+def _webauthn_available() -> bool:
+    try:
+        import webauthn  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+async def enroll_webauthn(db: AsyncSession, user_id: str, rp_id: str = "localhost", rp_name: str = "AENTRO") -> dict:
+    """Generate registration options. Returns options dict for the browser."""
+    if not _webauthn_available():
+        raise MFAError("webauthn package not installed")
+
+    from webauthn import generate_registration_options, options_to_json
+
+    user_q = await db.execute(select(User).where(User.id == user_id))
+    user = user_q.scalar_one_or_none()
+    if not user:
+        raise MFAError("user not found")
+
+    options = generate_registration_options(
+        rp_id=rp_id,
+        rp_name=rp_name,
+        user_id=str(user.id).encode(),
+        user_name=user.email,
+        user_display_name=user.name,
+    )
+    # cache challenge for verification
+    _WEBAUTHN_CHALLENGES[str(user.id)] = base64.urlsafe_b64encode(options.challenge).decode().rstrip("=")
+    return json.loads(options_to_json(options))
+
+
+async def verify_webauthn(db: AsyncSession, user_id: str, credential: dict, rp_id: str = "localhost", origin: str = "http://localhost:3000") -> bool:
+    """Verify WebAuthn registration response and persist credential as MFA secret."""
+    if not _webauthn_available():
+        raise MFAError("webauthn package not installed")
+
+    from webauthn import verify_registration_response
+    from webauthn.helpers.structs import RegistrationCredential
+
+    challenge_b64 = _WEBAUTHN_CHALLENGES.pop(user_id, None)
+    if not challenge_b64:
+        raise MFAError("no pending webauthn challenge")
+
+    try:
+        verification = verify_registration_response(
+            credential=RegistrationCredential.parse_obj(credential)
+            if hasattr(RegistrationCredential, "parse_obj")
+            else credential,
+            expected_challenge=base64.urlsafe_b64decode(challenge_b64 + "=="),
+            expected_origin=origin,
+            expected_rp_id=rp_id,
+        )
+    except Exception as e:
+        raise MFAError(f"webauthn verification failed: {e}")
+
+    # Persist credential id + public key (encrypted) as MFA record
+    cred_payload = json.dumps({
+        "credential_id": base64.urlsafe_b64encode(verification.credential_id).decode(),
+        "public_key": base64.urlsafe_b64encode(verification.credential_public_key).decode(),
+        "sign_count": verification.sign_count,
+    })
+    user_uuid = uuid_from_str(user_id)
+    existing_q = await db.execute(select(MFASecret).where(MFASecret.user_id == user_uuid))
+    existing = existing_q.scalar_one_or_none()
+    if existing:
+        existing.secret_encrypted = encrypt(cred_payload)
+        existing.method = "webauthn"
+    else:
+        db.add(MFASecret(
+            user_id=user_uuid,
+            secret_encrypted=encrypt(cred_payload),
+            method="webauthn",
+        ))
+    await db.commit()
+    return True
+
+
+def uuid_from_str(s):
+    import uuid as _uuid
+    if isinstance(s, _uuid.UUID):
+        return s
+    return _uuid.UUID(s)
+

@@ -319,5 +319,74 @@ async def saml_metadata(provider_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
 @router.post("/saml/{provider_id}/acs")
 async def saml_acs(provider_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    """Assertion Consumer Service (stub)."""
-    return {"status": "stub", "message": "SAML ACS endpoint — requires python3-saml configuration"}
+    """Assertion Consumer Service (stub).
+
+    Note: the production ACS lives at `/api/v1/sso/saml/{idp_id}/acs`.
+    """
+    return {"status": "stub", "message": "use /api/v1/sso/saml/{idp_id}/acs for production"}
+
+
+# ---------- JWKS test + SAML metadata XML ----------
+
+
+@router.post("/oidc/{provider_id}/test-jwks")
+async def test_jwks(
+    provider_id: uuid.UUID,
+    user: dict = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    """Probe the configured jwks_uri and return the key count + first kid."""
+    import httpx
+    tenant_id = get_tenant_id_from_context()
+    res = await db.execute(
+        select(IdentityProvider).where(
+            IdentityProvider.id == provider_id,
+            IdentityProvider.tenant_id == tenant_id,
+            IdentityProvider.type == "oidc",
+        )
+    )
+    p = res.scalar_one_or_none()
+    if not p:
+        raise HTTPException(status_code=404, detail="OIDC provider not found")
+    jwks_uri = (p.config or {}).get("jwks_uri")
+    if not jwks_uri:
+        raise HTTPException(status_code=400, detail="jwks_uri not configured")
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(jwks_uri)
+        if resp.status_code != 200:
+            return {"ok": False, "status": resp.status_code, "body": resp.text[:200]}
+        keys = resp.json().get("keys", [])
+        return {
+            "ok": True,
+            "key_count": len(keys),
+            "kids": [k.get("kid") for k in keys],
+            "algorithms": list({k.get("alg") for k in keys if k.get("alg")}),
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
+@router.get("/saml/{provider_id}/sp-metadata")
+async def saml_sp_metadata_xml(
+    provider_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Return SP metadata XML for IdP configuration (XML media type)."""
+    from fastapi.responses import Response
+    from app.services.sso_saml import build_sp_metadata
+
+    res = await db.execute(
+        select(IdentityProvider).where(
+            IdentityProvider.id == provider_id,
+            IdentityProvider.type == "saml",
+        )
+    )
+    p = res.scalar_one_or_none()
+    if not p:
+        raise HTTPException(status_code=404, detail="SAML provider not found")
+    config = p.config or {}
+    sp_entity_id = config.get("sp_entity_id") or "aentro-sp"
+    acs_url = config.get("acs_url") or f"/api/v1/sso/saml/{provider_id}/acs"
+    xml = build_sp_metadata(sp_entity_id, acs_url)
+    return Response(content=xml, media_type="application/xml")

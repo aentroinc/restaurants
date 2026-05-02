@@ -27,6 +27,7 @@ from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelat
 from app.models.ontology_v2 import (
     OntologyObjectTypeV2, OntologyPropertyType, OntologyLinkType,
     OntologyInstance, OntologyLink,
+    OntologyActionType, OntologyAction, OntologyBranch, OntologySnapshot,
 )
 from app.models.ingestion import IngestionBatch, DataContract, SchemaMapping
 from app.models.data_source import DataSourceV2, IngestionJob
@@ -56,6 +57,12 @@ from app.models.rbac import Role, Permission, UserRole
 from app.models.auth_enterprise import IdentityProvider, MFASecret, AccessLog, LoginAttempt, AccountLock
 from app.models.document import Document
 from app.models.budget import BudgetTarget
+from app.models.eval import EvalRun
+from app.models.thread import Thread, ThreadMessage
+from app.models.connector_credential import ConnectorCredential
+from app.models.pipeline import (
+    Pipeline, PipelineRun, PipelineNodeRun, PipelineSchedule, PipelineBranch,
+)
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -67,6 +74,7 @@ __all__ = [
     "OntologyObjectType", "OntologyField", "OntologyRelationType",
     "OntologyObjectTypeV2", "OntologyPropertyType", "OntologyLinkType",
     "OntologyInstance", "OntologyLink",
+    "OntologyActionType", "OntologyAction", "OntologyBranch", "OntologySnapshot",
     "IngestionBatch", "DataContract", "SchemaMapping",
     "DataSourceV2", "IngestionJob",
     "IndustryPlaybook",
@@ -93,4 +101,8 @@ __all__ = [
     "ConnectorCredentialRef", "ConnectorSchedule", "DataContractRule",
     "Document",
     "BudgetTarget",
+    "EvalRun",
+    "Thread", "ThreadMessage",
+    "ConnectorCredential",
+    "Pipeline", "PipelineRun", "PipelineNodeRun", "PipelineSchedule", "PipelineBranch",
 ]

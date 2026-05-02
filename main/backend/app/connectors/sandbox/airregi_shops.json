@@ -1,0 +1,7 @@
+{
+  "shops": [
+    {"shop_id": "AIR001", "shop_name": "Sandbox 麻布店", "currency": "JPY"},
+    {"shop_id": "AIR002", "shop_name": "Sandbox 銀座店", "currency": "JPY"},
+    {"shop_id": "AIR003", "shop_name": "Sandbox 六本木店", "currency": "JPY"}
+  ]
+}

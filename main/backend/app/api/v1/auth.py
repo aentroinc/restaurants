@@ -227,3 +227,93 @@ async def me(user: dict = Depends(get_current_user)):
         "role": user["role"],
         "scopes": user.get("scopes", []),
     }
+
+
+# ---------- v2 login flow (MFA-aware, two-step) ----------
+
+
+class LoginV2Response(BaseModel):
+    mfa_required: bool = False
+    mfa_token: Optional[str] = None
+    access_token: Optional[str] = None
+    token_type: str = "bearer"
+
+
+@router.post("/login_v2", response_model=LoginV2Response)
+async def login_v2(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+    """Step 1: password. If MFA enrolled → return short-lived mfa_token; else issue full JWT."""
+    if await check_lockout(db, body.email):
+        raise HTTPException(status_code=429, detail="account locked, retry in 30 minutes")
+
+    result = await db.execute(
+        select(User).where(User.email == body.email, User.active == True)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        await record_attempt(db, body.email, False, reason="user_not_found")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    is_demo = body.email in DEMO_EMAILS
+    if not is_demo:
+        if not user.password_hash or not verify_password(body.password, user.password_hash):
+            await record_attempt(db, body.email, False, tenant_id=user.tenant_id, reason="bad_password")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    mfa_q = await db.execute(select(MFASecret).where(MFASecret.user_id == user.id))
+    mfa_secret = mfa_q.scalar_one_or_none()
+
+    if mfa_secret:
+        mfa_token = _create_mfa_token(str(user.id), str(user.tenant_id))
+        return LoginV2Response(mfa_required=True, mfa_token=mfa_token)
+
+    await record_attempt(db, body.email, True, tenant_id=user.tenant_id)
+    scopes_q = await db.execute(select(AccessScope).where(AccessScope.user_id == user.id))
+    scopes = [
+        {"scope_type": s.scope_type, "scope_id": str(s.scope_id)}
+        for s in scopes_q.scalars().all()
+    ]
+    token = create_access_token(
+        user_id=str(user.id),
+        tenant_id=str(user.tenant_id),
+        role=user.role,
+        scopes=scopes,
+    )
+    return LoginV2Response(mfa_required=False, access_token=token)
+
+
+@router.post("/mfa/verify_token", response_model=TokenResponse)
+async def mfa_verify_token(body: MFALoginRequest, db: AsyncSession = Depends(get_db)):
+    """Step 2: exchange mfa_token + TOTP/backup code → full JWT.
+
+    Distinct from `/mfa/verify` (which only confirms a logged-in user's code).
+    """
+    payload = _decode_mfa_token(body.mfa_token)
+    user_id = payload["sub"]
+
+    user_q = await db.execute(select(User).where(User.id == user_id))
+    user = user_q.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    from app.services.mfa_service import verify_totp_for_user, MFAError
+    try:
+        ok = await verify_totp_for_user(db, str(user.id), body.code)
+    except MFAError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    if not ok:
+        await record_attempt(db, user.email, False, tenant_id=user.tenant_id, reason="bad_mfa_code")
+        raise HTTPException(status_code=401, detail="Invalid MFA code")
+
+    await record_attempt(db, user.email, True, tenant_id=user.tenant_id)
+    scopes_q = await db.execute(select(AccessScope).where(AccessScope.user_id == user.id))
+    scopes = [
+        {"scope_type": s.scope_type, "scope_id": str(s.scope_id)}
+        for s in scopes_q.scalars().all()
+    ]
+    token = create_access_token(
+        user_id=str(user.id),
+        tenant_id=str(user.tenant_id),
+        role=user.role,
+        scopes=scopes,
+    )
+    return TokenResponse(access_token=token)

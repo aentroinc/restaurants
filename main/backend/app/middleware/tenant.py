@@ -17,6 +17,8 @@ PUBLIC_PATHS = {
     "/openapi.json",
     "/api/v1/auth/login",
     "/api/v1/auth/login/mfa",
+    "/api/v1/auth/login_v2",
+    "/api/v1/auth/mfa/verify_token",
     "/api/v1/identity-providers/oidc/callback",
 }
 
@@ -25,6 +27,9 @@ PUBLIC_PREFIXES = (
     "/redoc",
     "/api/v1/identity-providers/oidc/",
     "/api/v1/identity-providers/saml/",
+    "/api/v1/sso/oidc/",
+    "/api/v1/sso/saml/",
+    "/scim/v2/",
 )
 
 

@@ -1,0 +1,9 @@
+{
+  "access_token": "EAAAEOxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-SANDBOX",
+  "refresh_token": "EQAAEOxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-SANDBOX",
+  "token_type": "bearer",
+  "expires_at": "2026-12-31T00:00:00Z",
+  "expires_in": 2592000,
+  "merchant_id": "MLSANDBOX0000001",
+  "scope": "MERCHANT_PROFILE_READ ORDERS_READ PAYMENTS_READ"
+}

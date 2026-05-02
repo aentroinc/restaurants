@@ -1,0 +1,134 @@
+name: Promote
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_env:
+        description: "Source environment (dev|staging)"
+        required: true
+        default: "staging"
+        type: choice
+        options: [dev, staging]
+      to_env:
+        description: "Target environment (staging|prod)"
+        required: true
+        default: "prod"
+        type: choice
+        options: [staging, prod]
+      sha:
+        description: "Git short SHA of the bundle to promote"
+        required: true
+        type: string
+      run_migrations:
+        description: "Run alembic upgrade head before promote"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate transition
+        run: |
+          FROM='${{ inputs.from_env }}'
+          TO='${{ inputs.to_env }}'
+          case "${FROM}->${TO}" in
+            "dev->staging"|"staging->prod") echo "OK: ${FROM} -> ${TO}";;
+            *) echo "INVALID transition ${FROM} -> ${TO}"; exit 1;;
+          esac
+
+  migrate:
+    needs: validate
+    if: ${{ inputs.run_migrations }}
+    uses: ./.github/workflows/db-migrate.yml
+    with:
+      env: ${{ inputs.to_env }}
+      sha: ${{ inputs.sha }}
+    secrets: inherit
+
+  promote:
+    needs: [validate, migrate]
+    if: ${{ always() && needs.validate.result == 'success' && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.to_env }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Download bundle metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: aentro-bundle-${{ inputs.sha }}
+          path: bundle/
+        continue-on-error: true
+
+      - name: Show bundle (if available)
+        run: |
+          if [[ -f "bundle/aentro-bundle-${{ inputs.sha }}.json" ]]; then
+            cat "bundle/aentro-bundle-${{ inputs.sha }}.json"
+          else
+            echo "WARN: bundle metadata not found; promoting by sha only"
+          fi
+
+      - name: Run promote.sh
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          ECR_REGISTRY: ${{ env.ECR_REGISTRY }}
+        run: |
+          chmod +x main/infra/scripts/*.sh
+          main/infra/scripts/promote.sh \
+            "${{ inputs.from_env }}" \
+            "${{ inputs.to_env }}" \
+            "${{ inputs.sha }}"
+
+      - name: Wait for ECS service stable
+        run: |
+          aws ecs wait services-stable \
+            --cluster "aentro-${{ inputs.to_env }}" \
+            --services "aentro-${{ inputs.to_env }}-backend" "aentro-${{ inputs.to_env }}-frontend" \
+            --region "${AWS_REGION}"
+
+      - name: Healthcheck (auto-rollback on fail within 5 min)
+        id: hc
+        env:
+          HC_URL: ${{ inputs.to_env == 'prod' && 'https://app.aentro.io' || format('https://{0}.aentro.io', inputs.to_env) }}
+        run: |
+          chmod +x main/infra/scripts/healthcheck.sh
+          # 30 attempts x 10s = 5 minutes
+          main/infra/scripts/healthcheck.sh "${HC_URL}" 30 10
+
+      - name: Auto-rollback on healthcheck failure
+        if: failure() && steps.hc.conclusion == 'failure'
+        run: |
+          chmod +x main/infra/scripts/rollback.sh
+          # Roll back to the previous stable revision (target_sha = previous).
+          main/infra/scripts/rollback.sh "${{ inputs.to_env }}" "previous"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Promote ${{ inputs.from_env }} -> ${{ inputs.to_env }}"
+            echo ""
+            echo "- sha: \`${{ inputs.sha }}\`"
+            echo "- migrations: \`${{ inputs.run_migrations }}\`"
+            echo "- healthcheck: \`${{ steps.hc.conclusion }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

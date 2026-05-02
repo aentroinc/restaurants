@@ -983,7 +983,18 @@ export default function WorkspacePage() {
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">
-      <ContextHeader title="分析ワークスペース" description="カスタム分析・KPI定義・コホート管理" />
+      <ContextHeader
+        title="分析ワークスペース"
+        description="カスタム分析・KPI定義・コホート管理"
+        actions={
+          <a
+            href="/workspace/canvas"
+            className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-blue-500/15 border border-blue-400/30 text-blue-300 hover:bg-blue-500/25 hover:text-blue-200 transition-colors"
+          >
+            <Layers className="h-3.5 w-3.5" /> キャンバスを開く
+          </a>
+        }
+      />
 
       <div className="px-5 py-5">
         <Tabs defaultValue="analyses" className="w-full">

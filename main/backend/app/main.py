@@ -13,16 +13,30 @@ from app.api.v1 import pilots, connector_health, security as security_router
 from app.api.v1 import workflow_ai, deploy_status
 from app.api.v1 import documents as documents_router
 from app.api.v1 import budget as budget_router
+from app.api.v1 import ai_eval, ai_threads
+from app.api.v1 import sso as sso_router
+from app.api.v1 import scim_v2 as scim_router
+from app.api.v1 import actions as ontology_actions_router
+from app.api.v1 import ontology_branches as ontology_branches_router
+from app.api.v1 import pipeline as pipeline_router
+from app.api.v1 import oauth as oauth_router
+from app.api.v1 import observability as observability_router
 from app.middleware.tenant import TenantMiddleware
 from app.middleware.access_log import AccessLogMiddleware
 from app.middleware.audit_capture import AuditCaptureMiddleware
-from app.observability import setup_observability
+from app.middleware.dq_check import DataQualityCheckMiddleware
+from app.middleware.metrics import register_metrics
+from app.observability import setup_observability, init_observability
+from app.services.lifespan_hooks import on_startup as _pipeline_on_startup, on_shutdown as _pipeline_on_shutdown
+from app.database import engine as _engine
 
 app = FastAPI(title="AENTRO Restaurant OS", version="1.0.0")
 
 setup_observability(app)
+init_observability(app, _engine)
 
-# Middleware order: outermost first. CORS → AuditCapture → AccessLog → Tenant.
+# Middleware order: outermost first. CORS → DQCheck → AuditCapture → AccessLog → Tenant.
+app.add_middleware(DataQualityCheckMiddleware)
 app.add_middleware(AuditCaptureMiddleware)
 app.add_middleware(AccessLogMiddleware)
 app.add_middleware(TenantMiddleware)
@@ -34,6 +48,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+register_metrics(app)
+
+
+@app.on_event("startup")
+async def _on_startup():
+    await _pipeline_on_startup(app)
+
+
+@app.on_event("shutdown")
+async def _on_shutdown():
+    await _pipeline_on_shutdown(app)
 
 app.include_router(health.router)
 app.include_router(auth_router.router)
@@ -73,3 +99,12 @@ app.include_router(workflow_ai.router)
 app.include_router(deploy_status.router)
 app.include_router(documents_router.router)
 app.include_router(budget_router.router)
+app.include_router(ai_eval.router)
+app.include_router(ai_threads.router)
+app.include_router(sso_router.router)
+app.include_router(scim_router.router)
+app.include_router(ontology_actions_router.router)
+app.include_router(ontology_branches_router.router)
+app.include_router(pipeline_router.router)
+app.include_router(oauth_router.router)
+app.include_router(observability_router.router)

@@ -9,6 +9,7 @@ from app.models.kpi import StoreDailyKPI
 from app.models.lineage import LineageEvent
 from app.schemas.common import APIResponse
 from app.auth import get_tenant_id
+from app.services.lineage_graph import build_graph_cached
 
 router = APIRouter(prefix="/api/v1/lineage", tags=["lineage"])
 
@@ -195,3 +196,57 @@ async def get_kpi_lineage(
         "lineage_events": lineage_events,
     }
     return APIResponse(data=lineage)
+
+
+@router.get("/graph", response_model=APIResponse[dict])
+async def lineage_graph(
+    root_type: str = Query(..., description="Root node type, e.g. 'store', 'kpi', 'dataset'"),
+    root_id: str = Query(..., description="Root node id (UUID)"),
+    depth: int = Query(3, ge=0, le=6),
+    direction: str = Query("both", pattern="^(downstream|upstream|both)$"),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Recursive lineage graph (nodes + edges) for visualization."""
+    graph = await build_graph_cached(db, tenant_id, root_type, root_id, depth, direction)
+    return APIResponse(data=graph)
+
+
+@router.get("/impact", response_model=APIResponse[dict])
+async def lineage_impact(
+    root_type: str = Query(...),
+    root_id: str = Query(...),
+    depth: int = Query(3, ge=0, le=6),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Downstream impact range — what does this object affect?"""
+    graph = await build_graph_cached(db, tenant_id, root_type, root_id, depth, "downstream")
+    affected = [n for n in graph["nodes"] if n["depth"] > 0]
+    return APIResponse(data={
+        "root": graph["root"],
+        "affected_count": len(affected),
+        "affected": affected,
+        "edges": graph["edges"],
+        "stats": graph["stats"],
+    })
+
+
+@router.get("/source", response_model=APIResponse[dict])
+async def lineage_source(
+    root_type: str = Query(...),
+    root_id: str = Query(...),
+    depth: int = Query(3, ge=0, le=6),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Upstream sources — what does this object derive from?"""
+    graph = await build_graph_cached(db, tenant_id, root_type, root_id, depth, "upstream")
+    sources = [n for n in graph["nodes"] if n["depth"] > 0]
+    return APIResponse(data={
+        "root": graph["root"],
+        "source_count": len(sources),
+        "sources": sources,
+        "edges": graph["edges"],
+        "stats": graph["stats"],
+    })

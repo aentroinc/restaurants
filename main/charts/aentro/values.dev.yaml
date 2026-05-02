@@ -1,0 +1,54 @@
+global:
+  environment: dev
+
+backend:
+  replicaCount: 1
+  image:
+    repository: aentro/backend
+    tag: dev
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  hpa:
+    enabled: false
+  env:
+    ENVIRONMENT: dev
+    LOG_LEVEL: DEBUG
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: aentro/frontend
+    tag: dev
+  env:
+    NODE_ENV: development
+
+ingress:
+  hosts:
+    - host: dev.aentro.io
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: aentro-dev-tls
+      hosts:
+        - dev.aentro.io
+
+externalSecrets:
+  secrets:
+    - key: aentro-dev/database-url
+      property: DATABASE_URL
+    - key: aentro-dev/jwt-secret
+      property: JWT_SECRET_KEY
+    - key: aentro-dev/anthropic-api-key
+      property: ANTHROPIC_API_KEY
+    - key: aentro-dev/ingestion-master-key
+      property: INGESTION_MASTER_KEY

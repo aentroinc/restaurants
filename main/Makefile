@@ -1,4 +1,4 @@
-.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down prod-build prod-up prod-test ci
+.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down prod-build prod-up prod-test ci bundle promote rollback smoke release-dryrun
 
 up:
 	docker compose up -d
@@ -70,3 +70,36 @@ docs-read:
 docs-serve:
 	@command -v grip >/dev/null 2>&1 || { echo "grip not installed: pip install grip"; exit 1; }
 	@grip docs/poc/README.md --browser
+
+# --- Release management (Foundry Apollo equivalent) -----------------------
+# Usage:
+#   make bundle SHA=abc1234
+#   make promote FROM=dev TO=staging SHA=abc1234
+#   make rollback ENV=prod SHA=abc1234
+#   make smoke ENV=staging
+#   make release-dryrun SHA=abc1234   (full pipeline locally with DRYRUN=1)
+SHA ?= $(shell git rev-parse --short HEAD 2>/dev/null)
+FROM ?= dev
+TO ?= staging
+ENV ?= staging
+
+bundle:
+	@chmod +x infra/scripts/*.sh
+	@SHA=$(SHA) infra/scripts/bundle.sh
+
+promote:
+	@chmod +x infra/scripts/*.sh
+	@infra/scripts/promote.sh $(FROM) $(TO) $(SHA)
+
+rollback:
+	@chmod +x infra/scripts/*.sh
+	@infra/scripts/rollback.sh $(ENV) $(SHA)
+
+smoke:
+	@chmod +x infra/scripts/healthcheck.sh
+	@infra/scripts/healthcheck.sh https://$(if $(filter prod,$(ENV)),app,$(ENV)).aentro.io 30 10
+
+release-dryrun:
+	@DRYRUN=1 SHA=$(SHA) $(MAKE) bundle
+	@DRYRUN=1 $(MAKE) promote FROM=dev TO=staging SHA=$(SHA)
+	@DRYRUN=1 $(MAKE) promote FROM=staging TO=prod SHA=$(SHA)

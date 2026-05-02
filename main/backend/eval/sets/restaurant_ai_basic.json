@@ -1,0 +1,76 @@
+{
+  "name": "restaurant_ai_basic",
+  "description": "Restaurant OS AI analyst smoke eval — KPI lookup, store ranking, brand summary, RAG, task draft.",
+  "cases": [
+    {
+      "id": "kpi_brand_fl",
+      "input_message": "はま寿司全体のFL比率は？",
+      "expected_tool_calls": ["get_brand_summary"],
+      "expected_substrings": ["FL"],
+      "scoring_rubric": "ブランド集計サマリーから FL 比率（％）を答える"
+    },
+    {
+      "id": "ranking_top_sales",
+      "input_message": "売上トップ10の店舗を教えて",
+      "expected_tool_calls": ["get_store_ranking"],
+      "expected_substrings": ["売上"],
+      "scoring_rubric": "net_sales を desc で 10 件返す"
+    },
+    {
+      "id": "ranking_worst_health",
+      "input_message": "今週SVが訪問すべき優先店舗は？",
+      "expected_tool_calls": ["get_store_ranking"],
+      "expected_substrings": ["健全度"],
+      "scoring_rubric": "health_score asc または improvement_opportunity_amount desc"
+    },
+    {
+      "id": "kpi_labor_threshold",
+      "input_message": "ココスの人件費率が35%を超えている店舗は？",
+      "expected_tool_calls": ["query_kpi"],
+      "expected_substrings": ["人件費"],
+      "scoring_rubric": "labor_cost_rate を ココス スコープで取得"
+    },
+    {
+      "id": "rag_meeting_notes",
+      "input_message": "先月の経営会議で出た議題は？",
+      "expected_tool_calls": ["search_documents"],
+      "expected_substrings": ["会議"],
+      "scoring_rubric": "doc_type=meeting_note を検索"
+    },
+    {
+      "id": "store_detail",
+      "input_message": "すき家品川港南店の詳細を教えて",
+      "expected_tool_calls": ["get_store_detail"],
+      "expected_substrings": ["品川"],
+      "scoring_rubric": "search_stores か get_store_detail で店舗を返す"
+    },
+    {
+      "id": "brand_compare",
+      "input_message": "全ブランドの粗利率を比較して",
+      "expected_tool_calls": ["get_brand_summary"],
+      "expected_substrings": ["すき家", "はま寿司"],
+      "scoring_rubric": "全ブランドのサマリーを比較"
+    },
+    {
+      "id": "task_create",
+      "input_message": "品川港南店にタスクを作成して：人件費率改善",
+      "expected_tool_calls": ["create_task_draft"],
+      "expected_substrings": ["タスク"],
+      "scoring_rubric": "create_task_draft が呼ばれて open ステータスのタスクが返る"
+    },
+    {
+      "id": "explain_change",
+      "input_message": "なか卯で客数が減少しているのはなぜ？",
+      "expected_tool_calls": ["explain_kpi_change"],
+      "expected_substrings": ["客数"],
+      "scoring_rubric": "explain_kpi_change で customer_count を説明"
+    },
+    {
+      "id": "exec_pack",
+      "input_message": "経営会議向けの全体サマリーを作って",
+      "expected_tool_calls": ["generate_executive_pack"],
+      "expected_substrings": ["サマリー"],
+      "scoring_rubric": "generate_executive_pack を呼んで構造化サマリーを返す"
+    }
+  ]
+}

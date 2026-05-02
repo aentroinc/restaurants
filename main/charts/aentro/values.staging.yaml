@@ -1,0 +1,58 @@
+global:
+  environment: staging
+
+backend:
+  replicaCount: 2
+  image:
+    repository: aentro/backend
+    tag: staging
+  resources:
+    requests:
+      cpu: 250m
+      memory: 384Mi
+    limits:
+      cpu: 750m
+      memory: 768Mi
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  env:
+    ENVIRONMENT: staging
+    LOG_LEVEL: INFO
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: aentro/frontend
+    tag: staging
+  env:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+
+ingress:
+  hosts:
+    - host: staging.aentro.io
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: aentro-staging-tls
+      hosts:
+        - staging.aentro.io
+
+externalSecrets:
+  secrets:
+    - key: aentro-staging/database-url
+      property: DATABASE_URL
+    - key: aentro-staging/jwt-secret
+      property: JWT_SECRET_KEY
+    - key: aentro-staging/anthropic-api-key
+      property: ANTHROPIC_API_KEY
+    - key: aentro-staging/ingestion-master-key
+      property: INGESTION_MASTER_KEY

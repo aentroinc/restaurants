@@ -1,0 +1,70 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "Login failures per minute",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "short", "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 5}, {"color": "red", "value": 10}]}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Login failure rate (per min)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "sum(rate(aentro_login_failures_total[1m])) * 60", "legendFormat": "fails/min", "refId": "A"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "Account lockouts (cumulative)",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "title": "Account lockouts",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "increase(aentro_lockouts_total[1h])", "legendFormat": "lockouts/hr", "refId": "A"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "RBAC access denials",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "title": "Access denies (per min)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "sum(rate(aentro_access_deny_total[1m])) * 60", "legendFormat": "denies/min", "refId": "A"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "PII column-mask redactions",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "title": "PII redactions (per min)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "sum(rate(aentro_pii_redactions_total[1m])) * 60", "legendFormat": "redactions/min", "refId": "A"}
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["aentro", "security"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "AENTRO Security",
+  "uid": "aentro-security",
+  "version": 1,
+  "weekStart": ""
+}

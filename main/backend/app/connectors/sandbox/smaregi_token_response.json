@@ -1,0 +1,8 @@
+{
+  "access_token": "smaregi-sandbox-access-token-0000000000",
+  "refresh_token": "smaregi-sandbox-refresh-token-0000000000",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "openid pos.transactions:read pos.stores:read",
+  "contract_id": "scid000001"
+}

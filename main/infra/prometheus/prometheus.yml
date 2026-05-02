@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    service: aentro-restaurant-os
+
+# Alerting & rule files (define separately as needed)
+rule_files: []
+
+scrape_configs:
+  - job_name: aentro-backend
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - backend:8000
+        labels:
+          env: local
+          service: aentro-backend
+
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:9090"]

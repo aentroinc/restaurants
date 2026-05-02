@@ -1,0 +1,104 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "Overall HTTP request rate",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Request rate (req/s)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(aentro_requests_total[1m])) by (method)",
+          "legendFormat": "{{method}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "p50 / p95 / p99 latency",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "title": "Latency p50 / p95 / p99",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "histogram_quantile(0.5, sum by (le) (rate(aentro_request_latency_seconds_bucket[5m])))", "legendFormat": "p50", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(aentro_request_latency_seconds_bucket[5m])))", "legendFormat": "p95", "refId": "B"},
+        {"expr": "histogram_quantile(0.99, sum by (le) (rate(aentro_request_latency_seconds_bucket[5m])))", "legendFormat": "p99", "refId": "C"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "5xx error rate as a fraction of all requests",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "percentunit"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "title": "Error rate (5xx)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(aentro_errors_total[5m])) / clamp_min(sum(rate(aentro_requests_total[5m])), 0.001)",
+          "legendFormat": "error_rate",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "Cumulative AI cost (USD)",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "title": "AI spend (USD)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "sum by (model) (aentro_ai_cost_usd_total)", "legendFormat": "{{model}}", "refId": "A"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "DB connection pool checkouts",
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 15}, {"color": "red", "value": 25}]}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 5,
+      "title": "DB connections in use",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "aentro_db_connections_in_use", "legendFormat": "in_use", "refId": "A"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "description": "Pipeline run outcomes",
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 6,
+      "title": "Pipeline runs by status",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "sum by (status) (rate(aentro_pipeline_runs_total[5m]))", "legendFormat": "{{status}}", "refId": "A"}
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["aentro", "overview"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "AENTRO Overview",
+  "uid": "aentro-overview",
+  "version": 1,
+  "weekStart": ""
+}

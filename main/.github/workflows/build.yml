@@ -1,0 +1,83 @@
+name: Build & Bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "main/backend/**"
+      - "main/frontend/**"
+      - "main/charts/**"
+      - "main/infra/scripts/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.tag.outputs.sha }}
+      backend_image: ${{ steps.build-backend.outputs.image }}
+      frontend_image: ${{ steps.build-frontend.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Compute SHA
+        id: tag
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build & push backend
+        id: build-backend
+        run: |
+          IMAGE="${ECR_REGISTRY}/aentro-backend:${{ steps.tag.outputs.sha }}"
+          docker build -f main/backend/Dockerfile.prod -t "$IMAGE" main/backend/
+          docker push "$IMAGE"
+          # Moving tag for staging.
+          docker tag "$IMAGE" "${ECR_REGISTRY}/aentro-backend:staging"
+          docker push "${ECR_REGISTRY}/aentro-backend:staging"
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Build & push frontend
+        id: build-frontend
+        run: |
+          IMAGE="${ECR_REGISTRY}/aentro-frontend:${{ steps.tag.outputs.sha }}"
+          docker build -f main/frontend/Dockerfile.prod -t "$IMAGE" main/frontend/
+          docker push "$IMAGE"
+          docker tag "$IMAGE" "${ECR_REGISTRY}/aentro-frontend:staging"
+          docker push "${ECR_REGISTRY}/aentro-frontend:staging"
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Generate bundle metadata
+        id: bundle
+        env:
+          SHA: ${{ steps.tag.outputs.sha }}
+        run: |
+          chmod +x main/infra/scripts/*.sh
+          OUT_PATH="main/artifacts/aentro-bundle-${SHA}.json"
+          mkdir -p "main/artifacts"
+          SHA="${SHA}" ECR_REGISTRY="${ECR_REGISTRY}" \
+            main/infra/scripts/bundle.sh "${OUT_PATH}"
+          echo "path=${OUT_PATH}" >> $GITHUB_OUTPUT
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aentro-bundle-${{ steps.tag.outputs.sha }}
+          path: main/artifacts/aentro-bundle-${{ steps.tag.outputs.sha }}.json
+          retention-days: 90

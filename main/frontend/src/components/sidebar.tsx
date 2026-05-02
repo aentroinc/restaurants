@@ -7,8 +7,8 @@ import {
   LayoutDashboard, Store, AlertTriangle, Target, CheckSquare,
   Truck, TrendingUp, MapPin, Megaphone,
   Presentation, Sparkles, ShieldCheck, Brain,
-  Boxes, Network, Calculator, Database, GitBranch, Lock,
-  Hexagon, Activity,
+  Boxes, Network, Calculator, Database, GitBranch, GitMerge, Lock,
+  Hexagon, Activity, Workflow,
   Utensils, Clock, ClipboardCheck, Thermometer, Receipt,
   FlaskConical, Users as UsersIcon, FileText,
   Award, Rocket, Zap, Repeat,
@@ -43,6 +43,7 @@ const sections: NavSection[] = [
       { label: "事例（5社）", icon: Award, href: "/case-studies" },
       { label: "専用環境を起動", icon: Rocket, href: "/onboarding" },
       { label: "Workflow Builder", icon: Zap, href: "/workflow-builder" },
+      { label: "パイプライン", icon: Workflow, href: "/pipeline" },
     ],
   },
   {
@@ -100,7 +101,8 @@ const sections: NavSection[] = [
 ]
 
 const adminItems: NavItem[] = [
-  { label: "データ辞書", icon: Boxes, href: "/admin/ontology" },
+  { label: "オントロジー", icon: Boxes, href: "/admin/ontology" },
+  { label: "オントロジー / ブランチ", icon: GitMerge, href: "/admin/ontology/branches" },
   { label: "データ関係図", icon: Network, href: "/admin/ontology/graph" },
   { label: "KPI 管理", icon: Calculator, href: "/admin/kpi-definitions" },
   { label: "データ連携", icon: Database, href: "/admin/data-sources" },
