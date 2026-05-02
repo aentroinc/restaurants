@@ -130,6 +130,79 @@ TOOL_DEFINITIONS = [
             "required": ["store_id", "title"],
         },
     },
+    {
+        "name": "explain_kpi_change",
+        "description": "Explain why a KPI changed between two periods. Returns delta, top driver stores, and recommended actions. Use when user asks 'why is X declining/improving?'",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "kpi_name": {"type": "string"},
+                "scope": {"type": "object", "properties": {
+                    "brand_id": {"type": "string"},
+                    "region": {"type": "string"},
+                }},
+                "period": {"type": "object", "properties": {
+                    "from": {"type": "string", "description": "YYYY-MM-DD"},
+                    "to": {"type": "string"},
+                }},
+                "comparison_period": {"type": "object", "properties": {
+                    "from": {"type": "string"},
+                    "to": {"type": "string"},
+                }},
+            },
+            "required": ["kpi_name", "period"],
+        },
+    },
+    {
+        "name": "estimate_value_impact",
+        "description": "Estimate annualized JPY impact of an intervention. Use to quickly quantify a proposed initiative before formal pilot setup.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "value_case_type": {
+                    "type": "string",
+                    "enum": ["waste_reduction", "stockout_reduction", "labor_optimization", "shift_realignment", "qsc_improvement"],
+                },
+                "target_stores": {"type": "array", "items": {"type": "string"}},
+                "baseline_period": {"type": "object", "properties": {
+                    "from": {"type": "string"}, "to": {"type": "string"},
+                }},
+                "intervention_period": {"type": "object", "properties": {
+                    "from": {"type": "string"}, "to": {"type": "string"},
+                }},
+            },
+            "required": ["value_case_type", "target_stores", "baseline_period", "intervention_period"],
+        },
+    },
+    {
+        "name": "generate_sv_missions",
+        "description": "Generate weekly SV visit plan for an SV user. Returns prioritized store list with reasons, expected impact, and checklist.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "sv_user_id": {"type": "string"},
+                "week_start": {"type": "string", "description": "YYYY-MM-DD"},
+                "max_visits": {"type": "integer", "default": 5},
+                "optimization_goal": {
+                    "type": "string",
+                    "enum": ["improvement_opportunity", "underperformance", "review_score", "compliance"],
+                },
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "generate_executive_pack",
+        "description": "Generate an executive board pack from pilot results or full tenant overview. Returns structured sections, charts, and commentary suitable for PDF/PPT export.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "pilot_id": {"type": "string", "description": "Optional. If omitted, generates tenant-wide overview"},
+                "audience": {"type": "string", "enum": ["executive", "brand", "it", "store_manager"], "default": "executive"},
+            },
+            "required": [],
+        },
+    },
 ]
 
 
