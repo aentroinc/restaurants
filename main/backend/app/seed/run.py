@@ -30,6 +30,11 @@ from app.models.data_quality import DataQualityIssue
 from app.models.value_case import ValueCase, ValueCaseMetric
 from app.models.workflow import WorkflowTemplate, WorkflowInstance, WorkflowEvent
 from app.models.user import User
+from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelationType
+from app.models.industry_playbook import IndustryPlaybook
+from app.models.kpi_definition import KPIDefinition
+from app.models.lineage import LineageEvent
+from app.models.writeback import WritebackPolicy, WritebackRequest
 from app.seed.generators import (
     TENANT_ID, COMPANY_ID, BRANDS,
     generate_regions, generate_areas, generate_brands, generate_employees,
@@ -38,7 +43,8 @@ from app.seed.generators import (
     generate_reviews, generate_sv_visits, generate_tasks, generate_value_cases,
     generate_workflow_templates, generate_workflow_instances,
     generate_meeting_pack, generate_data_quality_issues,
-    generate_users,
+    generate_users, generate_kpi_definitions, generate_ontology_data,
+    generate_industry_playbooks, generate_lineage_events, generate_writeback_data,
 )
 
 
@@ -62,6 +68,7 @@ def run():
         print("Clearing existing data...")
         # Delete in reverse dependency order
         tables = [
+            "lineage_events", "writeback_requests", "writeback_policies",
             "workflow_events", "workflow_instances", "workflow_templates",
             "board_meeting_items", "board_meeting_packs",
             "value_case_metrics", "value_cases",
@@ -73,7 +80,7 @@ def run():
             "products", "stores",
             "ontology_fields", "ontology_relation_types", "ontology_object_types",
             "ingestion_batches", "data_contracts", "schema_mappings",
-            "industry_playbooks",
+            "industry_playbooks", "kpi_definitions",
             "areas", "employees", "regions", "brands", "companies", "tenants",
         ]
         for t in tables:
@@ -262,6 +269,47 @@ def run():
         users = generate_users()
         bulk_insert(session, User, users)
         session.commit()
+
+        # 21. KPI Definitions
+        print("Creating KPI definitions...")
+        kpi_defs = generate_kpi_definitions()
+        bulk_insert(session, KPIDefinition, kpi_defs)
+        session.commit()
+        print(f"  {len(kpi_defs)} KPI definitions created.")
+
+        # 22. Ontology Data (object types, fields, relation types)
+        print("Creating ontology data...")
+        ont_types, ont_fields, ont_relations = generate_ontology_data()
+        bulk_insert(session, OntologyObjectType, ont_types)
+        session.commit()
+        bulk_insert(session, OntologyField, ont_fields)
+        session.commit()
+        bulk_insert(session, OntologyRelationType, ont_relations)
+        session.commit()
+        print(f"  {len(ont_types)} object types, {len(ont_fields)} fields, {len(ont_relations)} relation types created.")
+
+        # 23. Industry Playbooks
+        print("Creating industry playbooks...")
+        playbooks = generate_industry_playbooks()
+        bulk_insert(session, IndustryPlaybook, playbooks)
+        session.commit()
+        print(f"  {len(playbooks)} industry playbooks created.")
+
+        # 24. Lineage Events
+        print("Creating lineage events...")
+        lineage_events = generate_lineage_events(stores)
+        bulk_insert(session, LineageEvent, lineage_events)
+        session.commit()
+        print(f"  {len(lineage_events)} lineage events created.")
+
+        # 25. Writeback Policies & Requests
+        print("Creating writeback data...")
+        wb_policies, wb_requests = generate_writeback_data(stores)
+        bulk_insert(session, WritebackPolicy, wb_policies)
+        session.commit()
+        bulk_insert(session, WritebackRequest, wb_requests)
+        session.commit()
+        print(f"  {len(wb_policies)} policies, {len(wb_requests)} requests created.")
 
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")

@@ -7,6 +7,7 @@ from app.models.value_case import ValueCase, ValueCaseMetric
 from app.schemas.common import APIResponse
 from app.schemas.value import ValueCaseResponse, ValueCaseMetricResponse, ValueCaseCreate
 from app.auth import get_tenant_id
+from app.services.value_measurement import measure_value_case, measure_all_active
 
 router = APIRouter(prefix="/api/v1/value-cases", tags=["value"])
 
@@ -95,3 +96,26 @@ async def create_value_case(
         measurement_start=vc.measurement_start,
         expected_impact_amount=vc.expected_impact_amount,
     ))
+
+
+@router.post("/measure-all", response_model=APIResponse[list[dict]])
+async def trigger_measure_all(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    results = await measure_all_active(db, tenant_id)
+    await db.commit()
+    return APIResponse(data=results)
+
+
+@router.post("/{vc_id}/measure", response_model=APIResponse[dict])
+async def trigger_measurement(
+    vc_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    result = await measure_value_case(db, str(vc_id), tenant_id)
+    if result.get("error"):
+        return APIResponse(data=result, errors=[{"detail": result["error"]}])
+    await db.commit()
+    return APIResponse(data=result)

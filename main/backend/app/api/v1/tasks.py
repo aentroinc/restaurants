@@ -11,6 +11,7 @@ from app.schemas.common import APIResponse, PaginationMeta
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from app.auth import get_tenant_id, require_role
 from app.middleware.audit import log_audit
+from app.services.value_measurement import create_value_case_from_task
 
 router = APIRouter(prefix="/api/v1/tasks", tags=["tasks"])
 
@@ -24,6 +25,7 @@ def _task_to_response(t: TaskModel, store_name: str | None = None, assignee_name
         completed_at=t.completed_at,
         expected_impact_amount=t.expected_impact_amount,
         realized_impact_amount=t.realized_impact_amount,
+        related_value_case_id=t.related_value_case_id,
         source=t.source, created_at=t.created_at,
     )
 
@@ -128,11 +130,18 @@ async def update_task(
         return APIResponse(errors=[{"detail": "Task not found"}])
 
     update_data = body.model_dump(exclude_unset=True)
-    if "status" in update_data and update_data["status"] == "done" and task.status != "done":
+    becoming_done = "status" in update_data and update_data["status"] == "done" and task.status != "done"
+    if becoming_done:
         update_data["completed_at"] = datetime.utcnow()
 
     for k, v in update_data.items():
         setattr(task, k, v)
+
+    # Auto-create value case when task completes with expected impact
+    if becoming_done and task.expected_impact_amount and task.expected_impact_amount > 0:
+        vc_result = await create_value_case_from_task(db, str(task_id), tenant_id)
+        if vc_result and "value_case_id" in vc_result:
+            task.related_value_case_id = UUID(vc_result["value_case_id"])
 
     await db.commit()
     await db.refresh(task)

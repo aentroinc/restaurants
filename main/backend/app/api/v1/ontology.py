@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Path
+from fastapi import APIRouter, Depends, Query, Path, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 from uuid import UUID
@@ -9,36 +9,11 @@ from app.models.brand import Brand
 from app.models.product import Product
 from app.models.employee import Employee
 from app.models.task import Task
-from app.models.ontology import OntologyObjectType, OntologyRelationType
+from app.models.ontology import OntologyObjectType, OntologyRelationType, OntologyField
 from app.schemas.common import APIResponse, PaginationMeta
 from app.auth import get_tenant_id
 
 router = APIRouter(prefix="/api/v1/ontology", tags=["ontology"])
-
-SYSTEM_OBJECT_TYPES = [
-    {"id": "10000000-0000-0000-0000-000000000001", "object_type": "store", "display_name": "店舗", "description": "飲食店舗マスタ。POSデータ・勤怠データの集約単位。", "base_schema": "stores", "icon": "store", "field_count": 14},
-    {"id": "10000000-0000-0000-0000-000000000002", "object_type": "brand", "display_name": "ブランド", "description": "飲食ブランド。複数店舗を束ねるサービスモデル単位。", "base_schema": "brands", "icon": "tag", "field_count": 6},
-    {"id": "10000000-0000-0000-0000-000000000003", "object_type": "product", "display_name": "商品", "description": "メニュー商品マスタ。原価・カテゴリ情報を保持。", "base_schema": "products", "icon": "package", "field_count": 8},
-    {"id": "10000000-0000-0000-0000-000000000004", "object_type": "employee", "display_name": "従業員", "description": "店舗スタッフ・SV・エリアマネージャー等の人事マスタ。", "base_schema": "employees", "icon": "user", "field_count": 10},
-    {"id": "10000000-0000-0000-0000-000000000005", "object_type": "task", "display_name": "タスク", "description": "改善タスク。AIまたはSVが起票し、店舗で実行。", "base_schema": "tasks", "icon": "check-square", "field_count": 12},
-    {"id": "10000000-0000-0000-0000-000000000006", "object_type": "area", "display_name": "エリア", "description": "店舗を束ねる管理エリア。SV管轄単位。", "base_schema": "areas", "icon": "map", "field_count": 5},
-    {"id": "10000000-0000-0000-0000-000000000007", "object_type": "region", "display_name": "リージョン", "description": "エリアを束ねる上位地域区分。", "base_schema": "regions", "icon": "globe", "field_count": 4},
-    {"id": "10000000-0000-0000-0000-000000000008", "object_type": "daily_kpi", "display_name": "日次KPI", "description": "店舗ごとの日次KPIスナップショット。売上・原価率・FL比率等。", "base_schema": "store_daily_kpi", "icon": "bar-chart", "field_count": 16},
-    {"id": "10000000-0000-0000-0000-000000000009", "object_type": "sv_visit", "display_name": "SV訪問", "description": "SVによる店舗訪問記録。チェックリスト結果を含む。", "base_schema": "sv_visits", "icon": "clipboard", "field_count": 9},
-    {"id": "10000000-0000-0000-0000-00000000000a", "object_type": "review", "display_name": "口コミ", "description": "Googleレビュー等の口コミデータ。感情分析結果付き。", "base_schema": "reviews", "icon": "message-circle", "field_count": 7},
-]
-
-SYSTEM_RELATION_TYPES = [
-    {"id": "20000000-0000-0000-0000-000000000001", "name": "belongs_to_brand", "display_name": "ブランド所属", "from_type": "store", "to_type": "brand", "cardinality": "many_to_one"},
-    {"id": "20000000-0000-0000-0000-000000000002", "name": "belongs_to_area", "display_name": "エリア所属", "from_type": "store", "to_type": "area", "cardinality": "many_to_one"},
-    {"id": "20000000-0000-0000-0000-000000000003", "name": "area_in_region", "display_name": "リージョン所属", "from_type": "area", "to_type": "region", "cardinality": "many_to_one"},
-    {"id": "20000000-0000-0000-0000-000000000004", "name": "has_product", "display_name": "商品提供", "from_type": "brand", "to_type": "product", "cardinality": "one_to_many"},
-    {"id": "20000000-0000-0000-0000-000000000005", "name": "has_task", "display_name": "タスク割当", "from_type": "store", "to_type": "task", "cardinality": "one_to_many"},
-    {"id": "20000000-0000-0000-0000-000000000006", "name": "assigned_to", "display_name": "担当者", "from_type": "task", "to_type": "employee", "cardinality": "many_to_one"},
-    {"id": "20000000-0000-0000-0000-000000000007", "name": "has_kpi", "display_name": "KPI紐付", "from_type": "store", "to_type": "daily_kpi", "cardinality": "one_to_many"},
-    {"id": "20000000-0000-0000-0000-000000000008", "name": "has_visit", "display_name": "SV訪問", "from_type": "store", "to_type": "sv_visit", "cardinality": "one_to_many"},
-    {"id": "20000000-0000-0000-0000-000000000009", "name": "managed_by", "display_name": "店長", "from_type": "store", "to_type": "employee", "cardinality": "many_to_one"},
-]
 
 
 @router.get("/object-types", response_model=APIResponse[list[dict]])
@@ -51,32 +26,72 @@ async def list_object_types(
     )
     db_types = result.scalars().all()
 
+    # count fields per object type
+    field_counts = {}
     if db_types:
-        data = [{
-            "id": str(t.id),
-            "object_type": t.name,
-            "display_name": t.display_name,
-            "description": t.description or "",
-            "base_schema": t.base_table or "",
-            "custom_schema": {},
-            "icon": t.icon or "box",
-            "is_system": t.is_system,
-            "field_count": 0,
-        } for t in db_types]
-    else:
-        data = [{
-            "id": t["id"],
-            "object_type": t["object_type"],
-            "display_name": t["display_name"],
-            "description": t["description"],
-            "base_schema": t["base_schema"],
-            "custom_schema": {},
-            "icon": t["icon"],
-            "is_system": True,
-            "field_count": t["field_count"],
-        } for t in SYSTEM_OBJECT_TYPES]
+        type_ids = [t.id for t in db_types]
+        fc_q = await db.execute(
+            select(OntologyField.object_type_id, func.count(OntologyField.id))
+            .where(OntologyField.object_type_id.in_(type_ids))
+            .group_by(OntologyField.object_type_id)
+        )
+        field_counts = {r[0]: r[1] for r in fc_q.all()}
+
+    data = [{
+        "id": str(t.id),
+        "object_type": t.name,
+        "display_name": t.display_name,
+        "description": t.description or "",
+        "base_schema": t.base_table or "",
+        "custom_schema": {},
+        "icon": t.icon or "box",
+        "is_system": t.is_system,
+        "field_count": field_counts.get(t.id, 0),
+    } for t in db_types]
 
     return APIResponse(data=data, meta={"total": len(data)})
+
+
+@router.post("/object-types", response_model=APIResponse[dict])
+async def create_object_type(
+    body: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    import uuid
+    # get company_id from an existing object type
+    existing = await db.execute(
+        select(OntologyObjectType.company_id).where(OntologyObjectType.tenant_id == tenant_id).limit(1)
+    )
+    company_id = existing.scalar_one_or_none()
+
+    new_type = OntologyObjectType(
+        id=uuid.uuid4(),
+        tenant_id=UUID(tenant_id),
+        company_id=company_id or UUID(tenant_id),
+        name=body.get("name", "custom_type"),
+        display_name=body.get("display_name", "カスタムタイプ"),
+        description=body.get("description"),
+        base_table=body.get("base_table"),
+        icon=body.get("icon", "box"),
+        is_system=False,
+    )
+    db.add(new_type)
+    await db.commit()
+    await db.refresh(new_type)
+
+    data = {
+        "id": str(new_type.id),
+        "object_type": new_type.name,
+        "display_name": new_type.display_name,
+        "description": new_type.description or "",
+        "base_schema": new_type.base_table or "",
+        "custom_schema": {},
+        "icon": new_type.icon or "box",
+        "is_system": new_type.is_system,
+        "field_count": 0,
+    }
+    return APIResponse(data=data)
 
 
 @router.get("/objects", response_model=APIResponse[list[dict]])
@@ -253,17 +268,25 @@ async def list_relation_types(
     )
     db_types = result.scalars().all()
 
-    if db_types:
-        data = [{
-            "id": str(t.id), "name": t.name, "display_name": t.display_name,
-            "from_object_type": "", "to_object_type": "",
-            "cardinality": t.cardinality, "description": t.description or "",
-        } for t in db_types]
-    else:
-        data = [{
-            "id": t["id"], "name": t["name"], "display_name": t["display_name"],
-            "from_object_type": t["from_type"], "to_object_type": t["to_type"],
-            "cardinality": t["cardinality"],
-        } for t in SYSTEM_RELATION_TYPES]
+    # resolve from/to object type names
+    type_ids = set()
+    for t in db_types:
+        type_ids.add(t.from_object_type_id)
+        type_ids.add(t.to_object_type_id)
+
+    type_names = {}
+    if type_ids:
+        tn_q = await db.execute(
+            select(OntologyObjectType.id, OntologyObjectType.name)
+            .where(OntologyObjectType.id.in_(type_ids))
+        )
+        type_names = {r[0]: r[1] for r in tn_q.all()}
+
+    data = [{
+        "id": str(t.id), "name": t.name, "display_name": t.display_name,
+        "from_object_type": type_names.get(t.from_object_type_id, ""),
+        "to_object_type": type_names.get(t.to_object_type_id, ""),
+        "cardinality": t.cardinality, "description": t.description or "",
+    } for t in db_types]
 
     return APIResponse(data=data, meta={"total": len(data)})

@@ -292,6 +292,17 @@ async def process_csv_upload(
 
     await db.commit()
 
+    # Track lineage for ingestion
+    try:
+        from app.services.lineage_tracker import track_lineage
+        track_lineage(
+            tenant_id, "ingestion", "csv_file", None, "staging_batch", str(batch_id),
+            transformation_name="csv_parse",
+            metadata={"file_name": file_name, "row_count": row_count, "valid_rows": valid_count, "invalid_rows": invalid_count},
+        )
+    except Exception:
+        pass  # non-critical
+
     return {
         "batch_id": str(batch_id),
         "status": batch.status,
@@ -391,6 +402,17 @@ async def promote_csv_upload(
     batch.status = "promoted"
     batch.promoted_at = datetime.utcnow()
     await db.commit()
+
+    # Track lineage for promotion
+    try:
+        from app.services.lineage_tracker import track_lineage
+        track_lineage(
+            tenant_id, "promotion", "staging_batch", str(batch_id), "canonical_table", None,
+            transformation_name="promote_to_canonical",
+            metadata={"entity_type": entity_type, "promoted_count": promoted, "skipped_count": skipped},
+        )
+    except Exception:
+        pass  # non-critical
 
     return {
         "batch_id": str(batch_id),

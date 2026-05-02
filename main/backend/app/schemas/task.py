@@ -41,5 +41,6 @@ class TaskResponse(BaseModel):
     completed_at: datetime | None = None
     expected_impact_amount: Decimal | None = None
     realized_impact_amount: Decimal | None = None
+    related_value_case_id: UUID | None = None
     source: str
     created_at: datetime | None = None

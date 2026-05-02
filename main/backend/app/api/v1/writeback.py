@@ -1,134 +1,57 @@
 from fastapi import APIRouter, Depends, Query, Path, Body
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database import get_db
+from app.models.writeback import WritebackPolicy, WritebackRequest
+from app.models.task import Task
 from app.schemas.common import APIResponse, PaginationMeta
 from app.auth import get_tenant_id, require_role
 
 router = APIRouter(prefix="/api/v1/writeback", tags=["writeback"])
 
-WRITEBACK_POLICIES = [
-    {
-        "id": "40000000-0000-0000-0000-000000000001",
-        "action": "task_create",
-        "display_name": "タスク作成",
-        "description": "AI分析結果に基づく改善タスクの自動作成",
-        "requires_approval": True,
-        "approver_role": "area_manager",
-        "auto_execute": False,
-        "cooldown_minutes": 60,
-        "max_per_day": 10,
-        "enabled": True,
-    },
-    {
-        "id": "40000000-0000-0000-0000-000000000002",
-        "action": "meeting_item_add",
-        "display_name": "会議アジェンダ追加",
-        "description": "取締役会・エリア会議のアジェンダ項目を自動追加",
-        "requires_approval": False,
-        "approver_role": None,
-        "auto_execute": True,
-        "cooldown_minutes": 0,
-        "max_per_day": 50,
-        "enabled": True,
-    },
-    {
-        "id": "40000000-0000-0000-0000-000000000003",
-        "action": "sv_mission_create",
-        "display_name": "SVミッション作成",
-        "description": "SV訪問時の重点確認ミッションを自動生成",
-        "requires_approval": True,
-        "approver_role": "regional_manager",
-        "auto_execute": False,
-        "cooldown_minutes": 120,
-        "max_per_day": 5,
-        "enabled": True,
-    },
-    {
-        "id": "40000000-0000-0000-0000-000000000004",
-        "action": "alert_send",
-        "display_name": "アラート送信",
-        "description": "KPI閾値超過時のアラート通知（Slack/メール）",
-        "requires_approval": False,
-        "approver_role": None,
-        "auto_execute": True,
-        "cooldown_minutes": 30,
-        "max_per_day": 100,
-        "enabled": True,
-    },
-    {
-        "id": "40000000-0000-0000-0000-000000000005",
-        "action": "order_suggestion",
-        "display_name": "発注提案",
-        "description": "在庫・売上予測に基づく発注量の提案作成",
-        "requires_approval": True,
-        "approver_role": "store_manager",
-        "auto_execute": False,
-        "cooldown_minutes": 1440,
-        "max_per_day": 1,
-        "enabled": True,
-    },
-    {
-        "id": "40000000-0000-0000-0000-000000000006",
-        "action": "shift_optimization",
-        "display_name": "シフト最適化提案",
-        "description": "人時売上に基づくシフト調整の提案",
-        "requires_approval": True,
-        "approver_role": "store_manager",
-        "auto_execute": False,
-        "cooldown_minutes": 1440,
-        "max_per_day": 1,
-        "enabled": False,
-    },
-]
 
-_writeback_requests: list[dict] = [
-    {
-        "id": "50000000-0000-0000-0000-000000000001",
-        "policy_action": "task_create",
-        "display_name": "松屋 新宿東口店: 原価率改善タスク作成",
-        "requested_by": "ai_engine",
-        "requested_at": "2026-04-30T06:35:00+09:00",
-        "status": "pending",
-        "payload": {"store_id": "store-001", "title": "食材ロス削減（4月度原価率2.1%超過）", "issue_type": "cogs", "priority": "high"},
-        "approved_by": None,
-        "approved_at": None,
-        "executed_at": None,
-        "result": None,
-    },
-    {
-        "id": "50000000-0000-0000-0000-000000000002",
-        "policy_action": "sv_mission_create",
-        "display_name": "松屋 渋谷センター街店: SV重点チェックミッション",
-        "requested_by": "ai_engine",
-        "requested_at": "2026-04-30T06:40:00+09:00",
-        "status": "approved",
-        "payload": {"store_id": "store-005", "mission": "衛生管理・食材保管状況の重点確認", "due_date": "2026-05-07"},
-        "approved_by": "リージョナルMGR 田中",
-        "approved_at": "2026-04-30T09:15:00+09:00",
-        "executed_at": None,
-        "result": None,
-    },
-    {
-        "id": "50000000-0000-0000-0000-000000000003",
-        "policy_action": "meeting_item_add",
-        "display_name": "5月度取締役会: FL比率改善進捗レポート追加",
-        "requested_by": "ai_engine",
-        "requested_at": "2026-04-29T18:00:00+09:00",
-        "status": "executed",
-        "payload": {"meeting_type": "board", "item_title": "FL比率改善進捗（4月度実績）"},
-        "approved_by": None,
-        "approved_at": None,
-        "executed_at": "2026-04-29T18:00:05+09:00",
-        "result": {"success": True, "meeting_pack_id": "mp-2026-05"},
-    },
-]
+def _policy_to_dict(p: WritebackPolicy) -> dict:
+    return {
+        "id": str(p.id),
+        "action_type": p.action_type,
+        "policy_name": p.policy_name,
+        "requires_approval": p.requires_approval,
+        "allowed_roles": p.allowed_roles,
+        "allowed_object_types": p.allowed_object_types,
+        "external_write_enabled": p.external_write_enabled,
+        "status": p.status,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+    }
+
+
+def _request_to_dict(r: WritebackRequest) -> dict:
+    return {
+        "id": str(r.id),
+        "action_type": r.action_type,
+        "display_name": r.display_name,
+        "requested_by": str(r.requested_by) if r.requested_by else None,
+        "target_object_type": r.target_object_type,
+        "target_object_id": str(r.target_object_id) if r.target_object_id else None,
+        "payload": r.payload,
+        "status": r.status,
+        "approved_by": str(r.approved_by) if r.approved_by else None,
+        "approved_at": r.approved_at.isoformat() if r.approved_at else None,
+        "executed_at": r.executed_at.isoformat() if r.executed_at else None,
+        "rollback_payload": r.rollback_payload,
+        "result": r.result,
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+    }
 
 
 @router.get("/policies", response_model=APIResponse[list[dict]])
 async def list_policies(db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
-    return APIResponse(data=WRITEBACK_POLICIES, meta={"total": len(WRITEBACK_POLICIES)})
+    result = await db.execute(
+        select(WritebackPolicy).where(WritebackPolicy.tenant_id == tenant_id)
+    )
+    policies = [_policy_to_dict(p) for p in result.scalars().all()]
+    return APIResponse(data=policies, meta={"total": len(policies)})
 
 
 @router.get("/requests", response_model=APIResponse[list[dict]])
@@ -139,52 +62,108 @@ async def list_requests(
     db: AsyncSession = Depends(get_db),
     tenant_id: str = Depends(get_tenant_id),
 ):
-    data = _writeback_requests
+    q = select(WritebackRequest).where(WritebackRequest.tenant_id == tenant_id)
     if status:
-        data = [r for r in data if r["status"] == status]
-    total = len(data)
-    start = (page - 1) * page_size
-    page_data = data[start:start + page_size]
+        q = q.where(WritebackRequest.status == status)
+    q = q.order_by(WritebackRequest.created_at.desc())
+
+    # Count total
+    from sqlalchemy import func
+    count_q = select(func.count(WritebackRequest.id)).where(WritebackRequest.tenant_id == tenant_id)
+    if status:
+        count_q = count_q.where(WritebackRequest.status == status)
+    total_result = await db.execute(count_q)
+    total = total_result.scalar() or 0
+
+    offset = (page - 1) * page_size
+    q = q.offset(offset).limit(page_size)
+    result = await db.execute(q)
+    requests = [_request_to_dict(r) for r in result.scalars().all()]
+
     meta = PaginationMeta(total=total, page=page, page_size=page_size, total_pages=max(1, (total + page_size - 1) // page_size))
-    return APIResponse(data=page_data, meta=meta.model_dump())
+    return APIResponse(data=requests, meta=meta.model_dump())
 
 
 @router.post("/requests", response_model=APIResponse[dict])
 async def create_request(body: dict = Body(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id), _user=Depends(require_role("admin", "director", "sv"))):
-    new_req = {
-        "id": str(uuid4()),
-        "policy_action": body.get("policy_action", "task_create"),
-        "display_name": body.get("display_name", "新規リクエスト"),
-        "requested_by": body.get("requested_by", "user"),
-        "requested_at": datetime.now().isoformat(),
-        "status": "pending",
-        "payload": body.get("payload", {}),
-        "approved_by": None,
-        "approved_at": None,
-        "executed_at": None,
-        "result": None,
-    }
-    _writeback_requests.insert(0, new_req)
-    return APIResponse(data=new_req)
+    new_req = WritebackRequest(
+        tenant_id=tenant_id,
+        action_type=body.get("action_type", body.get("policy_action", "task_create")),
+        display_name=body.get("display_name", "新規リクエスト"),
+        requested_by=UUID(body["requested_by"]) if body.get("requested_by") and body["requested_by"] != "ai_engine" else None,
+        target_object_type=body.get("target_object_type", "task"),
+        target_object_id=UUID(body["target_object_id"]) if body.get("target_object_id") else None,
+        payload=body.get("payload", {}),
+        status="pending",
+    )
+    db.add(new_req)
+    await db.commit()
+    await db.refresh(new_req)
+    return APIResponse(data=_request_to_dict(new_req))
 
 
 @router.post("/requests/{request_id}/approve", response_model=APIResponse[dict])
-async def approve_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
-    for r in _writeback_requests:
-        if r["id"] == request_id:
-            r["status"] = "approved"
-            r["approved_by"] = "管理者"
-            r["approved_at"] = datetime.now().isoformat()
-            return APIResponse(data=r)
-    return APIResponse(errors=[{"detail": "Request not found"}])
+async def approve_request(request_id: UUID = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
+    result = await db.execute(
+        select(WritebackRequest).where(
+            WritebackRequest.id == request_id,
+            WritebackRequest.tenant_id == tenant_id,
+        )
+    )
+    req = result.scalar_one_or_none()
+    if not req:
+        return APIResponse(errors=[{"detail": "Request not found"}])
+
+    req.status = "approved"
+    req.approved_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(req)
+    return APIResponse(data=_request_to_dict(req))
 
 
 @router.post("/requests/{request_id}/execute", response_model=APIResponse[dict])
-async def execute_request(request_id: str = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
-    for r in _writeback_requests:
-        if r["id"] == request_id:
-            r["status"] = "executed"
-            r["executed_at"] = datetime.now().isoformat()
-            r["result"] = {"success": True, "message": "正常に実行されました"}
-            return APIResponse(data=r)
-    return APIResponse(errors=[{"detail": "Request not found"}])
+async def execute_request(request_id: UUID = Path(...), db: AsyncSession = Depends(get_db), tenant_id: str = Depends(get_tenant_id)):
+    result = await db.execute(
+        select(WritebackRequest).where(
+            WritebackRequest.id == request_id,
+            WritebackRequest.tenant_id == tenant_id,
+        )
+    )
+    req = result.scalar_one_or_none()
+    if not req:
+        return APIResponse(errors=[{"detail": "Request not found"}])
+
+    execution_result = {"success": True, "message": "正常に実行されました"}
+
+    # Actually execute the action based on action_type
+    if req.action_type == "task_create":
+        payload = req.payload or {}
+        store_id = payload.get("store_id")
+        if store_id:
+            try:
+                store_uuid = UUID(store_id) if isinstance(store_id, str) else store_id
+            except (ValueError, AttributeError):
+                store_uuid = None
+
+            if store_uuid:
+                task = Task(
+                    tenant_id=tenant_id,
+                    store_id=store_uuid,
+                    title=payload.get("title", "Writeback生成タスク"),
+                    description=payload.get("description"),
+                    issue_type=payload.get("issue_type"),
+                    priority=payload.get("priority", "medium"),
+                    source="writeback",
+                    status="open",
+                )
+                db.add(task)
+                await db.flush()
+                execution_result["task_id"] = str(task.id)
+                execution_result["message"] = f"タスク '{task.title}' を作成しました"
+
+    req.status = "executed"
+    req.executed_at = datetime.now(timezone.utc)
+    req.result = execution_result
+    await db.commit()
+    await db.refresh(req)
+    return APIResponse(data=_request_to_dict(req))

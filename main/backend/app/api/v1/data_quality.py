@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
-from app.database import get_db
+from app.database import get_db, SyncSession
 from app.models.data_quality import DataQualityIssue
 from app.schemas.common import APIResponse
 from app.schemas.data_quality import DataQualityResponse, DataQualitySummary
 from app.auth import get_tenant_id
+from app.services.dq_engine import run_quality_checks
 
 router = APIRouter(prefix="/api/v1/data-quality", tags=["data_quality"])
 
@@ -68,3 +69,14 @@ async def summary(
         open=status_counts.get("open", 0),
         resolved=status_counts.get("resolved", 0),
     ))
+
+
+@router.post("/run-checks", response_model=APIResponse[dict])
+async def run_checks(
+    entity_type: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    with SyncSession() as sync_session:
+        result = run_quality_checks(sync_session, tenant_id, entity_type)
+    return APIResponse(data=result)

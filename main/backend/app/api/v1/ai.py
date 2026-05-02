@@ -457,7 +457,7 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db), ten
         {"question": body.question, "intents": intents},
     )
 
-    return APIResponse(data=AIQueryResponse(
+    response_data = AIQueryResponse(
         conclusion=conclusion,
         facts=facts,
         hypotheses=hypotheses,
@@ -465,7 +465,28 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db), ten
         estimated_impact_amount=impact,
         confidence=confidence,
         referenced_entities=referenced,
-    ))
+    )
+
+    # Log query to DB
+    try:
+        from uuid import UUID as UUIDType
+        from app.database import SyncSession
+        from app.models.ai_query import AIQueryLog
+        sync_session = SyncSession()
+        log_entry = AIQueryLog(
+            tenant_id=UUIDType(tenant_id),
+            question=body.question,
+            answer=response_data.model_dump(mode="json"),
+            referenced_entities=[r.model_dump(mode="json") for r in referenced] if referenced else [],
+            confidence=confidence,
+        )
+        sync_session.add(log_entry)
+        sync_session.commit()
+        sync_session.close()
+    except Exception:
+        pass
+
+    return APIResponse(data=response_data)
 
 
 @router.get("/suggested-questions", response_model=APIResponse[list[SuggestedQuestion]])

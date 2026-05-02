@@ -25,6 +25,9 @@ from app.models.user import User, AccessScope
 from app.models.ontology import OntologyObjectType, OntologyField, OntologyRelationType
 from app.models.ingestion import IngestionBatch, DataContract, SchemaMapping
 from app.models.industry_playbook import IndustryPlaybook
+from app.models.lineage import LineageEvent
+from app.models.writeback import WritebackPolicy, WritebackRequest
+from app.models.kpi_definition import KPIDefinition
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -35,4 +38,5 @@ __all__ = [
     "WorkflowEvent", "AIQueryLog", "AuditLog", "User", "AccessScope",
     "OntologyObjectType", "OntologyField", "OntologyRelationType",
     "IngestionBatch", "DataContract", "SchemaMapping", "IndustryPlaybook",
+    "LineageEvent", "WritebackPolicy", "WritebackRequest", "KPIDefinition",
 ]

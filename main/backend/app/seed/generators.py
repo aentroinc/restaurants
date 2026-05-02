@@ -1244,6 +1244,267 @@ def generate_users():
     ]
 
 
+def generate_lineage_events(stores):
+    results = []
+    idx = 0
+    entity_types = ["daily_sales", "labor", "store_pl", "stores", "products", "reviews"]
+
+    # 6 ingestion events
+    for i, et in enumerate(entity_types):
+        results.append({
+            "id": gen_deterministic_uuid("lineage", idx),
+            "tenant_id": TENANT_ID,
+            "event_type": "ingestion",
+            "source_type": "csv_file",
+            "source_id": None,
+            "target_type": "staging_batch",
+            "target_id": gen_deterministic_uuid("lineage_batch", i),
+            "transformation_name": "csv_parse",
+            "transformation_version": "1.0",
+            "metadata_": {"file_name": f"{et}_20260430.csv", "row_count": RNG.randint(500, 5000),
+                          "valid_rows": RNG.randint(490, 4990), "entity_type": et},
+            "created_at": datetime(2026, 4, 30, 2, 0 + i * 5),
+        })
+        idx += 1
+
+    # 6 promotion events
+    for i, et in enumerate(entity_types):
+        results.append({
+            "id": gen_deterministic_uuid("lineage", idx),
+            "tenant_id": TENANT_ID,
+            "event_type": "promotion",
+            "source_type": "staging_batch",
+            "source_id": gen_deterministic_uuid("lineage_batch", i),
+            "target_type": "canonical_table",
+            "target_id": None,
+            "transformation_name": "promote_to_canonical",
+            "transformation_version": "1.0",
+            "metadata_": {"entity_type": et, "promoted_count": RNG.randint(480, 4900)},
+            "created_at": datetime(2026, 4, 30, 3, 0 + i * 5),
+        })
+        idx += 1
+
+    # 3 KPI calculation events
+    for i in range(3):
+        results.append({
+            "id": gen_deterministic_uuid("lineage", idx),
+            "tenant_id": TENANT_ID,
+            "event_type": "kpi_calculation",
+            "source_type": "canonical_table",
+            "source_id": None,
+            "target_type": "kpi_result",
+            "target_id": None,
+            "transformation_name": "kpi_recalculate",
+            "transformation_version": "1.0",
+            "metadata_": {"stores": RNG.randint(20, 100), "records": RNG.randint(20, 100),
+                          "period": f"2026-04-{1+i*10:02d} to 2026-04-{10+i*10:02d}"},
+            "created_at": datetime(2026, 4, 30, 6, i * 10),
+        })
+        idx += 1
+
+    # 3 report generation events
+    for i in range(3):
+        results.append({
+            "id": gen_deterministic_uuid("lineage", idx),
+            "tenant_id": TENANT_ID,
+            "event_type": "report_generation",
+            "source_type": "kpi_result",
+            "source_id": None,
+            "target_type": "report",
+            "target_id": gen_deterministic_uuid("lineage_report", i),
+            "transformation_name": "monthly_report",
+            "transformation_version": "1.0",
+            "metadata_": {"report_type": ["executive_summary", "area_comparison", "store_detail"][i],
+                          "period": "2026-04"},
+            "created_at": datetime(2026, 4, 30, 7, i * 15),
+        })
+        idx += 1
+
+    # 2 AI query events
+    for i in range(2):
+        store = stores[i] if i < len(stores) else stores[0]
+        results.append({
+            "id": gen_deterministic_uuid("lineage", idx),
+            "tenant_id": TENANT_ID,
+            "event_type": "ai_query",
+            "source_type": "kpi_result",
+            "source_id": None,
+            "target_type": "ai_answer",
+            "target_id": gen_deterministic_uuid("lineage_ai", i),
+            "transformation_name": "ai_insight",
+            "transformation_version": "2.0",
+            "metadata_": {"query": ["原価率が高い店舗の改善策は？", "人件費率のトレンドを分析して"][i],
+                          "store_id": str(store["id"]), "model": "aentro-insight-v2"},
+            "created_at": datetime(2026, 4, 30, 8, i * 30),
+        })
+        idx += 1
+
+    return results
+
+
+def generate_writeback_data(stores):
+    policies = [
+        {
+            "id": gen_deterministic_uuid("wb_policy", 0),
+            "tenant_id": TENANT_ID,
+            "action_type": "task_create",
+            "policy_name": "タスク作成",
+            "requires_approval": True,
+            "allowed_roles": ["admin", "director", "sv"],
+            "allowed_object_types": ["task"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("wb_policy", 1),
+            "tenant_id": TENANT_ID,
+            "action_type": "meeting_item_add",
+            "policy_name": "会議アジェンダ追加",
+            "requires_approval": False,
+            "allowed_roles": ["admin", "director", "sv"],
+            "allowed_object_types": ["meeting_item"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("wb_policy", 2),
+            "tenant_id": TENANT_ID,
+            "action_type": "sv_mission_create",
+            "policy_name": "SVミッション作成",
+            "requires_approval": True,
+            "allowed_roles": ["admin", "director"],
+            "allowed_object_types": ["sv_mission"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("wb_policy", 3),
+            "tenant_id": TENANT_ID,
+            "action_type": "comment_add",
+            "policy_name": "コメント追加",
+            "requires_approval": False,
+            "allowed_roles": ["admin", "director", "sv", "manager"],
+            "allowed_object_types": ["comment"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("wb_policy", 4),
+            "tenant_id": TENANT_ID,
+            "action_type": "report_update",
+            "policy_name": "レポート更新",
+            "requires_approval": True,
+            "allowed_roles": ["admin", "director"],
+            "allowed_object_types": ["report"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+        {
+            "id": gen_deterministic_uuid("wb_policy", 5),
+            "tenant_id": TENANT_ID,
+            "action_type": "kpi_change",
+            "policy_name": "KPI定義変更",
+            "requires_approval": True,
+            "allowed_roles": ["admin"],
+            "allowed_object_types": ["kpi_definition"],
+            "external_write_enabled": False,
+            "status": "active",
+        },
+    ]
+
+    store0 = stores[0] if stores else None
+    store1 = stores[4] if len(stores) > 4 else stores[0] if stores else None
+
+    requests = [
+        {
+            "id": gen_deterministic_uuid("wb_request", 0),
+            "tenant_id": TENANT_ID,
+            "action_type": "task_create",
+            "display_name": f"{store0['name']}: 原価率改善タスク作成" if store0 else "原価率改善タスク作成",
+            "requested_by": None,
+            "target_object_type": "task",
+            "target_object_id": None,
+            "payload": {"store_id": str(store0["id"]) if store0 else None, "title": "食材ロス削減（4月度原価率2.1%超過）",
+                        "issue_type": "cogs", "priority": "high"},
+            "status": "pending",
+            "approved_by": None,
+            "approved_at": None,
+            "executed_at": None,
+            "rollback_payload": None,
+            "result": None,
+        },
+        {
+            "id": gen_deterministic_uuid("wb_request", 1),
+            "tenant_id": TENANT_ID,
+            "action_type": "sv_mission_create",
+            "display_name": f"{store1['name']}: SV重点チェックミッション" if store1 else "SV重点チェックミッション",
+            "requested_by": None,
+            "target_object_type": "sv_mission",
+            "target_object_id": None,
+            "payload": {"store_id": str(store1["id"]) if store1 else None,
+                        "mission": "衛生管理・食材保管状況の重点確認", "due_date": "2026-05-07"},
+            "status": "approved",
+            "approved_by": None,
+            "approved_at": datetime(2026, 4, 30, 9, 15),
+            "executed_at": None,
+            "rollback_payload": None,
+            "result": None,
+        },
+        {
+            "id": gen_deterministic_uuid("wb_request", 2),
+            "tenant_id": TENANT_ID,
+            "action_type": "meeting_item_add",
+            "display_name": "5月度取締役会: FL比率改善進捗レポート追加",
+            "requested_by": None,
+            "target_object_type": "meeting_item",
+            "target_object_id": None,
+            "payload": {"meeting_type": "board", "item_title": "FL比率改善進捗（4月度実績）"},
+            "status": "executed",
+            "approved_by": None,
+            "approved_at": None,
+            "executed_at": datetime(2026, 4, 29, 18, 0, 5),
+            "rollback_payload": None,
+            "result": {"success": True, "meeting_pack_id": "mp-2026-05"},
+        },
+        {
+            "id": gen_deterministic_uuid("wb_request", 3),
+            "tenant_id": TENANT_ID,
+            "action_type": "task_create",
+            "display_name": f"{store0['name']}: シフト最適化タスク" if store0 else "シフト最適化タスク",
+            "requested_by": None,
+            "target_object_type": "task",
+            "target_object_id": None,
+            "payload": {"store_id": str(store0["id"]) if store0 else None, "title": "シフト最適化（人件費率3%超過）",
+                        "issue_type": "labor_overrun", "priority": "medium"},
+            "status": "approved",
+            "approved_by": None,
+            "approved_at": datetime(2026, 4, 28, 14, 30),
+            "executed_at": None,
+            "rollback_payload": None,
+            "result": None,
+        },
+        {
+            "id": gen_deterministic_uuid("wb_request", 4),
+            "tenant_id": TENANT_ID,
+            "action_type": "comment_add",
+            "display_name": "店舗コメント追加",
+            "requested_by": None,
+            "target_object_type": "comment",
+            "target_object_id": None,
+            "payload": {"store_id": str(store1["id"]) if store1 else None,
+                        "comment": "4月後半の売上回復傾向を確認。引き続きモニタリング。"},
+            "status": "executed",
+            "approved_by": None,
+            "approved_at": None,
+            "executed_at": datetime(2026, 4, 30, 10, 0),
+            "rollback_payload": None,
+            "result": {"success": True},
+        },
+    ]
+
+    return policies, requests
+
+
 def generate_workflow_instances(templates, stores, tasks_list, employees):
     results_instances = []
     results_events = []
@@ -1338,3 +1599,309 @@ def generate_workflow_instances(templates, stores, tasks_list, employees):
             event_idx += 1
 
     return results_instances, results_events
+
+
+def generate_kpi_definitions():
+    defs = [
+        {
+            "kpi_code": "net_sales",
+            "display_name": "純売上",
+            "description": "値引き・クーポン適用後の実売上高。全KPIの基盤指標。",
+            "formula_expression": "gross_sales - discount_amount",
+            "input_objects": ["gross_sales", "discount_amount"],
+            "output_unit": "円",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "cogs_rate",
+            "display_name": "原価率",
+            "description": "売上に対する食材原価の比率。業態別ベンチマークと比較して管理。",
+            "formula_expression": "cogs / net_sales * 100",
+            "input_objects": ["cogs", "net_sales"],
+            "output_unit": "%",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "labor_cost_rate",
+            "display_name": "人件費率",
+            "description": "売上に対する人件費（社員+PA）の比率。シフト最適化の基準指標。",
+            "formula_expression": "labor_cost / net_sales * 100",
+            "input_objects": ["labor_cost", "net_sales"],
+            "output_unit": "%",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "fl_ratio",
+            "display_name": "FL比率",
+            "description": "Food & Labor比率。飲食業の最重要コスト管理指標。60%以下が目安。",
+            "formula_expression": "cogs_rate + labor_cost_rate",
+            "input_objects": ["cogs_rate", "labor_cost_rate"],
+            "output_unit": "%",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "sales_per_labor_hour",
+            "display_name": "人時売上",
+            "description": "従業員1時間あたりの売上。シフト効率の直接指標。",
+            "formula_expression": "net_sales / total_labor_hours",
+            "input_objects": ["net_sales", "total_labor_hours"],
+            "output_unit": "円/時",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "gross_profit_rate",
+            "display_name": "粗利率",
+            "description": "売上から原価を差し引いた粗利益の比率。",
+            "formula_expression": "(net_sales - cogs) / net_sales * 100",
+            "input_objects": ["net_sales", "cogs"],
+            "output_unit": "%",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "operating_profit_rate",
+            "display_name": "営業利益率",
+            "description": "全経費控除後の営業利益率。店舗の最終的な収益性指標。",
+            "formula_expression": "operating_profit / sales * 100",
+            "input_objects": ["operating_profit", "sales"],
+            "output_unit": "%",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "avg_ticket",
+            "display_name": "客単価",
+            "description": "来店客1人あたりの平均売上。メニューミックスとアップセル施策の効果を測定。",
+            "formula_expression": "net_sales / customer_count",
+            "input_objects": ["net_sales", "customer_count"],
+            "output_unit": "円",
+            "version": 1,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "health_score",
+            "display_name": "健全度スコア",
+            "description": "複数KPIの加重平均による店舗の総合健全度。0〜100点。ランキングとアラートの基準。",
+            "formula_expression": "weighted_composite(cogs_rate, labor_cost_rate, fl_ratio, review_score, task_completion_rate)",
+            "input_objects": ["cogs_rate", "labor_cost_rate", "fl_ratio", "review_score", "task_completion_rate"],
+            "output_unit": "点",
+            "version": 2,
+            "status": "approved",
+        },
+        {
+            "kpi_code": "improvement_opportunity",
+            "display_name": "改善余地",
+            "description": "同業態ピアグループの中央値まで改善した場合に見込まれる月間利益増加額。",
+            "formula_expression": "(peer_median - current_value) * revenue_scale_factor",
+            "input_objects": ["peer_median", "current_kpi_values", "monthly_net_sales"],
+            "output_unit": "円/月",
+            "version": 1,
+            "status": "approved",
+        },
+    ]
+
+    results = []
+    approved_at = datetime(2025, 1, 1)
+    for i, d in enumerate(defs):
+        results.append({
+            "id": gen_deterministic_uuid("kpi_def", i),
+            "tenant_id": TENANT_ID,
+            "kpi_code": d["kpi_code"],
+            "display_name": d["display_name"],
+            "description": d["description"],
+            "formula_expression": d["formula_expression"],
+            "input_objects": d["input_objects"],
+            "output_unit": d["output_unit"],
+            "version": d["version"],
+            "status": d["status"],
+            "approved_by": None,
+            "approved_at": approved_at,
+            "effective_from": approved_at,
+            "effective_to": None,
+        })
+    return results
+
+
+def generate_ontology_data():
+    object_types_defs = [
+        {"name": "store", "display_name": "店舗", "description": "飲食店舗マスタ。POSデータ・勤怠データの集約単位。", "base_table": "stores", "icon": "store"},
+        {"name": "brand", "display_name": "ブランド", "description": "飲食ブランド。複数店舗を束ねるサービスモデル単位。", "base_table": "brands", "icon": "tag"},
+        {"name": "product", "display_name": "商品", "description": "メニュー商品マスタ。原価・カテゴリ情報を保持。", "base_table": "products", "icon": "package"},
+        {"name": "employee", "display_name": "従業員", "description": "店舗スタッフ・SV・エリアマネージャー等の人事マスタ。", "base_table": "employees", "icon": "user"},
+        {"name": "task", "display_name": "タスク", "description": "改善タスク。AIまたはSVが起票し、店舗で実行。", "base_table": "tasks", "icon": "check-square"},
+        {"name": "sv_visit", "display_name": "SV訪問", "description": "SVによる店舗訪問記録。チェックリスト結果を含む。", "base_table": "sv_visits", "icon": "clipboard"},
+        {"name": "review", "display_name": "レビュー", "description": "Googleレビュー等の口コミデータ。感情分析結果付き。", "base_table": "reviews", "icon": "message-circle"},
+        {"name": "meeting_pack", "display_name": "経営会議パック", "description": "経営会議用の資料パッケージ。", "base_table": "board_meeting_packs", "icon": "briefcase"},
+        {"name": "value_case", "display_name": "改善施策", "description": "改善施策の効果測定ケース。", "base_table": "value_cases", "icon": "trending-up"},
+    ]
+
+    object_types = []
+    ot_id_map = {}
+    for i, ot in enumerate(object_types_defs):
+        ot_id = gen_deterministic_uuid("ontology_ot", i)
+        ot_id_map[ot["name"]] = ot_id
+        object_types.append({
+            "id": ot_id,
+            "tenant_id": TENANT_ID,
+            "company_id": COMPANY_ID,
+            "name": ot["name"],
+            "display_name": ot["display_name"],
+            "description": ot["description"],
+            "base_table": ot["base_table"],
+            "icon": ot["icon"],
+            "is_system": True,
+        })
+
+    # Fields for Store type
+    store_fields_defs = [
+        ("store_code", "店舗コード", "string", "code"),
+        ("store_name", "店舗名", "string", "name"),
+        ("prefecture", "都道府県", "string", "prefecture"),
+        ("city", "市区町村", "string", "city"),
+        ("trade_area_type", "商圏タイプ", "string", "trade_area_type"),
+        ("seat_count", "座席数", "integer", "seat_count"),
+        ("status", "ステータス", "string", "status"),
+        ("opening_date", "開店日", "date", "opening_date"),
+        ("parking", "駐車場", "boolean", "parking"),
+        ("drive_through", "ドライブスルー", "boolean", "drive_through"),
+        ("delivery", "デリバリー", "boolean", "delivery"),
+        ("takeout", "テイクアウト", "boolean", "takeout"),
+        ("lat", "緯度", "float", "lat"),
+        ("lng", "経度", "float", "lng"),
+    ]
+
+    fields = []
+    store_ot_id = ot_id_map["store"]
+    for i, (name, display, ftype, source) in enumerate(store_fields_defs):
+        fields.append({
+            "id": gen_deterministic_uuid("ontology_field", i),
+            "object_type_id": store_ot_id,
+            "name": name,
+            "display_name": display,
+            "field_type": ftype,
+            "source_column": source,
+            "is_required": name in ("store_code", "store_name", "status"),
+            "is_filterable": True,
+            "is_sensitive": False,
+        })
+
+    # Relation types
+    relation_defs = [
+        ("belongs_to_brand", "ブランド所属", "store", "brand", "many_to_one", "店舗はひとつのブランドに所属"),
+        ("belongs_to_area", "エリア所属", "store", "brand", "many_to_one", "店舗はひとつのエリアに所属"),
+        ("managed_by", "店長", "store", "employee", "many_to_one", "店舗は店長が管理"),
+        ("has_task", "タスク割当", "store", "task", "one_to_many", "店舗は複数のタスクを持つ"),
+        ("has_review", "レビュー", "store", "review", "one_to_many", "店舗は複数のレビューを持つ"),
+        ("has_product", "商品提供", "brand", "product", "one_to_many", "ブランドは複数の商品を持つ"),
+        ("assigned_to", "担当者", "task", "employee", "many_to_one", "タスクは担当者に割当"),
+    ]
+
+    relation_types = []
+    for i, (name, display, from_t, to_t, card, desc) in enumerate(relation_defs):
+        relation_types.append({
+            "id": gen_deterministic_uuid("ontology_rel", i),
+            "tenant_id": TENANT_ID,
+            "company_id": COMPANY_ID,
+            "name": name,
+            "display_name": display,
+            "from_object_type_id": ot_id_map[from_t],
+            "to_object_type_id": ot_id_map[to_t],
+            "cardinality": card,
+            "description": desc,
+        })
+
+    return object_types, fields, relation_types
+
+
+def generate_industry_playbooks():
+    playbooks = [
+        {
+            "service_model": "beef_bowl",
+            "name": "牛丼・定食チェーン改善プレイブック",
+            "kpi_definitions": [
+                {"code": "sales_per_labor_hour", "name": "人時売上", "target": 5000, "unit": "円/時"},
+                {"code": "hourly_sales_mix", "name": "時間帯別売上構成", "target": None, "unit": "%"},
+                {"code": "takeout_ratio", "name": "テイクアウト比率", "target": 25, "unit": "%"},
+                {"code": "cogs_rate", "name": "原価率", "target": 32, "unit": "%"},
+                {"code": "avg_ticket", "name": "客単価", "target": 650, "unit": "円"},
+            ],
+            "issue_rules": [
+                {"issue_type": "idle_time_labor", "description": "アイドルタイムの人件費過剰", "threshold": {"sales_per_labor_hour": {"below": 4000}}},
+                {"issue_type": "peak_understaffing", "description": "ピーク時間帯の人員不足", "threshold": {"peak_wait_time": {"above": 10}}},
+                {"issue_type": "takeout_decline", "description": "テイクアウト比率低下", "threshold": {"takeout_ratio": {"below": 20}}},
+                {"issue_type": "cogs_rice_meat", "description": "米・肉の原価高騰", "threshold": {"cogs_rate": {"above": 35}}},
+            ],
+            "recommended_actions": [
+                {"action": "アイドルタイムシフト削減", "description": "14-17時のシフト人数を見直し、人時売上を改善", "expected_impact": 200000},
+                {"action": "ピーク配置最適化", "description": "11-13時のキッチン・フロア配置バランスを調整", "expected_impact": 150000},
+                {"action": "セット販売強化", "description": "味噌汁・サラダのセット推奨で客単価向上", "expected_impact": 100000},
+                {"action": "低粗利商品見直し", "description": "原価率40%超の商品の価格改定またはメニュー変更", "expected_impact": 250000},
+            ],
+        },
+        {
+            "service_model": "sushi",
+            "name": "回転寿司チェーン改善プレイブック",
+            "kpi_definitions": [
+                {"code": "fish_cogs_rate", "name": "ネタ原価率", "target": 38, "unit": "%"},
+                {"code": "waste_rate", "name": "廃棄率", "target": 3, "unit": "%"},
+                {"code": "table_turnover", "name": "テーブル回転", "target": 3.5, "unit": "回/日"},
+                {"code": "avg_ticket", "name": "客単価", "target": 1500, "unit": "円"},
+                {"code": "wait_time", "name": "待ち時間", "target": 15, "unit": "分"},
+            ],
+            "issue_rules": [
+                {"issue_type": "fish_cogs_overrun", "description": "ネタ原価率超過", "threshold": {"fish_cogs_rate": {"above": 42}}},
+                {"issue_type": "waste_increase", "description": "廃棄率上昇", "threshold": {"waste_rate": {"above": 5}}},
+                {"issue_type": "turnover_decline", "description": "テーブル回転率低下", "threshold": {"table_turnover": {"below": 3.0}}},
+                {"issue_type": "premium_mix_decline", "description": "高単価商品比率低下", "threshold": {"premium_ratio": {"below": 15}}},
+            ],
+            "recommended_actions": [
+                {"action": "仕入単価交渉", "description": "主要仕入先との価格交渉および代替仕入先の開拓", "expected_impact": 300000},
+                {"action": "廃棄削減オペ", "description": "レーン管理の見直しと需要予測に基づく握り調整", "expected_impact": 200000},
+                {"action": "回転率改善", "description": "予約管理と配膳効率化によるテーブル回転向上", "expected_impact": 250000},
+                {"action": "高単価商品訴求", "description": "季節ネタや限定メニューの訴求強化", "expected_impact": 180000},
+            ],
+        },
+        {
+            "service_model": "burger",
+            "name": "バーガー/QSRチェーン改善プレイブック",
+            "kpi_definitions": [
+                {"code": "service_time", "name": "提供時間", "target": 180, "unit": "秒"},
+                {"code": "set_rate", "name": "セット率", "target": 65, "unit": "%"},
+                {"code": "drive_through_ratio", "name": "ドライブスルー売上比率", "target": 35, "unit": "%"},
+                {"code": "mobile_order_ratio", "name": "モバイルオーダー比率", "target": 20, "unit": "%"},
+                {"code": "cogs_rate", "name": "原価率", "target": 30, "unit": "%"},
+            ],
+            "issue_rules": [
+                {"issue_type": "service_time_increase", "description": "提供時間超過", "threshold": {"service_time": {"above": 240}}},
+                {"issue_type": "set_rate_decline", "description": "セット率低下", "threshold": {"set_rate": {"below": 55}}},
+                {"issue_type": "drive_through_decline", "description": "ドライブスルー売上低下", "threshold": {"drive_through_ratio": {"below": 25}}},
+                {"issue_type": "mobile_order_decline", "description": "モバイルオーダー比率低下", "threshold": {"mobile_order_ratio": {"below": 15}}},
+            ],
+            "recommended_actions": [
+                {"action": "キッチンフロー最適化", "description": "調理工程の並列化とバッファ在庫の設定", "expected_impact": 200000},
+                {"action": "セット推奨トレーニング", "description": "レジスタッフのセット提案トークスクリプト導入", "expected_impact": 150000},
+                {"action": "DT動線改善", "description": "ドライブスルーの注文・受取動線の効率化", "expected_impact": 180000},
+                {"action": "アプリクーポン施策", "description": "モバイルオーダー限定クーポンで利用率向上", "expected_impact": 120000},
+            ],
+        },
+    ]
+
+    results = []
+    for i, pb in enumerate(playbooks):
+        results.append({
+            "id": gen_deterministic_uuid("playbook", i),
+            "tenant_id": TENANT_ID,
+            "company_id": COMPANY_ID,
+            "service_model": pb["service_model"],
+            "name": pb["name"],
+            "kpi_definitions": pb["kpi_definitions"],
+            "issue_rules": pb["issue_rules"],
+            "recommended_actions": pb["recommended_actions"],
+        })
+
+    return results

@@ -264,6 +264,19 @@ def recalculate_kpis(
             stores_touched.add(str(store.id))
 
     session.commit()
+
+    # Track lineage for KPI recalculation
+    try:
+        from app.services.lineage_tracker import track_lineage
+        track_lineage(
+            tenant_id, "kpi_calculation", "canonical_table", None, "kpi_result", None,
+            transformation_name="kpi_recalculate",
+            metadata={"stores": len(stores_touched), "records": records_upserted,
+                       "period": f"{start_date} to {end_date}"},
+        )
+    except Exception:
+        pass  # non-critical
+
     return {
         "recalculated_stores": len(stores_touched),
         "recalculated_records": records_upserted,
