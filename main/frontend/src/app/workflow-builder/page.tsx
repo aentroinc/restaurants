@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { ContextHeader } from "@/components/context-header"
+import { ClaudeBadge } from "@/components/claude-badge"
 import { fetchAPI } from "@/lib/api"
 import { Sparkles, Zap, Plus, ChevronRight, Trash2, Play, Save, MessageSquare, Building2, AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react"
 
@@ -100,6 +101,9 @@ export default function WorkflowBuilderPage() {
   return (
     <div className="flex flex-col h-screen">
       <ContextHeader title="Workflow Builder" description="自然言語で「もし X なら Y」を作成 — AIP Studio 相当" region="-" />
+      <div className="px-5 pt-3">
+        <ClaudeBadge />
+      </div>
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         <div className="rounded-xl border border-purple-400/20 bg-gradient-to-br from-purple-500/[0.08] via-purple-500/[0.03] to-transparent p-5">
           <div className="flex items-center gap-2 text-[11px] text-purple-400/80 uppercase tracking-wider font-bold mb-2">

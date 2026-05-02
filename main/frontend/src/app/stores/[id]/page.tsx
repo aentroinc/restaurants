@@ -118,16 +118,25 @@ export default function StoreDetailPage() {
   const [svDialogOpen, setSvDialogOpen] = useState(false)
   const [svAdded, setSvAdded] = useState(false)
 
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     if (params.id) {
-      fetchAPI<StoreDetail>(`/api/v1/stores/${params.id}`).then((s) => {
-        setStore(s)
-        setLocalTasks(s.tasks || [])
-      })
+      setLoading(true)
+      fetchAPI<StoreDetail>(`/api/v1/stores/${params.id}`)
+        .then((s) => {
+          setStore(s)
+          setLocalTasks(s?.tasks || [])
+        })
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false))
     }
   }, [params.id])
 
-  if (!store) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>
+  if (error) return <div className="flex flex-col items-center justify-center h-64 gap-3"><p className="text-red-400">データ取得に失敗しました</p><p className="text-gray-500 text-sm">{error}</p><button onClick={() => window.location.reload()} className="text-blue-400 text-sm hover:underline">再読み込み</button></div>
+  if (!store) return <div className="flex items-center justify-center h-64"><p className="text-gray-400">店舗が見つかりません</p></div>
 
   const storeId = params.id as string
 

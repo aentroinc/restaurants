@@ -81,8 +81,6 @@ export default function StoresPage() {
     )
   }
 
-  if (!ranking) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>
-
   if (loading) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><LoadingState /></div>
   if (error) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><ErrorState message={error} /></div>
   if (!ranking) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><EmptyState /></div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import { ContextHeader } from "@/components/context-header"
 import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -319,8 +319,8 @@ function HeatmapPanel() {
         <div />
         {DAYS.map((d) => <div key={d} className="text-center text-[10px] text-white/40 py-1 px-2">{d}</div>)}
         {STORES_SHORT.map((store) => (
-          <>
-            <div key={store} className="text-[11px] text-white/60 py-1.5 pr-2 text-right">{store}</div>
+          <React.Fragment key={store}>
+            <div className="text-[11px] text-white/60 py-1.5 pr-2 text-right">{store}</div>
             {DAYS.map((day) => {
               const cell = data.find((d) => d.store === store && d.day === day)
               return (
@@ -329,7 +329,7 @@ function HeatmapPanel() {
                 </div>
               )
             })}
-          </>
+          </React.Fragment>
         ))}
       </div>
       <div className="flex items-center gap-2 mt-3 text-[9px] text-white/30">

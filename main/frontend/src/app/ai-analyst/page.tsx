@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { ContextHeader } from "@/components/context-header"
+import { ClaudeBadge } from "@/components/claude-badge"
 import { fetchAPI } from "@/lib/api"
 import { streamChat, type ChatEvent } from "@/lib/ai-stream"
 import type { AIResponse } from "@/lib/types"
@@ -215,6 +216,9 @@ export default function AIAnalystPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] bg-[#0a0e14] text-white/80">
       <ContextHeader title="AI アナリスト" description="自然言語で経営データを分析・質問" />
+      <div className="px-5 pt-3">
+        <ClaudeBadge />
+      </div>
 
       {/* Task Dialog */}
       <Dialog open={taskDialogOpen} onOpenChange={(open) => { setTaskDialogOpen(open); if (!open) setTaskCreated(false) }}>

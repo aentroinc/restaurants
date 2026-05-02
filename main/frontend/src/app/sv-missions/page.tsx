@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ContextHeader } from "@/components/context-header"
 import { fetchAPI } from "@/lib/api"
 import type { SVMission } from "@/lib/types"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { ChevronDown, ChevronUp, Plus, Clock, ListTodo, CheckCircle2 } from "lucide-react"
 import { cn, formatPercent } from "@/lib/utils"
 import Link from "next/link"
@@ -29,6 +30,8 @@ export default function SVMissionsPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [svFilter, setSvFilter] = useState("all")
   const [brandFilter, setBrandFilter] = useState("all")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
   const [taskForm, setTaskForm] = useState<TaskForm>({ title: "", description: "", issue_type: "", priority: "" })
@@ -36,7 +39,10 @@ export default function SVMissionsPage() {
   const [taskCreated, setTaskCreated] = useState(false)
 
   useEffect(() => {
-    fetchAPI<SVMission[]>("/api/v1/sv/missions").then(setMissions)
+    fetchAPI<SVMission[]>("/api/v1/sv/missions")
+      .then(setMissions)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const svs = [...new Set(missions.map((m) => m.store.sv_name))]
@@ -72,6 +78,10 @@ export default function SVMissionsPage() {
     setTaskCreated(true)
     setTimeout(() => { setTaskDialogOpen(false); setTaskCreated(false) }, 1500)
   }
+
+  if (loading) return <div><ContextHeader title="SV ミッションボード" description="SVが優先的に訪問すべき店舗とアクション一覧" /><LoadingState /></div>
+  if (error) return <div><ContextHeader title="SV ミッションボード" description="SVが優先的に訪問すべき店舗とアクション一覧" /><ErrorState message={error} /></div>
+  if (!missions.length) return <div><ContextHeader title="SV ミッションボード" description="SVが優先的に訪問すべき店舗とアクション一覧" /><EmptyState message="ミッションがありません" /></div>
 
   return (
     <div>

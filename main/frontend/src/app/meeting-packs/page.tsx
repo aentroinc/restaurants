@@ -21,7 +21,7 @@ export default function MeetingPacksPage() {
   const [created, setCreated] = useState(false)
 
   useEffect(() => {
-    fetchAPI<MeetingPack[]>("/api/v1/meeting-packs").then(setPacks)
+    fetchAPI<MeetingPack[]>("/api/v1/meeting-packs").then(setPacks).catch(() => {})
   }, [])
 
   function handleCreate() {

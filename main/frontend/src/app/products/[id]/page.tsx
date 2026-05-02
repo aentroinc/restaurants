@@ -34,7 +34,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<ProductDetail | null>(null)
 
   useEffect(() => {
-    fetchAPI<ProductDetail>(`/api/v1/vertical/products/${id}`).then(setProduct)
+    fetchAPI<ProductDetail>(`/api/v1/vertical/products/${id}`).then(setProduct).catch(() => {})
   }, [id])
 
   if (!product) {

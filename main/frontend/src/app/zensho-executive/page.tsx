@@ -44,7 +44,7 @@ export default function ZenshoExecutivePage() {
   const [summary, setSummary] = useState<PilotSummary | null>(null)
 
   useEffect(() => {
-    fetchAPI<PilotSummary>("/api/v1/pilots/pilot-001/summary").then(setSummary)
+    fetchAPI<PilotSummary>("/api/v1/pilots/pilot-001/summary").then(setSummary).catch(() => {})
   }, [])
 
   if (!summary) return <div className="p-8 text-white/40">Loading...</div>

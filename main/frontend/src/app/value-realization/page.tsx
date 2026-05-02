@@ -37,7 +37,7 @@ export default function ValueRealizationPage() {
         total_realized: totalReal,
         achievement_rate: totalExp > 0 ? +((totalReal / totalExp) * 100).toFixed(1) : 0,
       })
-    })
+    }).catch(() => {})
   }, [])
 
   if (!summary) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>

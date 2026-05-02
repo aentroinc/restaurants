@@ -40,11 +40,11 @@ export default function DataSourcesPage() {
   const [idMappings, setIDMappings] = useState<IDMapping[]>([])
 
   useEffect(() => {
-    fetchAPI<DataSource[]>("/api/v1/admin/data-sources").then(setSources)
-    fetchAPI<DataContractAdmin[]>("/api/v1/admin/data-contracts").then(setContracts)
-    fetchAPI<IngestionRunAdmin[]>("/api/v1/admin/ingestion-runs").then(setRuns)
-    fetchAPI<SchemaMapping[]>("/api/v1/admin/schema-mappings").then(setSchemaMappings)
-    fetchAPI<IDMapping[]>("/api/v1/admin/id-mappings").then(setIDMappings)
+    fetchAPI<DataSource[]>("/api/v1/admin/data-sources").then(setSources).catch(() => {})
+    fetchAPI<DataContractAdmin[]>("/api/v1/admin/data-contracts").then(setContracts).catch(() => {})
+    fetchAPI<IngestionRunAdmin[]>("/api/v1/admin/ingestion-runs").then(setRuns).catch(() => {})
+    fetchAPI<SchemaMapping[]>("/api/v1/admin/schema-mappings").then(setSchemaMappings).catch(() => {})
+    fetchAPI<IDMapping[]>("/api/v1/admin/id-mappings").then(setIDMappings).catch(() => {})
   }, [])
 
   return (

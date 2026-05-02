@@ -20,7 +20,7 @@ export default function AIGovernancePage() {
   const [config, setConfig] = useState<AIGovernanceConfig | null>(null)
 
   useEffect(() => {
-    fetchAPI<AIGovernanceConfig>("/api/v1/admin/ai-governance").then(setConfig)
+    fetchAPI<AIGovernanceConfig>("/api/v1/admin/ai-governance").then(setConfig).catch(() => {})
   }, [])
 
   if (!config) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>

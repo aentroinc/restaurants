@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
 import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -63,11 +63,11 @@ export default function RecipesPage() {
                 </tr></thead>
                 <tbody>
                   {recipes.map((r) => (
-                    <>
-                      <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}>
+                    <React.Fragment key={r.id}>
+                      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}>
                         <td className="px-2 text-white/30">{expandedId === r.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}</td>
                         <td className="px-4 py-3 font-medium">
-                          <Link href={`/products/${r.id}`} className="text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+                          <Link href={`/products/${r.id}`} className="text-blue-400 hover:text-blue-300 hover:underline transition-colors" onClick={(e) => e.stopPropagation()}>
                             {r.product_name}
                           </Link>
                         </td>
@@ -77,7 +77,7 @@ export default function RecipesPage() {
                         <td className="px-4 py-3"><span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded ${statusBadge[r.status] || statusBadge.draft}`}>{r.status}</span></td>
                       </tr>
                       {expandedId === r.id && (
-                        <tr key={`${r.id}-detail`} className="bg-white/[0.01]">
+                        <tr className="bg-white/[0.01]">
                           <td colSpan={6} className="px-8 py-4">
                             <div className="text-[11px] text-white/40 mb-2">BOM構成（デモ）</div>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -91,7 +91,7 @@ export default function RecipesPage() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>

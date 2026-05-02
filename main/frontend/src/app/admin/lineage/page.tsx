@@ -96,8 +96,8 @@ export default function LineagePage() {
   const [showDropdown, setShowDropdown] = useState(false)
 
   useEffect(() => {
-    fetchAPI<KPILineage>(`/api/v1/lineage/kpi/${selectedStore}/cogs_rate`).then(setLineage)
-    fetchAPI<LineageEvent[]>(`/api/v1/lineage/object/${selectedStore}`).then(setEvents)
+    fetchAPI<KPILineage>(`/api/v1/lineage/kpi/${selectedStore}/cogs_rate`).then(setLineage).catch(() => {})
+    fetchAPI<LineageEvent[]>(`/api/v1/lineage/object/${selectedStore}`).then(setEvents).catch(() => {})
   }, [selectedStore])
 
   const filteredStores = mockStores.filter((s) =>

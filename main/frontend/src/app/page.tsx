@@ -481,9 +481,10 @@ export default function ExecutiveCommandPage() {
             </div>
             <div className="flex-1 overflow-y-auto max-h-[420px]">
               {incidents.map((inc) => (
-                <div
+                <Link
                   key={inc.incident_id}
-                  className="px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors cursor-pointer"
+                  href="/incidents"
+                  className="block px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors cursor-pointer"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${severityDot[inc.severity]} ${inc.status === "active" ? "animate-pulse" : ""}`} />
@@ -502,7 +503,7 @@ export default function ExecutiveCommandPage() {
                     </div>
                     <ChevronRight className="w-4 h-4 text-white/15 shrink-0 mt-0.5" />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -577,7 +578,7 @@ export default function ExecutiveCommandPage() {
               {actions.map((act) => {
                 const s = statusBadge[act.status]
                 return (
-                  <div key={act.action_id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                  <Link key={act.action_id} href="/tasks" className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
                     <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-medium shrink-0 w-[88px] text-center ${s.cls}`}>
                       {s.label}
                     </span>
@@ -599,7 +600,7 @@ export default function ExecutiveCommandPage() {
                       {act.confidence}
                     </span>
                     <ChevronRight className="w-4 h-4 text-white/15 shrink-0" />
-                  </div>
+                  </Link>
                 )
               })}
             </div>

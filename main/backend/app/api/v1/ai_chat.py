@@ -318,3 +318,27 @@ async def delete_session(
     await db.delete(session)
     await db.commit()
     return {"data": {"deleted": True}}
+
+
+@router.get("/status")
+async def ai_status():
+    """Claude 接続状態 + tool 数 + model tier を返す（UI badge 用）"""
+    from app.services.ai.client import is_llm_available, MODEL_MAP
+    from app.services.ai.tools import TOOL_DEFINITIONS
+
+    available = is_llm_available()
+    return {
+        "data": {
+            "claude_available": available,
+            "status": "connected" if available else "rule_based_fallback",
+            "model_tiers": MODEL_MAP if available else {},
+            "tool_count": len(TOOL_DEFINITIONS),
+            "tool_names": [t["name"] for t in TOOL_DEFINITIONS],
+            "fallback_mode": not available,
+            "message": (
+                "Claude API 接続済 — 実 LLM で tool use が動作します"
+                if available else
+                "ANTHROPIC_API_KEY 未設定 — rule-based fallback で動作中"
+            ),
+        }
+    }

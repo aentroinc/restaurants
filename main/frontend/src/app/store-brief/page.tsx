@@ -25,7 +25,7 @@ export default function StoreBriefPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title={`店長ブリーフ — ${brief.store_name}`} description={`${brief.business_date}・今日と今週の重点`} region="-" />
+      <ContextHeader title={`店長ブリーフ — ${brief.store_name}`} description={`${brief.business_date}・今日と今週の重点`} />
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {/* Today KPIs */}
         <div>

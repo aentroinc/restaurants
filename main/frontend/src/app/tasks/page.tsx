@@ -55,6 +55,7 @@ const emptyForm: NewTaskForm = {
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("all")
   const [issueFilter, setIssueFilter] = useState("all")
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -62,7 +63,10 @@ export default function TasksPage() {
   const [created, setCreated] = useState(false)
 
   useEffect(() => {
-    fetchAPI<Task[]>("/api/v1/tasks").then(setTasks)
+    fetchAPI<Task[]>("/api/v1/tasks")
+      .then(setTasks)
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   function moveTask(taskId: string, newStatus: string) {

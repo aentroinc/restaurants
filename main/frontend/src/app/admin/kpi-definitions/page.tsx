@@ -30,7 +30,7 @@ export default function KPIDefinitionsPage() {
   const [newKPI, setNewKPI] = useState({ kpi_code: "", display_name: "", description: "", formula_expression: "", output_unit: "" })
 
   useEffect(() => {
-    fetchAPI<KPIDefinition[]>("/api/v1/kpi-definitions").then(setDefinitions)
+    fetchAPI<KPIDefinition[]>("/api/v1/kpi-definitions").then(setDefinitions).catch(() => {})
   }, [])
 
   async function handleApprove(id: string) {

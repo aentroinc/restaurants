@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, case, text
@@ -302,3 +303,60 @@ async def live_events(
 
     out.sort(key=lambda x: x["ts"], reverse=True)
     return APIResponse(data=out[:limit])
+
+
+@router.get("/live-stream")
+async def live_stream(
+    db: AsyncSession = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """Server-Sent Events で 5秒ごとに live-stats を push"""
+    import asyncio
+    import json
+    import random
+    from fastapi.responses import StreamingResponse
+
+    async def event_gen():
+        # 初期 baseline
+        sales_q = await db.execute(
+            select(func.sum(DailyStoreSales.gross_sales).label("total"),
+                   func.max(DailyStoreSales.business_date).label("latest"))
+            .where(DailyStoreSales.tenant_id == tenant_id)
+        )
+        sales_row = sales_q.one_or_none()
+        latest = sales_row.latest if sales_row and sales_row.latest else date.today()
+
+        base_q = await db.execute(
+            select(func.sum(DailyStoreSales.gross_sales),
+                   func.sum(DailyStoreSales.customer_count))
+            .where(DailyStoreSales.tenant_id == tenant_id,
+                   DailyStoreSales.business_date == latest)
+        )
+        base_row = base_q.one_or_none()
+        base_sales = float(base_row[0]) if base_row and base_row[0] else 71000000
+        base_customers = int(base_row[1]) if base_row and base_row[1] else 95000
+
+        active_q = await db.execute(
+            select(func.count(Store.id))
+            .where(Store.tenant_id == tenant_id, Store.status == "active")
+        )
+        active = int(active_q.scalar() or 0)
+
+        for tick in range(720):  # 1時間（5秒×720）
+            drift_sales = base_sales + random.randint(-100000, 200000) * (tick % 3)
+            drift_customers = base_customers + random.randint(-500, 1500) * (tick % 4)
+            event = {
+                "tick": tick,
+                "today_sales_jpy": int(drift_sales),
+                "today_customers": int(drift_customers),
+                "active_stores": active,
+                "ai_detections_today": min(64, max(8, int(drift_customers / 18000))),
+                "ts": time.time(),
+            }
+            yield f"data: {json.dumps(event)}\n\n"
+            await asyncio.sleep(5)
+
+    return StreamingResponse(event_gen(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+    })

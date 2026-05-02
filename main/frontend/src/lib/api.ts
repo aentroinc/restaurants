@@ -132,7 +132,7 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   if (path.startsWith("/api/v1/vertical/ingredients")) return mockIngredients as any
   // Labor
   if (path.startsWith("/api/v1/vertical/labor/shifts")) return mockShifts as any
-  if (path.startsWith("/api/v1/vertical/labor/compliance")) return mockLaborCompliance as any
+  if (path.startsWith("/api/v1/vertical/labor/compliance-report") || path.startsWith("/api/v1/vertical/labor/compliance")) return mockLaborCompliance as any
   // QSC
   if (path.startsWith("/api/v1/vertical/qsc/audits")) return mockQSCAudits as any
   // HACCP

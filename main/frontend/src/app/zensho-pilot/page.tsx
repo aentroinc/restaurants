@@ -34,11 +34,11 @@ export default function ZenshoPilotsPage() {
     fetchAPI<{ data: Theme[] } | Theme[]>("/api/v1/pilots/themes").then((d) => {
       const arr = Array.isArray(d) ? d : (d as any).data
       setThemes(arr || [])
-    })
+    }).catch(() => {})
     fetchAPI<{ data: Pilot[] } | Pilot[]>("/api/v1/pilots").then((d) => {
       const arr = Array.isArray(d) ? d : (d as any).data
       setPilots(arr || [])
-    })
+    }).catch(() => {})
   }, [])
 
   return (

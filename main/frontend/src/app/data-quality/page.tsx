@@ -28,8 +28,8 @@ export default function DataQualityPage() {
   const [statusFilter, setStatusFilter] = useState("all")
 
   useEffect(() => {
-    fetchAPI<DataQualitySummary>("/api/v1/data-quality/summary").then(setSummary)
-    fetchAPI<DataQualityIssue[]>("/api/v1/data-quality/issues").then(setIssues)
+    fetchAPI<DataQualitySummary>("/api/v1/data-quality/summary").then(setSummary).catch(() => {})
+    fetchAPI<DataQualityIssue[]>("/api/v1/data-quality/issues").then(setIssues).catch(() => {})
   }, [])
 
   const filtered = issues.filter((i) => {

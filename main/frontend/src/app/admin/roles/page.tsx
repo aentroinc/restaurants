@@ -34,7 +34,7 @@ export default function RolesPage() {
     if (permissions[roleId]) return
     fetchAPI<Permission[]>(`/api/v1/rbac/roles/${roleId}/permissions`).then((perms) => {
       setPermissions((prev) => ({ ...prev, [roleId]: perms }))
-    })
+    }).catch(() => {})
   }
 
   const toggleExpand = (roleId: string) => {

@@ -51,7 +51,7 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
   const [recalcing, setRecalcing] = useState(false)
 
   useEffect(() => {
-    fetchAPI<PilotSummary>(`/api/v1/pilots/${id}/summary`).then(setSummary)
+    fetchAPI<PilotSummary>(`/api/v1/pilots/${id}/summary`).then(setSummary).catch(() => {})
   }, [id])
 
   async function recalc() {

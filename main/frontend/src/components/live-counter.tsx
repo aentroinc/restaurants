@@ -3,6 +3,35 @@
 import { useEffect, useState, useRef } from "react"
 import { fetchAPI } from "@/lib/api"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
+
+// SSE singleton で複数 LiveCounter が同じ stream を共有
+let sseEs: EventSource | null = null
+const sseSubscribers: Map<string, Set<(v: number) => void>> = new Map()
+
+function subscribeSSE(field: string, cb: (v: number) => void) {
+  if (!sseEs && API_URL) {
+    try {
+      sseEs = new EventSource(`${API_URL}/api/v1/executive/live-stream`)
+      sseEs.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data)
+          for (const [k, subs] of sseSubscribers.entries()) {
+            const v = data?.[k]
+            if (typeof v === "number") subs.forEach((s) => s(v))
+          }
+        } catch { /* ignore */ }
+      }
+      sseEs.onerror = () => { /* reconnect handled by browser */ }
+    } catch { /* fallback to polling */ }
+  }
+  if (!sseSubscribers.has(field)) sseSubscribers.set(field, new Set())
+  sseSubscribers.get(field)!.add(cb)
+  return () => {
+    sseSubscribers.get(field)?.delete(cb)
+  }
+}
+
 interface LiveCounterProps {
   initial: number
   driftRange?: number       // 5秒ごとに ±この値 で微増減
@@ -10,7 +39,8 @@ interface LiveCounterProps {
   format?: (n: number) => string
   className?: string
   showLiveDot?: boolean
-  source?: "drift" | { endpoint: string; field: string }
+  source?: "drift" | "sse" | { endpoint: string; field: string }
+  sseField?: string  // source="sse" 時の field 名
 }
 
 export function LiveCounter({ initial, driftRange = 1000, intervalMs = 5000, format = (n) => n.toLocaleString(), className = "", showLiveDot = true, source = "drift" }: LiveCounterProps) {

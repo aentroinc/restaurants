@@ -45,13 +45,13 @@ export default function SecurityAdminPage() {
   useEffect(() => {
     fetchAPI<{ data: ColumnPolicy[] } | ColumnPolicy[]>("/api/v1/admin/security/column-policies").then((d) => {
       setPolicies(Array.isArray(d) ? d : (d as any).data || [])
-    })
+    }).catch(() => {})
     fetchAPI<{ data: PIILog[] } | PIILog[]>("/api/v1/admin/security/pii-redaction-logs").then((d) => {
       setLogs(Array.isArray(d) ? d : (d as any).data || [])
-    })
+    }).catch(() => {})
     fetchAPI<{ data: PIISummary[] } | PIISummary[]>("/api/v1/admin/security/pii-redaction-summary").then((d) => {
       setSummary(Array.isArray(d) ? d : (d as any).data || [])
-    })
+    }).catch(() => {})
   }, [])
 
   async function exportReviewPack() {

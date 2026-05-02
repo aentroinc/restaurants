@@ -44,7 +44,7 @@ export default function MeetingPackDetailPage() {
 
   useEffect(() => {
     if (params.id) {
-      fetchAPI<MeetingPack>(`/api/v1/meeting-packs/${params.id}`).then(setPack)
+      fetchAPI<MeetingPack>(`/api/v1/meeting-packs/${params.id}`).then(setPack).catch(() => {})
     }
   }, [params.id])
 

@@ -32,7 +32,7 @@ export default function OntologyPage() {
   const [saveDone, setSaveDone] = useState(false)
 
   useEffect(() => {
-    fetchAPI<OntologyObjectTypeV2[]>("/api/v1/ontology/object-types-v2").then(setObjectTypes)
+    fetchAPI<OntologyObjectTypeV2[]>("/api/v1/ontology/object-types-v2").then(setObjectTypes).catch(() => {})
   }, [])
 
   const selectedType = objectTypes.find((t) => t.id === selectedId)
@@ -46,7 +46,7 @@ export default function OntologyPage() {
     const ot = objectTypes.find((t) => t.id === id)
     if (ot) {
       setProperties([...ot.properties])
-      fetchAPI<OntologyImpactReport>(`/api/v1/ontology/object-types/${id}/impact`).then(setImpact)
+      fetchAPI<OntologyImpactReport>(`/api/v1/ontology/object-types/${id}/impact`).then(setImpact).catch(() => {})
     }
   }
 

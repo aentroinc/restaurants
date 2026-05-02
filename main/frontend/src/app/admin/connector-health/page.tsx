@@ -37,7 +37,7 @@ export default function ConnectorHealthPage() {
     fetchAPI<{ data: Health[] } | Health[]>("/api/v1/connector-health").then((d) => {
       const arr = Array.isArray(d) ? d : (d as any).data
       setItems(arr || [])
-    })
+    }).catch(() => {})
   }, [])
 
   const total = items.length

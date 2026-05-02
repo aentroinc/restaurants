@@ -34,8 +34,8 @@ export default function WritebackPage() {
   const [statusFilter, setStatusFilter] = useState("all")
 
   useEffect(() => {
-    fetchAPI<WritebackPolicy[]>("/api/v1/writeback/policies").then(setPolicies)
-    fetchAPI<WritebackRequest[]>("/api/v1/writeback/requests").then(setRequests)
+    fetchAPI<WritebackPolicy[]>("/api/v1/writeback/policies").then(setPolicies).catch(() => {})
+    fetchAPI<WritebackRequest[]>("/api/v1/writeback/requests").then(setRequests).catch(() => {})
   }, [])
 
   const filteredRequests = requests.filter((r) => statusFilter === "all" || r.status === statusFilter)
