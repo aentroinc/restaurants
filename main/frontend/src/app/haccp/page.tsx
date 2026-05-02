@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState } from "@/components/states"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchAPI } from "@/lib/api"
 import type { HACCPComplianceRate } from "@/lib/types"
@@ -20,14 +21,24 @@ export default function HACCPPage() {
   const [compliance, setCompliance] = useState<HACCPComplianceRate | null>(null)
   const [monitoring, setMonitoring] = useState<MonitoringEntry[]>([])
   const [allergens, setAllergens] = useState<AllergenRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<HACCPComplianceRate>("/api/v1/vertical/haccp/compliance").then(setCompliance)
-    fetchAPI<MonitoringEntry[]>("/api/v1/vertical/haccp/monitoring").then(setMonitoring)
-    fetchAPI<AllergenRow[]>("/api/v1/vertical/haccp/allergens").then(setAllergens)
+    Promise.all([
+      fetchAPI<HACCPComplianceRate>("/api/v1/vertical/haccp/compliance"),
+      fetchAPI<MonitoringEntry[]>("/api/v1/vertical/haccp/monitoring"),
+      fetchAPI<AllergenRow[]>("/api/v1/vertical/haccp/allergens"),
+    ])
+      .then(([c, m, a]) => { setCompliance(c); setMonitoring(m); setAllergens(a) })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const rate = compliance?.compliance_rate ?? 0
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="HACCP管理" description="食品衛生管理とアレルゲン情報" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="HACCP管理" description="食品衛生管理とアレルゲン情報" /><ErrorState message={error} /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

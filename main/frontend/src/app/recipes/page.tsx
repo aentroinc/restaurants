@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchAPI } from "@/lib/api"
 import type { RecipeItem, IngredientItem } from "@/lib/types"
@@ -18,14 +19,25 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<RecipeItem[]>([])
   const [ingredients, setIngredients] = useState<IngredientItem[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<RecipeItem[]>("/api/v1/vertical/recipes").then(setRecipes)
-    fetchAPI<IngredientItem[]>("/api/v1/vertical/ingredients").then(setIngredients)
+    Promise.all([
+      fetchAPI<RecipeItem[]>("/api/v1/vertical/recipes"),
+      fetchAPI<IngredientItem[]>("/api/v1/vertical/ingredients"),
+    ])
+      .then(([r, ig]) => { setRecipes(r); setIngredients(ig) })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const avgTheoreticalCost = recipes.length ? Math.round(recipes.reduce((s, r) => s + (r.theoretical_cost || 0), 0) / recipes.length) : 0
   const avgActualCost = Math.round(avgTheoreticalCost * 1.08)
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="レシピ・原価管理" description="レシピ定義と食材マスタの管理" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="レシピ・原価管理" description="レシピ定義と食材マスタの管理" /><ErrorState message={error} /></div>
+  if (!recipes.length && !ingredients.length) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="レシピ・原価管理" description="レシピ定義と食材マスタの管理" /><EmptyState /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

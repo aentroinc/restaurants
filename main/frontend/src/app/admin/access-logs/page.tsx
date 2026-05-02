@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
+import { fetchAPI } from "@/lib/api"
 
 interface AccessLog {
   id: string
@@ -13,19 +15,6 @@ interface AccessLog {
   ip: string
 }
 
-const mockAccessLogs: AccessLog[] = [
-  { id: "1", timestamp: "2026-04-30 14:32:10", user: "admin@aentro.jp", method: "GET", path: "/api/v1/executive/summary", result: "allow", ip: "10.0.1.12" },
-  { id: "2", timestamp: "2026-04-30 14:31:55", user: "sv@aentro.jp", method: "GET", path: "/api/v1/stores/ranking", result: "allow", ip: "10.0.1.15" },
-  { id: "3", timestamp: "2026-04-30 14:30:22", user: "unknown@test.jp", method: "POST", path: "/api/v1/auth/login", result: "deny", ip: "192.168.1.100" },
-  { id: "4", timestamp: "2026-04-30 14:28:01", user: "manager@aentro.jp", method: "PUT", path: "/api/v1/tasks/t-001", result: "allow", ip: "10.0.1.20" },
-  { id: "5", timestamp: "2026-04-30 14:25:44", user: "admin@aentro.jp", method: "DELETE", path: "/api/v1/writeback/requests/wr-003", result: "allow", ip: "10.0.1.12" },
-  { id: "6", timestamp: "2026-04-30 14:20:10", user: "sv@aentro.jp", method: "GET", path: "/api/v1/sv/missions", result: "allow", ip: "10.0.1.15" },
-  { id: "7", timestamp: "2026-04-30 14:18:33", user: "viewer@aentro.jp", method: "GET", path: "/api/v1/stores/ranking", result: "allow", ip: "10.0.1.30" },
-  { id: "8", timestamp: "2026-04-30 14:15:02", user: "viewer@aentro.jp", method: "POST", path: "/api/v1/rbac/users/u-001/roles", result: "deny", ip: "10.0.1.30" },
-  { id: "9", timestamp: "2026-04-30 14:10:50", user: "admin@aentro.jp", method: "POST", path: "/api/v1/ai/query", result: "allow", ip: "10.0.1.12" },
-  { id: "10", timestamp: "2026-04-30 14:05:11", user: "manager@aentro.jp", method: "GET", path: "/api/v1/vertical/labor/shifts", result: "allow", ip: "10.0.1.20" },
-]
-
 const METHOD_COLORS: Record<string, string> = {
   GET: "bg-blue-500/15 text-blue-400",
   POST: "bg-green-500/15 text-green-400",
@@ -36,16 +25,30 @@ const METHOD_COLORS: Record<string, string> = {
 const PAGE_SIZE = 10
 
 export default function AccessLogsPage() {
+  const [logs, setLogs] = useState<AccessLog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [methodFilter, setMethodFilter] = useState("all")
   const [page, setPage] = useState(1)
 
+  useEffect(() => {
+    fetchAPI<AccessLog[]>("/api/v1/audit/logs")
+      .then(setLogs)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
   const filtered = useMemo(() => {
-    if (methodFilter === "all") return mockAccessLogs
-    return mockAccessLogs.filter((l) => l.method === methodFilter)
-  }, [methodFilter])
+    if (methodFilter === "all") return logs
+    return logs.filter((l) => l.method === methodFilter)
+  }, [methodFilter, logs])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  if (loading) return <div className="p-6"><ContextHeader title="アクセスログ" /><LoadingState /></div>
+  if (error) return <div className="p-6"><ContextHeader title="アクセスログ" /><ErrorState message={error} /></div>
+  if (!logs.length) return <div className="p-6"><ContextHeader title="アクセスログ" /><EmptyState /></div>
 
   return (
     <div className="p-6 space-y-6">

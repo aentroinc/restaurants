@@ -20,6 +20,7 @@ import {
   mockPilotThemes, mockPilots, mockPilotResults, mockPilotSummary,
   mockConnectorHealth, mockColumnPolicies, mockPIIRedactionLogs, mockPIISummary,
   mockSVMissionPlan, mockStoreManagerBrief,
+  mockAuditLogs, mockUserList,
 } from "./mock-data"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
@@ -27,23 +28,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (!API_URL) return fetchMock<T>(path, options)
 
-  try {
-    const token = getToken()
-    const headers: Record<string, string> = { "Content-Type": "application/json" }
-    if (token) headers["Authorization"] = `Bearer ${token}`
-    const res = await fetch(`${API_URL}${path}`, {
-      headers: { ...headers, ...options?.headers },
-      ...options,
-    })
+  const token = getToken()
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+  if (token) headers["Authorization"] = `Bearer ${token}`
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { ...headers, ...options?.headers },
+    ...options,
+  })
 
-    if (!res.ok) throw new Error(`API error: ${res.status}`)
+  if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
 
-    const json: APIResponse<T> = await res.json()
-    if (json.errors && json.errors.length > 0) throw new Error(json.errors.join(", "))
-    return json.data
-  } catch {
-    return fetchMock<T>(path, options)
-  }
+  const json: APIResponse<T> = await res.json()
+  if (json.errors && json.errors.length > 0) throw new Error(json.errors.join(", "))
+  return json.data
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -153,6 +150,10 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
     return (mockRolePermissions[id] || []) as any
   }
   if (path.startsWith("/api/v1/rbac/roles")) return mockRoles as any
+  // Audit logs
+  if (path.startsWith("/api/v1/audit/logs")) return mockAuditLogs as any
+  // Users
+  if (path.startsWith("/api/v1/rbac/users")) return mockUserList as any
   // Huff prediction
   if (path.startsWith("/api/v1/vertical/trade-areas/predict-huff")) return mockHuffResult as any
   // Menu engineering

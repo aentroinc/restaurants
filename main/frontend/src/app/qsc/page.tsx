@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { fetchAPI } from "@/lib/api"
 import type { QSCAuditItem } from "@/lib/types"
 
@@ -21,18 +22,27 @@ function barColor(score: number): string {
 
 export default function QSCPage() {
   const [audits, setAudits] = useState<QSCAuditItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<QSCAuditItem[]>("/api/v1/vertical/qsc/audits").then((data) => {
-      const sorted = [...data].sort((a, b) => b.overall_score - a.overall_score)
-      setAudits(sorted)
-    })
+    fetchAPI<QSCAuditItem[]>("/api/v1/vertical/qsc/audits")
+      .then((data) => {
+        const sorted = [...data].sort((a, b) => b.overall_score - a.overall_score)
+        setAudits(sorted)
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const avgQ = useMemo(() => audits.length ? Math.round(audits.reduce((s, a) => s + a.quality_score, 0) / audits.length * 10) / 10 : 0, [audits])
   const avgS = useMemo(() => audits.length ? Math.round(audits.reduce((s, a) => s + a.service_score, 0) / audits.length * 10) / 10 : 0, [audits])
   const avgC = useMemo(() => audits.length ? Math.round(audits.reduce((s, a) => s + a.cleanliness_score, 0) / audits.length * 10) / 10 : 0, [audits])
   const avgO = useMemo(() => audits.length ? Math.round(audits.reduce((s, a) => s + a.overall_score, 0) / audits.length * 10) / 10 : 0, [audits])
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="QSC監査" description="品質・サービス・清潔度の監査結果" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="QSC監査" description="品質・サービス・清潔度の監査結果" /><ErrorState message={error} /></div>
+  if (!audits.length) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="QSC監査" description="品質・サービス・清潔度の監査結果" /><EmptyState /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

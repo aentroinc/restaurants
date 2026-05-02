@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
+import { fetchAPI } from "@/lib/api"
 
-interface MockUser {
+interface UserItem {
   id: string
   name: string
   email: string
@@ -11,12 +13,6 @@ interface MockUser {
   active: boolean
   created_at: string
 }
-
-const mockUsers: MockUser[] = [
-  { id: "u-001", name: "田中 太郎", email: "admin@aentro.jp", roles: ["admin", "executive"], active: true, created_at: "2025-01-15" },
-  { id: "u-002", name: "鈴木 花子", email: "sv@aentro.jp", roles: ["sv"], active: true, created_at: "2025-03-01" },
-  { id: "u-003", name: "佐藤 一郎", email: "manager@aentro.jp", roles: ["manager"], active: true, created_at: "2025-06-10" },
-]
 
 const ROLE_COLORS: Record<string, string> = {
   admin: "bg-red-500/15 text-red-400",
@@ -27,7 +23,21 @@ const ROLE_COLORS: Record<string, string> = {
 }
 
 export default function UsersPage() {
-  const [selectedUser, setSelectedUser] = useState<MockUser | null>(null)
+  const [users, setUsers] = useState<UserItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserItem | null>(null)
+
+  useEffect(() => {
+    fetchAPI<UserItem[]>("/api/v1/rbac/users")
+      .then(setUsers)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return <div className="p-6"><ContextHeader title="ユーザー管理" /><LoadingState /></div>
+  if (error) return <div className="p-6"><ContextHeader title="ユーザー管理" /><ErrorState message={error} /></div>
+  if (!users.length) return <div className="p-6"><ContextHeader title="ユーザー管理" /><EmptyState /></div>
 
   return (
     <div className="p-6 space-y-6">
@@ -47,7 +57,7 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {mockUsers.map((user) => (
+              {users.map((user) => (
                 <tr
                   key={user.id}
                   onClick={() => setSelectedUser(user)}

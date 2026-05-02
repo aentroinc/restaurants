@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { fetchAPI } from "@/lib/api"
 import type { ShiftItem, LaborComplianceReport } from "@/lib/types"
 import { AlertTriangle, Clock, Users, Shield } from "lucide-react"
@@ -17,10 +18,17 @@ export default function LaborPage() {
   const [compliance, setCompliance] = useState<LaborComplianceReport | null>(null)
   const [filterStore, setFilterStore] = useState("")
   const [filterViolation, setFilterViolation] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<ShiftItem[]>("/api/v1/vertical/labor/shifts").then(setShifts)
-    fetchAPI<LaborComplianceReport>("/api/v1/vertical/labor/compliance-report").then(setCompliance)
+    Promise.all([
+      fetchAPI<ShiftItem[]>("/api/v1/vertical/labor/shifts"),
+      fetchAPI<LaborComplianceReport>("/api/v1/vertical/labor/compliance-report"),
+    ])
+      .then(([s, c]) => { setShifts(s); setCompliance(c) })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const violationShifts = shifts.filter((s) => s.violations.length > 0)
@@ -32,6 +40,10 @@ export default function LaborPage() {
 
   const stores = [...new Set(shifts.map((s) => s.store_name))]
   const overtimeCount = compliance?.violations?.find((v: any) => v.type === "overtime")?.count ?? 0
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="シフト・労務コンプライアンス" description="労働時間管理と法令遵守状況" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="シフト・労務コンプライアンス" description="労働時間管理と法令遵守状況" /><ErrorState message={error} /></div>
+  if (!shifts.length) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="シフト・労務コンプライアンス" description="労働時間管理と法令遵守状況" /><EmptyState /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

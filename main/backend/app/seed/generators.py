@@ -1082,7 +1082,11 @@ def generate_kpis(stores, daily_sales, labor_records, store_pls, reviews_list, t
             review_avg = sum(review_scores) / len(review_scores) if review_scores else 3.5
 
             # YoY growth (estimate)
-            prev_year_key = (store_id_str, kpi_date.replace(year=kpi_date.year - 1).isoformat())
+            try:
+                prev_kpi_date = kpi_date.replace(year=kpi_date.year - 1)
+            except ValueError:
+                prev_kpi_date = kpi_date.replace(year=kpi_date.year - 1, day=28)
+            prev_year_key = (store_id_str, prev_kpi_date.isoformat())
             prev_ds = ds_index.get(prev_year_key)
             yoy_growth = 0
             if prev_ds and prev_ds["net_sales"] > 0:

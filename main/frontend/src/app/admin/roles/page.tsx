@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,9 +20,14 @@ export default function RolesPage() {
   const [roles, setRoles] = useState<RoleItem[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [permissions, setPermissions] = useState<Record<string, Permission[]>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<RoleItem[]>("/api/v1/rbac/roles").then(setRoles)
+    fetchAPI<RoleItem[]>("/api/v1/rbac/roles")
+      .then(setRoles)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const loadPermissions = (roleId: string) => {
@@ -45,6 +51,10 @@ export default function RolesPage() {
     area: "text-cyan-400 bg-cyan-400/10",
     own: "text-amber-400 bg-amber-400/10",
   }
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="ロール管理" description="ユーザーロールと権限設定" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="ロール管理" description="ユーザーロールと権限設定" /><ErrorState message={error} /></div>
+  if (!roles.length) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="ロール管理" description="ユーザーロールと権限設定" /><EmptyState /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

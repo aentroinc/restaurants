@@ -86,6 +86,8 @@ async def run_sync_job(
     try:
         # 4. Fetch
         config = ds.config or {}
+        if ds.source_type != "csv":
+            config["sandbox_mode"] = True
         fetch_result = await connector.fetch(config, cursor=job.cursor_value)
 
         # 5. Transform

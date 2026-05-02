@@ -336,11 +336,23 @@ export interface AIResponseEnhanced {
 // Workspace
 export interface PanelSpec {
   id: string;
-  type: 'bar_chart' | 'pivot_table' | 'metric_card' | 'scatter';
+  type: 'bar_chart' | 'pivot_table' | 'metric_card' | 'scatter' | 'line_chart' | 'stacked_bar' | 'pie_chart' | 'heatmap' | 'waterfall' | 'table';
   title: string;
   kpi: string;
   scope?: { brand?: string; region?: string };
   group_by?: string;
+}
+
+export interface SavedQuery {
+  id: string;
+  name: string;
+  kpi: string;
+  aggregation: string;
+  group_by: string[];
+  filters: { field: string; operator: string; value: string }[];
+  period_start: string;
+  period_end: string;
+  created_at: string;
 }
 export interface Analysis {
   id: string; name: string; description?: string; visibility: string; spec: { panels?: PanelSpec[] }; created_at: string;

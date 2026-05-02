@@ -13,13 +13,10 @@ RUN npm run build
 FROM node:20-alpine AS runtime
 RUN addgroup -g 10001 app && adduser -D -u 10001 -G app app
 WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder --chown=app:app /app/.next/standalone ./
 COPY --from=builder --chown=app:app /app/.next/static ./.next/static
 COPY --from=builder --chown=app:app /app/public ./public
 USER app
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD wget -q --spider http://localhost:3000/ || exit 1
 CMD ["node", "server.js"]

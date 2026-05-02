@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +20,8 @@ type SortKey = "health_score" | "net_sales" | "labor_cost_rate" | "cogs_rate" | 
 
 export default function StoresPage() {
   const [ranking, setRanking] = useState<StoreRanking | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [brandFilter, setBrandFilter] = useState("all")
   const [areaFilter, setAreaFilter] = useState("all")
@@ -29,7 +32,10 @@ export default function StoresPage() {
   const perPage = 20
 
   useEffect(() => {
-    fetchAPI<StoreRanking>("/api/v1/stores").then(setRanking)
+    fetchAPI<StoreRanking>("/api/v1/stores")
+      .then(setRanking)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const brands = useMemo(() => {
@@ -76,6 +82,10 @@ export default function StoresPage() {
   }
 
   if (!ranking) return <div className="flex items-center justify-center h-64"><div className="animate-pulse text-gray-400">読み込み中...</div></div>
+
+  if (loading) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><LoadingState /></div>
+  if (error) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><ErrorState message={error} /></div>
+  if (!ranking) return <div><ContextHeader title="店舗ランキング" description="全店舗のKPI一覧と比較分析" /><EmptyState /></div>
 
   return (
     <div>

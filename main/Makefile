@@ -1,4 +1,4 @@
-.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down ci
+.PHONY: up down build seed migrate test lint docs docs-read docs-serve prod prod-down prod-build prod-up prod-test ci
 
 up:
 	docker compose up -d
@@ -31,18 +31,32 @@ reset:
 	$(MAKE) migrate
 	$(MAKE) seed
 
-prod:
-	docker compose -f docker-compose.prod.yml up --build -d
+prod-build:
+	docker compose -f docker-compose.prod.yml build
+
+prod-up:
+	docker compose -f docker-compose.prod.yml up -d
 
 prod-down:
 	docker compose -f docker-compose.prod.yml down
+
+prod-test:
+	@echo "Building prod..."
+	docker compose -f docker-compose.prod.yml up --build -d
+	@sleep 15
+	@echo "Testing API..."
+	@curl -sf http://localhost:8000/health > /dev/null && echo "API: OK" || echo "API: FAIL"
+	@curl -sf http://localhost:3000/ > /dev/null && echo "Web: OK" || echo "Web: FAIL"
+	docker compose -f docker-compose.prod.yml down
+
+prod:
+	docker compose -f docker-compose.prod.yml up --build -d
 
 lint:
 	cd backend && python -m ruff check app/ || true
 	cd frontend && npx tsc --noEmit || true
 
-ci:
-	$(MAKE) lint
+ci: lint test
 	cd frontend && npm run build
 
 docs:

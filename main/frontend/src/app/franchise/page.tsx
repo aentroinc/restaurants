@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import { ContextHeader } from "@/components/context-header"
+import { LoadingState, ErrorState, EmptyState } from "@/components/states"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchAPI } from "@/lib/api"
 import type { FranchiseAgreementItem, RoyaltyCalcItem } from "@/lib/types"
@@ -28,14 +29,25 @@ function formatRoyaltyStructure(rs: any): string {
 export default function FranchisePage() {
   const [agreements, setAgreements] = useState<FranchiseAgreementItem[]>([])
   const [royalties, setRoyalties] = useState<RoyaltyCalcItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAPI<FranchiseAgreementItem[]>("/api/v1/vertical/franchise/agreements").then(setAgreements)
-    fetchAPI<RoyaltyCalcItem[]>("/api/v1/vertical/franchise/royalties").then(setRoyalties)
+    Promise.all([
+      fetchAPI<FranchiseAgreementItem[]>("/api/v1/vertical/franchise/agreements"),
+      fetchAPI<RoyaltyCalcItem[]>("/api/v1/vertical/franchise/royalties"),
+    ])
+      .then(([a, r]) => { setAgreements(a); setRoyalties(r) })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const currentPeriodRoyalties = useMemo(() => royalties.filter((r) => r.period === "2026-04"), [royalties])
   const totalRoyalty = useMemo(() => currentPeriodRoyalties.reduce((s, r) => s + r.royalty_amount, 0), [currentPeriodRoyalties])
+
+  if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="FC会計" description="フランチャイズ契約・ロイヤリティ管理" /><LoadingState /></div>
+  if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="FC会計" description="フランチャイズ契約・ロイヤリティ管理" /><ErrorState message={error} /></div>
+  if (!agreements.length && !royalties.length) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="FC会計" description="フランチャイズ契約・ロイヤリティ管理" /><EmptyState /></div>
 
   return (
     <div className="min-h-full bg-[#0a0e14] text-white/80 flex flex-col">

@@ -1413,3 +1413,22 @@ export const mockStoreManagerBrief = {
   },
   weekly_action_completion: { total: 8, completed: 5, rate: 0.625 },
 }
+
+export const mockAuditLogs = [
+  { id: "1", timestamp: "2026-04-30 14:32:10", user: "admin@aentro.jp", method: "GET", path: "/api/v1/executive/summary", result: "allow", ip: "10.0.1.12" },
+  { id: "2", timestamp: "2026-04-30 14:31:55", user: "sv@aentro.jp", method: "GET", path: "/api/v1/stores/ranking", result: "allow", ip: "10.0.1.15" },
+  { id: "3", timestamp: "2026-04-30 14:30:22", user: "unknown@test.jp", method: "POST", path: "/api/v1/auth/login", result: "deny", ip: "192.168.1.100" },
+  { id: "4", timestamp: "2026-04-30 14:28:01", user: "manager@aentro.jp", method: "PUT", path: "/api/v1/tasks/t-001", result: "allow", ip: "10.0.1.20" },
+  { id: "5", timestamp: "2026-04-30 14:25:44", user: "admin@aentro.jp", method: "DELETE", path: "/api/v1/writeback/requests/wr-003", result: "allow", ip: "10.0.1.12" },
+  { id: "6", timestamp: "2026-04-30 14:20:10", user: "sv@aentro.jp", method: "GET", path: "/api/v1/sv/missions", result: "allow", ip: "10.0.1.15" },
+  { id: "7", timestamp: "2026-04-30 14:18:33", user: "viewer@aentro.jp", method: "GET", path: "/api/v1/stores/ranking", result: "allow", ip: "10.0.1.30" },
+  { id: "8", timestamp: "2026-04-30 14:15:02", user: "viewer@aentro.jp", method: "POST", path: "/api/v1/rbac/users/u-001/roles", result: "deny", ip: "10.0.1.30" },
+  { id: "9", timestamp: "2026-04-30 14:10:50", user: "admin@aentro.jp", method: "POST", path: "/api/v1/ai/query", result: "allow", ip: "10.0.1.12" },
+  { id: "10", timestamp: "2026-04-30 14:05:11", user: "manager@aentro.jp", method: "GET", path: "/api/v1/vertical/labor/shifts", result: "allow", ip: "10.0.1.20" },
+]
+
+export const mockUserList = [
+  { id: "u-001", name: "田中 太郎", email: "admin@aentro.jp", roles: ["admin", "executive"], active: true, created_at: "2025-01-15" },
+  { id: "u-002", name: "鈴木 花子", email: "sv@aentro.jp", roles: ["sv"], active: true, created_at: "2025-03-01" },
+  { id: "u-003", name: "佐藤 一郎", email: "manager@aentro.jp", roles: ["manager"], active: true, created_at: "2025-06-10" },
+]

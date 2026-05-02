@@ -1,4 +1,23 @@
+import random as _rng
+
 from app.connectors.base import BaseConnector, FetchResult, ConnectorSchema
+
+_rng.seed(45)
+
+SANDBOX_DAILY = [
+    {
+        "divisionCode": f"D{store:03d}",
+        "date": f"2026-04-{day + 1:02d}",
+        "employeeKey": f"KOT{store:03d}-{emp:02d}",
+        "clockIn": f"{8 + _rng.randint(0, 2):02d}:{_rng.choice(['00', '30'])}",
+        "clockOut": f"{17 + _rng.randint(0, 3):02d}:{_rng.choice(['00', '30'])}",
+        "workMinutes": _rng.randint(420, 600),
+        "overtimeMinutes": _rng.randint(0, 120),
+    }
+    for store in range(1, 4)
+    for day in range(30)
+    for emp in range(1, 4)
+]
 
 
 class KingOfTimeConnector(BaseConnector):
@@ -6,22 +25,6 @@ class KingOfTimeConnector(BaseConnector):
     source_type = "king_of_time"
     auth_type = "api_key"
     system_category = "labor"
-
-    SANDBOX_DATA = {
-        "employees": [
-            {"employeeKey": "KOT001", "lastName": "田中", "firstName": "太郎", "divisionName": "テスト店舗1"},
-            {"employeeKey": "KOT002", "lastName": "佐藤", "firstName": "花子", "divisionName": "テスト店舗1"},
-            {"employeeKey": "KOT003", "lastName": "鈴木", "firstName": "一郎", "divisionName": "テスト店舗2"},
-        ],
-        "daily_workings": [
-            {"employeeKey": "KOT001", "date": "2026-04-01", "clockIn": "09:00", "clockOut": "18:00", "workMinutes": 480, "overtimeMinutes": 0, "divisionCode": "D001"},
-            {"employeeKey": "KOT002", "date": "2026-04-01", "clockIn": "10:00", "clockOut": "19:30", "workMinutes": 510, "overtimeMinutes": 30, "divisionCode": "D001"},
-            {"employeeKey": "KOT003", "date": "2026-04-01", "clockIn": "08:30", "clockOut": "17:30", "workMinutes": 480, "overtimeMinutes": 0, "divisionCode": "D002"},
-            {"employeeKey": "KOT001", "date": "2026-04-02", "clockIn": "09:00", "clockOut": "20:00", "workMinutes": 600, "overtimeMinutes": 120, "divisionCode": "D001"},
-            {"employeeKey": "KOT002", "date": "2026-04-02", "clockIn": "11:00", "clockOut": "20:00", "workMinutes": 480, "overtimeMinutes": 0, "divisionCode": "D001"},
-            {"employeeKey": "KOT003", "date": "2026-04-02", "clockIn": "09:00", "clockOut": "18:00", "workMinutes": 480, "overtimeMinutes": 0, "divisionCode": "D002"},
-        ],
-    }
 
     def test_connection(self, config: dict) -> bool:
         if config.get("sandbox_mode"):
@@ -31,10 +34,10 @@ class KingOfTimeConnector(BaseConnector):
     async def fetch(self, config: dict, cursor: str | None = None, limit: int = 1000) -> FetchResult:
         if config.get("sandbox_mode"):
             return FetchResult(
-                records=self.SANDBOX_DATA["daily_workings"],
+                records=SANDBOX_DAILY,
                 cursor=None,
                 has_more=False,
-                total_fetched=len(self.SANDBOX_DATA["daily_workings"]),
+                total_fetched=len(SANDBOX_DAILY),
             )
         raise NotImplementedError("KING OF TIME接続にはAPIキー設定が必要です")
 
@@ -44,8 +47,8 @@ class KingOfTimeConnector(BaseConnector):
             work_hours = round(int(rec.get("workMinutes", 0)) / 60, 2)
             overtime_hours = round(int(rec.get("overtimeMinutes", 0)) / 60, 2)
             results.append({
+                "store_code": f"SUK{rec['divisionCode'][-3:]}",
                 "business_date": rec.get("date"),
-                "store_code": rec.get("divisionCode"),
                 "employee_code": rec.get("employeeKey"),
                 "labor_hours": work_hours,
                 "overtime_hours": overtime_hours,
