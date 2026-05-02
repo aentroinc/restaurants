@@ -192,6 +192,23 @@ TOOL_DEFINITIONS = [
         },
     },
     {
+        "name": "search_documents",
+        "description": "過去の経営会議メモ、顧客レビュー、SV訪問報告、業態プレイブックを意味検索する。質問に関連する文書を引用として取得する。",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "検索クエリ（日本語）。例: 「異物混入 対応」「人件費 改善 事例」"},
+                "doc_types": {
+                    "type": "array",
+                    "items": {"type": "string", "enum": ["meeting_note", "review", "sv_report", "playbook"]},
+                    "description": "検索対象の文書種別。省略時は全種別",
+                },
+                "limit": {"type": "integer", "description": "取得件数（デフォルト5、最大10）"},
+            },
+            "required": ["query"],
+        },
+    },
+    {
         "name": "generate_executive_pack",
         "description": "Generate an executive board pack from pilot results or full tenant overview. Returns structured sections, charts, and commentary suitable for PDF/PPT export.",
         "input_schema": {
@@ -675,6 +692,56 @@ async def execute_estimate_value_impact(input_data: dict, tenant_id: str, db: As
     }
 
 
+async def execute_search_documents(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
+    """Search documents using pgvector cosine distance."""
+    try:
+        query_text = input_data["query"]
+        doc_types = input_data.get("doc_types", ["meeting_note", "review", "sv_report", "playbook"])
+        limit = min(input_data.get("limit", 5), 10)
+
+        from app.services.ai.embedder import embed_text
+        from sqlalchemy import text as sql_text
+
+        query_vec = embed_text(query_text)
+
+        results = await db.execute(sql_text("""
+            SELECT id, doc_type, title, content,
+                   1 - (embedding <=> :qvec::vector) AS similarity
+            FROM documents
+            WHERE tenant_id = :tid AND doc_type = ANY(:types)
+            ORDER BY embedding <=> :qvec::vector
+            LIMIT :lim
+        """), {
+            "qvec": str(query_vec),
+            "tid": str(tenant_id),
+            "types": doc_types,
+            "lim": limit,
+        })
+
+        docs = []
+        for r in results:
+            docs.append({
+                "title": r.title,
+                "type": r.doc_type,
+                "type_label": {
+                    "meeting_note": "経営会議",
+                    "review": "レビュー",
+                    "sv_report": "SV報告",
+                    "playbook": "プレイブック",
+                }.get(r.doc_type, r.doc_type),
+                "snippet": r.content[:400],
+                "similarity": round(float(r.similarity), 3),
+            })
+
+        return {
+            "query": query_text,
+            "results": docs,
+            "total_found": len(docs),
+        }
+    except Exception as e:
+        return {"error": "ドキュメント検索に失敗しました", "detail": str(e)}
+
+
 async def execute_generate_sv_missions(input_data: dict, tenant_id: str, db: AsyncSession) -> dict:
     """SV 向け週次訪問計画"""
     from datetime import date as _date, timedelta as _td
@@ -741,6 +808,7 @@ TOOL_EXECUTORS = {
     "create_task_draft": execute_create_task_draft,
     "explain_kpi_change": execute_explain_kpi_change,
     "estimate_value_impact": execute_estimate_value_impact,
+    "search_documents": execute_search_documents,
     "generate_sv_missions": execute_generate_sv_missions,
     "generate_executive_pack": execute_generate_executive_pack,
 }

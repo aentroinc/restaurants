@@ -1,0 +1,30 @@
+{"question": "すき家の首都圏で原価率が最も高い店舗トップ5は？", "expected_tools": ["get_store_ranking"], "expected_answer_contains": ["すき家"]}
+{"question": "はま寿司全体のFL比率は？", "expected_tools": ["get_brand_summary"], "expected_answer_contains": ["FL比率"]}
+{"question": "今週SVが訪問すべき優先店舗は？", "expected_tools": ["get_store_ranking"], "expected_answer_contains": ["健全度"]}
+{"question": "ココスの人件費率が35%を超えている店舗は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["人件費"]}
+{"question": "先月の経営会議で出た議題は？", "expected_tools": ["search_documents"], "expected_answer_contains": []}
+{"question": "すき家品川港南店の詳細を教えて", "expected_tools": ["get_store_detail"], "expected_answer_contains": ["品川"]}
+{"question": "全ブランドの粗利率を比較して", "expected_tools": ["get_brand_summary"], "expected_answer_contains": ["すき家", "はま寿司"]}
+{"question": "改善施策の効果が出ている店舗は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["改善"]}
+{"question": "なか卯で客数が増加している店舗は？", "expected_tools": ["get_store_ranking"], "expected_answer_contains": ["なか卯"]}
+{"question": "ジョリーパスタの値上げ後の客数影響は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["客数"]}
+{"question": "首都圏の駅前店で最も健全度が低い店舗は？", "expected_tools": ["search_stores", "get_store_ranking"], "expected_answer_contains": ["健全度"]}
+{"question": "すき家の牛丼並盛の原価率は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["原価"]}
+{"question": "人件費率が最も改善した店舗はどこ？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["改善"]}
+{"question": "はま寿司の廃棄が多い店舗は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["はま寿司"]}
+{"question": "ココスで売上が前年割れの店舗数は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["売上"]}
+{"question": "直近のSV訪問報告でスコアが低かったのは？", "expected_tools": ["search_documents"], "expected_answer_contains": []}
+{"question": "すき家の異物混入問題の影響が出ている店舗は？", "expected_tools": ["search_stores", "query_kpi"], "expected_answer_contains": ["異物", "客数"]}
+{"question": "FC店舗のロイヤリティ合計は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["FC"]}
+{"question": "レビュー評価が低下傾向の店舗を教えて", "expected_tools": ["get_store_ranking"], "expected_answer_contains": ["レビュー"]}
+{"question": "今月のKPI再計算はいつ実行された？", "expected_tools": [], "expected_answer_contains": ["KPI"]}
+{"question": "すき家とはま寿司の人件費率を比較して", "expected_tools": ["get_brand_summary"], "expected_answer_contains": ["すき家", "はま寿司", "人件費"]}
+{"question": "売上トップ10の店舗は？", "expected_tools": ["get_store_ranking"], "expected_answer_contains": []}
+{"question": "原価率が40%を超えている店舗はいくつある？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["原価"]}
+{"question": "来月の需要予測は？", "expected_tools": [], "expected_answer_contains": ["予測"]}
+{"question": "シフト違反が多い店舗は？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["違反"]}
+{"question": "ゼンショー全体の営業利益率は？", "expected_tools": ["get_brand_summary"], "expected_answer_contains": ["営業利益"]}
+{"question": "品川港南店にタスクを作成して：人件費率改善", "expected_tools": ["create_task_draft"], "expected_answer_contains": ["タスク"]}
+{"question": "データ品質の問題が多いエリアは？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["品質"]}
+{"question": "先月のベストプラクティス店舗は？", "expected_tools": ["get_store_ranking"], "expected_answer_contains": ["健全度"]}
+{"question": "はま寿司の商品別売上ランキングは？", "expected_tools": ["query_kpi"], "expected_answer_contains": ["はま寿司"]}

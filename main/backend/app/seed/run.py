@@ -95,6 +95,7 @@ def run():
         print("Clearing existing data...")
         # Delete in reverse dependency order
         tables = [
+            "documents",
             "price_elasticities", "price_decisions",
             "competitor_stores", "trade_areas", "population_meshes",
             "ontology_migration_jobs",
@@ -522,6 +523,16 @@ def run():
         bulk_insert(session, PriceElasticity, price_elasticities)
         session.commit()
         print(f"  {len(price_decisions)} price decisions, {len(price_elasticities)} price elasticities created.")
+
+        # 43. Vector extension + RAG document indexing
+        print("Creating vector extension...")
+        session.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        session.commit()
+
+        print("Indexing documents for RAG...")
+        from app.services.ai.document_indexer import index_all_documents
+        result = index_all_documents(str(TENANT_ID))
+        print(f"  {result['indexed']} documents indexed.")
 
         print("\nSeed complete!")
         print(f"  Stores: {len(stores)}")

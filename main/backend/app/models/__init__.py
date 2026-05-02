@@ -54,6 +54,7 @@ from app.models.connector_extras import ConnectorCredentialRef, ConnectorSchedul
 from app.models.pricing import PriceDecision, PriceElasticity
 from app.models.rbac import Role, Permission, UserRole
 from app.models.auth_enterprise import IdentityProvider, MFASecret, AccessLog, LoginAttempt, AccountLock
+from app.models.document import Document
 
 __all__ = [
     "Tenant", "Company", "Brand", "Region", "Area", "Employee", "Store",
@@ -89,4 +90,5 @@ __all__ = [
     "PilotProject", "PilotIntervention", "PilotResult",
     "ColumnPolicy", "PIIRedactionLog",
     "ConnectorCredentialRef", "ConnectorSchedule", "DataContractRule",
+    "Document",
 ]
