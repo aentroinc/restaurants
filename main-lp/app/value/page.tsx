@@ -7,13 +7,13 @@ import { FoldableMethod } from "./foldable-method"
 import { CASES, CaseStudyCard } from "./cases"
 
 export const metadata: Metadata = {
-  title: "ROI と実績",
+  title: "実績と試算",
   description:
-    "5 社累計 ¥32.1 億の改善実績。あなたのチェーンの想定改善額を試算します。対照群比較・統計検定・円換算で証明する 8 週間 POC。",
+    "5 社で導入した結果、合計 32 億 1 千万円分のロスを減らせました。あなたの会社の店舗数を入れて、どれだけ効くか試算できます。8 週間のお試し導入で、他の店と比べて確認します。",
   openGraph: {
-    title: "AENTRO Restaurant OS — ROI と実績",
+    title: "AENTRO Restaurant OS — 実績と試算",
     description:
-      "5 社累計 ¥32.1 億の改善実績。あなたのチェーンの想定改善額を試算します。",
+      "5 社で導入した結果、合計 32 億 1 千万円分のロスを減らせました。あなたの会社の数字で試算できます。",
   },
 }
 
@@ -26,13 +26,13 @@ export default function ValuePage() {
         <div className="container-x relative pt-16 lg:pt-24 pb-16 lg:pb-20">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.16em] uppercase text-blue-400 font-bold px-3 py-1 rounded-full border border-blue-400/20 bg-blue-500/[0.06]">
-              ROI
+              いくら効くか
             </span>
             <h1 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white/95 leading-[1.1]">
-              数字でしか語らない。
+              実際にどれだけ効いたかを数字で見る
             </h1>
             <p className="mt-6 text-lg text-white/65 leading-relaxed">
-              5 社累計 ¥32.1 億の改善実績。あなたのチェーンの想定改善額を試算します。
+              5 社で導入した結果、合計 32 億 1 千万円分のロスを減らせました。あなたの会社の店舗数を入れて、どれだけ効くか試算できます。
             </p>
           </div>
         </div>
@@ -41,9 +41,9 @@ export default function ValuePage() {
       {/* ============== SECTION 1: ROI Calculator ============== */}
       <Section>
         <SectionHeader
-          eyebrow="ROI CALCULATOR"
-          title="あなたのチェーンの想定改善額"
-          description="店舗数・ブランド数・年商・主要業態を入れるだけ。5 社の実績から推定した想定年間改善額を即時に算出します。"
+          eyebrow="いくら効くか試算"
+          title="あなたの会社で、年間いくら効くか"
+          description="店舗数・ブランド数・年商・主な業態を入れるだけ。導入企業 5 社の実績から、年間どれだけロスを減らせるかを自動で計算します。"
         />
 
         <ROICalculator />
@@ -52,9 +52,9 @@ export default function ValuePage() {
       {/* ============== SECTION 2: Cases ============== */}
       <Section id="cases">
         <SectionHeader
-          eyebrow="CASE STUDIES"
+          eyebrow="導入事例"
           title="実際の改善実績"
-          description="全て対照群比較または前後比較で算出。p<0.05 を有意の閾値とする。"
+          description="すべての数字は、導入店と未導入店を比べて算出。偶然ではないことを統計でも確認しています。"
         />
 
         <div className="grid lg:grid-cols-2 gap-5">
@@ -72,26 +72,26 @@ export default function ValuePage() {
       {/* ============== SECTION 3: Transparency ============== */}
       <Section>
         <SectionHeader
-          eyebrow="METHOD"
-          title="数字の透明性"
-          description="効果数値はすべて統計的検定を経て算出。前提と計算式を全公開します。"
+          eyebrow="計算方法"
+          title="数字の出どころを全部公開します"
+          description="効果の数字はすべて統計で確認したもの。前提と計算式もすべて公開します。"
         />
 
         <div className="grid md:grid-cols-3 gap-5">
           <TransparencyCard
             num="01"
-            title="計算前提"
-            body="すべての効果数値は対照群比較（Difference-in-Differences）または前後比較で算出。介入店舗と非介入店舗を統計的にマッチングし、純粋な施策効果を分離します。"
+            title="計算の前提"
+            body="効果の数字はすべて、導入店と未導入店を比べて算出します。条件が近い店舗どうしを統計でマッチングして、施策の純粋な効果だけを取り出します。"
           />
           <TransparencyCard
             num="02"
-            title="有意水準"
-            body="信頼区間 95% / p < 0.05 を統計的有意の閾値として採用。サンプルサイズが不足する場合は、その旨を経営報告書に明記します。"
+            title="ちゃんと統計で確認"
+            body="「偶然ではない」と言える基準を満たした数字だけを採用。サンプル数が足りない場合は、その旨を経営報告書に正直に書きます。"
           />
           <TransparencyCard
             num="03"
-            title="季節性吸収"
-            body="個別店舗の lottery 効果（偶発的売上変動）は除外、季節性は対照群で吸収。年間ベースで安定的に再現可能な数字のみを採用します。"
+            title="季節の影響は除外"
+            body="個別店舗のたまたまの売上変動は除外。季節の影響は他の店と比べることで打ち消します。年間を通して安定して再現できる数字だけを採用します。"
           />
         </div>
 
@@ -103,10 +103,10 @@ export default function ValuePage() {
         <div className="absolute inset-0 gradient-hero pointer-events-none" />
         <div className="container-x relative py-24 lg:py-32 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold tracking-tight text-white/95 leading-tight">
-            あなたのチェーンの数字を出します
+            あなたの会社の数字で試算します
           </h2>
           <p className="mt-5 text-lg text-white/65 max-w-2xl mx-auto">
-            8週間 POC で、対照群比較 + 統計検定 + 円換算で証明します。
+            8 週間のお試し導入で、他の店と比べて、いくら効いたかを円で示します。
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
@@ -115,7 +115,7 @@ export default function ValuePage() {
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
-              8週POC 提案書 DL
+              お試し導入の資料をダウンロード
             </Link>
             <Link
               href="/demo"

@@ -39,21 +39,21 @@ const SEGMENT_OPTIONS = [
 function recommendedThemes(segment: string): string[] {
   switch (segment) {
     case "牛丼":
-      return ["深夜帯シフト最適化", "人時売上 KPI 統合"]
+      return ["夜の時間帯のシフト最適化", "1 時間あたり売上の見える化"]
     case "ファミレス":
-      return ["QSC スコア × 売上相関", "SV 訪問優先順位"]
+      return ["接客品質と売上の関係を見る", "SV 訪問の優先順位付け"]
     case "回転寿司":
-      return ["需要予測精度向上", "欠品 / 廃棄同時削減"]
+      return ["ネタ別の需要予測の精度向上", "欠品と廃棄の同時削減"]
     case "ハンバーガー":
-      return ["PMI 後 KPI 統合", "ブランド横断レポート"]
+      return ["買収後の数字の統合", "ブランドをまたいだ経営レポート"]
     case "うどん・そば":
-      return ["時間帯別需要予測", "麺ロス最適化"]
+      return ["時間帯ごとの需要予測", "麺ロスの削減"]
     case "焼肉":
-      return ["原価率 × 客単価分析", "予約回転最適化"]
+      return ["原価率と客単価の分析", "予約の回転率改善"]
     case "中華":
-      return ["ピーク時間人時売上", "テイクアウト需要予測"]
+      return ["ピーク時間の人時売上", "テイクアウトの需要予測"]
     default:
-      return ["KPI 可視化と異常検知", "経営会議資料自動化"]
+      return ["数字の見える化と異常検知", "経営会議資料の自動作成"]
   }
 }
 
@@ -124,7 +124,7 @@ export function ROICalculator() {
         </InputRow>
 
         <InputRow
-          label="年商"
+          label="年商（億円）"
           valueDisplay={`${revenueOku.toLocaleString("ja-JP")} 億円`}
         >
           <input
@@ -137,8 +137,8 @@ export function ROICalculator() {
             className="w-full accent-blue-500 h-1 cursor-pointer"
           />
           <div className="flex justify-between text-[10px] text-white/35 font-mono mt-1">
-            <span>100億</span>
-            <span>10,000億</span>
+            <span>100 億</span>
+            <span>10,000 億</span>
           </div>
         </InputRow>
 
@@ -162,7 +162,7 @@ export function ROICalculator() {
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           <span className="text-[10px] uppercase tracking-[0.14em] font-bold text-emerald-400">
-            想定年間改善額
+            年間どれだけロスを減らせるか
           </span>
         </div>
 
@@ -171,27 +171,27 @@ export function ROICalculator() {
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-3">
-          <BreakdownRow label="廃棄削減" value={result.waste} />
-          <BreakdownRow label="欠品削減" value={result.stockout} />
-          <BreakdownRow label="人件費最適化" value={result.labor} />
-          <BreakdownRow label="経営工数削減" value={result.meeting} />
+          <BreakdownRow label="廃棄ロスの削減" value={result.waste} />
+          <BreakdownRow label="欠品による機会損失の削減" value={result.stockout} />
+          <BreakdownRow label="人件費の最適化" value={result.labor} />
+          <BreakdownRow label="経営の作業時間削減" value={result.meeting} />
         </div>
 
         <div className="mt-8 grid sm:grid-cols-2 gap-3">
           <div className="rounded-lg border border-white/[0.05] bg-white/[0.02] p-4">
             <div className="text-[10px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
-              想定 POC 投資回収期間
+              お試し導入の費用が回収できるまでの期間
             </div>
             <div className="font-mono text-2xl font-bold text-blue-400">
               {monthsToPayback} ヶ月
             </div>
             <div className="text-[10px] text-white/35 mt-1 font-mono">
-              POC 費用 ¥4,000,000 / 月割改善額
+              お試し費用 400 万円 ÷ 月あたり改善額
             </div>
           </div>
           <div className="rounded-lg border border-white/[0.05] bg-white/[0.02] p-4">
             <div className="text-[10px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
-              推奨 POC テーマ
+              おすすめのお試しテーマ
             </div>
             <ul className="space-y-1 mt-1.5">
               {themes.map((t) => (
@@ -208,7 +208,7 @@ export function ROICalculator() {
         </div>
 
         <p className="mt-6 text-[11px] text-white/35 leading-relaxed">
-          上記は 5 社の実績平均から推定。詳細な試算は 8 週間 POC で対照群比較により確定します。
+          上記は導入企業 5 社の実績から推定。実際の数字は 8 週間のお試しで他の店と比較して確認します。
         </p>
 
         <div className="mt-6">
@@ -217,7 +217,7 @@ export function ROICalculator() {
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
           >
             <Download className="w-4 h-4" />
-            POC 提案書をダウンロード
+            お試し導入の資料をダウンロード
           </Link>
         </div>
       </div>

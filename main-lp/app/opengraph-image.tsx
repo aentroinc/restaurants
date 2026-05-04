@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
-export const alt = "AENTRO Restaurant OS — 外食大手向け AI 経営レイヤー"
+export const alt = "AENTRO — 外食チェーン向け AI 経営支援"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -66,8 +66,8 @@ export default async function Image() {
             flexDirection: "column",
           }}
         >
-          <div>外食グループの "次の一手" を、</div>
-          <div style={{ color: "#10b981" }}>8 週間で数字にする。</div>
+          <div>外食チェーンの「もったいない」を、</div>
+          <div style={{ color: "#10b981" }}>AI が毎日見つけて教えます。</div>
         </div>
 
         {/* sub */}
@@ -79,22 +79,22 @@ export default async function Image() {
             lineHeight: 1.5,
           }}
         >
-          外食大手向け AI 経営レイヤー · 既存システム置換不要 · 5 社実証済
+外食チェーン専用 AI · 今のシステムは触らない · 5 社で実証済み
         </div>
 
         {/* stats */}
         <div style={{ display: "flex", gap: 60, marginTop: 60 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>¥32.1億</div>
-            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>累計年間改善</div>
+            <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>32 億円</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>これまで減らしたロス（年）</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>9,240</div>
-            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>店舗合計</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>導入店舗数</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>5社</div>
-            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>実装完了</div>
+            <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>5 社</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>導入企業</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 36, fontWeight: 700, color: "#10b981", fontFamily: "monospace" }}>100%</div>

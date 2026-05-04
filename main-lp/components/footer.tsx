@@ -23,16 +23,16 @@ export function Footer() {
             </p>
           </div>
 
-          <FooterColumn title="製品" items={[
-            { label: "仕組み", href: "/how-it-works" },
-            { label: "効果", href: "/value" },
-            { label: "セキュリティ", href: "/security" },
-            { label: "比較", href: "/vs" },
+          <FooterColumn title="サービス" items={[
+            { label: "どう動くか", href: "/how-it-works" },
+            { label: "導入実績", href: "/value" },
+            { label: "安全性", href: "/security" },
+            { label: "他社比較", href: "/vs" },
           ]} />
-          <FooterColumn title="使い方" items={[
-            { label: "8週 POC", href: "/poc" },
-            { label: "デモ依頼", href: "/demo" },
-            { label: "事例", href: "/value#cases" },
+          <FooterColumn title="始める" items={[
+            { label: "お試し導入", href: "/poc" },
+            { label: "デモを依頼", href: "/demo" },
+            { label: "事例を見る", href: "/value#cases" },
           ]} />
           <FooterColumn title="法務" items={[
             { label: "プライバシー", href: "/legal/privacy" },
@@ -43,8 +43,8 @@ export function Footer() {
 
         <div className="pt-6 border-t border-white/[0.04] flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[10px] text-white/35">
           <p>
-            上記の事例数値は AENTRO 導入実績の匿名化データです。社名・具体店舗名は秘密保持により非公開。
-            類似業態・類似規模の貴社で同等効果を保証するものではありません。
+            記載されている事例の数字は、AENTRO 導入企業 5 社の実績を匿名でまとめたものです。社名・店舗名は秘密保持により非公開です。
+            業態・規模が似ていても、貴社で同等の効果が出ることを保証するものではありません。
           </p>
           <p className="shrink-0">
             v1.0 / 2026-05

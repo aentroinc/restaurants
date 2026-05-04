@@ -9,28 +9,28 @@ export function FoldableMethod() {
 
   const formulas: Array<{ label: string; formula: string; note: string }> = [
     {
-      label: "廃棄削減",
-      formula: "廃棄数量 × 原価",
+      label: "廃棄ロスの削減",
+      formula: "捨てた食材の量 × 仕入れ値",
       note:
-        "POS 売上と仕入実績から日次で算出。原価は商品マスタの最新値を使用。",
+        "POS の売上データと仕入実績から、毎日自動で計算します。仕入れ値は商品マスタの最新値を使います。",
     },
     {
-      label: "欠品削減",
-      formula: "欠品時間 × 平均時間帯売上 × 粗利率",
+      label: "欠品による機会損失の削減",
+      formula: "品切れの時間 × その時間帯の平均売上 × 粗利率",
       note:
-        "POS の売上ゼロ連続区間と発注/在庫データから欠品時間を特定。同時間帯の他店売上で機会損失を換算。",
+        "POS で売上ゼロの時間が続いた区間と、発注・在庫データから品切れの時間を特定。同じ時間帯の他店の売上を使って、いくら売り逃したかを円に換算します。",
     },
     {
-      label: "人時売上改善",
-      formula: "削減人時 × 平均人件費",
+      label: "人件費の最適化",
+      formula: "減らせた労働時間 × 平均時給",
       note:
-        "勤怠データから削減人時を抽出。人件費は給与システム or 人件費率の推定値を使用。",
+        "勤怠データから減らせた労働時間を出します。時給は給与システムの数字、または人件費率からの推定値を使います。",
     },
     {
-      label: "経営工数削減",
-      formula: "削減時間 × 平均人件費",
+      label: "経営の作業時間削減",
+      formula: "節約できた時間 × 平均時給",
       note:
-        "事前ヒアリング + ログ計測で実工数を測定。経営企画 / 本社部門の人件費単価を使用。",
+        "事前のヒアリングと作業ログから、実際の作業時間を測ります。時給は経営企画や本社部門の単価を使います。",
     },
   ]
 
@@ -41,7 +41,7 @@ export function FoldableMethod() {
         className="w-full border border-white/[0.06] bg-white/[0.02] rounded-xl px-5 py-4 flex items-center justify-between hover:border-white/[0.12] transition-colors"
       >
         <span className="text-[13px] font-medium text-white/85">
-          各効果の計算式 (詳細)
+          各効果の計算式（詳細）
         </span>
         <ChevronDown
           className={cn(

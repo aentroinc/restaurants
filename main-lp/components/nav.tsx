@@ -6,11 +6,11 @@ import { Hexagon, Menu, X, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV_ITEMS = [
-  { label: "仕組み", href: "/how-it-works" },
-  { label: "効果", href: "/value" },
-  { label: "セキュリティ", href: "/security" },
-  { label: "8週POC", href: "/poc" },
-  { label: "比較", href: "/vs" },
+  { label: "どう動くか", href: "/how-it-works" },
+  { label: "導入実績", href: "/value" },
+  { label: "安全性", href: "/security" },
+  { label: "お試し導入", href: "/poc" },
+  { label: "他社比較", href: "/vs" },
 ]
 
 export function Nav() {

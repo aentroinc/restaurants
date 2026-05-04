@@ -44,7 +44,7 @@ type Row = { feature: string; cells: Cell[]; group: "feature" | "meta" }
 const ROWS: Row[] = [
   {
     group: "feature",
-    feature: "外食特化機能",
+    feature: "外食専用の機能",
     cells: [
       { mark: "yes" },
       { mark: "no" },
@@ -55,10 +55,10 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "複数 POS 統合",
+    feature: "複数 POS をまとめる",
     cells: [
       { mark: "yes" },
-      { mark: "partial", note: "partial" },
+      { mark: "partial", note: "部分対応" },
       { mark: "no" },
       { mark: "no" },
       { mark: "no" },
@@ -66,29 +66,18 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "AI Native",
+    feature: "AI が最初から使える",
     cells: [
       { mark: "yes" },
       { mark: "no" },
-      { mark: "partial", note: "addon" },
-      { mark: "partial", note: "limited" },
+      { mark: "partial", note: "追加機能" },
+      { mark: "partial", note: "限定的" },
       { mark: "no" },
     ],
   },
   {
     group: "feature",
-    feature: "8週POC可能",
-    cells: [
-      { mark: "yes" },
-      { mark: "no" },
-      { mark: "no" },
-      { mark: "yes" },
-      { mark: "yes" },
-    ],
-  },
-  {
-    group: "feature",
-    feature: "既存システム非置換",
+    feature: "8 週間でお試し",
     cells: [
       { mark: "yes" },
       { mark: "no" },
@@ -99,40 +88,29 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "日本労働基準法対応",
+    feature: "今のシステムを置換えない",
     cells: [
       { mark: "yes" },
-      { mark: "partial", note: "manual" },
-      { mark: "partial", note: "addon" },
+      { mark: "no" },
+      { mark: "no" },
+      { mark: "yes" },
+      { mark: "yes" },
+    ],
+  },
+  {
+    group: "feature",
+    feature: "日本の労働法対応",
+    cells: [
+      { mark: "yes" },
+      { mark: "partial", note: "手作業" },
+      { mark: "partial", note: "追加機能" },
       { mark: "no" },
       { mark: "no" },
     ],
   },
   {
     group: "feature",
-    feature: "HACCP 標準対応",
-    cells: [
-      { mark: "yes" },
-      { mark: "no" },
-      { mark: "no" },
-      { mark: "no" },
-      { mark: "no" },
-    ],
-  },
-  {
-    group: "feature",
-    feature: "FC ロイヤリティ計算",
-    cells: [
-      { mark: "yes" },
-      { mark: "no" },
-      { mark: "partial", note: "config" },
-      { mark: "no" },
-      { mark: "no" },
-    ],
-  },
-  {
-    group: "feature",
-    feature: "商圏 Huff モデル",
+    feature: "HACCP（食品衛生）対応",
     cells: [
       { mark: "yes" },
       { mark: "no" },
@@ -143,10 +121,32 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "書き戻し対応",
+    feature: "FC（フランチャイズ）手数料計算",
     cells: [
       { mark: "yes" },
-      { mark: "partial", note: "custom dev" },
+      { mark: "no" },
+      { mark: "partial", note: "設定変更" },
+      { mark: "no" },
+      { mark: "no" },
+    ],
+  },
+  {
+    group: "feature",
+    feature: "出店候補地の集客予測",
+    cells: [
+      { mark: "yes" },
+      { mark: "no" },
+      { mark: "no" },
+      { mark: "no" },
+      { mark: "no" },
+    ],
+  },
+  {
+    group: "feature",
+    feature: "結果を POS に反映",
+    cells: [
+      { mark: "yes" },
+      { mark: "partial", note: "個別開発" },
       { mark: "no" },
       { mark: "no" },
       { mark: "yes" },
@@ -154,7 +154,7 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "専用 VPC",
+    feature: "専用クラウド",
     cells: [
       { mark: "yes" },
       { mark: "yes" },
@@ -165,7 +165,7 @@ const ROWS: Row[] = [
   },
   {
     group: "feature",
-    feature: "月次 ROI 証明",
+    feature: "毎月の効果を証明",
     cells: [
       { mark: "yes" },
       { mark: "no" },
@@ -176,18 +176,18 @@ const ROWS: Row[] = [
   },
   {
     group: "meta",
-    feature: "学習コスト",
+    feature: "習得にかかる時間",
     cells: [
-      { mark: "text", text: "1 day" },
-      { mark: "text", text: "weeks" },
-      { mark: "text", text: "months" },
-      { mark: "text", text: "weeks" },
-      { mark: "text", text: "1 day" },
+      { mark: "text", text: "1 日" },
+      { mark: "text", text: "数週間" },
+      { mark: "text", text: "数ヶ月" },
+      { mark: "text", text: "数週間" },
+      { mark: "text", text: "1 日" },
     ],
   },
   {
     group: "meta",
-    feature: "価値創出期間",
+    feature: "効果が出るまでの期間",
     cells: [
       { mark: "text", text: "8 週間" },
       { mark: "text", text: "12-18ヶ月" },
@@ -198,13 +198,13 @@ const ROWS: Row[] = [
   },
   {
     group: "meta",
-    feature: "想定年間コスト",
+    feature: "想定年間費用",
     cells: [
-      { mark: "text", text: "¥240M" },
-      { mark: "text", text: "¥800M〜" },
-      { mark: "text", text: "¥500M〜" },
-      { mark: "text", text: "¥10-50M" },
-      { mark: "text", text: "¥3-10M" },
+      { mark: "text", text: "2 億 4 千万円" },
+      { mark: "text", text: "8 億円〜" },
+      { mark: "text", text: "5 億円〜" },
+      { mark: "text", text: "1,000 万〜5,000 万円" },
+      { mark: "text", text: "300〜1,000 万円" },
     ],
   },
 ]
@@ -227,11 +227,11 @@ export default function VsPage() {
               variants={fadeUp}
               className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white/95 leading-[1.1]"
             >
-              何が違うのか、<span className="gradient-text">12 機能で比較。</span>
+              他のシステムとどう違うか、<span className="gradient-text">12 項目で並べました</span>
             </motion.h1>
 
             <motion.p variants={fadeUp} className="mt-6 text-lg text-white/65 leading-relaxed max-w-3xl">
-              外食業界で AENTRO がどのポジションにあるか、客観的に並べます。
+              煽らず、事実だけ並べます。最終判断は貴社で。
             </motion.p>
           </motion.div>
         </div>
@@ -248,7 +248,7 @@ export default function VsPage() {
         {/* Legend */}
         <div className="mb-6 flex flex-wrap items-center gap-4 text-[12px] text-white/60">
           <LegendItem icon={<Check className="w-3.5 h-3.5 text-emerald-400" />} label="標準対応" />
-          <LegendItem icon={<Minus className="w-3.5 h-3.5 text-amber-400" />} label="部分 / addon / 設定次第" />
+          <LegendItem icon={<Minus className="w-3.5 h-3.5 text-amber-400" />} label="部分対応 / 追加機能 / 設定次第" />
           <LegendItem icon={<X className="w-3.5 h-3.5 text-red-400/80" />} label="非対応" />
         </div>
 
@@ -317,7 +317,7 @@ export default function VsPage() {
         </div>
 
         <p className="mt-4 text-[11px] text-white/35">
-          ※ 想定年間コストは公開価格 / 業界一般情報からの推定。実際の見積は各社にご確認ください。
+          ※ 想定年間費用は公開価格 / 業界一般情報からの推定。実際の見積は各社にご確認ください。
         </p>
       </Section>
 
@@ -329,26 +329,26 @@ export default function VsPage() {
           <DiffCard
             icon={<Layers className="w-5 h-5" />}
             tone="blue"
-            title="外食特化 100+ KPI"
-            body="HACCP / レシピ BOM / FC 会計 / 商圏 Huff / シフト法令対応など、外食ドメインに必要な指標を標準搭載。"
+            title="外食専用の 100 以上の数字"
+            body="HACCP（食品衛生）・レシピ原価・FC（フランチャイズ）会計・出店候補地の集客予測・労働法対応など、外食現場で必要な数字と業務を最初から備えています。"
           />
           <DiffCard
             icon={<Sparkles className="w-5 h-5" />}
             tone="purple"
-            title="Claude 統合 AI"
-            body="11 tools が実 DB を読み取り、日本語で経営判断を補助。要約だけでなく根拠付きの提案を返します。"
+            title="AI（Claude）統合、11 種類の業務を実データで"
+            body="AI が貴社の実データを読み取り、日本語で経営判断を補助。要約だけでなく、根拠を添えた提案を返します。"
           />
           <DiffCard
             icon={<CalendarCheck className="w-5 h-5" />}
             tone="amber"
-            title="8 週間で証明"
-            body="統計検定 (DiD + p<0.05) と円換算で「効いた」を客観化。経営層が見える効果を最短で。"
+            title="8 週間で効いたかを統計で証明"
+            body="統計の手法と円換算で「効いた」を客観的に示します。経営層にも「効果が出ている」と分かる形で、最短で証明します。"
           />
           <DiffCard
             icon={<Network className="w-5 h-5" />}
             tone="emerald"
-            title="既存非置換"
-            body="POS / 勤怠 / 物流 / 会計はそのまま。read-only から開始し、書き戻しも承認制。リスクなし。"
+            title="今のシステムは触らない、データを読むだけ。リスクなし"
+            body="POS / 勤怠 / 物流 / 会計はそのまま。データを読むだけで始め、結果を POS に反映する場合も承認制。リスクはありません。"
           />
         </div>
       </Section>
@@ -357,7 +357,7 @@ export default function VsPage() {
       <Section>
         <SectionHeader
           eyebrow="GAPS"
-          title="他社にできないこと"
+          title="他社では届かない理由"
           description="競合各社の強みは尊重しつつ、外食大手の経営課題に届かない構造的理由を整理します。"
         />
 
@@ -368,11 +368,11 @@ export default function VsPage() {
             label="A"
             heading="NTT データ / 大手 SI"
             points={[
-              "外食ドメイン知識が限定的、ヒアリング工数が大きくなりがち",
-              "AI は OpenAI 等に外注するケースが多く、データ取扱いが不透明",
-              "受託開発主体のため、長期的にベンダーロックインに繋がりやすい",
+              "外食業界の細かい事情に詳しくない（ヒアリングに時間がかかる）",
+              "AI 機能は他社（OpenAI 等）に外注しているので、データの扱いが見えにくい",
+              "個別開発が中心で、後で他社に切り替えにくくなる",
             ]}
-            dilemma="顧客のジレンマ：要件を整理する工程に半年、効果が見える前に予算が尽きる。"
+            dilemma="こういう会社で限界が出やすい：要件を整理する工程に半年、効果が見える前に予算が尽きる。"
           />
           <GapCard
             icon={<Server className="w-5 h-5" />}
@@ -380,11 +380,11 @@ export default function VsPage() {
             label="B"
             heading="SAP / Oracle"
             points={[
-              "外食特化機能 (HACCP / レシピ BOM 等) が標準で存在せず addon が必要",
-              "ERP 思想で「全社移行」前提のため、置換コストが膨大",
-              "経営層が見える効果まで 1〜2 年かかるケースが多い",
+              "外食専用の機能（HACCP・レシピ原価など）は標準で入っておらず、別売り",
+              "業務統合システム（ERP）の発想なので、全社で移行するのが前提。導入コストが大きい",
+              "経営層が「効いた」と感じるまで 1-2 年かかる",
             ]}
-            dilemma="顧客のジレンマ：基幹を入れ替える覚悟が要る。POC の範囲で証明しづらい。"
+            dilemma="こういう会社で限界が出やすい：基幹を入れ替える覚悟が要る。お試しの範囲で証明しづらい。"
           />
           <GapCard
             icon={<BarChart3 className="w-5 h-5" />}
@@ -392,11 +392,11 @@ export default function VsPage() {
             label="C"
             heading="Tableau / Power BI"
             points={[
-              "可視化のみ。データ統合 / オントロジーは別途構築が必要",
-              "AI は Pulse / Copilot 程度で tool use なし、書き戻しもなし",
-              "「ダッシュボード」止まりで、現場アクションには直結しない",
+              "グラフを描くのが得意。データの統合や整理は別の仕組みが必要",
+              "AI 機能は基本的な質問応答止まり、業務システムは操作できない",
+              "画面で見るだけで終わり、現場の改善行動までは運んでくれない",
             ]}
-            dilemma="顧客のジレンマ：見える化はできた、でも誰がいつ動くかは別問題。"
+            dilemma="こういう会社で限界が出やすい：見える化はできた、でも誰がいつ動くかは別問題。"
           />
           <GapCard
             icon={<Database className="w-5 h-5" />}
@@ -404,11 +404,11 @@ export default function VsPage() {
             label="D"
             heading="Air レジ / スマレジ BI"
             points={[
-              "単一 POS のみ対応、複数 POS / 勤怠 / 物流の横断統合は不可",
-              "売上 KPI が中心で、勤怠・物流・FC 会計までは対象外",
-              "中小チェーン向けに最適化されており、年商 1,000 億超では機能不足",
+              "自社 POS にしか対応していない、複数の POS を 1 つにまとめられない",
+              "売上の数字だけ。勤怠・物流・FC（フランチャイズ）の数字とは合わせられない",
+              "中小チェーン向けで、年商 1,000 億円超の会社には機能が足りない",
             ]}
-            dilemma="顧客のジレンマ：単一ブランドでは便利だが、HD 全体の経営判断には届かない。"
+            dilemma="こういう会社で限界が出やすい：単一ブランドでは便利だが、HD 全体の経営判断には届かない。"
           />
         </div>
       </Section>
@@ -419,19 +419,19 @@ export default function VsPage() {
 
         <div className="max-w-3xl mx-auto rounded-xl border border-white/[0.08] bg-gradient-to-b from-blue-500/[0.04] to-white/[0.01] p-8 lg:p-10">
           <p className="text-[15px] lg:text-[16px] text-white/85 leading-[1.85]">
-            AENTRO は<span className="text-white/95 font-bold">既存システムを置き換えるソリューションではありません。</span>
+            AENTRO は<span className="text-white/95 font-bold">既存システムを置き換えるサービスではありません。</span>
             <br />
             <br />
             POS（スマレジ / Airレジ / 自社）、勤怠（KING OF TIME 等）、物流、会計をすべて
-            <span className="text-emerald-300 font-medium"> read-only </span>
+            <span className="text-emerald-300 font-medium"> データを読むだけ </span>
             で接続し、外食業界の経営判断に必要な
-            <span className="text-blue-300 font-medium"> KPI・効果計測・AI 提案 </span>
-            を上位レイヤーとして提供します。
+            <span className="text-blue-300 font-medium"> 数字・効果計測・AI 提案 </span>
+            を上のレイヤーとして提供します。
             <br />
             <br />
-            既存 IT 部門の役割を奪わず、むしろ既存システムから引き出せる経営価値を
-            <span className="text-white/95 font-bold">最大化する加速装置</span>
-            として機能します。
+            IT 部門の仕事を奪うのではなく、今あるシステムから経営判断に使える価値を引き出すための
+            <span className="text-white/95 font-bold">「加速装置」</span>
+            です。
           </p>
         </div>
       </Section>
@@ -451,7 +451,7 @@ export default function VsPage() {
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
-              比較資料 (PDF) ダウンロード
+              比較資料 PDF をダウンロード
             </Link>
             <Link
               href="/demo"
@@ -592,7 +592,7 @@ function GapCard({
       </ul>
       <div className="mt-auto pt-4 border-t border-white/[0.05]">
         <div className="text-[10px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
-          DILEMMA
+          こういう会社で限界が出やすい
         </div>
         <p className="text-[12px] text-white/55 leading-relaxed italic">{dilemma}</p>
       </div>

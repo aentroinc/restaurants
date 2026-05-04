@@ -11,25 +11,25 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 export const metadata: Metadata = {
   metadataBase: new URL("https://aentroinc.com/restaurants"),
   title: {
-    default: "AENTRO Restaurant OS — 外食大手向け AI 経営レイヤー",
+    default: "AENTRO — 外食チェーンの「もったいない」を AI が毎日見つけて教えます",
     template: "%s | AENTRO",
   },
-  description: "既存システムを置き換えず、1ブランド・1テーマから 8 週間で収益改善を円換算で証明する外食特化 AI 経営レイヤー。",
-  keywords: ["外食", "AI", "経営", "BI", "データ統合", "POS", "シフト最適化", "HACCP", "外食 DX"],
+  description: "外食チェーンの廃棄ロス・シフト過剰・欠品・問題店舗を、AI が毎朝チェックして本部と店長に直接届けます。今のシステムは何も変えず、8 週間のお試しから始められます。",
+  keywords: ["外食", "AI", "経営", "シフト最適化", "廃棄削減", "欠品対策", "外食 DX", "店舗運営"],
   authors: [{ name: "AENTRO Inc." }],
   openGraph: {
     type: "website",
     locale: "ja_JP",
     url: "https://aentroinc.com/restaurants",
     siteName: "AENTRO",
-    title: "AENTRO Restaurant OS",
-    description: "外食大手向け AI 経営レイヤー。8 週間 POC で収益改善を円換算で証明。",
+    title: "AENTRO — 外食チェーン向け AI 経営支援",
+    description: "外食チェーンの「もったいない」を AI が毎日見つけて、本部と店長に届けます。8 週間のお試しで効果を確認できます。",
     images: [{ url: "/restaurants/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AENTRO Restaurant OS",
-    description: "外食大手向け AI 経営レイヤー",
+    title: "AENTRO — 外食チェーン向け AI 経営支援",
+    description: "AI が「今日改善すべきこと」を本部と店長に毎朝届けます",
   },
   robots: { index: true, follow: true },
 }

@@ -93,7 +93,7 @@ export default function DemoPage() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-2.5">
-              <DemoBadge icon={<Hammer className="w-3.5 h-3.5" />} label="実機を触る (POC Wizard / Daily Brief)" />
+              <DemoBadge icon={<Hammer className="w-3.5 h-3.5" />} label="実機を触る（お試し設定画面 / 朝のレポート）" />
               <DemoBadge icon={<Calculator className="w-3.5 h-3.5" />} label="ROI 試算 (貴社の店舗数で)" />
               <DemoBadge icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Security Q&A (情シス向け資料)" />
             </div>
@@ -146,7 +146,7 @@ export default function DemoPage() {
               <FaqCard
                 tone="amber"
                 question="8 週間で本当に効果が出ますか？"
-                answer="過去 5 社中 4 社が p<0.05 で改善を検出。残り 1 社は別 KPI で改善検出。検出できなかった場合の返金条項もあります。"
+                answer="過去 5 社中 4 社が 統計的に確実な改善が出ました。残り 1 社も別の数字で改善が見られました。検出できなかった場合の返金条項もあります。"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function DemoPage() {
             time="5-15 min"
             tone="purple"
             title="プロダクトデモ"
-            body="AENTRO の TOP / Daily Brief / Action Loop を実機で操作しながらご覧いただきます。"
+            body="AENTRO のトップ画面・朝のレポート・自動改善サイクルを実機で触っていただきます。"
           />
           <TimelineStep
             order="03"
@@ -195,7 +195,7 @@ export default function DemoPage() {
             time="35-45 min"
             tone="blue"
             title="次のステップ"
-            body="8 週間 POC の検討と、次回打合せの日程設定までその場で完結します。"
+            body="8 週間お試し導入の検討と、次回打合せの日程設定までその場で完結します。"
             isLast
           />
         </div>
@@ -537,7 +537,7 @@ function DemoConfirmation() {
         />
         <ResourceLink
           icon={<FileText className="w-4 h-4 text-purple-400" />}
-          label="8 週間 POC 提案書"
+          label="8 週間お試し導入の資料"
           desc="検証フロー / 成果物 / 価格"
           href="/poc"
           rightIcon={<ChevronRight className="w-4 h-4 text-white/45" />}

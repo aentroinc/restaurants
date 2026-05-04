@@ -52,11 +52,11 @@ export default function HowItWorksPage() {
               variants={fadeUp}
               className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white/95 leading-[1.1]"
             >
-              AENTRO は <span className="gradient-text">24 時間で 1 ループ</span>する
+              AI が <span className="gradient-text">毎日、現場まで</span>動かします
             </motion.h1>
 
             <motion.p variants={fadeUp} className="mt-6 text-lg text-white/65 leading-relaxed max-w-3xl">
-              経営判断は単発ではない。月単位ではなく、毎日回せるかどうか。
+              AI が毎晩データをチェックし、朝には経営陣のスマホに「今日改善すべきこと」が届きます。承認すると現場で実行され、翌朝にはどれだけ効いたかが確認できます。このページでは、その 1 日の流れを 4 ステップで紹介します。
             </motion.p>
           </motion.div>
         </div>
@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
 
       {/* ====================== SECTION 1 — Why Loop ====================== */}
       <Section>
-        <SectionHeader eyebrow="THE LOOP" title="なぜ &quot;ループ&quot; が大事なのか" />
+        <SectionHeader eyebrow="THE LOOP" title="なぜ &quot;毎日回す&quot; ことが大事なのか" />
 
         <motion.div
           variants={stagger}
@@ -77,21 +77,21 @@ export default function HowItWorksPage() {
             <LoopReasonCard
               step="01"
               tone="purple"
-              text="月曜に出した指示 → 火曜現場で実行 → 水曜に効果計測 → 木曜に方針修正"
+              text="経営会議で決めた施策が現場で実行されるまで、ふつうは何週間もかかる。その間に天気もお客様の動きも変わってしまう。"
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <LoopReasonCard
               step="02"
               tone="blue"
-              text="このサイクルを 1 ヶ月単位ではなく、24 時間で回せるかどうか"
+              text="このサイクルを 1 ヶ月ではなく、毎日 24 時間で回せると、判断と現場の差が消えていく。"
             />
           </motion.div>
           <motion.div variants={fadeUp}>
             <LoopReasonCard
               step="03"
               tone="emerald"
-              text="AENTRO はこのループを AI で自動化、経営層の判断を最短で現場に運ぶ"
+              text="AENTRO はこの流れを AI で自動化し、経営層の判断を最短で現場に届けます。"
             />
           </motion.div>
         </motion.div>
@@ -101,31 +101,31 @@ export default function HowItWorksPage() {
       <Section>
         <SectionHeader
           eyebrow="4 STEPS"
-          title="1 ループの中で何が起きているか"
-          description="検出 → 配布 → 実行 → 反映。経営層の役割は &quot;Yes か No&quot; を押すこと。"
+          title="1 日の中で起きていること"
+          description="見つける → 届ける → 実行する → 確かめる。経営層がやることは &quot;やる / やらない&quot; を押すだけ。"
         />
 
         <div className="space-y-6">
           {/* Step 1 */}
           <StepCard
             order="01"
-            time="03:14 JST"
+            time="深夜 3 時ごろ"
             tone="purple"
             icon={<Sparkles className="w-5 h-5" />}
-            title="AI が異常を見つける"
-            subtitle="経営層が出社する前に、Slack で通知"
+            title="AI が問題を見つける（夜中のうちに）"
+            subtitle="経営層が出社する前に、Slack でお知らせが届く"
             details={[
               {
                 label: "何を見ているか",
-                items: ["KPI の異常", "DQ issue (データ品質)", "顧客レビュー", "在庫水準"],
+                items: ["数字のいつもとの違い", "データの取り込みエラー", "お客様のレビュー", "在庫の残り具合"],
               },
               {
-                label: "検出ロジック",
-                items: ["統計的閾値 (z-score / IQR)", "業界知識ベースの仮説生成", "Claude による原因推論"],
+                label: "見つけ方",
+                items: ["過去のデータと比べていつもと違う動きを見つける", "外食でよくあるパターンから原因を推測", "AI がもっとも可能性の高い原因を絞り込む"],
               },
               {
-                label: "実装場所",
-                items: ["毎日 03:00 JST バッチ", "イベント駆動 (POS / 勤怠)", "Slack Webhook 連携"],
+                label: "動くタイミング",
+                items: ["毎晩自動で実行", "重要なことが起きたら即時", "Slack に自動でお知らせ"],
               },
             ]}
             mock={<MockStep1 />}
@@ -134,23 +134,23 @@ export default function HowItWorksPage() {
           {/* Step 2 */}
           <StepCard
             order="02"
-            time="07:30 JST"
+            time="朝 7 時 30 分ごろ"
             tone="blue"
             icon={<Smartphone className="w-5 h-5" />}
-            title="現場に届ける"
-            subtitle="経営層が承認 → 5 SV のスマホに即配信"
+            title="担当者のスマホに届く（朝）"
+            subtitle="経営層が承認するだけで、5 人の SV のスマホにすぐ届く"
             details={[
               {
-                label: "配布チャネル",
-                items: ["Slack (DM + チャンネル)", "メール (HTML)", "iOS アプリ (push)"],
+                label: "届け方",
+                items: ["Slack（個別メッセージ + チャンネル）", "メール", "iOS アプリの通知"],
               },
               {
-                label: "優先順位最適化",
-                items: ["improvement opportunity 順", "SV の担当エリアでフィルタ", "走行ルート最適化"],
+                label: "順番の付け方",
+                items: ["効果が大きい順に並べる", "SV の担当エリアで絞り込む", "回りやすい順路に並び替え"],
               },
               {
-                label: "含まれる情報",
-                items: ["訪問理由", "期待改善額 (円)", "現場用チェックリスト"],
+                label: "届く中身",
+                items: ["なぜ訪問するのか", "改善できる金額（円）", "現場で使えるチェックリスト"],
               },
             ]}
             mock={<MockStep2 />}
@@ -159,23 +159,23 @@ export default function HowItWorksPage() {
           {/* Step 3 */}
           <StepCard
             order="03"
-            time="終日"
+            time="日中"
             tone="amber"
             icon={<Building2 className="w-5 h-5" />}
-            title="店舗で実行する"
-            subtitle="143 店舗で task 完了報告、現場コメント記録"
+            title="店舗で実行する（日中）"
+            subtitle="143 店舗で完了報告と、現場の声を記録"
             details={[
               {
-                label: "担当",
-                items: ["SV (エリア責任者)", "店長 (店舗責任者)", "店舗スタッフ (実行者)"],
+                label: "誰がやるか",
+                items: ["SV（エリア責任者）", "店長（店舗責任者）", "店舗スタッフ（実行する人）"],
               },
               {
-                label: "報告",
-                items: ["完了 / 効果あり / 効果なし", "現場コメント (フリーテキスト)", "写真添付 (任意)"],
+                label: "報告内容",
+                items: ["完了 / 効いた / 効かなかった", "現場の声（自由記入）", "写真の添付（任意）"],
               },
               {
-                label: "学習",
-                items: ["AI が現場フィードバックで仮説を更新", "次回提案の精度に反映", "店舗別の傾向を蓄積"],
+                label: "AI の学習",
+                items: ["現場の声をもとに次の提案を改善", "次回の精度に反映", "店舗ごとの傾向を覚えていく"],
               },
             ]}
             mock={<MockStep3 />}
@@ -184,23 +184,23 @@ export default function HowItWorksPage() {
           {/* Step 4 */}
           <StepCard
             order="04"
-            time="翌 03:00 JST"
+            time="翌朝 3 時ごろ"
             tone="emerald"
             icon={<Database className="w-5 h-5" />}
-            title="POS / 勤怠に反映する"
-            subtitle="承認済みのシフト変更を POS に書き戻し、効果を再計測"
+            title="効果を確かめる（翌朝）"
+            subtitle="承認したシフト変更を勤怠 / POS に反映、どれだけ効いたかを再計測"
             details={[
               {
-                label: "書き戻しポリシー",
-                items: ["write-back policy で承認制", "段階的 rollout (5% → 100%)", "ロールバック可能"],
+                label: "反映のしかた",
+                items: ["必ず承認してから反映", "まず一部の店から（5% → 100%）", "やめたい時はすぐ戻せる"],
               },
               {
-                label: "監査",
-                items: ["audit log に全記録", "誰が / いつ / 何を", "WORM ストレージに保管"],
+                label: "記録",
+                items: ["全ての操作を記録", "誰が / いつ / 何をしたか", "後から書き換えできない形で保管"],
               },
               {
-                label: "再計測",
-                items: ["ROI 計測 (円換算)", "翌日の経営司令塔に反映", "ループのスタートに戻る"],
+                label: "効果の再計測",
+                items: ["効果を円で計算", "翌朝の経営レポートに自動で反映", "また次の 1 日が始まる"],
               },
             ]}
             mock={<MockStep4 />}
@@ -213,52 +213,53 @@ export default function HowItWorksPage() {
       <Section>
         <SectionHeader
           eyebrow="MEASUREMENT"
-          title="4 週間後、効果を統計検定で証明"
-          description="「効いた気がする」では、経営報告に出せない。"
+          title="4 週間後、効果を数字で証明"
+          description="「効いた気がする」では、経営報告には出せません。"
         />
 
         <div className="grid md:grid-cols-3 gap-4 mb-10">
           <MeasureCard
             icon={<ChartBar className="w-5 h-5" />}
             tone="blue"
-            title="対照群比較 (DiD)"
-            body="Difference-in-Differences で介入効果を抽出。介入前後 × 対照/処置の 2x2 で純粋効果を取り出す。"
+            title="他の店と比べて確認する"
+            body="施策をやった店と、やっていない店を比べることで「本当にこの施策が効いたのか」を取り出します。"
           />
           <MeasureCard
             icon={<Calculator className="w-5 h-5" />}
             tone="purple"
-            title="統計的有意 (p<0.05)"
-            body="Welch's t-test と bootstrap CI (1000 回) で、効果が偶然ではないことを保証する。"
+            title="偶然ではないと言える基準"
+            body="ちゃんと統計で確認するので、たまたま運が良かっただけ、では出さない。確かに効いた、と言える数字だけを報告します。"
           />
           <MeasureCard
             icon={<TrendingUp className="w-5 h-5" />}
             tone="emerald"
-            title="円換算インパクト"
-            body="廃棄削減 / 欠品削減 / 人件費 / 機会損失をすべて円で集計。年間換算して経営報告。"
+            title="年間でいくら効くか"
+            body="廃棄削減 / 欠品削減 / 人件費 / 機会損失の合計を、年間でいくらになるかを円で計算。経営報告に使える形にまとめます。"
           />
         </div>
 
-        {/* formula card */}
+        {/* explanation card */}
         <div className="max-w-4xl mx-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 lg:p-8">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-[10px] tracking-[0.18em] uppercase text-white/45 font-bold">FORMULA</span>
-            <span className="text-[10px] text-white/30 font-mono">// Difference-in-Differences</span>
+            <span className="text-[10px] tracking-[0.18em] uppercase text-white/45 font-bold">計算の考え方</span>
           </div>
-          <pre className="font-mono text-[12px] lg:text-[13px] text-white/75 leading-relaxed overflow-x-auto whitespace-pre-wrap">
-{`delta = (intervention_target - baseline_target)
-      - (intervention_control - baseline_control)
-
-annualized_impact = delta * 365 * store_count * marginal_margin`}
-          </pre>
+          <div className="text-[13px] lg:text-[14px] text-white/75 leading-relaxed space-y-3">
+            <p>
+              施策をやった店の「やる前 → やった後」の変化から、施策をやっていない店の「同じ期間の自然な変化」を引きます。これで、季節や天気など他の影響を取り除いた「施策だけの効果」が分かります。
+            </p>
+            <p>
+              そこに 365 日分 × 店舗数 × 利益率を掛けて、「年間でいくら得をするか」を円で出します。
+            </p>
+          </div>
         </div>
       </Section>
 
       {/* ====================== SECTION 4 — 1 ループの中身 (timeline) ====================== */}
       <Section>
         <SectionHeader
-          eyebrow="28-DAY LOOP"
-          title="1 ループに何が起こっているか"
-          description="Day 1 から Day 28 まで、毎週やることが決まっている。"
+          eyebrow="8 WEEKS"
+          title="お試し導入 8 週間でやること"
+          description="1 週目から 8 週目まで、毎週やることが決まっています。"
         />
 
         <div className="relative">
@@ -266,11 +267,11 @@ annualized_impact = delta * 365 * store_count * marginal_margin`}
           <div className="hidden md:block absolute left-0 right-0 top-[34px] h-px bg-gradient-to-r from-purple-400/40 via-blue-400/40 to-emerald-400/40" />
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <TimelineWeek week="W1-2" tone="purple" title="ベースライン期間" body="KPI 集計、対照群選定、計測点を固定" />
-            <TimelineWeek week="W3-4" tone="blue" title="介入実施" body="施策配布 + 日次モニタリング、現場コメント収集" />
-            <TimelineWeek week="W5-6" tone="amber" title="効果計測中間" body="DiD 中間結果、ノイズ要因の分離、必要なら追加投入" />
-            <TimelineWeek week="W7" tone="emerald" title="仮説検証" body="統計的有意の確認、bootstrap CI、円換算ロジックの確定" />
-            <TimelineWeek week="W8" tone="emerald" title="経営報告" body="サマリ + 詳細分析 + 本展開ロードマップ提案" />
+            <TimelineWeek week="1-2 週目" tone="purple" title="今の数字を確認する期間" body="今の売上や人件費を集計し、比べる対象の店舗を決め、計測する点を固定します。" />
+            <TimelineWeek week="3-4 週目" tone="blue" title="改善策を試す" body="施策を現場に配り、毎日の数字を見ながら、現場の声も集めていきます。" />
+            <TimelineWeek week="5-6 週目" tone="amber" title="効いているか確認（途中）" body="比べて出た途中の効果を見て、天気や曜日の影響を分け、必要なら追加で打ち手を入れます。" />
+            <TimelineWeek week="7 週目" tone="emerald" title="もっと効くようにチューニング" body="偶然ではなく確かに効いたかを確認し、円でいくらの効果かを確定させます。" />
+            <TimelineWeek week="8 週目" tone="emerald" title="結果をまとめて経営報告" body="まとめ + 詳しい分析 + これからの展開計画を提案します。" />
           </div>
         </div>
       </Section>
@@ -287,8 +288,8 @@ annualized_impact = delta * 365 * store_count * marginal_margin`}
                 <PlayCircle className="w-9 h-9 text-white/80" />
               </div>
               <div className="text-center">
-                <div className="text-[15px] text-white/85 font-medium">28 秒のフルデモ</div>
-                <div className="text-[12px] text-white/45 mt-1 font-mono">detection → distribution → execution → write-back</div>
+                <div className="text-[15px] text-white/85 font-medium">28 秒の動画デモ</div>
+                <div className="text-[12px] text-white/45 mt-1">見つける → 届ける → 実行する → 確かめる</div>
               </div>
             </div>
             <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-500/10 text-[10px] tracking-[0.16em] uppercase text-amber-400 font-bold">
@@ -316,7 +317,7 @@ annualized_impact = delta * 365 * store_count * marginal_margin`}
         <div className="container-x relative py-24 lg:py-32 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold tracking-tight text-white/95 leading-tight max-w-4xl mx-auto">
             あなたのチェーンでも、<br className="hidden sm:block" />
-            <span className="gradient-text">24 時間で 1 ループ</span>が回り始めます
+            <span className="gradient-text">毎日のサイクル</span>が回り始めます
           </h2>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
@@ -332,12 +333,12 @@ annualized_impact = delta * 365 * store_count * marginal_margin`}
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md border border-white/15 hover:border-white/30 hover:bg-white/[0.04] text-white/95 text-[14px] font-medium transition-colors"
             >
               <FileText className="w-4 h-4" />
-              8週POC 提案書
+              8 週間お試し導入の提案書
             </Link>
           </div>
 
           <p className="mt-12 text-[12px] text-white/35">
-            POC 期間中いつでも中止可能、データは顧客環境に残る。
+            お試し期間中はいつでも中止できます。データはお客様の環境に残ります。
           </p>
         </div>
       </section>
@@ -489,23 +490,23 @@ function MockStep1() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Bell className="w-3.5 h-3.5 text-purple-400" />
-          <span className="text-[11px] font-medium text-white/85">#aentro-alerts</span>
+          <span className="text-[11px] font-medium text-white/85">#aentro-お知らせ</span>
         </div>
         <span className="font-mono text-[10px] text-white/40">03:14</span>
       </div>
       <div className="space-y-2">
         <div className="text-[12px] text-white/85 leading-relaxed">
-          すき家 <span className="font-mono text-purple-300">142店</span>（首都圏）で深夜帯人時売上が予測比 <span className="font-mono text-amber-400">-8.2%</span>
+          すき家 <span className="font-mono text-purple-300">142 店</span>（首都圏）で深夜帯の人時売上が予測より <span className="font-mono text-amber-400">8.2% 低い</span>
         </div>
         <div className="rounded-md bg-white/[0.025] border border-white/[0.04] px-3 py-2 space-y-1.5">
           <div className="text-[11px] text-white/65 leading-relaxed">
-            <span className="text-purple-300 font-medium">原因仮説:</span> シフト過剰配置（雨予報日に通常シフト継続）
+            <span className="text-purple-300 font-medium">考えられる原因:</span> シフトを入れすぎ（雨予報の日もいつも通りのシフト）
           </div>
           <div className="text-[11px] text-white/65 leading-relaxed">
-            <span className="text-amber-300 font-medium">影響:</span> 月間 <span className="font-mono text-white/85">¥4.2M</span> の機会損失
+            <span className="text-amber-300 font-medium">このままだと:</span> 月 <span className="font-mono text-white/85">420 万円</span>の売上機会を失う
           </div>
           <div className="text-[11px] text-white/65 leading-relaxed">
-            <span className="text-emerald-300 font-medium">推奨:</span> SV ミッション緊急配布
+            <span className="text-emerald-300 font-medium">すべきこと:</span> SV にすぐに連絡
           </div>
         </div>
       </div>
@@ -515,18 +516,18 @@ function MockStep1() {
 
 function MockStep2() {
   const sv = [
-    { name: "山田 SV", store: "渋谷駅前店", impact: "¥1.2M", priority: "P0", assigned: true },
-    { name: "鈴木 SV", store: "新宿東口店", impact: "¥0.9M", priority: "P0", assigned: true },
-    { name: "田中 SV", store: "池袋西口店", impact: "¥0.7M", priority: "P1", assigned: true },
-    { name: "佐藤 SV", store: "横浜西口店", impact: "¥0.8M", priority: "P1", assigned: true },
-    { name: "高橋 SV", store: "上野中央店", impact: "¥0.6M", priority: "P2", assigned: true },
+    { name: "山田 SV", store: "渋谷駅前店", impact: "120 万円", priority: "高", assigned: true },
+    { name: "鈴木 SV", store: "新宿東口店", impact: "90 万円", priority: "高", assigned: true },
+    { name: "田中 SV", store: "池袋西口店", impact: "70 万円", priority: "中", assigned: true },
+    { name: "佐藤 SV", store: "横浜西口店", impact: "80 万円", priority: "中", assigned: true },
+    { name: "高橋 SV", store: "上野中央店", impact: "60 万円", priority: "低", assigned: true },
   ]
   return (
     <div className="rounded-lg border border-blue-400/15 bg-[#0d0d12] p-4 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)]">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Send className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-[11px] font-medium text-white/85">SV ミッション配布</span>
+          <span className="text-[11px] font-medium text-white/85">SV へのお願いを配布</span>
         </div>
         <span className="font-mono text-[10px] text-white/40">07:30</span>
       </div>
@@ -536,11 +537,11 @@ function MockStep2() {
             key={s.name}
             className="flex items-center gap-2 py-1.5 px-2 rounded bg-white/[0.025] border border-white/[0.04]"
           >
-            <span className="font-mono text-[9px] text-blue-400 w-6">{s.priority}</span>
+            <span className="text-[9px] text-blue-400 w-6 shrink-0">{s.priority}</span>
             <span className="text-[11px] text-white/80 truncate flex-1 min-w-0">
               {s.name} <span className="text-white/40">/ {s.store}</span>
             </span>
-            <span className="font-mono text-[10px] text-emerald-400">{s.impact}</span>
+            <span className="text-[10px] text-emerald-400 shrink-0">{s.impact}</span>
             {s.assigned && <Check className="w-3 h-3 text-emerald-400 shrink-0" />}
           </div>
         ))}
@@ -555,19 +556,19 @@ function MockStep3() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Building2 className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-[11px] font-medium text-white/85">店舗実行ログ</span>
+          <span className="text-[11px] font-medium text-white/85">店舗からの報告</span>
         </div>
         <span className="font-mono text-[10px] text-white/40">14:42</span>
       </div>
       <div className="space-y-1.5 mb-3">
-        <ChecklistRow status="done" label="渋谷駅前店 シフト最適化完了" by="山田 SV" />
+        <ChecklistRow status="done" label="渋谷駅前店 シフト見直し完了" by="山田 SV" />
         <ChecklistRow status="done" label="新宿東口店 完了" by="鈴木 SV" />
-        <ChecklistRow status="progress" label="池袋西口店 進行中" by="田中 SV" />
+        <ChecklistRow status="progress" label="池袋西口店 作業中" by="田中 SV" />
       </div>
       <div className="rounded-md border border-white/[0.05] bg-white/[0.02] p-2.5">
-        <div className="text-[9px] tracking-[0.14em] uppercase text-white/40 font-bold mb-1">現場コメント</div>
+        <div className="text-[9px] tracking-[0.14em] uppercase text-white/40 font-bold mb-1">現場の声</div>
         <p className="text-[11px] text-white/70 leading-relaxed italic">
-          「深夜帯のホールスタッフを 1 名減、レジは券売機誘導に切替。客数影響なし。」
+          「深夜帯のホールスタッフを 1 名減らし、レジは券売機にお客様を誘導。お客様の数に影響なし。」
         </p>
       </div>
     </div>
@@ -580,27 +581,27 @@ function MockStep4() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Database className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-[11px] font-medium text-white/85">書き戻しキュー</span>
+          <span className="text-[11px] font-medium text-white/85">勤怠 / POS への反映</span>
         </div>
-        <span className="font-mono text-[10px] text-white/40">03:00 (翌)</span>
+        <span className="font-mono text-[10px] text-white/40">翌 03:00</span>
       </div>
       <div className="space-y-1.5">
         <WriteBackRow
           icon={<CheckCircle2 className="w-3 h-3 text-emerald-400" />}
-          text="シフト変更 142 件承認済"
+          text="シフト変更 142 件 承認済み"
           system="KING OF TIME"
         />
         <WriteBackRow
           icon={<CheckCircle2 className="w-3 h-3 text-emerald-400" />}
-          text="在庫補充 23 件"
+          text="在庫の追加発注 23 件"
           system="スマレジ POS"
         />
         <div className="flex items-start gap-2 px-2.5 py-2 rounded bg-emerald-500/[0.06] border border-emerald-400/15 mt-2">
           <Repeat className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] tracking-[0.14em] uppercase text-emerald-400 font-bold">翌日の経営司令塔</div>
+            <div className="text-[10px] tracking-[0.14em] uppercase text-emerald-400 font-bold">翌朝の経営レポート</div>
             <div className="text-[11px] text-white/85 mt-0.5">
-              改善効果 <span className="font-mono text-emerald-300">¥4.2M</span> 検出
+              改善効果 <span className="font-mono text-emerald-300">420 万円</span> を確認
             </div>
           </div>
         </div>
@@ -669,7 +670,7 @@ function MeasureCard({
       <p className="text-[13px] text-white/65 leading-relaxed">{body}</p>
       <div className="mt-5 pt-4 border-t border-white/[0.05] flex items-center gap-1.5 text-[11px] text-white/40">
         <ShieldCheck className="w-3 h-3" />
-        統計的に保証
+        数字でしっかり確認
       </div>
     </div>
   )
