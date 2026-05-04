@@ -37,7 +37,7 @@ type Cell =
   | { mark: "no"; note?: string }
   | { mark: "text"; text: string }
 
-const VENDORS = ["AENTRO", "NTTデータ", "SAP", "Tableau", "Smaregi BI"] as const
+const VENDORS = ["AENTRO", "大手 SI 受託", "業務統合システム", "BI ツール", "POS 直結 BI"] as const
 
 type Row = { feature: string; cells: Cell[]; group: "feature" | "meta" }
 
@@ -366,7 +366,7 @@ export default function VsPage() {
             icon={<Building2 className="w-5 h-5" />}
             tone="amber"
             label="A"
-            heading="NTT データ / 大手 SI"
+            heading="大手 SI 受託"
             points={[
               "外食業界の細かい事情に詳しくない（ヒアリングに時間がかかる）",
               "AI 機能は他社（OpenAI 等）に外注しているので、データの扱いが見えにくい",
@@ -378,7 +378,7 @@ export default function VsPage() {
             icon={<Server className="w-5 h-5" />}
             tone="purple"
             label="B"
-            heading="SAP / Oracle"
+            heading="海外の業務統合システム"
             points={[
               "外食専用の機能（HACCP・レシピ原価など）は標準で入っておらず、別売り",
               "業務統合システム（ERP）の発想なので、全社で移行するのが前提。導入コストが大きい",
@@ -390,7 +390,7 @@ export default function VsPage() {
             icon={<BarChart3 className="w-5 h-5" />}
             tone="blue"
             label="C"
-            heading="Tableau / Power BI"
+            heading="従来の BI ツール"
             points={[
               "グラフを描くのが得意。データの統合や整理は別の仕組みが必要",
               "AI 機能は基本的な質問応答止まり、業務システムは操作できない",
@@ -402,7 +402,7 @@ export default function VsPage() {
             icon={<Database className="w-5 h-5" />}
             tone="emerald"
             label="D"
-            heading="Air レジ / スマレジ BI"
+            heading="POS 直結の BI 機能"
             points={[
               "自社 POS にしか対応していない、複数の POS を 1 つにまとめられない",
               "売上の数字だけ。勤怠・物流・FC（フランチャイズ）の数字とは合わせられない",
@@ -422,7 +422,7 @@ export default function VsPage() {
             AENTRO は<span className="text-white/95 font-bold">既存システムを置き換えるサービスではありません。</span>
             <br />
             <br />
-            POS（スマレジ / Airレジ / 自社）、勤怠（KING OF TIME 等）、物流、会計をすべて
+            POS（各社の販売管理システム）、勤怠（各社の勤怠管理システム）、物流、会計をすべて
             <span className="text-emerald-300 font-medium"> データを読むだけ </span>
             で接続し、外食業界の経営判断に必要な
             <span className="text-blue-300 font-medium"> 数字・効果計測・AI 提案 </span>

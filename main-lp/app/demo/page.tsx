@@ -86,7 +86,7 @@ export default function DemoPage() {
               DEMO
             </span>
             <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white/95 leading-[1.1]">
-              45 分で、<span className="gradient-text">すべてが分かります</span>
+              45 分のデモで、<span className="gradient-text">貴社に合うかが分かります</span>
             </h1>
             <p className="mt-6 text-lg text-white/65 leading-relaxed max-w-3xl">
               オンライン (Zoom) または訪問。AENTRO の創業者または事業責任者が、貴社の状況に合わせた具体例でデモします。
@@ -94,8 +94,8 @@ export default function DemoPage() {
 
             <div className="mt-8 flex flex-wrap gap-2.5">
               <DemoBadge icon={<Hammer className="w-3.5 h-3.5" />} label="実機を触る（お試し設定画面 / 朝のレポート）" />
-              <DemoBadge icon={<Calculator className="w-3.5 h-3.5" />} label="ROI 試算 (貴社の店舗数で)" />
-              <DemoBadge icon={<ShieldCheck className="w-3.5 h-3.5" />} label="Security Q&A (情シス向け資料)" />
+              <DemoBadge icon={<Calculator className="w-3.5 h-3.5" />} label="いくら効くか試算（貴社の店舗数で）" />
+              <DemoBadge icon={<ShieldCheck className="w-3.5 h-3.5" />} label="安全性に関する質問対応" />
             </div>
           </div>
         </div>
@@ -135,18 +135,18 @@ export default function DemoPage() {
               />
               <FaqCard
                 tone="emerald"
-                question="既存の SAP / 自社システムを置き換える必要はありますか？"
-                answer="いいえ。read-only で接続し、書き戻しも承認制です。既存基幹は 1 行も変えずに導入できます。"
+                question="今のシステムを置き換える必要はありますか？"
+                answer="いいえ。データを読むだけで、書き戻しも経営層の承認制です。今のシステムは 1 行も変えずに導入できます。"
               />
               <FaqCard
                 tone="purple"
-                question="データを Anthropic に送るのが心配です"
-                answer="Anthropic Enterprise tier、zero retention 契約。PII は送信前に自動 redact します。Security Pack に詳細記載。"
+                question="データを AI 提供元（Anthropic）に渡すのが心配です"
+                answer="Anthropic 社と直接契約し、データを残さない取り決めです。個人情報は AI に渡す前に自動で消します。詳細はデモでご説明します。"
               />
               <FaqCard
                 tone="amber"
                 question="8 週間で本当に効果が出ますか？"
-                answer="過去 5 社中 4 社が 統計的に確実な改善が出ました。残り 1 社も別の数字で改善が見られました。検出できなかった場合の返金条項もあります。"
+                answer="過去 5 社中 4 社で統計的に確実な改善が出ました。残り 1 社も別の数字では改善が見られました。検出できなかった場合の返金条項もあります。"
               />
             </div>
           </div>
@@ -164,38 +164,38 @@ export default function DemoPage() {
         <div className="max-w-3xl mx-auto space-y-3">
           <TimelineStep
             order="01"
-            time="0-5 min"
+            time="0-5 分"
             tone="blue"
             title="ヒアリング"
             body="貴社の業態・規模・現状の課題を簡潔に共有いただきます。"
           />
           <TimelineStep
             order="02"
-            time="5-15 min"
+            time="5-15 分"
             tone="purple"
             title="プロダクトデモ"
-            body="AENTRO のトップ画面・朝のレポート・自動改善サイクルを実機で触っていただきます。"
+            body="AENTRO のトップ画面・朝のレポート・自動改善サイクルを実機で操作しながらご覧いただきます。"
           />
           <TimelineStep
             order="03"
-            time="15-25 min"
+            time="15-25 分"
             tone="amber"
-            title="ROI 試算"
-            body="貴社の店舗数・年商を入力し、年間想定改善額をその場で算出します。"
+            title="いくら効くか試算"
+            body="貴社の店舗数・年商を入力し、年間の想定改善額をその場で算出します。"
           />
           <TimelineStep
             order="04"
-            time="25-35 min"
+            time="25-35 分"
             tone="emerald"
-            title="Security / Q&A"
-            body="認証 / データ取扱 / VPC / 監査ログなど、情シス観点の質問にお答えします。"
+            title="安全性 / 質疑応答"
+            body="認証 / データ取扱 / 専用クラウド / 監査ログなど、情シス観点の質問にお答えします。"
           />
           <TimelineStep
             order="05"
-            time="35-45 min"
+            time="35-45 分"
             tone="blue"
             title="次のステップ"
-            body="8 週間お試し導入の検討と、次回打合せの日程設定までその場で完結します。"
+            body="8 週間お試し導入のご相談と、次回打合せの日程設定までその場で完結します。"
             isLast
           />
         </div>
@@ -211,25 +211,25 @@ export default function DemoPage() {
             tone="blue"
             label="デモ依頼"
             body="上記フォームから、または直接メールで。"
-            ctaLabel="contact@aentro.jp"
-            ctaHref="mailto:contact@aentro.jp"
+            ctaLabel="info@aentroinc.com"
+            ctaHref="mailto:info@aentroinc.com"
           />
           <ContactCard
             icon={<Download className="w-5 h-5" />}
             tone="emerald"
-            label="Security Pack DL のみ"
-            body="フォーム不要、即時ダウンロード可能です。"
-            ctaLabel="Security Pack をダウンロード"
+            label="安全性について先に確認したい"
+            body="情シスが見るべきポイントをまとめたページがあります。"
+            ctaLabel="安全性のページへ"
             ctaHref="/security"
             internal
           />
           <ContactCard
             icon={<Briefcase className="w-5 h-5" />}
             tone="amber"
-            label="採用関連"
-            body="エンジニア / コンサルタント / 営業を募集中。"
-            ctaLabel="careers@aentro.jp"
-            ctaHref="mailto:careers@aentro.jp"
+            label="その他のお問合せ"
+            body="採用、メディア、業務提携などはこちらまで。"
+            ctaLabel="info@aentroinc.com"
+            ctaHref="mailto:info@aentroinc.com"
           />
         </div>
       </Section>
@@ -304,7 +304,7 @@ function DemoForm({ onSuccess }: { onSuccess: () => void }) {
           デモを依頼する
         </h2>
         <p className="mt-2 text-[13px] text-white/50 leading-relaxed">
-          24 時間以内に CTO よりご返信します。
+          24 時間以内に担当よりご返信します。
         </p>
       </div>
 
@@ -374,7 +374,7 @@ function DemoForm({ onSuccess }: { onSuccess: () => void }) {
       </Field>
 
       {/* Segments */}
-      <Field label="業態" required hint="複数選択可" error={errors.segments?.message as string | undefined}>
+      <Field label="業態（複数選択可）" required hint="複数選択可" error={errors.segments?.message as string | undefined}>
         <div className="flex flex-wrap gap-2 pt-1">
           {SEGMENT_OPTIONS.map((s) => {
             const active = selectedSegments.includes(s)
@@ -515,7 +515,7 @@ function DemoConfirmation() {
         ありがとうございます
       </h2>
       <p className="mt-3 text-[14px] text-white/65 leading-relaxed">
-        弊社 CTO がメールでご返信いたします（24 時間以内）。
+        担当からメールでご返信いたします（24 時間以内）。
         <br />
         その間に、こちらの資料をご覧いただけます。
       </p>
@@ -523,21 +523,21 @@ function DemoConfirmation() {
       <div className="mt-7 space-y-2.5">
         <ResourceLink
           icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
-          label="Security Review Pack"
+          label="安全性に関する説明"
           desc="認証 / データ取扱 / 監査"
           href="/security"
           rightIcon={<Download className="w-3.5 h-3.5 text-white/45" />}
         />
         <ResourceLink
           icon={<BookOpen className="w-4 h-4 text-blue-400" />}
-          label="過去事例 5 社"
+          label="過去の事例 5 社を見る"
           desc="累計 ¥32.1 億の改善実績"
           href="/value#cases"
           rightIcon={<ChevronRight className="w-4 h-4 text-white/45" />}
         />
         <ResourceLink
           icon={<FileText className="w-4 h-4 text-purple-400" />}
-          label="8 週間お試し導入の資料"
+          label="お試し導入の資料"
           desc="検証フロー / 成果物 / 価格"
           href="/poc"
           rightIcon={<ChevronRight className="w-4 h-4 text-white/45" />}

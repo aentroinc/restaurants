@@ -231,7 +231,7 @@ export default function HomePage() {
             kind="bad"
             badge="見える化のみ"
             badgeTone="amber"
-            heading="Tableau / Power BI などの BI ツール"
+            heading="従来の BI ツール"
             sub="グラフは出せるが、AI が現場に「次にやること」を届けてくれない"
             points={[
               "複数システムのデータをまとめるのに半年〜1年",
@@ -603,11 +603,11 @@ export default function HomePage() {
               href="/security"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md border border-white/15 hover:border-white/30 hover:bg-white/[0.04] text-white/95 text-[14px] font-medium transition-colors"
             >
-              <Download className="w-4 h-4" />
-              情シス向け資料を見る
+              安全性について見る
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <a
-              href="mailto:hello@aentroinc.com"
+              href="mailto:info@aentroinc.com"
               className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 text-[14px] text-white/65 hover:text-white transition-colors"
             >
               お問合せ

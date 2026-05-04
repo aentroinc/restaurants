@@ -589,12 +589,12 @@ function MockStep4() {
         <WriteBackRow
           icon={<CheckCircle2 className="w-3 h-3 text-emerald-400" />}
           text="シフト変更 142 件 承認済み"
-          system="KING OF TIME"
+          system="勤怠管理システム"
         />
         <WriteBackRow
           icon={<CheckCircle2 className="w-3 h-3 text-emerald-400" />}
           text="在庫の追加発注 23 件"
-          system="スマレジ POS"
+          system="POS（販売管理システム）"
         />
         <div className="flex items-start gap-2 px-2.5 py-2 rounded bg-emerald-500/[0.06] border border-emerald-400/15 mt-2">
           <Repeat className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />

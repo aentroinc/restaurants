@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils"
 export const metadata: Metadata = {
   title: "Enterprise Security",
   description:
-    "上場企業の情シス審査を通せる安全性を初日から。シングルサインオン / 2 段階認証 / 操作ログ / 暗号鍵管理 / 専用クラウドなど、情シスが確認する項目をすべて最初から準備。情シス向け資料を即時ダウンロード可能。",
+    "上場企業の情シス審査を通せる安全性を初日から。シングルサインオン・2 段階認証・操作ログ・暗号鍵管理・専用クラウドなど、情シスが確認する項目をすべて最初から準備しています。",
 }
 
 type Status = "ok" | "wip" | "na"
@@ -70,15 +70,15 @@ export default function SecurityPage() {
               上場企業の情シス審査を通せる安全性を、<span className="gradient-text">初日から。</span>
             </h1>
             <p className="mt-6 text-lg text-white/65 max-w-3xl leading-relaxed">
-              情シス・監査チームが確認する項目を、すべて最初から準備しています。1 ページで情シス向け資料をダウンロードできます。
+              情シス・監査チームが確認する項目を、すべて最初から準備しています。詳細はデモまたはお見積り時にご説明します。
             </p>
             <div className="mt-9 flex flex-col sm:flex-row gap-3">
               <Link
-                href="#review-pack"
+                href="/demo"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
               >
                 <Download className="w-4 h-4" />
-                情シス向け資料をダウンロード
+                デモを依頼
               </Link>
               <Link
                 href="/demo"
@@ -262,12 +262,12 @@ export default function SecurityPage() {
         </div>
       </Section>
 
-      {/* ====================== SECTION 5 — Review Pack ====================== */}
-      <Section id="review-pack">
+      {/* ====================== SECTION 5 — お見積り資料の内容 ====================== */}
+      <Section id="materials">
         <SectionHeader
           eyebrow="DOCUMENT"
-          title="情シス向け資料に含まれるもの（60 ページ）"
-          description="情シス審査で頻出する 8 セクションをまとめた PDF。質問事項チェックリストにそのまま添付できます。"
+          title="情シス審査で確認される 8 項目"
+          description="情シス・監査チームが必ず聞く項目を、デモまたはお見積り時に詳しくご説明します。事前に質問項目を共有いただければ、回答書としてまとめてお渡しすることも可能です。"
         />
 
         <div className="grid md:grid-cols-2 gap-3">
@@ -288,13 +288,12 @@ export default function SecurityPage() {
         </div>
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
-          <a
-            href="#"
+          <Link
+            href="/demo"
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
           >
-            <Download className="w-4 h-4" />
-            情シス向け資料（60 ページ PDF）をダウンロード
-          </a>
+            デモを依頼してご相談
+          </Link>
         </div>
       </Section>
 
@@ -303,18 +302,17 @@ export default function SecurityPage() {
         <div className="absolute inset-0 gradient-hero pointer-events-none" />
         <div className="container-x relative py-24 lg:py-32 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold tracking-tight text-white/95 leading-tight max-w-4xl mx-auto">
-            情シス審査をスムーズに通すための資料を、<br className="hidden sm:block" />
-            <span className="gradient-text">即時ダウンロード可能</span>です
+            情シス審査をスムーズに通すための<br className="hidden sm:block" />
+            <span className="gradient-text">説明資料を準備しています</span>
           </h2>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="#"
+            <Link
+              href="/demo"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
             >
-              <Download className="w-4 h-4" />
-              情シス向け資料をダウンロード
-            </a>
+              デモを依頼
+            </Link>
             <Link
               href="/demo"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md border border-white/15 hover:border-white/30 hover:bg-white/[0.04] text-white/95 text-[14px] font-medium transition-colors"
