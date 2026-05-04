@@ -83,7 +83,7 @@ export default function HomePage() {
                   href="/poc"
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md border border-white/15 hover:border-white/30 hover:bg-white/[0.04] text-white/90 text-[14px] font-medium transition-colors"
                 >
-                  お試し導入の資料
+                  お試し導入の流れ
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
@@ -499,8 +499,8 @@ export default function HomePage() {
             href="/poc"
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
           >
-            <Download className="w-4 h-4" />
-            お試し導入の資料
+            お試し導入の詳細
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/demo"

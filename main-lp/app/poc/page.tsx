@@ -166,8 +166,8 @@ export default function PocPage() {
                 href="#"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
               >
-                <Download className="w-4 h-4" />
-                お試し導入の資料（PDF）をダウンロード
+                <ArrowRight className="w-4 h-4" />
+                デモを依頼
               </a>
               <Link
                 href="/demo"
@@ -415,8 +415,8 @@ export default function PocPage() {
               href="#"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
             >
-              <Download className="w-4 h-4" />
-              お試し導入の資料（PDF）をダウンロード
+              <ArrowRight className="w-4 h-4" />
+              デモを依頼
             </a>
             <Link
               href="/demo"

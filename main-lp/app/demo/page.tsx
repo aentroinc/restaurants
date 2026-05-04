@@ -215,7 +215,7 @@ export default function DemoPage() {
             ctaHref="mailto:info@aentroinc.com"
           />
           <ContactCard
-            icon={<Download className="w-5 h-5" />}
+            icon={<ShieldCheck className="w-5 h-5" />}
             tone="emerald"
             label="安全性について先に確認したい"
             body="情シスが見るべきポイントをまとめたページがあります。"
@@ -526,7 +526,7 @@ function DemoConfirmation() {
           label="安全性に関する説明"
           desc="認証 / データ取扱 / 監査"
           href="/security"
-          rightIcon={<Download className="w-3.5 h-3.5 text-white/45" />}
+          rightIcon={<ArrowRight className="w-3.5 h-3.5 text-white/45" />}
         />
         <ResourceLink
           icon={<BookOpen className="w-4 h-4 text-blue-400" />}
@@ -537,7 +537,7 @@ function DemoConfirmation() {
         />
         <ResourceLink
           icon={<FileText className="w-4 h-4 text-purple-400" />}
-          label="お試し導入の資料"
+          label="デモ + 個別相談"
           desc="検証フロー / 成果物 / 価格"
           href="/poc"
           rightIcon={<ChevronRight className="w-4 h-4 text-white/45" />}

@@ -450,8 +450,8 @@ export default function VsPage() {
               href="/security"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
             >
-              <Download className="w-4 h-4" />
-              比較資料 PDF をダウンロード
+              <ArrowRight className="w-4 h-4" />
+              デモを依頼
             </Link>
             <Link
               href="/demo"

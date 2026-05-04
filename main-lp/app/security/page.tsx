@@ -77,7 +77,7 @@ export default function SecurityPage() {
                 href="/demo"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-[14px] font-medium transition-colors"
               >
-                <Download className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" />
                 デモを依頼
               </Link>
               <Link
