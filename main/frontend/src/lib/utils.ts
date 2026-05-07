@@ -19,12 +19,16 @@ export function formatPercent(value: number): string {
   return value.toFixed(1) + "%"
 }
 
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return "-"
   const d = typeof date === "string" ? new Date(date) : date
+  if (!d || isNaN(d.getTime())) return "-"
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 }
 
-export function formatDateShort(date: string | Date): string {
+export function formatDateShort(date: string | Date | null | undefined): string {
+  if (!date) return "-"
   const d = typeof date === "string" ? new Date(date) : date
+  if (!d || isNaN(d.getTime())) return "-"
   return `${d.getMonth() + 1}/${d.getDate()}`
 }

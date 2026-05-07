@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ContextHeader } from "@/components/context-header"
 import { fetchAPI } from "@/lib/api"
@@ -44,8 +44,8 @@ const KPI_LABEL: Record<string, string> = {
   overtime_hours: "残業時間",
 }
 
-export default function PilotDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function PilotDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const [summary, setSummary] = useState<PilotSummary | null>(null)
   const [audience, setAudience] = useState<"executive" | "brand" | "it" | "store_manager">("executive")
   const [recalcing, setRecalcing] = useState(false)
@@ -64,11 +64,13 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!summary) return <div className="p-8 text-white/40">Loading...</div>
 
-  const fmt = (n: number) => `¥${n.toLocaleString()}`
+  const safeResults = Array.isArray(summary.results) ? summary.results : []
+  const safeNextActions = Array.isArray(summary.next_actions) ? summary.next_actions : []
+  const fmt = (n: number | null | undefined) => `¥${(n ?? 0).toLocaleString()}`
 
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title={summary.name} description={`${summary.theme_name}・${summary.status}`} region="POC" />
+      <ContextHeader title={summary.name ?? "POC"} description={`${summary.theme_name ?? "-"}・${summary.status ?? "-"}`} region="POC" />
 
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         <Link href="/zensho-pilot" className="inline-flex items-center gap-1 text-[12px] text-blue-400 hover:text-blue-300">
@@ -83,17 +85,17 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
           </div>
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="text-[10px] text-white/40 uppercase tracking-wider">統計的有意</div>
-            <div className="mt-1 text-2xl font-mono text-white/85">{summary.significant_kpi_count}<span className="text-[14px] text-white/30">/{summary.kpi_count}</span></div>
+            <div className="mt-1 text-2xl font-mono text-white/85">{summary.significant_kpi_count ?? 0}<span className="text-[14px] text-white/30">/{summary.kpi_count ?? 0}</span></div>
           </div>
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="text-[10px] text-white/40 uppercase tracking-wider">対象店舗</div>
-            <div className="mt-1 text-2xl font-mono text-white/85">{summary.target_store_count}</div>
-            <div className="text-[10px] text-white/30 mt-0.5">control: {summary.control_store_count}</div>
+            <div className="mt-1 text-2xl font-mono text-white/85">{summary.target_store_count ?? 0}</div>
+            <div className="text-[10px] text-white/30 mt-0.5">control: {summary.control_store_count ?? 0}</div>
           </div>
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="text-[10px] text-white/40 uppercase tracking-wider">期間</div>
-            <div className="mt-1 text-[11px] text-white/70">{summary.baseline_period}</div>
-            <div className="text-[11px] text-white/70">→ {summary.intervention_period}</div>
+            <div className="mt-1 text-[11px] text-white/70">{summary.baseline_period ?? "-"}</div>
+            <div className="text-[11px] text-white/70">→ {summary.intervention_period ?? "-"}</div>
           </div>
         </div>
 
@@ -129,12 +131,12 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
                 </tr>
               </thead>
               <tbody className="text-white/75 font-mono">
-                {summary.results.map((r) => (
+                {safeResults.map((r) => (
                   <tr key={r.kpi_name} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
                     <td className="px-5 py-3 text-white/85 font-sans">{KPI_LABEL[r.kpi_name] || r.kpi_name}</td>
-                    <td className="text-right px-3 py-3">{r.baseline.toFixed(2)}</td>
-                    <td className="text-right px-3 py-3">{r.intervention.toFixed(2)}</td>
-                    <td className={`text-right px-3 py-3 ${r.delta_pct < 0 ? "text-emerald-400" : "text-blue-400"}`}>{r.delta_pct > 0 ? "+" : ""}{r.delta_pct.toFixed(2)}%</td>
+                    <td className="text-right px-3 py-3">{(r.baseline ?? 0).toFixed(2)}</td>
+                    <td className="text-right px-3 py-3">{(r.intervention ?? 0).toFixed(2)}</td>
+                    <td className={`text-right px-3 py-3 ${(r.delta_pct ?? 0) < 0 ? "text-emerald-400" : "text-blue-400"}`}>{(r.delta_pct ?? 0) > 0 ? "+" : ""}{(r.delta_pct ?? 0).toFixed(2)}%</td>
                     <td className="text-right px-3 py-3 text-white/55 text-[11px]" title={r.p_value !== undefined && r.p_value !== null ? `p = ${r.p_value.toFixed(4)}` : ""}>
                       {r.p_value !== undefined && r.p_value !== null ? (r.p_value < 0.01 ? "高" : r.p_value < 0.05 ? "中" : "低") : "n/a"}
                     </td>
@@ -160,7 +162,7 @@ export default function PilotDetailPage({ params }: { params: Promise<{ id: stri
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-5">
           <h3 className="text-[12px] font-semibold text-white/60 tracking-wide uppercase mb-3">次アクション</h3>
           <ul className="space-y-2">
-            {summary.next_actions.map((a, i) => (
+            {safeNextActions.map((a, i) => (
               <li key={i} className="flex gap-2 text-[13px] text-white/75">
                 <span className="text-amber-400">▸</span><span>{a}</span>
               </li>

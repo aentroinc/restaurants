@@ -2582,7 +2582,7 @@ def generate_ontology_v2_data(stores):
             "tenant_id": TENANT_ID,
             "object_type_id": store_ot_id,
             "object_type_version": 1,
-            "primary_key_value": s["code"],
+            "primary_key_value": str(s["id"]),
             "properties": props,
             "status": "active",
         })

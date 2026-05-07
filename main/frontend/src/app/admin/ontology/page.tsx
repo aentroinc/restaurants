@@ -170,10 +170,10 @@ export default function OntologyHomePage() {
               <div className="px-4 py-3 border-b border-white/[0.06]">
                 <div className="flex items-center gap-2 mb-2">
                   <Boxes className="w-3.5 h-3.5 text-blue-400/70" />
-                  <span className="text-[11px] uppercase tracking-wider text-white/50 font-medium">プロパティ ({selected.properties.length})</span>
+                  <span className="text-[11px] uppercase tracking-wider text-white/50 font-medium">プロパティ ({selected.properties?.length ?? 0})</span>
                 </div>
                 <div className="space-y-1">
-                  {selected.properties.map((p) => (
+                  {(selected.properties ?? []).map((p) => (
                     <div key={p.id} className="flex items-center justify-between text-[12px] py-1">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="font-mono text-white/70 truncate">{p.api_name}</span>
@@ -191,7 +191,7 @@ export default function OntologyHomePage() {
                       </div>
                     </div>
                   ))}
-                  {selected.properties.length === 0 && <div className="text-[11px] text-white/30">プロパティ未定義</div>}
+                  {(selected.properties?.length ?? 0) === 0 && <div className="text-[11px] text-white/30">プロパティ未定義</div>}
                 </div>
               </div>
 

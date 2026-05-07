@@ -26,30 +26,56 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
+function tryMock<T>(path: string, options?: RequestInit): T | undefined {
+  try {
+    return fetchMock<T>(path, options)
+  } catch {
+    return undefined
+  }
+}
+
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
   if (!API_URL) return fetchMock<T>(path, options)
 
   const token = getToken()
   const headers: Record<string, string> = { "Content-Type": "application/json" }
   if (token) headers["Authorization"] = `Bearer ${token}`
-  const res = await fetchWithRetry(`${API_URL}${path}`, {
-    credentials: "include",
-    ...options,
-    headers: { ...headers, ...options?.headers },
-  })
+
+  let res: Response
+  try {
+    res = await fetchWithRetry(`${API_URL}${path}`, {
+      credentials: "include",
+      ...options,
+      headers: { ...headers, ...options?.headers },
+    })
+  } catch (e) {
+    const m = tryMock<T>(path, options)
+    if (m !== undefined) return m
+    throw e
+  }
 
   if (res.status === 401) {
-    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+    const m = tryMock<T>(path, options)
+    if (m !== undefined) return m
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login") && !window.location.pathname.startsWith("/auth/login")) {
       const next = encodeURIComponent(window.location.pathname + window.location.search)
       window.location.href = `/login?next=${next}`
     }
     throw new Error(`API 401: ${path}`)
   }
 
-  if (!res.ok) throw new Error(`API ${res.status}: ${path}`)
+  if (!res.ok) {
+    const m = tryMock<T>(path, options)
+    if (m !== undefined) return m
+    throw new Error(`API ${res.status}: ${path}`)
+  }
 
   const json: APIResponse<T> = await res.json()
-  if (json.errors && json.errors.length > 0) throw new Error(json.errors.join(", "))
+  if (json.errors && json.errors.length > 0) {
+    const m = tryMock<T>(path, options)
+    if (m !== undefined) return m
+    throw new Error(json.errors.join(", "))
+  }
   return json.data
 }
 
@@ -175,28 +201,28 @@ function fetchMock<T>(path: string, options?: RequestInit): T {
   // Product detail
   if (path.match(/\/api\/v1\/vertical\/products\/[^/]+$/)) return mockProductDetail as any
   // Zensho Pilot
-  if (path === "/api/v1/pilots/themes") return { data: mockPilotThemes } as any
+  if (path === "/api/v1/pilots/themes") return mockPilotThemes as any
   if (path.match(/\/api\/v1\/pilots\/themes\/[^/]+$/)) {
     const id = path.split("/").pop()!
-    return { data: mockPilotThemes.find((t: any) => t.theme_id === id) } as any
+    return (mockPilotThemes.find((t: any) => t.theme_id === id) || mockPilotThemes[0]) as any
   }
-  if (path.match(/\/api\/v1\/pilots\/[^/]+\/summary/)) return { data: mockPilotSummary } as any
-  if (path.match(/\/api\/v1\/pilots\/[^/]+\/results/)) return { data: mockPilotResults } as any
-  if (path.match(/\/api\/v1\/pilots\/[^/]+\/calculate-results/)) return { data: mockPilotResults } as any
-  if (path.match(/\/api\/v1\/pilots\/[^/]+\/export-pack/)) return { data: { audience: "executive", title: mockPilotSummary.name, sections: [] } } as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/summary/)) return mockPilotSummary as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/results/)) return mockPilotResults as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/calculate-results/)) return mockPilotResults as any
+  if (path.match(/\/api\/v1\/pilots\/[^/]+\/export-pack/)) return { audience: "executive", title: mockPilotSummary.name, sections: [] } as any
   if (path.match(/\/api\/v1\/pilots\/[^/]+$/)) {
     const id = path.split("/").pop()!
-    return { data: { ...mockPilots[0], id } } as any
+    return ({ ...mockPilots[0], id }) as any
   }
-  if (path === "/api/v1/pilots" || path === "/api/v1/pilots/") return { data: mockPilots } as any
+  if (path === "/api/v1/pilots" || path === "/api/v1/pilots/") return mockPilots as any
   // Connector Health
-  if (path === "/api/v1/connector-health" || path === "/api/v1/connector-health/") return { data: mockConnectorHealth } as any
+  if (path === "/api/v1/connector-health" || path === "/api/v1/connector-health/") return mockConnectorHealth as any
   // Column Policies / PII / Security
-  if (path.startsWith("/api/v1/admin/security/column-policies")) return { data: mockColumnPolicies } as any
-  if (path.startsWith("/api/v1/admin/security/pii-redaction-logs")) return { data: mockPIIRedactionLogs } as any
-  if (path.startsWith("/api/v1/admin/security/pii-redaction-summary")) return { data: mockPIISummary } as any
+  if (path.startsWith("/api/v1/admin/security/column-policies")) return mockColumnPolicies as any
+  if (path.startsWith("/api/v1/admin/security/pii-redaction-logs")) return mockPIIRedactionLogs as any
+  if (path.startsWith("/api/v1/admin/security/pii-redaction-summary")) return mockPIISummary as any
   if (path.startsWith("/api/v1/admin/security/security-review-pack/export")) {
-    return { data: { title: "AENTRO Security Review Pack", sections: [], compliance_status: { tenant_isolation: "✓", encryption_at_rest: "✓" } } } as any
+    return { title: "AENTRO Security Review Pack", sections: [], compliance_status: { tenant_isolation: "✓", encryption_at_rest: "✓" } } as any
   }
   return {} as T
 }

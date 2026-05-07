@@ -26,20 +26,20 @@ export default function LaborPage() {
       fetchAPI<ShiftItem[]>("/api/v1/vertical/labor/shifts"),
       fetchAPI<LaborComplianceReport>("/api/v1/vertical/labor/compliance-report"),
     ])
-      .then(([s, c]) => { setShifts(s); setCompliance(c) })
-      .catch((e) => setError(e.message))
+      .then(([s, c]) => { setShifts(Array.isArray(s) ? s : []); setCompliance(c ?? null) })
+      .catch((e) => setError(e?.message ?? String(e)))
       .finally(() => setLoading(false))
   }, [])
 
-  const violationShifts = shifts.filter((s) => s.violations.length > 0)
+  const violationShifts = shifts.filter((s) => Array.isArray(s?.violations) && s.violations.length > 0)
   const filtered = violationShifts.filter((s) => {
-    if (filterStore && !s.store_name.includes(filterStore)) return false
+    if (filterStore && !s.store_name?.includes(filterStore)) return false
     if (filterViolation && !s.violations.includes(filterViolation)) return false
     return true
   })
 
-  const stores = [...new Set(shifts.map((s) => s.store_name))]
-  const overtimeCount = compliance?.violations?.find((v: any) => v.type === "overtime")?.count ?? 0
+  const stores = [...new Set(shifts.map((s) => s?.store_name).filter(Boolean))]
+  const overtimeCount = compliance?.violations?.find((v: any) => v?.type === "overtime")?.count ?? 0
 
   if (loading) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="シフト・労務コンプライアンス" description="労働時間管理と法令遵守状況" /><LoadingState /></div>
   if (error) return <div className="min-h-full bg-[#0a0e14]"><ContextHeader title="シフト・労務コンプライアンス" description="労働時間管理と法令遵守状況" /><ErrorState message={error} /></div>

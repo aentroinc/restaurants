@@ -49,7 +49,9 @@ export default function ZenshoExecutivePage() {
 
   if (!summary) return <div className="p-8 text-white/40">Loading...</div>
 
-  const fmt = (n: number) => `¥${n.toLocaleString()}`
+  const safeResults = Array.isArray(summary.results) ? summary.results : []
+  const safeNextActions = Array.isArray(summary.next_actions) ? summary.next_actions : []
+  const fmt = (n: number | null | undefined) => `¥${(n ?? 0).toLocaleString()}`
 
   return (
     <div className="flex flex-col h-screen">
@@ -69,14 +71,14 @@ export default function ZenshoExecutivePage() {
               </div>
               <div className="mt-2 text-5xl font-mono font-bold text-emerald-400 tabular-nums">
                 <LiveCounter
-                  initial={summary.total_annualized_impact_yen}
-                  driftRange={Math.floor(summary.total_annualized_impact_yen * 0.005)}
-                  format={(n) => `¥${n.toLocaleString()}`}
+                  initial={summary.total_annualized_impact_yen ?? 0}
+                  driftRange={Math.floor((summary.total_annualized_impact_yen ?? 0) * 0.005)}
+                  format={(n) => `¥${(n ?? 0).toLocaleString()}`}
                   showLiveDot={false}
                 />
               </div>
               <div className="mt-2 text-[13px] text-white/60">
-                {summary.theme_name}・対象 20 店舗・{summary.significant_kpi_count}/{summary.kpi_count} KPI で統計的有意改善
+                {summary.theme_name ?? "-"}・対象 20 店舗・{summary.significant_kpi_count ?? 0}/{summary.kpi_count ?? 0} KPI で統計的有意改善
               </div>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-emerald-500/10 text-emerald-400 text-[12px]">
@@ -91,7 +93,7 @@ export default function ZenshoExecutivePage() {
 
         {/* KPI grid */}
         <div className="grid grid-cols-3 gap-4">
-          {summary.results.map((r) => (
+          {safeResults.map((r) => (
             <div key={r.kpi_name} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[12px] text-white/60">{KPI_LABEL[r.kpi_name] || r.kpi_name}</span>
@@ -122,7 +124,7 @@ export default function ZenshoExecutivePage() {
               <Sparkles className="w-4 h-4 text-blue-400" /> 本契約推奨
             </h3>
             <p className="text-[14px] text-white/85 leading-relaxed">
-              全 6 ブランド 5,000 店舗への横展開で、年間 <span className="font-mono text-emerald-400 font-bold">{fmt(summary.total_annualized_impact_yen * 5)}</span> 規模の改善余地。
+              全 6 ブランド 5,000 店舗への横展開で、年間 <span className="font-mono text-emerald-400 font-bold">{fmt((summary.total_annualized_impact_yen ?? 0) * 5)}</span> 規模の改善余地。
             </p>
             <div className="mt-4 grid grid-cols-3 gap-3 text-center">
               <div className="rounded bg-white/[0.03] p-3">
@@ -145,7 +147,7 @@ export default function ZenshoExecutivePage() {
               <ArrowRight className="w-4 h-4 text-amber-400" /> 次アクション
             </h3>
             <div className="space-y-2.5">
-              {summary.next_actions.map((a, i) => (
+              {safeNextActions.map((a, i) => (
                 <div key={i} className="flex gap-2 text-[13px] text-white/75">
                   <span className="text-amber-400 mt-0.5">▸</span>
                   <span className="leading-relaxed">{a}</span>

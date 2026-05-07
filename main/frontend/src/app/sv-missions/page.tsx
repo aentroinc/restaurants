@@ -45,12 +45,12 @@ export default function SVMissionsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const svs = [...new Set(missions.map((m) => m.store.sv_name))]
-  const brands = [...new Set(missions.map((m) => m.store.brand_name))]
+  const svs = [...new Set(missions.map((m) => m?.store?.sv_name).filter(Boolean) as string[])]
+  const brands = [...new Set(missions.map((m) => m?.store?.brand_name).filter(Boolean) as string[])]
 
   const filtered = missions.filter((m) => {
-    if (svFilter !== "all" && m.store.sv_name !== svFilter) return false
-    if (brandFilter !== "all" && m.store.brand_name !== brandFilter) return false
+    if (svFilter !== "all" && m?.store?.sv_name !== svFilter) return false
+    if (brandFilter !== "all" && m?.store?.brand_name !== brandFilter) return false
     return true
   })
 
@@ -156,7 +156,7 @@ export default function SVMissionsPage() {
       </div>
 
       <div className="space-y-4">
-        {filtered.map((mission) => {
+        {filtered.filter((m) => m && m.id && m.store).map((mission) => {
           const isOpen = expanded.has(mission.id)
           return (
             <Card key={mission.id} className="overflow-hidden">
@@ -165,21 +165,21 @@ export default function SVMissionsPage() {
                   className="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-50"
                   onClick={() => toggle(mission.id)}
                 >
-                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold text-sm", priorityColor(mission.priority_score))}>
-                    {mission.priority_score}
+                  <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold text-sm", priorityColor(mission.priority_score ?? 0))}>
+                    {mission.priority_score ?? 0}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Link href={`/stores/${mission.store.id}`} className="font-semibold text-blue-600 hover:underline truncate" onClick={(e) => e.stopPropagation()}>
-                        {mission.store.name}
+                      <Link href={`/stores/${mission.store?.id ?? ""}`} className="font-semibold text-blue-600 hover:underline truncate" onClick={(e) => e.stopPropagation()}>
+                        {mission.store?.name ?? "店舗未設定"}
                       </Link>
-                      <Badge variant="secondary" className="text-xs shrink-0">{mission.store.brand_name}</Badge>
+                      <Badge variant="secondary" className="text-xs shrink-0">{mission.store?.brand_name ?? "-"}</Badge>
                     </div>
                     <div className="mt-1 flex items-center gap-4 text-xs text-gray-500 flex-wrap">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3 shrink-0" />最終訪問 {mission.days_since_visit}日前</span>
-                      <span className="flex items-center gap-1"><ListTodo className="h-3 w-3 shrink-0" />未完了タスク {mission.open_tasks}件</span>
-                      <span>健全度 {mission.kpi.health_score}</span>
-                      <span>FL比率 {formatPercent(mission.kpi.fl_ratio)}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3 shrink-0" />最終訪問 {mission.days_since_visit ?? "-"}日前</span>
+                      <span className="flex items-center gap-1"><ListTodo className="h-3 w-3 shrink-0" />未完了タスク {mission.open_tasks ?? 0}件</span>
+                      <span>健全度 {mission.kpi?.health_score ?? "-"}</span>
+                      <span>FL比率 {mission.kpi?.fl_ratio != null ? formatPercent(mission.kpi.fl_ratio) : "-"}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

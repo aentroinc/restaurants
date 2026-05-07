@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import "leaflet/dist/leaflet.css"
 import type { SVStore } from "@/lib/sv-api"
 
 interface Props {
@@ -75,8 +76,6 @@ export function LeafletStoreMap({
     let disposed = false
     ;(async () => {
       const L = (await import("leaflet")).default
-      // @ts-expect-error -- side-effect CSS import
-      await import("leaflet/dist/leaflet.css")
       if (disposed || !containerRef.current) return
       if (mapRef.current) return
 
