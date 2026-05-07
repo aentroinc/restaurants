@@ -24,14 +24,14 @@ function mulberry32(seed: number) {
 }
 const seededRandom = mulberry32(42);
 
-const brands = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
-const areas = ["関東", "関西", "中部", "九州", "東北"]
+const brands = ["郊外ロードサイド型", "都市型", "食べ放題特化型", "バンノウ水産", "デリカ事業"]
+const areas = ["首都圏", "中部", "東北", "北関東", "東海"]
 const prefectures: Record<string, string[]> = {
-  "関東": ["東京都", "神奈川県", "千葉県", "埼玉県"],
-  "関西": ["大阪府", "京都府", "兵庫県"],
-  "中部": ["愛知県", "静岡県"],
-  "九州": ["福岡県", "熊本県"],
-  "東北": ["宮城県", "岩手県"],
+  "首都圏": ["東京都", "神奈川県", "千葉県", "埼玉県"],
+  "中部": ["長野県", "新潟県", "山梨県"],
+  "東北": ["福島県", "宮城県", "山形県"],
+  "北関東": ["群馬県", "栃木県", "茨城県"],
+  "東海": ["静岡県", "愛知県"],
 }
 const svNames = ["田中SV", "鈴木SV", "佐藤SV", "高橋SV", "伊藤SV"]
 const managerNames = ["山田店長", "渡辺店長", "中村店長", "小林店長", "加藤店長", "吉田店長", "山口店長", "松本店長", "井上店長", "木村店長"]
@@ -57,7 +57,7 @@ function makeStore(i: number): StoreWithKPI {
   return {
     id: `store-${String(i + 1).padStart(3, "0")}`,
     code: `S${String(i + 1).padStart(3, "0")}`,
-    name: `${brand} ${pref.replace("都", "").replace("府", "").replace("県", "")}${["中央", "駅前", "南", "北", "東"][i % 5]}店`,
+    name: `かっぱ寿司 ${pref.replace("都", "").replace("府", "").replace("県", "")}${["中央", "駅前", "南", "北", "東"][i % 5]}店`,
     brand_name: brand,
     area_name: area,
     prefecture: pref,
@@ -198,7 +198,7 @@ export const mockMeetingPacks: MeetingPack[] = [
     created_at: "2026-04-28T10:00:00Z",
     items: [
       { id: "mpi-1", type: "kpi", title: "全店KPIサマリー", content: "売上前年比98.2%、FL比率59.0%で前月比+0.8pt悪化。人件費率の上昇が主因。", order: 1 },
-      { id: "mpi-2", type: "alert", title: "要注意店舗: すき家 品川港南店", content: "健全度スコア40。人件費率38.2%、原価率35.1%。FL比率73.3%で全店ワースト。", store_id: "store-001", store_name: "すき家 品川港南店", order: 2 },
+      { id: "mpi-2", type: "alert", title: "要注意店舗: かっぱ寿司 長野稲里店", content: "健全度スコア40。人件費率38.2%、原価率35.1%。FL比率73.3%で全店ワースト。", store_id: "store-001", store_name: "かっぱ寿司 長野稲里店", order: 2 },
       { id: "mpi-3", type: "improvement", title: "シフト最適化施策の進捗", content: "対象5店舗中3店舗で実施完了。平均人件費率2.1pt改善。残り2店舗は5月第1週に実施予定。", order: 3 },
       { id: "mpi-4", type: "discussion", title: "夏季メニュー戦略について", content: "原価率上昇傾向を踏まえ、夏季限定メニューの原価設計を議論。目標原価率30%以下。", order: 4 },
     ],
@@ -211,7 +211,7 @@ export const mockMeetingPacks: MeetingPack[] = [
     created_at: "2026-04-21T10:00:00Z",
     items: [
       { id: "mpi-5", type: "kpi", title: "全店KPIサマリー", content: "売上前年比99.1%。FL比率58.2%で基準値内。", order: 1 },
-      { id: "mpi-6", type: "alert", title: "要注意店舗: はま寿司 横浜六角橋店", content: "客数減少が継続。近隣の競合出店の影響と推定。", store_id: "store-002", store_name: "はま寿司 横浜六角橋店", order: 2 },
+      { id: "mpi-6", type: "alert", title: "要注意店舗: かっぱ寿司 福島南店", content: "客数減少が継続。近隣の競合出店の影響と推定。", store_id: "store-002", store_name: "かっぱ寿司 福島南店", order: 2 },
     ],
   },
   {
@@ -318,34 +318,34 @@ export const mockValueRealizationSummary: ValueRealizationSummary = {
 
 export const mockAIResponses: Record<string, AIResponse> = {
   "先月利益が悪化した店舗は？": {
-    conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にすき家 品川港南店（-4.2pt）、はま寿司 横浜六角橋店（-3.1pt）、ココス 大宮店（-2.8pt）の3店舗が顕著です。",
+    conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にかっぱ寿司 長野稲里店（-4.2pt）、かっぱ寿司 福島南店（-3.1pt）、かっぱ寿司 郡山安積店（-2.8pt）の3店舗が顕著です。",
     facts: [
-      { statement: "すき家 品川港南店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate" },
-      { statement: "はま寿司 横浜六角橋店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate" },
-      { statement: "ココス 大宮店の原価率は36.2%で前月比+3.1pt", source_metric: "cogs_rate" },
+      { statement: "かっぱ寿司 長野稲里店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate" },
+      { statement: "かっぱ寿司 福島南店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate" },
+      { statement: "かっぱ寿司 郡山安積店の原価率は36.2%で前月比+3.1pt", source_metric: "cogs_rate" },
       { statement: "悪化8店舗の共通点として、FL比率が65%を超えている", source_metric: "fl_ratio" },
     ],
     hypotheses: [
-      { statement: "すき家 品川港南店は、GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high" },
-      { statement: "はま寿司 横浜六角橋店は、近隣の競合出店（3月末オープン）による客数減少が影響", confidence: "medium" },
+      { statement: "かっぱ寿司 長野稲里店は、GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high" },
+      { statement: "かっぱ寿司 福島南店は、近隣の競合出店（3月末オープン）による客数減少が影響", confidence: "medium" },
       { statement: "原価率悪化店舗は、4月の食材価格上昇（特にコメ+15%、鮮魚+12%）の影響を受けている可能性", confidence: "medium" },
     ],
     recommendations: [
-      { action: "すき家 品川港南店：シフト表の見直しと、ピークタイム以外の人員を1名削減", expected_impact_amount: 320_000 },
-      { action: "はま寿司 横浜六角橋店：差別化メニューの投入と、SNS集客施策の強化", expected_impact_amount: 250_000 },
+      { action: "かっぱ寿司 長野稲里店：シフト表の見直しと、ピークタイム以外の人員を1名削減", expected_impact_amount: 320_000 },
+      { action: "かっぱ寿司 福島南店：差別化メニューの投入と、SNS集客施策の強化", expected_impact_amount: 250_000 },
       { action: "原価率悪化店舗：仕入れ先の相見積もりを実施し、代替食材の検討", expected_impact_amount: 480_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "すき家 品川港南店" },
-      { type: "store", id: "store-002", name: "はま寿司 横浜六角橋店" },
-      { type: "store", id: "store-003", name: "ココス 大宮店" },
+      { type: "store", id: "store-001", name: "かっぱ寿司 長野稲里店" },
+      { type: "store", id: "store-002", name: "かっぱ寿司 福島南店" },
+      { type: "store", id: "store-003", name: "かっぱ寿司 郡山安積店" },
     ],
   },
   "人件費率が最も高い店舗の原因は？": {
-    conclusion: "人件費率が最も高いのはすき家 品川港南店（38.2%）で、全店平均28.8%を9.4pt上回っています。主因はピークタイム以外の過剰配置と新人研修の長期化です。",
+    conclusion: "人件費率が最も高いのはかっぱ寿司 長野稲里店（38.2%）で、全店平均28.8%を9.4pt上回っています。主因はピークタイム以外の過剰配置と新人研修の長期化です。",
     facts: [
-      { statement: "すき家 品川港南店の人件費率は38.2%で全店ワースト1位", source_metric: "labor_cost_rate" },
+      { statement: "かっぱ寿司 長野稲里店の人件費率は38.2%で全店ワースト1位", source_metric: "labor_cost_rate" },
       { statement: "同店の人時売上は3,200円で、全店平均4,500円を大幅に下回る", source_metric: "sales_per_labor_hour" },
       { statement: "アイドルタイム（14:00-17:00）の配置人数が平均4.2名で、同規模他店の2.8名を上回る", source_metric: "labor_hours" },
       { statement: "新人スタッフの比率が42%で全店平均25%を大きく超過", source_metric: "employee_ratio" },
@@ -362,8 +362,8 @@ export const mockAIResponses: Record<string, AIResponse> = {
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "すき家 品川港南店" },
-      { type: "store", id: "store-003", name: "ココス 大宮店" },
+      { type: "store", id: "store-001", name: "かっぱ寿司 長野稲里店" },
+      { type: "store", id: "store-003", name: "かっぱ寿司 郡山安積店" },
     ],
   },
   "改善施策の効果は出ていますか？": {
@@ -379,67 +379,67 @@ export const mockAIResponses: Record<string, AIResponse> = {
       { statement: "ピークタイム施策が目標超過したのは、メニューリニューアルとの相乗効果が想定以上だった", confidence: "medium" },
     ],
     recommendations: [
-      { action: "シフト最適化の残り2店舗（ココス 大宮店、なか卯 品川店）への展開を5月第1週に前倒し", expected_impact_amount: 280_000 },
+      { action: "シフト最適化の残り2店舗（かっぱ寿司 郡山安積店、かっぱ寿司 仙台泉店）への展開を5月第1週に前倒し", expected_impact_amount: 280_000 },
       { action: "仕入れ先見直しについて、契約更新を待たず主要3品目のスポット相見積もりを先行実施", expected_impact_amount: 350_000 },
       { action: "ピークタイム売上最大化の成功パターンを他6店舗へ横展開", expected_impact_amount: 600_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "すき家 品川港南店" },
-      { type: "store", id: "store-003", name: "ココス 大宮店" },
-      { type: "store", id: "store-004", name: "なか卯 品川店" },
+      { type: "store", id: "store-001", name: "かっぱ寿司 長野稲里店" },
+      { type: "store", id: "store-003", name: "かっぱ寿司 郡山安積店" },
+      { type: "store", id: "store-004", name: "かっぱ寿司 仙台泉店" },
     ],
   },
   "今週SVが訪問すべき店舗は？": {
-    conclusion: "今週SVが優先訪問すべき店舗は3店舗です。すき家 品川港南店（優先度95）、はま寿司 横浜六角橋店（優先度87）、ココス 大宮店（優先度79）の順で訪問を推奨します。",
+    conclusion: "今週SVが優先訪問すべき店舗は3店舗です。かっぱ寿司 長野稲里店（優先度95）、かっぱ寿司 福島南店（優先度87）、かっぱ寿司 郡山安積店（優先度79）の順で訪問を推奨します。",
     facts: [
-      { statement: "すき家 品川港南店: 健全度40、最終訪問から14日経過、未完了タスク3件", source_metric: "health_score" },
-      { statement: "はま寿司 横浜六角橋店: 健全度48、売上前月比-8.2%、客数減少が3週連続", source_metric: "net_sales_trend" },
-      { statement: "ココス 大宮店: 健全度56、原価率36.2%で全店ワースト、新店長着任1ヶ月", source_metric: "cogs_rate" },
+      { statement: "かっぱ寿司 長野稲里店: 健全度40、最終訪問から14日経過、未完了タスク3件", source_metric: "health_score" },
+      { statement: "かっぱ寿司 福島南店: 健全度48、売上前月比-8.2%、客数減少が3週連続", source_metric: "net_sales_trend" },
+      { statement: "かっぱ寿司 郡山安積店: 健全度56、原価率36.2%で全店ワースト、新店長着任1ヶ月", source_metric: "cogs_rate" },
       { statement: "全10店舗中、健全度60未満の要注意店舗は上記3店舗", source_metric: "health_score" },
     ],
     hypotheses: [
-      { statement: "すき家 品川港南店はSV訪問ブランクが長く、現場のモチベーション低下リスクあり", confidence: "high" },
-      { statement: "はま寿司 横浜六角橋店の客数減少は競合出店の影響が大きいが、接客品質低下も一因", confidence: "medium" },
-      { statement: "ココス 大宮店は新店長のオペレーション習熟不足が原価管理に影響", confidence: "medium" },
+      { statement: "かっぱ寿司 長野稲里店はSV訪問ブランクが長く、現場のモチベーション低下リスクあり", confidence: "high" },
+      { statement: "かっぱ寿司 福島南店の客数減少は競合出店の影響が大きいが、接客品質低下も一因", confidence: "medium" },
+      { statement: "かっぱ寿司 郡山安積店は新店長のオペレーション習熟不足が原価管理に影響", confidence: "medium" },
     ],
     recommendations: [
-      { action: "すき家 品川港南店: 田中SVが月曜に訪問し、シフト改善の進捗確認と店長1on1を実施", expected_impact_amount: 320_000 },
-      { action: "はま寿司 横浜六角橋店: 鈴木SVが水曜に訪問し、競合対策メニューの検討と接客トレーニング", expected_impact_amount: 250_000 },
-      { action: "ココス 大宮店: 佐藤SVが木曜に訪問し、発注・仕込み量の適正化を指導", expected_impact_amount: 180_000 },
+      { action: "かっぱ寿司 長野稲里店: 田中SVが月曜に訪問し、シフト改善の進捗確認と店長1on1を実施", expected_impact_amount: 320_000 },
+      { action: "かっぱ寿司 福島南店: 鈴木SVが水曜に訪問し、競合対策メニューの検討と接客トレーニング", expected_impact_amount: 250_000 },
+      { action: "かっぱ寿司 郡山安積店: 佐藤SVが木曜に訪問し、発注・仕込み量の適正化を指導", expected_impact_amount: 180_000 },
     ],
     confidence: "high",
     referenced_entities: [
-      { type: "store", id: "store-001", name: "すき家 品川港南店" },
-      { type: "store", id: "store-002", name: "はま寿司 横浜六角橋店" },
-      { type: "store", id: "store-003", name: "ココス 大宮店" },
+      { type: "store", id: "store-001", name: "かっぱ寿司 長野稲里店" },
+      { type: "store", id: "store-002", name: "かっぱ寿司 福島南店" },
+      { type: "store", id: "store-003", name: "かっぱ寿司 郡山安積店" },
     ],
   },
   "原価率が悪化しているブランドは？": {
-    conclusion: "原価率が最も悪化しているブランドはココスで、前月比+2.8ptの33.8%です。次いですき家（+1.5pt、32.1%）が続きます。主因は4月の食材価格上昇（鮮魚+12%、牛肉+8%）です。",
+    conclusion: "原価率が最も悪化しているブランドは郊外ロードサイド型で、前月比+2.8ptの33.8%です。次いでかっぱ寿司（+1.5pt、32.1%）が続きます。主因は4月の食材価格上昇（鮮魚+12%、牛肉+8%）です。",
     facts: [
-      { statement: "ココス: 原価率33.8%（前月比+2.8pt）、コメ仕入価格が前年比+15%上昇", source_metric: "cogs_rate" },
-      { statement: "すき家: 原価率32.1%（前月比+1.5pt）、牛肉仕入価格が前年比+10%上昇", source_metric: "cogs_rate" },
-      { statement: "はま寿司: 原価率29.5%（前月比+0.3pt）、小麦粉価格は安定", source_metric: "cogs_rate" },
-      { statement: "なか卯: 原価率28.2%（前月比-0.5pt）、鶏肉価格は下落傾向", source_metric: "cogs_rate" },
-      { statement: "ジョリーパスタ: 原価率30.0%（前月比+0.2pt）、ほぼ横ばい", source_metric: "cogs_rate" },
+      { statement: "郊外ロードサイド型: 原価率33.8%（前月比+2.8pt）、コメ仕入価格が前年比+15%上昇", source_metric: "cogs_rate" },
+      { statement: "かっぱ寿司: 原価率32.1%（前月比+1.5pt）、牛肉仕入価格が前年比+10%上昇", source_metric: "cogs_rate" },
+      { statement: "かっぱ寿司: 原価率29.5%（前月比+0.3pt）、小麦粉価格は安定", source_metric: "cogs_rate" },
+      { statement: "食べ放題特化型: 原価率28.2%（前月比-0.5pt）、鶏肉価格は下落傾向", source_metric: "cogs_rate" },
+      { statement: "都市型: 原価率30.0%（前月比+0.2pt）、ほぼ横ばい", source_metric: "cogs_rate" },
     ],
     hypotheses: [
-      { statement: "ココスの悪化は、コメ価格高騰と鮮魚の不漁が直接的な原因。特にマグロとサーモンが影響大", confidence: "high" },
-      { statement: "すき家は円安による輸入牛肉コスト増が主因。仕入先の多様化を検討", confidence: "medium" },
-      { statement: "廃棄ロスの増加も一因。はま寿司の廃棄率は4.2%で前月比+1.1pt", confidence: "medium" },
+      { statement: "郊外ロードサイド型の悪化は、コメ価格高騰と鮮魚の不漁が直接的な原因。特にマグロとサーモンが影響大", confidence: "high" },
+      { statement: "かっぱ寿司は円安による輸入牛肉コスト増が主因。仕入先の多様化を検討", confidence: "medium" },
+      { statement: "廃棄ロスの増加も一因。かっぱ寿司の廃棄率は4.2%で前月比+1.1pt", confidence: "medium" },
     ],
     recommendations: [
-      { action: "はま寿司で季節メニューの原価設計を見直し、高騰食材の使用量を20%削減", expected_impact_amount: 380_000 },
-      { action: "すき家で仕入先の多様化と代替部位の活用を検討。テスト導入を2店舗で開始", expected_impact_amount: 450_000 },
+      { action: "かっぱ寿司で季節メニューの原価設計を見直し、高騰食材の使用量を20%削減", expected_impact_amount: 380_000 },
+      { action: "かっぱ寿司で仕入先の多様化と代替部位の活用を検討。テスト導入を2店舗で開始", expected_impact_amount: 450_000 },
       { action: "全ブランドで廃棄ロス削減プログラムを5月に開始。目標: 廃棄率3.0%以下", expected_impact_amount: 280_000 },
     ],
     confidence: "medium",
     referenced_entities: [
-      { type: "brand", id: "brand-001", name: "ココス" },
-      { type: "brand", id: "brand-002", name: "すき家" },
-      { type: "brand", id: "brand-003", name: "はま寿司" },
-      { type: "brand", id: "brand-004", name: "なか卯" },
+      { type: "brand", id: "brand-001", name: "郊外ロードサイド型" },
+      { type: "brand", id: "brand-002", name: "かっぱ寿司" },
+      { type: "brand", id: "brand-003", name: "かっぱ寿司" },
+      { type: "brand", id: "brand-004", name: "食べ放題特化型" },
     ],
   },
   "default": {
@@ -460,11 +460,11 @@ export const mockAIResponses: Record<string, AIResponse> = {
 }
 
 export const mockSuggestedQuestions = [
-  "先月利益が悪化した店舗は？",
-  "人件費率が最も高い店舗の原因は？",
-  "改善施策の効果は出ていますか？",
-  "今週SVが訪問すべき店舗は？",
-  "原価率が悪化しているブランドは？",
+  "客数が最も減少している店舗はどこ？",
+  "原価率48%を下回っている店舗は？",
+  "食べ放題型の廃棄率が高い店舗を教えて",
+  "都市型出店（南池袋、吉祥寺）の立ち上がり状況は？",
+  "スシローとの客単価差は？",
 ]
 
 function makeProfitGraph(): ProfitGraphData[] {
@@ -562,31 +562,31 @@ export const mockOntologyObjectTypes: OntologyObjectType[] = [
 
 export const mockOntologyObjects: OntologyObject[] = [
   {
-    id: "obj-001", object_type: "store", canonical_id: "store-001", display_name: "すき家 品川港南店",
+    id: "obj-001", object_type: "store", canonical_id: "store-001", display_name: "かっぱ寿司 長野稲里店",
     attributes: { store_code: "S001", brand_id: "brand-001", area_id: "area-001", prefecture: "東京都", seat_count: 80, floor_area_sqm: 120.5 },
     status: "active",
     relations: [
-      { id: "rel-1", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b1", object_type: "brand", display_name: "すき家" }, attributes: {} },
+      { id: "rel-1", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b1", object_type: "brand", display_name: "かっぱ寿司" }, attributes: {} },
       { id: "rel-2", relation_type: "belongs_to_area", direction: "outgoing", related_object: { id: "obj-a1", object_type: "area", display_name: "関東" }, attributes: {} },
       { id: "rel-3", relation_type: "employs", direction: "outgoing", related_object: { id: "obj-e1", object_type: "employee", display_name: "山田店長" }, attributes: { role: "店長" } },
     ],
   },
   {
-    id: "obj-002", object_type: "store", canonical_id: "store-002", display_name: "はま寿司 横浜六角橋店",
+    id: "obj-002", object_type: "store", canonical_id: "store-002", display_name: "かっぱ寿司 福島南店",
     attributes: { store_code: "S002", brand_id: "brand-002", area_id: "area-002", prefecture: "大阪府", seat_count: 45, floor_area_sqm: 85.0 },
     status: "active",
     relations: [
-      { id: "rel-4", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b2", object_type: "brand", display_name: "はま寿司" }, attributes: {} },
+      { id: "rel-4", relation_type: "belongs_to_brand", direction: "outgoing", related_object: { id: "obj-b2", object_type: "brand", display_name: "かっぱ寿司" }, attributes: {} },
     ],
   },
   {
-    id: "obj-003", object_type: "brand", canonical_id: "brand-001", display_name: "すき家",
-    attributes: { brand_code: "SK", cuisine_type: "牛丼", avg_ticket_target: 550 },
+    id: "obj-003", object_type: "brand", canonical_id: "brand-001", display_name: "かっぱ寿司",
+    attributes: { brand_code: "KR", cuisine_type: "郊外ロードサイド型", avg_ticket_target: 1150 },
     status: "active", relations: [],
   },
   {
-    id: "obj-004", object_type: "brand", canonical_id: "brand-002", display_name: "はま寿司",
-    attributes: { brand_code: "HZ", cuisine_type: "回転寿司", avg_ticket_target: 1100 },
+    id: "obj-004", object_type: "brand", canonical_id: "brand-002", display_name: "かっぱ寿司",
+    attributes: { brand_code: "KU", cuisine_type: "都市型", avg_ticket_target: 1400 },
     status: "active", relations: [],
   },
   {
@@ -600,12 +600,12 @@ export const mockOntologyObjects: OntologyObject[] = [
     status: "active", relations: [],
   },
   {
-    id: "obj-007", object_type: "supplier", canonical_id: "sup-001", display_name: "大和食品",
-    attributes: { supplier_code: "SUP001", category: "精肉", contact_email: "info@yamato.co.jp", payment_terms: "月末締め翌月末払い" },
+    id: "obj-007", object_type: "supplier", canonical_id: "sup-001", display_name: "豊洲水産",
+    attributes: { supplier_code: "SUP001", category: "鮮魚", contact_email: "info@yamato.co.jp", payment_terms: "月末締め翌月末払い" },
     status: "active", relations: [],
   },
   {
-    id: "obj-008", object_type: "menu_item", canonical_id: "menu-001", display_name: "牛丼（並盛）",
+    id: "obj-008", object_type: "menu_item", canonical_id: "menu-001", display_name: "まぐろ握り",
     attributes: { item_code: "M001", category: "牛丼", price: 430, cost: 180, allergens: "小麦", calories: 650 },
     status: "active", relations: [],
   },
@@ -678,11 +678,11 @@ export const mockKPIDefinitions: KPIDefinition[] = [
 export const mockKPISimulationResult: KPISimulationResult = {
   affected_stores: 48,
   sample_before_after: [
-    { store_name: "すき家 品川港南店", old_value: 34.2, new_value: 33.8 },
-    { store_name: "はま寿司 横浜六角橋店", old_value: 31.5, new_value: 31.2 },
-    { store_name: "ココス 大宮店", old_value: 36.1, new_value: 35.6 },
-    { store_name: "なか卯 品川店", old_value: 29.8, new_value: 29.5 },
-    { store_name: "ジョリーパスタ 横浜青葉台店", old_value: 30.2, new_value: 29.9 },
+    { store_name: "かっぱ寿司 長野稲里店", old_value: 34.2, new_value: 33.8 },
+    { store_name: "かっぱ寿司 福島南店", old_value: 31.5, new_value: 31.2 },
+    { store_name: "かっぱ寿司 郡山安積店", old_value: 36.1, new_value: 35.6 },
+    { store_name: "かっぱ寿司 仙台泉店", old_value: 29.8, new_value: 29.5 },
+    { store_name: "かっぱ寿司 南池袋店", old_value: 30.2, new_value: 29.9 },
   ],
   ranking_changes: 7,
 }
@@ -728,7 +728,7 @@ export const mockWritebackRequests: WritebackRequest[] = [
   { id: "wr-2", action_type: "kpi_threshold_update", target_object_type: "kpi_definition", target_object_id: "kpi-1", payload: { warning_threshold: 33, critical_threshold: 36 }, status: "approved", requested_by: "鈴木SV", approved_by: "管理者", created_at: "2026-04-28T10:00:00Z" },
   { id: "wr-3", action_type: "menu_price_update", target_object_type: "menu_item", target_object_id: "menu-001", payload: { old_price: 1480, new_price: 1580 }, status: "executed", requested_by: "佐藤SV", approved_by: "管理者", created_at: "2026-04-25T09:00:00Z" },
   { id: "wr-4", action_type: "shift_adjustment", target_object_type: "store", target_object_id: "store-003", payload: { date: "2026-05-03", reduction_hours: 4 }, status: "executed", requested_by: "高橋SV", created_at: "2026-04-27T16:00:00Z" },
-  { id: "wr-5", action_type: "supplier_change", target_object_type: "store", target_object_id: "store-002", payload: { old_supplier: "大和食品", new_supplier: "三河畜産" }, status: "rejected", requested_by: "伊藤SV", created_at: "2026-04-26T11:00:00Z" },
+  { id: "wr-5", action_type: "supplier_change", target_object_type: "store", target_object_id: "store-002", payload: { old_supplier: "豊洲水産", new_supplier: "境港水産" }, status: "rejected", requested_by: "伊藤SV", created_at: "2026-04-26T11:00:00Z" },
   { id: "wr-6", action_type: "store_target_update", target_object_type: "store", target_object_id: "store-005", payload: { target_labor_rate: 28.0 }, status: "pending", requested_by: "田中SV", created_at: "2026-04-30T08:00:00Z" },
 ]
 
@@ -818,17 +818,17 @@ export const mockAIGovernanceConfig: AIGovernanceConfig = {
 
 export const mockAIResponseEnhanced: AIResponseEnhanced = {
   answer_type: "analysis",
-  conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にすき家 品川港南店（-4.2pt）が顕著です。",
+  conclusion: "先月（4月）に営業利益率が前月比で悪化した店舗は全48店舗中8店舗あり、特にかっぱ寿司 長野稲里店（-4.2pt）が顕著です。",
   facts: [
-    { statement: "すき家 品川港南店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate", source_entity: "store-001", period: "2026-04" },
-    { statement: "はま寿司 横浜六角橋店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate", source_entity: "store-002", period: "2026-04" },
+    { statement: "かっぱ寿司 長野稲里店の営業利益率は3.2%で、前月比-4.2pt", source_metric: "operating_profit_rate", source_entity: "store-001", period: "2026-04" },
+    { statement: "かっぱ寿司 福島南店の人件費率は35.8%で全店ワースト2位", source_metric: "labor_cost_rate", source_entity: "store-002", period: "2026-04" },
   ],
   calculations: [
     { name: "原価率", formula: "cogs / net_sales * 100", value: 34.2, kpi_definition_id: "kpi-1" },
     { name: "FL比率", formula: "cogs_rate + labor_cost_rate", value: 69.4, kpi_definition_id: "kpi-3" },
   ],
   hypotheses: [
-    { statement: "GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high", supporting_facts: ["すき家 品川港南店の営業利益率は3.2%"] },
+    { statement: "GW前の仕入れ増加と新人研修期間の重複が主因と推定", confidence: "high", supporting_facts: ["かっぱ寿司 長野稲里店の営業利益率は3.2%"] },
   ],
   recommendations: [
     { action: "シフト表の見直しと、ピークタイム以外の人員を1名削減", owner_role: "sv", expected_impact_amount: 320000, requires_human_approval: true },
@@ -841,8 +841,8 @@ export const mockAIResponseEnhanced: AIResponseEnhanced = {
       { kpi_code: "fl_ratio", version: 2 },
     ],
     referenced_objects: [
-      { object_type: "store", object_id: "store-001", display_name: "すき家 品川港南店" },
-      { object_type: "store", object_id: "store-002", display_name: "はま寿司 横浜六角橋店" },
+      { object_type: "store", object_id: "store-001", display_name: "かっぱ寿司 長野稲里店" },
+      { object_type: "store", object_id: "store-002", display_name: "かっぱ寿司 福島南店" },
     ],
     data_period: "2026-04",
     data_freshness: "2026-05-01T06:10:00Z",
@@ -899,7 +899,7 @@ export const mockCustomKPIDefs: CustomKPIDef[] = [
 export const mockCohortDefs: CohortDef[] = [
   { id: "co-1", name: "高収益店舗群", object_type: "store", filter_spec: { health_score: { gte: 80 } }, instance_count: 42 },
   { id: "co-2", name: "要改善店舗", object_type: "store", filter_spec: { health_score: { lt: 60 } }, instance_count: 8 },
-  { id: "co-3", name: "首都圏すき家", object_type: "store", filter_spec: { region: "首都圏", brand: "sukiya" }, instance_count: 18 },
+  { id: "co-3", name: "中部郊外ロードサイド型", object_type: "store", filter_spec: { region: "中部", brand: "kappa_roadside" }, instance_count: 22 },
   { id: "co-4", name: "新規出店（1年以内）", object_type: "store", filter_spec: { opened_within_months: 12 }, instance_count: 15 },
   { id: "co-5", name: "FC加盟店", object_type: "store", filter_spec: { agreement_type: "FC" }, instance_count: 35 },
 ]
@@ -909,20 +909,20 @@ export const mockCohortDefs: CohortDef[] = [
 // ============================================
 
 export const mockRecipes: RecipeItem[] = [
-  { id: "rc-1", product_name: "牛丼（並盛）", version: 3, yield_quantity: 1, cooking_time_minutes: 3, status: "active", theoretical_cost: 180, bom_count: 6 },
-  { id: "rc-2", product_name: "まぐろ三種盛り", version: 2, yield_quantity: 1, cooking_time_minutes: 4, status: "active", theoretical_cost: 320, bom_count: 8 },
-  { id: "rc-3", product_name: "包み焼きハンバーグ", version: 4, yield_quantity: 1, cooking_time_minutes: 15, status: "active", theoretical_cost: 480, bom_count: 10 },
-  { id: "rc-4", product_name: "親子丼", version: 1, yield_quantity: 1, cooking_time_minutes: 5, status: "active", theoretical_cost: 210, bom_count: 7 },
-  { id: "rc-5", product_name: "ペペロンチーノ", version: 2, yield_quantity: 1, cooking_time_minutes: 8, status: "active", theoretical_cost: 280, bom_count: 9 },
-  { id: "rc-6", product_name: "牛すき鍋定食", version: 3, yield_quantity: 1, cooking_time_minutes: 10, status: "active", theoretical_cost: 350, bom_count: 11 },
+  { id: "rc-1", product_name: "まぐろ握り", version: 3, yield_quantity: 1, cooking_time_minutes: 3, status: "active", theoretical_cost: 180, bom_count: 6 },
+  { id: "rc-2", product_name: "サーモン握り", version: 2, yield_quantity: 1, cooking_time_minutes: 4, status: "active", theoretical_cost: 320, bom_count: 8 },
+  { id: "rc-3", product_name: "中とろ", version: 4, yield_quantity: 1, cooking_time_minutes: 15, status: "active", theoretical_cost: 480, bom_count: 10 },
+  { id: "rc-4", product_name: "えび握り", version: 1, yield_quantity: 1, cooking_time_minutes: 5, status: "active", theoretical_cost: 210, bom_count: 7 },
+  { id: "rc-5", product_name: "茶碗蒸し", version: 2, yield_quantity: 1, cooking_time_minutes: 8, status: "active", theoretical_cost: 280, bom_count: 9 },
+  { id: "rc-6", product_name: "特大穴子", version: 3, yield_quantity: 1, cooking_time_minutes: 10, status: "active", theoretical_cost: 350, bom_count: 11 },
 ]
 
 export const mockIngredients: IngredientItem[] = [
-  { id: "ig-1", name: "牛カルビ（輸入）", unit: "kg", standard_cost_per_unit: 2800, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 5 },
-  { id: "ig-2", name: "豚ロース", unit: "kg", standard_cost_per_unit: 1200, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 4 },
-  { id: "ig-3", name: "鶏もも肉", unit: "kg", standard_cost_per_unit: 680, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 3 },
+  { id: "ig-1", name: "本まぐろ（冷凍）", unit: "kg", standard_cost_per_unit: 4500, storage_temperature: "冷凍(-18℃以下)", shelf_life_days: 90 },
+  { id: "ig-2", name: "サーモン（ノルウェー産）", unit: "kg", standard_cost_per_unit: 3200, storage_temperature: "冷蔵(-2-2℃)", shelf_life_days: 3 },
+  { id: "ig-3", name: "えび（バナメイ）", unit: "kg", standard_cost_per_unit: 1800, storage_temperature: "冷凍(-18℃以下)", shelf_life_days: 120 },
   { id: "ig-4", name: "サーモン（ノルウェー産）", unit: "kg", standard_cost_per_unit: 3200, storage_temperature: "冷蔵(-2-2℃)", shelf_life_days: 3 },
-  { id: "ig-5", name: "中華麺", unit: "玉", standard_cost_per_unit: 45, storage_temperature: "冷蔵(0-4℃)", shelf_life_days: 7 },
+  { id: "ig-5", name: "海苔（有明産）", unit: "枚", standard_cost_per_unit: 8, storage_temperature: "常温", shelf_life_days: 180 },
   { id: "ig-6", name: "白米", unit: "kg", standard_cost_per_unit: 380, storage_temperature: "常温", shelf_life_days: 90 },
   { id: "ig-7", name: "味噌（合わせ）", unit: "kg", standard_cost_per_unit: 520, storage_temperature: "冷蔵(0-10℃)", shelf_life_days: 180 },
   { id: "ig-8", name: "抹茶パウダー", unit: "g", standard_cost_per_unit: 8, storage_temperature: "冷暗所", shelf_life_days: 365 },
@@ -933,13 +933,13 @@ export const mockIngredients: IngredientItem[] = [
 // ============================================
 
 export const mockShifts: ShiftItem[] = [
-  { id: "sh-1", store_name: "すき家 品川港南店", employee_name: "田中一郎", role: "ホール", start_at: "2026-04-28T09:00:00Z", end_at: "2026-04-28T22:00:00Z", violations: ["overtime"] },
-  { id: "sh-2", store_name: "すき家 品川港南店", employee_name: "佐藤花子", role: "キッチン", start_at: "2026-04-28T17:00:00Z", end_at: "2026-04-29T02:00:00Z", violations: ["rest_interval"] },
-  { id: "sh-3", store_name: "はま寿司 横浜六角橋店", employee_name: "山田太郎", role: "店長", start_at: "2026-04-28T08:00:00Z", end_at: "2026-04-28T23:00:00Z", violations: ["overtime", "short_break"] },
-  { id: "sh-4", store_name: "ココス 大宮店", employee_name: "鈴木次郎", role: "ホール", start_at: "2026-04-28T11:00:00Z", end_at: "2026-04-28T20:00:00Z", violations: [] },
-  { id: "sh-5", store_name: "なか卯 品川店", employee_name: "高橋美咲", role: "調理", start_at: "2026-04-28T16:00:00Z", end_at: "2026-04-29T01:30:00Z", violations: ["short_break"] },
-  { id: "sh-6", store_name: "ジョリーパスタ 横浜青葉台店", employee_name: "伊藤健", role: "ホール", start_at: "2026-04-27T09:00:00Z", end_at: "2026-04-27T21:00:00Z", violations: ["overtime"] },
-  { id: "sh-7", store_name: "すき家 渋谷道玄坂店", employee_name: "渡辺翔", role: "調理", start_at: "2026-04-27T06:00:00Z", end_at: "2026-04-27T15:00:00Z", violations: [] },
+  { id: "sh-1", store_name: "かっぱ寿司 長野稲里店", employee_name: "田中一郎", role: "ホール", start_at: "2026-04-28T09:00:00Z", end_at: "2026-04-28T22:00:00Z", violations: ["overtime"] },
+  { id: "sh-2", store_name: "かっぱ寿司 長野稲里店", employee_name: "佐藤花子", role: "キッチン", start_at: "2026-04-28T17:00:00Z", end_at: "2026-04-29T02:00:00Z", violations: ["rest_interval"] },
+  { id: "sh-3", store_name: "かっぱ寿司 福島南店", employee_name: "山田太郎", role: "店長", start_at: "2026-04-28T08:00:00Z", end_at: "2026-04-28T23:00:00Z", violations: ["overtime", "short_break"] },
+  { id: "sh-4", store_name: "かっぱ寿司 郡山安積店", employee_name: "鈴木次郎", role: "ホール", start_at: "2026-04-28T11:00:00Z", end_at: "2026-04-28T20:00:00Z", violations: [] },
+  { id: "sh-5", store_name: "かっぱ寿司 仙台泉店", employee_name: "高橋美咲", role: "調理", start_at: "2026-04-28T16:00:00Z", end_at: "2026-04-29T01:30:00Z", violations: ["short_break"] },
+  { id: "sh-6", store_name: "かっぱ寿司 南池袋店", employee_name: "伊藤健", role: "ホール", start_at: "2026-04-27T09:00:00Z", end_at: "2026-04-27T21:00:00Z", violations: ["overtime"] },
+  { id: "sh-7", store_name: "かっぱ寿司 高崎飯塚店", employee_name: "渡辺翔", role: "調理", start_at: "2026-04-27T06:00:00Z", end_at: "2026-04-27T15:00:00Z", violations: [] },
 ]
 
 export const mockLaborCompliance: LaborComplianceReport = {
@@ -958,13 +958,13 @@ export const mockLaborCompliance: LaborComplianceReport = {
 // ============================================
 
 export const mockQSCAudits: QSCAuditItem[] = [
-  { id: "qsc-1", store_name: "すき家 品川港南店", audit_date: "2026-04-25", quality_score: 72, service_score: 68, cleanliness_score: 75, overall_score: 71.7 },
-  { id: "qsc-2", store_name: "はま寿司 横浜六角橋店", audit_date: "2026-04-24", quality_score: 88, service_score: 85, cleanliness_score: 90, overall_score: 87.7 },
-  { id: "qsc-3", store_name: "ココス 大宮店", audit_date: "2026-04-23", quality_score: 65, service_score: 70, cleanliness_score: 60, overall_score: 65.0 },
-  { id: "qsc-4", store_name: "なか卯 品川店", audit_date: "2026-04-22", quality_score: 92, service_score: 90, cleanliness_score: 88, overall_score: 90.0 },
-  { id: "qsc-5", store_name: "ジョリーパスタ 横浜青葉台店", audit_date: "2026-04-21", quality_score: 80, service_score: 78, cleanliness_score: 82, overall_score: 80.0 },
-  { id: "qsc-6", store_name: "すき家 渋谷道玄坂店", audit_date: "2026-04-20", quality_score: 55, service_score: 60, cleanliness_score: 50, overall_score: 55.0 },
-  { id: "qsc-7", store_name: "はま寿司 川崎鷺沼店", audit_date: "2026-04-19", quality_score: 85, service_score: 82, cleanliness_score: 86, overall_score: 84.3 },
+  { id: "qsc-1", store_name: "かっぱ寿司 長野稲里店", audit_date: "2026-04-25", quality_score: 72, service_score: 68, cleanliness_score: 75, overall_score: 71.7 },
+  { id: "qsc-2", store_name: "かっぱ寿司 福島南店", audit_date: "2026-04-24", quality_score: 88, service_score: 85, cleanliness_score: 90, overall_score: 87.7 },
+  { id: "qsc-3", store_name: "かっぱ寿司 郡山安積店", audit_date: "2026-04-23", quality_score: 65, service_score: 70, cleanliness_score: 60, overall_score: 65.0 },
+  { id: "qsc-4", store_name: "かっぱ寿司 仙台泉店", audit_date: "2026-04-22", quality_score: 92, service_score: 90, cleanliness_score: 88, overall_score: 90.0 },
+  { id: "qsc-5", store_name: "かっぱ寿司 南池袋店", audit_date: "2026-04-21", quality_score: 80, service_score: 78, cleanliness_score: 82, overall_score: 80.0 },
+  { id: "qsc-6", store_name: "かっぱ寿司 高崎飯塚店", audit_date: "2026-04-20", quality_score: 55, service_score: 60, cleanliness_score: 50, overall_score: 55.0 },
+  { id: "qsc-7", store_name: "かっぱ寿司 水戸笠原店", audit_date: "2026-04-19", quality_score: 85, service_score: 82, cleanliness_score: 86, overall_score: 84.3 },
 ]
 
 // ============================================
@@ -978,21 +978,21 @@ export const mockHACCPCompliance: HACCPComplianceRate = {
 }
 
 export const mockHACCPMonitoring = [
-  { id: "hm-1", store_name: "すき家 品川港南店", checkpoint: "冷蔵庫温度", recorded_value: "3.2℃", threshold: "0-5℃", compliant: true, recorded_at: "2026-04-30T08:00:00Z" },
-  { id: "hm-2", store_name: "すき家 品川港南店", checkpoint: "調理温度（中心）", recorded_value: "78℃", threshold: "75℃以上", compliant: true, recorded_at: "2026-04-30T12:00:00Z" },
-  { id: "hm-3", store_name: "はま寿司 横浜六角橋店", checkpoint: "冷蔵庫温度", recorded_value: "7.1℃", threshold: "0-5℃", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
-  { id: "hm-4", store_name: "ココス 大宮店", checkpoint: "手洗い記録", recorded_value: "実施済", threshold: "全員実施", compliant: true, recorded_at: "2026-04-30T07:00:00Z" },
-  { id: "hm-5", store_name: "なか卯 品川店", checkpoint: "揚げ油温度", recorded_value: "172℃", threshold: "170-180℃", compliant: true, recorded_at: "2026-04-30T11:30:00Z" },
-  { id: "hm-6", store_name: "ジョリーパスタ 横浜青葉台店", checkpoint: "冷凍庫温度", recorded_value: "-15℃", threshold: "-18℃以下", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-1", store_name: "かっぱ寿司 長野稲里店", checkpoint: "冷蔵庫温度", recorded_value: "3.2℃", threshold: "0-5℃", compliant: true, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-2", store_name: "かっぱ寿司 長野稲里店", checkpoint: "調理温度（中心）", recorded_value: "78℃", threshold: "75℃以上", compliant: true, recorded_at: "2026-04-30T12:00:00Z" },
+  { id: "hm-3", store_name: "かっぱ寿司 福島南店", checkpoint: "冷蔵庫温度", recorded_value: "7.1℃", threshold: "0-5℃", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
+  { id: "hm-4", store_name: "かっぱ寿司 郡山安積店", checkpoint: "手洗い記録", recorded_value: "実施済", threshold: "全員実施", compliant: true, recorded_at: "2026-04-30T07:00:00Z" },
+  { id: "hm-5", store_name: "かっぱ寿司 仙台泉店", checkpoint: "揚げ油温度", recorded_value: "172℃", threshold: "170-180℃", compliant: true, recorded_at: "2026-04-30T11:30:00Z" },
+  { id: "hm-6", store_name: "かっぱ寿司 南池袋店", checkpoint: "冷凍庫温度", recorded_value: "-15℃", threshold: "-18℃以下", compliant: false, recorded_at: "2026-04-30T08:00:00Z" },
 ]
 
 export const mockAllergenMatrix = [
-  { product: "牛丼（並盛）", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "まぐろ三種盛り", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "包み焼きハンバーグ", allergens: { "小麦": true, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "親子丼", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "ペペロンチーノ", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
-  { product: "牛すき鍋定食", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "まぐろ握り", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "サーモン握り", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "中とろ", allergens: { "小麦": true, "卵": true, "乳": true, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "えび握り", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "茶碗蒸し", allergens: { "小麦": true, "卵": false, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
+  { product: "特大穴子", allergens: { "小麦": true, "卵": true, "乳": false, "えび": false, "かに": false, "そば": false, "落花生": false } },
 ]
 
 // ============================================
@@ -1000,21 +1000,21 @@ export const mockAllergenMatrix = [
 // ============================================
 
 export const mockFranchiseAgreements: FranchiseAgreementItem[] = [
-  { id: "fa-1", store_name: "すき家 品川港南店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2021-04-01" },
-  { id: "fa-2", store_name: "はま寿司 横浜六角橋店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-01-01" },
-  { id: "fa-3", store_name: "ココス 大宮店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 4.5 }, effective_from: "2023-03-01" },
-  { id: "fa-4", store_name: "なか卯 品川店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-06-01" },
-  { id: "fa-5", store_name: "ジョリーパスタ 横浜青葉台店", agreement_type: "FC", royalty_structure: { type: "fixed_plus_rate", fixed: 200000, rate: 3.0 }, effective_from: "2024-01-01" },
-  { id: "fa-6", store_name: "すき家 渋谷道玄坂店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2023-09-01" },
+  { id: "fa-1", store_name: "かっぱ寿司 長野稲里店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2021-04-01" },
+  { id: "fa-2", store_name: "かっぱ寿司 福島南店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-01-01" },
+  { id: "fa-3", store_name: "かっぱ寿司 郡山安積店", agreement_type: "FC", royalty_structure: { type: "revenue_share", rate: 4.5 }, effective_from: "2023-03-01" },
+  { id: "fa-4", store_name: "かっぱ寿司 仙台泉店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2022-06-01" },
+  { id: "fa-5", store_name: "かっぱ寿司 南池袋店", agreement_type: "FC", royalty_structure: { type: "fixed_plus_rate", fixed: 200000, rate: 3.0 }, effective_from: "2024-01-01" },
+  { id: "fa-6", store_name: "かっぱ寿司 高崎飯塚店", agreement_type: "直営", royalty_structure: { type: "none" }, effective_from: "2023-09-01" },
 ]
 
 export const mockRoyaltyCalcs: RoyaltyCalcItem[] = [
-  { id: "ry-1", store_name: "はま寿司 横浜六角橋店", period: "2026-04", gross_revenue: 4500000, royalty_amount: 225000, net_payable: 4275000, status: "confirmed" },
-  { id: "ry-2", store_name: "ココス 大宮店", period: "2026-04", gross_revenue: 3800000, royalty_amount: 171000, net_payable: 3629000, status: "confirmed" },
-  { id: "ry-3", store_name: "ジョリーパスタ 横浜青葉台店", period: "2026-04", gross_revenue: 3200000, royalty_amount: 296000, net_payable: 2904000, status: "pending" },
-  { id: "ry-4", store_name: "すき家 渋谷道玄坂店", period: "2026-04", gross_revenue: 4100000, royalty_amount: 225500, net_payable: 3874500, status: "confirmed" },
-  { id: "ry-5", store_name: "はま寿司 横浜六角橋店", period: "2026-03", gross_revenue: 4200000, royalty_amount: 210000, net_payable: 3990000, status: "paid" },
-  { id: "ry-6", store_name: "ココス 大宮店", period: "2026-03", gross_revenue: 3600000, royalty_amount: 162000, net_payable: 3438000, status: "paid" },
+  { id: "ry-1", store_name: "かっぱ寿司 福島南店", period: "2026-04", gross_revenue: 4500000, royalty_amount: 225000, net_payable: 4275000, status: "confirmed" },
+  { id: "ry-2", store_name: "かっぱ寿司 郡山安積店", period: "2026-04", gross_revenue: 3800000, royalty_amount: 171000, net_payable: 3629000, status: "confirmed" },
+  { id: "ry-3", store_name: "かっぱ寿司 南池袋店", period: "2026-04", gross_revenue: 3200000, royalty_amount: 296000, net_payable: 2904000, status: "pending" },
+  { id: "ry-4", store_name: "かっぱ寿司 高崎飯塚店", period: "2026-04", gross_revenue: 4100000, royalty_amount: 225500, net_payable: 3874500, status: "confirmed" },
+  { id: "ry-5", store_name: "かっぱ寿司 福島南店", period: "2026-03", gross_revenue: 4200000, royalty_amount: 210000, net_payable: 3990000, status: "paid" },
+  { id: "ry-6", store_name: "かっぱ寿司 郡山安積店", period: "2026-03", gross_revenue: 3600000, royalty_amount: 162000, net_payable: 3438000, status: "paid" },
 ]
 
 // ============================================
@@ -1022,12 +1022,12 @@ export const mockRoyaltyCalcs: RoyaltyCalcItem[] = [
 // ============================================
 
 export const mockBenchmarks: BenchmarkItem[] = [
-  { business_category: "牛丼", metric_name: "原価率", p25: 28.0, p50: 31.0, p75: 34.0, p90: 37.0 },
-  { business_category: "牛丼", metric_name: "人件費率", p25: 25.0, p50: 28.5, p75: 32.0, p90: 36.0 },
-  { business_category: "回転寿司", metric_name: "原価率", p25: 30.0, p50: 33.0, p75: 36.0, p90: 39.0 },
-  { business_category: "回転寿司", metric_name: "人件費率", p25: 24.0, p50: 27.0, p75: 30.0, p90: 33.0 },
-  { business_category: "ファミレス", metric_name: "原価率", p25: 27.0, p50: 30.0, p75: 33.0, p90: 36.0 },
-  { business_category: "ファミレス", metric_name: "人件費率", p25: 26.0, p50: 29.0, p75: 32.0, p90: 35.0 },
+  { business_category: "回転寿司（郊外型）", metric_name: "原価率", p25: 44.0, p50: 47.0, p75: 50.0, p90: 53.0 },
+  { business_category: "回転寿司（郊外型）", metric_name: "人件費率", p25: 25.0, p50: 28.0, p75: 31.0, p90: 34.0 },
+  { business_category: "回転寿司（都市型）", metric_name: "原価率", p25: 42.0, p50: 45.0, p75: 48.0, p90: 51.0 },
+  { business_category: "回転寿司（都市型）", metric_name: "人件費率", p25: 27.0, p50: 30.0, p75: 33.0, p90: 36.0 },
+  { business_category: "食べ放題", metric_name: "原価率", p25: 48.0, p50: 52.0, p75: 56.0, p90: 60.0 },
+  { business_category: "食べ放題", metric_name: "人件費率", p25: 22.0, p50: 25.0, p75: 28.0, p90: 31.0 },
 ]
 
 // ============================================
@@ -1151,21 +1151,21 @@ export const mockHuffResult = {
 // Menu Engineering Mock
 // ============================================
 export const mockMenuEngineering = [
-  { product_name: "牛丼並盛", sales_count: 45000, gross_margin_pct: 64.9, quadrant: "star" },
+  { product_name: "まぐろ（110円皿）", sales_count: 45000, gross_margin_pct: 64.9, quadrant: "star" },
   { product_name: "まぐろ", sales_count: 22000, gross_margin_pct: 52.0, quadrant: "star" },
-  { product_name: "包み焼きハンバーグ", sales_count: 8500, gross_margin_pct: 69.9, quadrant: "puzzle" },
-  { product_name: "うな丼", sales_count: 3200, gross_margin_pct: 60.0, quadrant: "puzzle" },
-  { product_name: "カレー並盛", sales_count: 28000, gross_margin_pct: 70.0, quadrant: "star" },
+  { product_name: "中とろ", sales_count: 8500, gross_margin_pct: 69.9, quadrant: "puzzle" },
+  { product_name: "ウニ", sales_count: 3200, gross_margin_pct: 60.0, quadrant: "puzzle" },
+  { product_name: "唐揚げ", sales_count: 28000, gross_margin_pct: 70.0, quadrant: "star" },
   { product_name: "サーモン", sales_count: 35000, gross_margin_pct: 57.3, quadrant: "plowhorse" },
   { product_name: "中とろ", sales_count: 8000, gross_margin_pct: 50.0, quadrant: "puzzle" },
-  { product_name: "フレンチフライS", sales_count: 18000, gross_margin_pct: 80.0, quadrant: "star" },
+  { product_name: "フライドポテト", sales_count: 18000, gross_margin_pct: 80.0, quadrant: "star" },
   { product_name: "ビール", sales_count: 5000, gross_margin_pct: 74.9, quadrant: "puzzle" },
   { product_name: "味噌汁", sales_count: 30000, gross_margin_pct: 80.0, quadrant: "star" },
-  { product_name: "ねぎ玉牛丼", sales_count: 15000, gross_margin_pct: 64.9, quadrant: "plowhorse" },
+  { product_name: "えびマヨ", sales_count: 15000, gross_margin_pct: 64.9, quadrant: "plowhorse" },
   { product_name: "茶碗蒸し", sales_count: 4000, gross_margin_pct: 70.0, quadrant: "puzzle" },
   { product_name: "日本酒", sales_count: 2000, gross_margin_pct: 74.9, quadrant: "puzzle" },
-  { product_name: "豚丼並盛", sales_count: 12000, gross_margin_pct: 70.0, quadrant: "plowhorse" },
-  { product_name: "ドリンクバー", sales_count: 25000, gross_margin_pct: 89.9, quadrant: "star" },
+  { product_name: "ほたて", sales_count: 12000, gross_margin_pct: 70.0, quadrant: "plowhorse" },
+  { product_name: "ビール", sales_count: 25000, gross_margin_pct: 89.9, quadrant: "star" },
 ]
 
 // ============================================
@@ -1173,8 +1173,8 @@ export const mockMenuEngineering = [
 // ============================================
 export const mockProductDetail = {
   id: "prod-001",
-  name: "牛丼並盛",
-  brand_name: "すき家",
+  name: "まぐろ（110円皿）",
+  brand_name: "かっぱ寿司",
   category: "メイン",
   price: 450,
   theoretical_cost: 158,
@@ -1214,20 +1214,20 @@ export const mockProductDetail = {
 // Price Elasticity Mock
 // ============================================
 export const mockPriceElasticities = [
-  { product_id: "prod-001", product_name: "牛丼並盛", elasticity: -0.42, ci_low: -0.58, ci_high: -0.26 },
-  { product_id: "prod-002", product_name: "カレー並盛", elasticity: -0.65, ci_low: -0.82, ci_high: -0.48 },
+  { product_id: "prod-001", product_name: "まぐろ（110円皿）", elasticity: -0.42, ci_low: -0.58, ci_high: -0.26 },
+  { product_id: "prod-002", product_name: "唐揚げ", elasticity: -0.65, ci_low: -0.82, ci_high: -0.48 },
   { product_id: "prod-003", product_name: "味噌汁", elasticity: -0.18, ci_low: -0.30, ci_high: -0.06 },
   { product_id: "prod-004", product_name: "サーモン", elasticity: -1.12, ci_low: -1.35, ci_high: -0.89 },
-  { product_id: "prod-005", product_name: "フレンチフライS", elasticity: -0.31, ci_low: -0.45, ci_high: -0.17 },
+  { product_id: "prod-005", product_name: "フライドポテト", elasticity: -0.31, ci_low: -0.45, ci_high: -0.17 },
 ]
 
 // ============================================
 // Price Decisions Mock
 // ============================================
 export const mockPriceDecisions = [
-  { id: "pd-001", product_id: "prod-001", product_name: "牛丼並盛", date: "2025-09-01", old_price: 480, new_price: 450, reason: "客数回復のため値下げ", actual_volume_change: "+12%" },
-  { id: "pd-002", product_id: "prod-001", product_name: "牛丼並盛", date: "2025-03-01", old_price: 430, new_price: 480, reason: "原材料費高騰に対応", actual_volume_change: "-5%" },
-  { id: "pd-003", product_id: "prod-002", product_name: "カレー並盛", date: "2025-06-01", old_price: 400, new_price: 430, reason: "原価率改善", actual_volume_change: "-3%" },
+  { id: "pd-001", product_id: "prod-001", product_name: "まぐろ（110円皿）", date: "2025-09-01", old_price: 480, new_price: 450, reason: "客数回復のため値下げ", actual_volume_change: "+12%" },
+  { id: "pd-002", product_id: "prod-001", product_name: "まぐろ（110円皿）", date: "2025-03-01", old_price: 430, new_price: 480, reason: "原材料費高騰に対応", actual_volume_change: "-5%" },
+  { id: "pd-003", product_id: "prod-002", product_name: "唐揚げ", date: "2025-06-01", old_price: 400, new_price: 430, reason: "原価率改善", actual_volume_change: "-3%" },
 ]
 
 // ============================================
@@ -1239,21 +1239,21 @@ export const mockPilotThemes = [
     name: "欠品・廃棄削減 POC",
     description: "需要予測精度向上 → 在庫補充タイミング最適化で廃棄/欠品を同時削減",
     primary_kpis: ["waste_amount", "stockout_rate", "gross_profit_rate"],
-    default_brands: ["はま寿司", "すき家"],
+    default_brands: ["かっぱ寿司", "かっぱ寿司"],
   },
   {
     theme_id: "ZP-02",
     name: "深夜帯人員配置最適化 POC",
     description: "深夜帯のシフト過剰/過少を解消、人時売上を改善",
     primary_kpis: ["sales_per_labor_hour", "labor_cost_rate", "overtime_hours"],
-    default_brands: ["すき家"],
+    default_brands: ["かっぱ寿司"],
   },
   {
     theme_id: "ZP-03",
     name: "SV 訪問優先順位最適化 POC",
     description: "SV ミッションを improvement opportunity 順に再配分",
     primary_kpis: ["sv_visit_effectiveness", "underperforming_store_count", "health_score"],
-    default_brands: ["ココス", "ジョリーパスタ"],
+    default_brands: ["郊外ロードサイド型", "都市型"],
   },
   {
     theme_id: "ZP-04",
@@ -1274,7 +1274,7 @@ export const mockPilotThemes = [
 export const mockPilots = [
   {
     id: "pilot-001",
-    name: "はま寿司 廃棄削減 POC",
+    name: "かっぱ寿司 廃棄削減 POC",
     theme: "ZP-01",
     description: "需要予測精度向上 → 在庫補充タイミング最適化で廃棄/欠品を同時削減",
     target_store_ids: Array(20).fill("").map((_, i) => `store-${i + 1}`),
@@ -1285,7 +1285,7 @@ export const mockPilots = [
     intervention_end_date: "2026-03-30",
     success_kpis: ["waste_amount", "stockout_rate", "gross_profit_rate"],
     target_improvement_pct: { waste_amount: -3.0, stockout_rate: -5.0 },
-    sponsor_name: "ゼンショーHD 経営企画 山本 太郎",
+    sponsor_name: "カッパ・クリエイト 経営企画 山本 太郎",
     status: "running",
     overlay_mode: "read_only",
     weekly_plan: [
@@ -1308,10 +1308,10 @@ export const mockPilotResults = [
 
 export const mockPilotSummary = {
   pilot_id: "pilot-001",
-  name: "はま寿司 廃棄削減 POC",
+  name: "かっぱ寿司 廃棄削減 POC",
   theme: "ZP-01",
   theme_name: "欠品・廃棄削減 POC",
-  sponsor_name: "ゼンショーHD 経営企画 山本 太郎",
+  sponsor_name: "カッパ・クリエイト 経営企画 山本 太郎",
   status: "running",
   overlay_mode: "read_only",
   target_store_count: 20,
@@ -1378,11 +1378,11 @@ export const mockPIISummary = [
 export const mockSVMissionPlan = {
   week_start: "2026-05-05",
   missions: [
-    { store_id: "store-021", store_name: "すき家 渋谷駅前店", priority: 1, scheduled_date: "2026-05-05", reason: "health_score 52.1 で要改善", expected_impact_yen: 2_800_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）", "改善 task の現場展開状況確認"] },
-    { store_id: "store-103", store_name: "ココス 横浜港北店", priority: 2, scheduled_date: "2026-05-06", reason: "health_score 58.4 で要改善", expected_impact_yen: 1_900_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）"] },
-    { store_id: "store-067", store_name: "はま寿司 千葉ニュータウン店", priority: 3, scheduled_date: "2026-05-07", reason: "health_score 60.8 で要改善", expected_impact_yen: 1_500_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認"] },
-    { store_id: "store-218", store_name: "なか卯 池袋東口店", priority: 4, scheduled_date: "2026-05-08", reason: "health_score 62.3 で要改善", expected_impact_yen: 1_200_000, checklist: ["QSC 状況確認", "店長との 1on1（30分）"] },
-    { store_id: "store-145", store_name: "ジョリーパスタ 大井町店", priority: 5, scheduled_date: "2026-05-09", reason: "health_score 65.0 で要改善", expected_impact_yen: 950_000, checklist: ["QSC 状況確認", "改善 task の現場展開状況確認"] },
+    { store_id: "store-021", store_name: "かっぱ寿司 渋谷駅前店", priority: 1, scheduled_date: "2026-05-05", reason: "health_score 52.1 で要改善", expected_impact_yen: 2_800_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）", "改善 task の現場展開状況確認"] },
+    { store_id: "store-103", store_name: "郊外ロードサイド型 横浜港北店", priority: 2, scheduled_date: "2026-05-06", reason: "health_score 58.4 で要改善", expected_impact_yen: 1_900_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認", "店長との 1on1（30分）"] },
+    { store_id: "store-067", store_name: "かっぱ寿司 千葉ニュータウン店", priority: 3, scheduled_date: "2026-05-07", reason: "health_score 60.8 で要改善", expected_impact_yen: 1_500_000, checklist: ["QSC 状況確認", "シフト充足率チェック", "在庫水準確認"] },
+    { store_id: "store-218", store_name: "食べ放題特化型 池袋東口店", priority: 4, scheduled_date: "2026-05-08", reason: "health_score 62.3 で要改善", expected_impact_yen: 1_200_000, checklist: ["QSC 状況確認", "店長との 1on1（30分）"] },
+    { store_id: "store-145", store_name: "都市型 大井町店", priority: 5, scheduled_date: "2026-05-09", reason: "health_score 65.0 で要改善", expected_impact_yen: 950_000, checklist: ["QSC 状況確認", "改善 task の現場展開状況確認"] },
   ],
   total_expected_impact_yen: 8_350_000,
   optimization_goal: "improvement_opportunity",
@@ -1392,7 +1392,7 @@ export const mockSVMissionPlan = {
 // Store Manager Brief Mock
 // ============================================
 export const mockStoreManagerBrief = {
-  store_name: "すき家 渋谷駅前店",
+  store_name: "かっぱ寿司 渋谷駅前店",
   store_id: "store-021",
   business_date: "2026-05-02",
   today_kpis: [

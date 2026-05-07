@@ -178,7 +178,7 @@ const mockInstances: OntoObjectInstance[] = [
       operating_profit_rate: 8.3, fl_ratio: 59.7, health_score: 72.3,
     },
     links: [
-      { link_api_name: "store_brand", to_instance_id: "inst-brand-001", to_display_name: "すき家", to_object_type_id: "ot-brand" },
+      { link_api_name: "store_brand", to_instance_id: "inst-brand-001", to_display_name: "かっぱ寿司", to_object_type_id: "ot-brand" },
       { link_api_name: "store_employee", to_instance_id: "inst-emp-001", to_display_name: "山田 太郎", to_object_type_id: "ot-employee" },
       { link_api_name: "store_employee", to_instance_id: "inst-emp-002", to_display_name: "佐藤 花子", to_object_type_id: "ot-employee" },
     ],
@@ -192,18 +192,18 @@ const mockInstances: OntoObjectInstance[] = [
       operating_profit_rate: 6.1, fl_ratio: 62.4, health_score: 65.8,
     },
     links: [
-      { link_api_name: "store_brand", to_instance_id: "inst-brand-002", to_display_name: "はま寿司", to_object_type_id: "ot-brand" },
+      { link_api_name: "store_brand", to_instance_id: "inst-brand-002", to_display_name: "都市型", to_object_type_id: "ot-brand" },
     ],
   },
   {
     id: "inst-brand-001", object_type_id: "ot-brand", object_type_api_name: "brand",
-    display_name: "すき家",
-    properties: { brand_code: "SK", brand_name: "すき家", cuisine_type: "和食" },
+    display_name: "かっぱ寿司",
+    properties: { brand_code: "SK", brand_name: "かっぱ寿司", cuisine_type: "和食" },
   },
   {
     id: "inst-brand-002", object_type_id: "ot-brand", object_type_api_name: "brand",
-    display_name: "はま寿司",
-    properties: { brand_code: "HM", brand_name: "はま寿司", cuisine_type: "和食" },
+    display_name: "都市型",
+    properties: { brand_code: "HM", brand_name: "都市型", cuisine_type: "和食" },
   },
   {
     id: "inst-emp-001", object_type_id: "ot-employee", object_type_api_name: "employee",

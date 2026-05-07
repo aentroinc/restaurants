@@ -35,7 +35,7 @@ export default function DemoTourPage() {
               <div className="w-2 h-2 rounded-full bg-amber-400 mt-2 animate-pulse" />
               <div>
                 <div className="text-[15px] text-white/95 font-medium">
-                  すき家 142店（首都圏）で深夜帯の人時売上が予測比 -8.2%
+                  かっぱ寿司 142店（首都圏）で深夜帯の人時売上が予測比 -8.2%
                 </div>
                 <div className="mt-2 text-[12px] text-white/60 leading-relaxed">
                   原因仮説: シフト過剰配置（雨予報日に通常シフトを継続）<br />
@@ -60,9 +60,9 @@ export default function DemoTourPage() {
         <div className="space-y-4">
           <div className="rounded-lg border border-blue-400/30 bg-blue-500/[0.06] p-5 space-y-3">
             {[
-              { sv: "山田 SV", priority: "#1", store: "すき家 渋谷駅前店", reason: "深夜人時 -15%、即時介入" },
-              { sv: "鈴木 SV", priority: "#1", store: "すき家 新宿東口店", reason: "深夜人時 -12%" },
-              { sv: "田中 SV", priority: "#2", store: "すき家 池袋西口店", reason: "シフト過剰の共食い" },
+              { sv: "山田 SV", priority: "#1", store: "かっぱ寿司 渋谷駅前店", reason: "深夜人時 -15%、即時介入" },
+              { sv: "鈴木 SV", priority: "#1", store: "かっぱ寿司 新宿東口店", reason: "深夜人時 -12%" },
+              { sv: "田中 SV", priority: "#2", store: "かっぱ寿司 池袋西口店", reason: "シフト過剰の共食い" },
             ].map((m, i) => (
               <div key={i} className="flex items-center gap-3 text-[13px]">
                 <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/15 text-red-400 font-mono">{m.priority}</span>
@@ -126,7 +126,7 @@ export default function DemoTourPage() {
         <div className="space-y-3">
           {[
             { audience: "経営層", time: "1ページ・3分で読める", color: "purple" },
-            { audience: "事業部 (はま寿司)", time: "店舗別ランキング+詳細", color: "blue" },
+            { audience: "事業部 (かっぱ寿司)", time: "店舗別ランキング+詳細", color: "blue" },
             { audience: "情シス・監査", time: "セキュリティ・データ系譜全載せ", color: "emerald" },
           ].map((a, i) => (
             <div key={i} className={`rounded-lg border border-${a.color}-400/20 bg-${a.color}-500/[0.05] p-4 flex items-center gap-3`}>
@@ -264,7 +264,7 @@ export default function DemoTourPage() {
             <div className="mt-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400" />
               <a href="/zensho-pilot" className="text-[13px] text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1">
-                ゼンショー POC を起動 <ChevronRight className="w-4 h-4" />
+                カッパ・クリエイト POC を起動 <ChevronRight className="w-4 h-4" />
               </a>
             </div>
           </div>

@@ -492,13 +492,13 @@ async def ai_query(body: AIQueryRequest, db: AsyncSession = Depends(get_db), ten
 @router.get("/suggested-questions", response_model=APIResponse[list[SuggestedQuestion]])
 async def suggested_questions():
     questions = [
-        SuggestedQuestion(question="すき家の首都圏で原価率が最も高い店舗は？", category="原価"),
-        SuggestedQuestion(question="はま寿司で今月客数が前年割れの店舗を教えて", category="売上"),
-        SuggestedQuestion(question="ココスの人件費率が35%を超えている店舗はどこ？", category="人件費"),
-        SuggestedQuestion(question="改善施策の効果が出ている店舗を教えて", category="改善"),
-        SuggestedQuestion(question="今週SVが訪問すべき優先店舗は？", category="SV"),
-        SuggestedQuestion(question="全ブランドのFL比率を比較して", category="経営"),
-        SuggestedQuestion(question="なか卯のテイクアウト比率の推移は？", category="チャネル"),
-        SuggestedQuestion(question="ジョリーパスタの値上げ後の客数影響は？", category="価格"),
+        SuggestedQuestion(question="客数が最も減少している店舗はどこ？", category="売上"),
+        SuggestedQuestion(question="原価率48%を下回っている店舗は？", category="原価"),
+        SuggestedQuestion(question="食べ放題型の廃棄率が高い店舗を教えて", category="廃棄"),
+        SuggestedQuestion(question="都市型出店（南池袋、吉祥寺）の立ち上がり状況は？", category="出店"),
+        SuggestedQuestion(question="スシローとの客単価差は？", category="競争"),
+        SuggestedQuestion(question="全業態のFL比率を比較して", category="経営"),
+        SuggestedQuestion(question="デリカ事業の赤字原因を分析して", category="事業"),
+        SuggestedQuestion(question="不祥事後のブランド回復状況は？", category="ブランド"),
     ]
     return APIResponse(data=questions)

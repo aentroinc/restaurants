@@ -13,7 +13,7 @@ import { ontologyAPI, type OntoObjectInstance } from "@/lib/ontology-api"
 const COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899"]
 const TOOLTIP_STYLE = { background: "#0c1017", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#fff" }
 
-const BRANDS = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
+const BRANDS = ["かっぱ寿司", "かっぱ寿司", "郊外ロードサイド型", "食べ放題特化型", "都市型"]
 const REGIONS = ["関東", "関西", "中部", "九州", "東北"]
 const MONTHS = ["1月", "2月", "3月", "4月", "5月", "6月"]
 const STORES = ["品川", "渋谷", "新宿", "池袋", "横浜"]

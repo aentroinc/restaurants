@@ -171,7 +171,7 @@ function PilotWizard({ themes, onClose }: { themes: Theme[]; onClose: () => void
             </div>
             <div>
               <label className="text-[12px] text-white/60">スポンサー名</label>
-              <input type="text" value={sponsorName} onChange={(e) => setSponsorName(e.target.value)} placeholder="例: ゼンショーHD 経営企画 山本 太郎" className="mt-1 w-full px-3 py-2 rounded bg-white/[0.04] border border-white/[0.08] text-white/90 text-[14px]" />
+              <input type="text" value={sponsorName} onChange={(e) => setSponsorName(e.target.value)} placeholder="例: カッパ・クリエイト 経営企画 山本 太郎" className="mt-1 w-full px-3 py-2 rounded bg-white/[0.04] border border-white/[0.08] text-white/90 text-[14px]" />
             </div>
           </div>
         )}

@@ -3,7 +3,7 @@
 import type { PivotTile as PivotTileSpec } from "@/lib/canvas-spec"
 import { kpiLabel, kpiUnit } from "@/lib/canvas-spec"
 
-const BRANDS = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
+const BRANDS = ["かっぱ寿司", "かっぱ寿司", "郊外ロードサイド型", "食べ放題特化型", "都市型"]
 const REGIONS = ["関東", "関西", "中部", "九州", "東北"]
 const STORES = ["品川店", "渋谷店", "新宿店", "池袋店", "横浜店"]
 const MONTHS = ["2026-01", "2026-02", "2026-03", "2026-04"]

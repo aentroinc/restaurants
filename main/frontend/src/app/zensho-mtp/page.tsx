@@ -65,20 +65,19 @@ const MTP_PILLARS = [
 ]
 
 const BRANDS = [
-  { name: "すき家", category: "牛丼", stores: 1950, country: "国内 + 海外" },
-  { name: "はま寿司", category: "回転寿司", stores: 583, country: "国内 + 中国" },
-  { name: "ココス", category: "ファミレス", stores: 462, country: "国内" },
-  { name: "なか卯", category: "丼・うどん", stores: 451, country: "国内" },
-  { name: "ジョリーパスタ", category: "パスタ専門", stores: 150, country: "国内" },
-  { name: "ロッテリア", category: "ハンバーガー", stores: 290, country: "国内（M&A 統合中）" },
+  { name: "かっぱ寿司 郊外ロードサイド型", category: "回転寿司", stores: 220, country: "国内" },
+  { name: "かっぱ寿司 都市型", category: "回転寿司", stores: 40, country: "国内" },
+  { name: "かっぱ寿司 食べ放題特化型", category: "回転寿司", stores: 20, country: "国内" },
+  { name: "バンノウ水産", category: "海鮮", stores: 5, country: "国内（静岡）" },
+  { name: "デリカ事業", category: "製造", stores: 10, country: "国内" },
 ]
 
 const ORG_STRUCTURE = [
-  { role: "代表取締役会長", name: "小川 賢太郎", scope: "全社" },
-  { role: "代表取締役社長", name: "（経営層 サンプル）", scope: "ゼンショーHD" },
+  { role: "代表取締役社長", name: "山角 豪", scope: "全社" },
+  { role: "取締役副社長", name: "（経営層 サンプル）", scope: "カッパ・クリエイト" },
   { role: "経営企画本部長", name: "（経営企画 役員）", scope: "中計推進" },
-  { role: "ココス担当 役員", name: "（事業部長）", scope: "ファミレス" },
-  { role: "はま寿司担当 役員", name: "（事業部長）", scope: "回転寿司" },
+  { role: "かっぱ寿司事業部長", name: "（事業部長）", scope: "回転寿司" },
+  { role: "デリカ事業部長", name: "（事業部長）", scope: "製造" },
   { role: "システム本部長", name: "（CIO）", scope: "全社 IT・データ基盤" },
 ]
 
@@ -112,17 +111,17 @@ const KEY_CHALLENGES = [
 export default function ZenshoMTPPage() {
   return (
     <div className="flex flex-col h-screen">
-      <ContextHeader title="ゼンショー中期経営計画 × AENTRO" description="2024中計の各柱に AENTRO がどう貢献するか" region="-" />
+      <ContextHeader title="カッパ・クリエイト 経営計画 × AENTRO" description="経営課題の各柱に AENTRO がどう貢献するか" region="-" />
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {/* Hero */}
         <div className="rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/[0.08] via-blue-500/[0.03] to-transparent p-6">
           <div className="text-[11px] text-blue-400/80 tracking-wider uppercase font-bold mb-2">2024 - 2030 中期経営計画</div>
           <h2 className="text-[20px] sm:text-[24px] font-semibold text-white/95 leading-tight">
-            ゼンショーHD のコミットを <span className="text-emerald-400">AI レイヤー</span>で確実にする
+            カッパ・クリエイト のコミットを <span className="text-emerald-400">AI レイヤー</span>で確実にする
           </h2>
           <p className="mt-3 text-[13px] text-white/60 leading-relaxed">
-            年商 7,200億円 → 1兆円、FL比率 -2pt、海外 30% — どの目標も「データに基づく現場改善」が前提。
-            AENTRO は 6 ブランド・5,000 店舗・3 か国を <strong className="text-white/85">単一の経営判断レイヤー</strong>で統合します。
+            売上 ¥732億、営業利益率 2.0% → 5%目標、原価率 48% → 45%改善 — すべて「データに基づく現場改善」が前提。
+            AENTRO は 5 業態・295 拠点を <strong className="text-white/85">単一の経営判断レイヤー</strong>で統合します。
           </p>
         </div>
 

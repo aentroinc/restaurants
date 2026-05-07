@@ -266,7 +266,7 @@ function mockShifts(from: string, _to: string): Shift[] {
       end: i % 2 === 0 ? "15:00" : "22:00",
       role: i % 2 === 0 ? "ホール" : "キッチン",
       store_id: "store-001",
-      store_name: "すき家 新宿東口店",
+      store_name: "かっぱ寿司 新宿東口店",
     })
   }
   return out

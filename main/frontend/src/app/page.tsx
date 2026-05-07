@@ -27,50 +27,44 @@ const rand = (min: number, max: number) => Math.round((rng() * (max - min) + min
 const randInt = (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
 
 const brands = [
-  { brand_id: "sukiya", name: "すき家", category: "牛丼", color: "#f59e0b" },
-  { brand_id: "hamazushi", name: "はま寿司", category: "回転寿司", color: "#06b6d4" },
-  { brand_id: "cocos", name: "ココス", category: "ファミレス", color: "#ef4444" },
-  { brand_id: "nakau", name: "なか卯", category: "丼・うどん", color: "#8b5cf6" },
-  { brand_id: "jolly-pasta", name: "ジョリーパスタ", category: "パスタ", color: "#22c55e" },
+  { brand_id: "kappa-roadside", name: "郊外ロードサイド型", category: "回転寿司", color: "#22c55e" },
+  { brand_id: "kappa-urban", name: "都市型", category: "回転寿司", color: "#3b82f6" },
+  { brand_id: "kappa-tabehoudai", name: "食べ放題特化型", category: "回転寿司", color: "#f59e0b" },
+  { brand_id: "bannou-suisan", name: "バンノウ水産", category: "海鮮", color: "#06b6d4" },
+  { brand_id: "delica", name: "デリカ事業", category: "製造", color: "#a855f7" },
 ] as const
 
 type BrandId = (typeof brands)[number]["brand_id"]
 
-const regions = ["北海道","東北","関東","首都圏","中部","東海","関西","中国","四国","九州"] as const
+const regions = ["東北","北関東","首都圏","中部","東海","関西","九州"] as const
 type Region = (typeof regions)[number]
 
 const baseLatLon: Record<Region, [number, number]> = {
-  "北海道":   [43.06, 141.35],
-  "東北":     [38.26, 140.87],
-  "関東":     [36.39, 139.06],
+  "東北":     [37.75, 140.47],
+  "北関東":   [36.39, 139.06],
   "首都圏":   [35.68, 139.69],
-  "中部":     [36.23, 137.97],
-  "東海":     [35.18, 136.91],
+  "中部":     [36.23, 138.18],
+  "東海":     [35.18, 138.38],
   "関西":     [34.69, 135.50],
-  "中国":     [34.39, 132.46],
-  "四国":     [33.84, 132.77],
   "九州":     [33.59, 130.40],
 }
 
 const areasByRegion: Record<Region, string[]> = {
-  "北海道":   ["札幌","旭川","函館"],
-  "東北":     ["仙台","盛岡","郡山","秋田"],
-  "関東":     ["宇都宮","高崎","水戸","土浦"],
-  "首都圏":   ["新宿","渋谷","池袋","品川","横浜","千葉","大宮","八王子","町田","立川","川崎","船橋","柏","上野","秋葉原","蒲田"],
-  "中部":     ["長野","新潟","甲府","金沢"],
-  "東海":     ["名古屋","静岡","浜松","岐阜"],
-  "関西":     ["大阪","梅田","難波","京都","神戸","天王寺","堺"],
-  "中国":     ["岡山","広島","倉敷"],
-  "四国":     ["松山","高松","徳島","高知"],
-  "九州":     ["福岡","熊本","鹿児島","北九州","長崎"],
+  "東北":     ["福島","郡山","仙台","山形","秋田"],
+  "北関東":   ["高崎","前橋","宇都宮","水戸","つくば"],
+  "首都圏":   ["池袋","吉祥寺","亀戸","横浜","川崎","大宮","千葉","船橋","柏","八王子","町田","練馬","板橋","所沢","越谷"],
+  "中部":     ["長野","松本","上田","新潟","甲府"],
+  "東海":     ["静岡","浜松","名古屋","沼津"],
+  "関西":     ["大阪","神戸","京都","堺","姫路"],
+  "九州":     ["福岡","北九州","熊本"],
 }
 
 const brandStoreNames: Record<BrandId, string[]> = {
-  "sukiya": ["品川港南店","渋谷道玄坂店","新宿靖国通り店","池袋東口店","横浜鶴見店","大宮駅前店","千葉中央店","川崎駅前店","船橋店","柏旭町店","上野浅草口店","蒲田東口店","八王子旭町店","町田駅前店","立川北口店","札幌南3条店","仙台中央店","名古屋栄店","静岡呉服町店","大阪梅田店","大阪難波店","京都河原町店","神戸三宮店","広島中央店","福岡天神店","熊本下通店","鹿児島中央店","北九州小倉店","金沢片町店","松山大街道店"],
-  "hamazushi": ["横浜六角橋店","川崎鷺沼店","大宮東口店","千葉みなと店","船橋習志野店","柏松葉店","八王子堀之内店","町田鶴川店","立川砂川店","札幌白石店","仙台泉店","名古屋港店","浜松入野店","大阪鶴見店","堺中百舌鳥店","京都伏見店","神戸垂水店","広島海田店","福岡東店","熊本光の森店"],
-  "cocos": ["大宮店","横浜港北店","千葉幕張店","川崎宮前店","船橋市場店","柏増尾店","八王子南大沢店","町田小山店","立川若葉店","仙台長町店","名古屋守山店","浜松志都呂店","大阪東住吉店","堺深井店","京都桂店","岡山庭瀬店","福岡春日店"],
-  "nakau": ["品川店","渋谷宮益坂店","新宿三丁目店","池袋西口店","横浜西口店","大宮桜木町店","千葉富士見店","上野御徒町店","名古屋錦店","大阪本町店","京都四条店","神戸元町店","福岡大名店","札幌大通店","仙台一番町店"],
-  "jolly-pasta": ["横浜青葉台店","川崎宮崎台店","大宮七里店","千葉おゆみ野店","柏豊四季店","八王子みなみ野店","名古屋天白店","浜松佐鳴台店","大阪狭山店","堺泉北店","京都宇治店","神戸西店","岡山福浜店","広島祇園店","福岡大野城店"],
+  "kappa-roadside": ["長野稲里店","松本村井店","上田国分店","福島南店","郡山安積店","仙台泉店","高崎飯塚店","宇都宮鶴田店","水戸笠原店","さいたま大宮店","横浜六角橋店","千葉都賀店","船橋薬円台店","柏旭町店","新潟紫竹山店","甲府上阿原店","静岡国吉田店","浜松志都呂店","名古屋守山店","大阪鶴見店","神戸多聞店","京都伏見店","福岡志免店","熊本光の森店","八王子堀之内店","町田鶴川店","川崎宮前店","越谷レイクタウン店","練馬光が丘店","板橋前野店"],
+  "kappa-urban": ["南池袋店","吉祥寺店","亀戸店","横浜駅前店","川崎ラゾーナ店","大宮駅東口店","千葉駅前店","新潟駅前店","静岡パルコ店","名古屋栄店","大阪梅田店","神戸三宮店","京都河原町店"],
+  "kappa-tabehoudai": ["長野稲里食べ放題店","郡山安積食べ放題店","さいたま大宮食べ放題店","横浜六角橋食べ放題店","名古屋守山食べ放題店","大阪鶴見食べ放題店","福岡志免食べ放題店"],
+  "bannou-suisan": ["静岡清水店","浜松志都呂店"],
+  "delica": ["横浜工場","長野工場","仙台工場"],
 }
 
 const locationTypes = ["駅前","ロードサイド","商業施設","住宅地"] as const
@@ -96,38 +90,38 @@ interface Store {
 }
 
 const brandDistribution: BrandId[] = [
-  ...Array(80).fill("sukiya"),
-  ...Array(55).fill("hamazushi"),
-  ...Array(40).fill("cocos"),
-  ...Array(35).fill("nakau"),
-  ...Array(30).fill("jolly-pasta"),
+  ...Array(75).fill("kappa-roadside"),
+  ...Array(13).fill("kappa-urban"),
+  ...Array(7).fill("kappa-tabehoudai"),
+  ...Array(2).fill("bannou-suisan"),
+  ...Array(3).fill("delica"),
 ]
 
-const TOTAL_STORES = 240
+const TOTAL_STORES = 100
 
 // Brand-specific KPI ranges
 const brandKPIs: Record<BrandId, { avgTicketMin: number; avgTicketMax: number; dailySalesMin: number; dailySalesMax: number; seatsMin: number; seatsMax: number }> = {
-  "sukiya":       { avgTicketMin: 450, avgTicketMax: 600,  dailySalesMin: 350000,  dailySalesMax: 900000,  seatsMin: 30, seatsMax: 55 },
-  "hamazushi":    { avgTicketMin: 1000, avgTicketMax: 1200, dailySalesMin: 500000,  dailySalesMax: 1500000, seatsMin: 80, seatsMax: 140 },
-  "cocos":        { avgTicketMin: 1000, avgTicketMax: 1500, dailySalesMin: 400000,  dailySalesMax: 1000000, seatsMin: 70, seatsMax: 120 },
-  "nakau":        { avgTicketMin: 500, avgTicketMax: 700,  dailySalesMin: 250000,  dailySalesMax: 600000,  seatsMin: 25, seatsMax: 45 },
-  "jolly-pasta":  { avgTicketMin: 900, avgTicketMax: 1200, dailySalesMin: 350000,  dailySalesMax: 800000,  seatsMin: 60, seatsMax: 100 },
+  "kappa-roadside":   { avgTicketMin: 1000, avgTicketMax: 1300, dailySalesMin: 400000,  dailySalesMax: 1000000, seatsMin: 200, seatsMax: 260 },
+  "kappa-urban":      { avgTicketMin: 1200, avgTicketMax: 1600, dailySalesMin: 350000,  dailySalesMax: 800000,  seatsMin: 30,  seatsMax: 80 },
+  "kappa-tabehoudai": { avgTicketMin: 2500, avgTicketMax: 3500, dailySalesMin: 500000,  dailySalesMax: 1200000, seatsMin: 150, seatsMax: 250 },
+  "bannou-suisan":    { avgTicketMin: 1500, avgTicketMax: 2200, dailySalesMin: 300000,  dailySalesMax: 600000,  seatsMin: 40,  seatsMax: 80 },
+  "delica":           { avgTicketMin: 200,  avgTicketMax: 500,  dailySalesMin: 200000,  dailySalesMax: 500000,  seatsMin: 0,   seatsMax: 0 },
 }
 
 // Track store name counters per brand
-const brandStoreCounter: Record<BrandId, number> = { "sukiya": 0, "hamazushi": 0, "cocos": 0, "nakau": 0, "jolly-pasta": 0 }
+const brandStoreCounter: Record<BrandId, number> = { "kappa-roadside": 0, "kappa-urban": 0, "kappa-tabehoudai": 0, "bannou-suisan": 0, "delica": 0 }
 
 const stores: Store[] = Array.from({ length: TOTAL_STORES }, (_, i) => {
   const brandId = brandDistribution[i % brandDistribution.length]
   const brandObj = brands.find(b => b.brand_id === brandId)!
   const kpiRange = brandKPIs[brandId]
-  // Skew distribution toward 首都圏/関西
+  // Skew distribution toward 中部(長野最多)/東北/首都圏
   const r = rng()
   let region: Region
-  if (r < 0.32) region = "首都圏"
-  else if (r < 0.48) region = "関西"
-  else if (r < 0.60) region = "東海"
-  else if (r < 0.70) region = "九州"
+  if (r < 0.25) region = "中部"
+  else if (r < 0.45) region = "東北"
+  else if (r < 0.60) region = "首都圏"
+  else if (r < 0.72) region = "北関東"
   else region = pick(regions)
 
   const regionAreas = areasByRegion[region]
@@ -214,52 +208,52 @@ interface Incident {
 
 const incidents: Incident[] = [
   {
-    incident_id: "I-2401", type: "quality-alert", severity: "high",
-    title: "すき家 首都圏駅前で異物混入報道後の客数回復中",
-    description: "先週の報道を受けて首都圏22店舗の客数が予測比-12%。回復施策を実施中、回復率は日次+3%で推移。",
-    region: "首都圏", brand: "sukiya", impacted_stores: 22, ago: "23分前", status: "active",
+    incident_id: "I-2401", type: "stockout-risk", severity: "critical",
+    title: "全店 客数12ヶ月連続前年割れ、郊外ロードサイド型で顕著",
+    description: "全店既存店客数が12ヶ月連続で前年を下回る。特に郊外ロードサイド型で前年比-8.3%。スシロー・はま寿司との競争激化が主因。",
+    region: "全国", brand: "kappa-roadside", impacted_stores: 75, ago: "23分前", status: "active",
   },
   {
     incident_id: "I-2402", type: "stockout-risk", severity: "critical",
-    title: "はま寿司 コメ価格高騰で原価率2pt上昇",
-    description: "国産米の仕入価格が前月比+15%。はま寿司全店の原価率が32.8%→34.8%に悪化。代替調達先を緊急選定中。",
-    region: "全国", brand: "hamazushi", impacted_stores: 55, ago: "1時間前", status: "active",
+    title: "原材料費高騰で原価率48%→50.2%に悪化",
+    description: "まぐろ仕入価格が前年比+18%、米が+15%、海苔が+12%上昇。業界最悪水準の原価率がさらに悪化。代替調達先を緊急選定中。",
+    region: "全国", brand: "kappa-roadside", impacted_stores: 95, ago: "1時間前", status: "active",
   },
   {
-    incident_id: "I-2403", type: "staff-shortage", severity: "high",
-    title: "ココス 首都圏で人件費率35%超過、シフト充足率82%",
-    description: "GW期間中の人員確保が困難。首都圏14店舗で人件費率が35%を超過、シフト充足率82%。ヘルプ要員調整中。",
-    region: "首都圏", brand: "cocos", impacted_stores: 14, ago: "2時間前", status: "active",
+    incident_id: "I-2403", type: "quality-alert", severity: "high",
+    title: "食べ放題特化型で廃棄率8.5%、目標5%を大幅超過",
+    description: "食べ放題7店舗で廃棄率が平均8.5%に上昇。特にウニ・中とろなど高単価ネタの廃棄が深刻。需要予測精度の向上が急務。",
+    region: "全国", brand: "kappa-tabehoudai", impacted_stores: 7, ago: "2時間前", status: "active",
   },
   {
     incident_id: "I-2404", type: "demand-surge", severity: "medium",
-    title: "なか卯 親子丼キャンペーンで想定超の需要",
-    description: "4月投入の親子丼リニューアルが好調。関西・東海15店舗で卵の消費量が予測比+25%、在庫管理に注意。",
-    region: "関西", brand: "nakau", impacted_stores: 15, ago: "3時間前", status: "active",
+    title: "都市型出店（南池袋、吉祥寺、亀戸）の初期立ち上がり",
+    description: "東京都内8年ぶり出店の3店舗が順調。客数は計画比+15%で推移。吉祥寺店は行列対応が課題。",
+    region: "首都圏", brand: "kappa-urban", impacted_stores: 3, ago: "3時間前", status: "active",
   },
   {
-    incident_id: "I-2405", type: "equipment-failure", severity: "high",
-    title: "ジョリーパスタ 横浜青葉台店でオーブン故障",
-    description: "メインオーブンが停止。パスタグラタン系メニューの提供不可。修理手配中、復旧見込み18:00。",
-    region: "首都圏", brand: "jolly-pasta", impacted_stores: 1, ago: "3時間前", status: "active",
+    incident_id: "I-2405", type: "staff-shortage", severity: "high",
+    title: "人件費上昇、最低賃金改定の影響で全店人件費率+1.2pt",
+    description: "最低賃金改定の影響で全店の人件費率が前年比+1.2pt上昇。DX化の遅れもあり、スシローに比べ人時売上が低い状態。",
+    region: "全国", impacted_stores: 95, ago: "3時間前", status: "active",
   },
   {
-    incident_id: "I-2406", type: "weather-delay", severity: "medium",
-    title: "関西配送便に遅延リスク（強雨予報）",
-    description: "関西14:00-20:00 強雨予報 (降水確率85%)。8ルート、計34店舗のディナー帯に食材配送遅延リスク。",
-    region: "関西", impacted_stores: 34, ago: "5時間前", status: "active",
+    incident_id: "I-2406", type: "quality-alert", severity: "medium",
+    title: "不祥事後のブランド回復途上、口コミ3.2→3.0に低下",
+    description: "2022年の営業秘密不正取得事件からの信頼回復が停滞。口コミスコアが直近3ヶ月で0.2pt低下。SNS対策強化中。",
+    region: "全国", impacted_stores: 95, ago: "5時間前", status: "active",
   },
   {
-    incident_id: "I-2407", type: "renovation-lift", severity: "low",
-    title: "すき家 改装12店舗で客単価+7.4%",
-    description: "改装完了から30日経過のすき家12店舗で客単価が想定超過。次期投資を前倒し検討。",
-    region: "全国", brand: "sukiya", impacted_stores: 12, ago: "本日", status: "active",
+    incident_id: "I-2407", type: "stockout-risk", severity: "medium",
+    title: "デリカ事業 コンビニ向け製造部門が赤字継続",
+    description: "デリカ事業3拠点の営業利益率が-2.3%。原材料費高騰と受注単価の据置きが主因。コンビニチェーンとの価格交渉が急務。",
+    region: "全国", brand: "delica", impacted_stores: 3, ago: "本日", status: "active",
   },
   {
-    incident_id: "I-2408", type: "expansion-constraint", severity: "medium",
-    title: "出店候補18件、立地審査待ち",
-    description: "すき家8件、はま寿司6件、ココス4件で立地審査が滞留。出店ペースに影響可能性。",
-    region: "全国", impacted_stores: 18, ago: "本日", status: "active",
+    incident_id: "I-2408", type: "expansion-constraint", severity: "low",
+    title: "スシロー・はま寿司との客単価差が拡大",
+    description: "上位3社（スシロー、くら寿司、はま寿司）との店舗数・売上差が拡大傾向。差別化戦略の再構築を検討。",
+    region: "全国", impacted_stores: 95, ago: "本日", status: "active",
   },
 ]
 
@@ -277,12 +271,12 @@ interface ActionItem {
 }
 
 const actions: ActionItem[] = [
-  { action_id: "A-3101", title: "すき家 首都圏22店舗で衛生管理強化と広報対応", owner_role: "品質管理", owner_name: "佐藤", due_date: "本日 11:00", status: "approved", expected_impact: "客数回復+8%見込", confidence: "High" },
-  { action_id: "A-3102", title: "はま寿司 コメ代替調達先3社と緊急交渉", owner_role: "SCM", owner_name: "山田", due_date: "本日 13:30", status: "pending", expected_impact: "原価率2pt改善", confidence: "Medium" },
-  { action_id: "A-3103", title: "ココス 首都圏14店舗にヘルプシフト派遣", owner_role: "HR", owner_name: "中村", due_date: "本日 16:00", status: "in-progress", expected_impact: "充足率82→96%", confidence: "High" },
-  { action_id: "A-3104", title: "なか卯 卵の追加発注（関西・東海DC）", owner_role: "SCM", owner_name: "鈴木", due_date: "本日 17:00", status: "in-progress", expected_impact: "欠品リスク回避15店舗", confidence: "Medium" },
-  { action_id: "A-3105", title: "ジョリーパスタ 横浜青葉台店のオーブン緊急修理", owner_role: "設備管理", owner_name: "高橋", due_date: "本日 18:00", status: "approved", expected_impact: "ディナー営業継続", confidence: "High" },
-  { action_id: "A-3106", title: "すき家 次期改装候補5店舗の投資承認を前倒し", owner_role: "経営企画", owner_name: "田中", due_date: "今週中", status: "pending", expected_impact: "年間利益+1.2億円", confidence: "High" },
+  { action_id: "A-3101", title: "まぐろ・米の代替調達先3社と緊急価格交渉", owner_role: "SCM", owner_name: "山田", due_date: "本日 11:00", status: "approved", expected_impact: "原価率2pt改善", confidence: "High" },
+  { action_id: "A-3102", title: "食べ放題7店舗で廃棄予測AI導入・仕込み量最適化", owner_role: "営業企画", owner_name: "佐藤", due_date: "本日 13:30", status: "pending", expected_impact: "廃棄率8.5→5%", confidence: "Medium" },
+  { action_id: "A-3103", title: "都市型新規3店舗（南池袋・吉祥寺・亀戸）の行列対策", owner_role: "営業部", owner_name: "中村", due_date: "本日 16:00", status: "in-progress", expected_impact: "客数+20%見込", confidence: "High" },
+  { action_id: "A-3104", title: "全店DX化推進：配膳ロボット・セルフレジ拡大", owner_role: "DX推進", owner_name: "鈴木", due_date: "本日 17:00", status: "in-progress", expected_impact: "人件費率-1.5pt", confidence: "Medium" },
+  { action_id: "A-3105", title: "ブランド信頼回復：コンプライアンス強化発信", owner_role: "広報", owner_name: "高橋", due_date: "本日 18:00", status: "approved", expected_impact: "口コミ+0.3pt", confidence: "High" },
+  { action_id: "A-3106", title: "デリカ事業 コンビニ向け高付加価値商品開発", owner_role: "商品開発", owner_name: "田中", due_date: "今週中", status: "pending", expected_impact: "赤字解消見込", confidence: "High" },
 ]
 
 // --- KPI cards definition ---

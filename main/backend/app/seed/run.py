@@ -145,7 +145,7 @@ def run():
             id=TENANT_ID, name="demo", slug="demo", settings={}, active=True
         ))
         session.execute(Company.__table__.insert().values(
-            id=COMPANY_ID, tenant_id=TENANT_ID, name="ゼンショーホールディングス", logo_url=None
+            id=COMPANY_ID, tenant_id=TENANT_ID, name="カッパ・クリエイト", logo_url=None
         ))
         session.commit()
 

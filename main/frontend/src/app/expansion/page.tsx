@@ -660,7 +660,7 @@ interface HuffResult {
 function HuffPredictionView() {
   const [lat, setLat] = useState(35.6285)
   const [lng, setLng] = useState(139.7387)
-  const [brand, setBrand] = useState("すき家")
+  const [brand, setBrand] = useState("かっぱ寿司")
   const [attractiveness, setAttractiveness] = useState(1.0)
   const [beta, setBeta] = useState(2.0)
   const [result, setResult] = useState<HuffResult | null>(null)
@@ -708,7 +708,7 @@ function HuffPredictionView() {
             <label className="text-[11px] text-white/50 block mb-1">ブランド</label>
             <select value={brand} onChange={(e) => setBrand(e.target.value)}
               className="w-full text-[12px] px-3 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/80 focus:outline-none focus:ring-1 focus:ring-blue-400/40">
-              {["すき家","はま寿司","ココス","なか卯","ジョリーパスタ"].map((b) => (
+              {["かっぱ寿司","かっぱ寿司","郊外ロードサイド型","食べ放題特化型","都市型"].map((b) => (
                 <option key={b} value={b} className="bg-[#0a0e14]">{b}</option>
               ))}
             </select>

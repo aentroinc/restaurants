@@ -110,14 +110,14 @@ interface LiveTickerProps {
 }
 
 const DEFAULT_EVENTS = [
-  { id: "e1", ts: "10:14", text: "すき家 渋谷駅前店: 客数 +12% (予測比)", severity: "info" as const },
-  { id: "e2", ts: "10:15", text: "はま寿司 横浜 港北店: 在庫 マグロ赤身 残3 (補充推奨)", severity: "warning" as const },
-  { id: "e3", ts: "10:16", text: "ココス 新宿東口店: QSC スコア更新 81 → 84", severity: "info" as const },
-  { id: "e4", ts: "10:17", text: "なか卯 池袋 西口店: 注文待ち時間 +18秒 (混雑検出)", severity: "warning" as const },
-  { id: "e5", ts: "10:18", text: "ジョリーパスタ 大井町店: シフト充足率 88% → 92%", severity: "info" as const },
+  { id: "e1", ts: "10:14", text: "かっぱ寿司 渋谷駅前店: 客数 +12% (予測比)", severity: "info" as const },
+  { id: "e2", ts: "10:15", text: "かっぱ寿司 横浜 港北店: 在庫 マグロ赤身 残3 (補充推奨)", severity: "warning" as const },
+  { id: "e3", ts: "10:16", text: "郊外ロードサイド型 新宿東口店: QSC スコア更新 81 → 84", severity: "info" as const },
+  { id: "e4", ts: "10:17", text: "食べ放題特化型 池袋 西口店: 注文待ち時間 +18秒 (混雑検出)", severity: "warning" as const },
+  { id: "e5", ts: "10:18", text: "都市型 大井町店: シフト充足率 88% → 92%", severity: "info" as const },
   { id: "e6", ts: "10:19", text: "ロッテリア 札幌駅前店: M&A 統合 dashboard データ反映完了", severity: "info" as const },
   { id: "e7", ts: "10:20", text: "AI: 関西エリア 6店で深夜帯人時売上 -10% 検出", severity: "critical" as const },
-  { id: "e8", ts: "10:21", text: "すき家 大阪 梅田店: タスク「シフト見直し」を SV に配布", severity: "info" as const },
+  { id: "e8", ts: "10:21", text: "かっぱ寿司 大阪 梅田店: タスク「シフト見直し」を SV に配布", severity: "info" as const },
 ]
 
 export function LiveTicker({ events = DEFAULT_EVENTS, intervalMs = 4000, className = "" }: LiveTickerProps) {

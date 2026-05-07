@@ -21,7 +21,7 @@ THEME_TEMPLATES = {
     "ZP-01": {
         "name": "欠品・廃棄削減 POC",
         "description": "需要予測精度向上 → 在庫補充タイミング最適化で廃棄/欠品を同時削減",
-        "default_brands": ["はま寿司", "すき家"],
+        "default_brands": ["都市型", "かっぱ寿司"],
         "primary_kpis": ["waste_amount", "stockout_rate", "gross_profit_rate"],
         "target_improvement_pct": {"waste_amount": -3.0, "stockout_rate": -5.0},
         "interventions": [
@@ -41,7 +41,7 @@ THEME_TEMPLATES = {
     "ZP-02": {
         "name": "深夜帯人員配置最適化 POC",
         "description": "深夜帯のシフト過剰/過少を解消、人時売上を改善",
-        "default_brands": ["すき家"],
+        "default_brands": ["かっぱ寿司"],
         "primary_kpis": ["sales_per_labor_hour", "labor_cost_rate", "overtime_hours"],
         "target_improvement_pct": {"sales_per_labor_hour": 3.0, "labor_cost_rate": -2.0},
         "interventions": [
@@ -59,7 +59,7 @@ THEME_TEMPLATES = {
     "ZP-03": {
         "name": "SV 訪問優先順位最適化 POC",
         "description": "SV ミッションを improvement opportunity 順に再配分",
-        "default_brands": ["ココス", "ジョリーパスタ"],
+        "default_brands": ["郊外ロードサイド型", "都市型"],
         "primary_kpis": ["sv_visit_effectiveness", "underperforming_store_count", "health_score"],
         "target_improvement_pct": {"underperforming_store_count": -30.0, "health_score": 5.0},
         "interventions": [

@@ -10,7 +10,7 @@ const STORES = [
   "品川店", "渋谷店", "新宿店", "池袋店", "横浜店",
   "大宮店", "千葉店", "船橋店", "立川店", "町田店",
 ]
-const BRANDS = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
+const BRANDS = ["かっぱ寿司", "かっぱ寿司", "郊外ロードサイド型", "食べ放題特化型", "都市型"]
 const REGIONS = ["関東", "関西", "中部", "九州", "東北"]
 
 function sampleValue(kpi: string, idx: number): number {

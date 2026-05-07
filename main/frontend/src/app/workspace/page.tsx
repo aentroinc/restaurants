@@ -34,7 +34,7 @@ const statusBadge: Record<string, string> = {
   promoted: "text-purple-400 bg-purple-400/10",
 }
 
-const brands = ["すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
+const brands = ["かっぱ寿司", "かっぱ寿司", "郊外ロードサイド型", "食べ放題特化型", "都市型"]
 const regions = ["関東", "関西", "中部", "九州", "東北"]
 const kpiOptions = [
   { value: "net_sales", label: "売上高" },
@@ -823,7 +823,7 @@ export default function WorkspacePage() {
   }
 
   const handleCohortPreview = () => {
-    const sampleStores = ["すき家 品川港南店", "はま寿司 横浜六角橋店", "ココス 大宮店", "なか卯 品川店", "すき家 渋谷道玄坂店"]
+    const sampleStores = ["かっぱ寿司 品川港南店", "かっぱ寿司 横浜六角橋店", "郊外ロードサイド型 大宮店", "食べ放題特化型 品川店", "かっぱ寿司 渋谷道玄坂店"]
     const count = cohortForm.brand ? 12 : cohortForm.region ? 18 : 42
     setCohortPreview({ count, samples: sampleStores.slice(0, 3) })
   }

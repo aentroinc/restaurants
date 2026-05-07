@@ -94,7 +94,7 @@ export default function DailyBriefPage() {
               {
                 id: "i1",
                 severity: "critical",
-                title: "すき家 深夜帯で人時売上 -8.2%（首都圏 142店）",
+                title: "かっぱ寿司 深夜帯で人時売上 -8.2%（首都圏 142店）",
                 impact: "想定機会損失 ¥420万円/月",
                 action: "シフト見直し提案",
                 href: "/incidents",
@@ -102,7 +102,7 @@ export default function DailyBriefPage() {
               {
                 id: "i2",
                 severity: "high",
-                title: "はま寿司 牛バラ欠品リスク（明日 12時頃、関西エリア）",
+                title: "かっぱ寿司 牛バラ欠品リスク（明日 12時頃、関西エリア）",
                 impact: "想定欠品 23店舗",
                 action: "前倒し補充提案",
                 href: "/demand",
@@ -110,7 +110,7 @@ export default function DailyBriefPage() {
               {
                 id: "i3",
                 severity: "medium",
-                title: "ココス QSC スコア 80→74（首都圏 3店）",
+                title: "郊外ロードサイド型 QSC スコア 80→74（首都圏 3店）",
                 impact: "リピート率低下リスク",
                 action: "SV 緊急訪問",
                 href: "/qsc",
@@ -142,14 +142,14 @@ export default function DailyBriefPage() {
             {[
               {
                 id: "d1",
-                title: "はま寿司 廃棄削減 POC 本契約スコープ拡大",
+                title: "かっぱ寿司 廃棄削減 POC 本契約スコープ拡大",
                 description: "20店舗 → 全583店舗展開、年間¥31億改善見込み、契約 ¥240M",
                 deadline: "本日 17:00 まで",
                 href: "/zensho-pilot/pilot-001",
               },
               {
                 id: "d2",
-                title: "すき家 深夜帯シフト最適化 介入承認",
+                title: "かっぱ寿司 深夜帯シフト最適化 介入承認",
                 description: "首都圏142店、人時売上 +3% 想定、年間 ¥1.2億改善",
                 deadline: "明日 12:00 まで",
                 href: "/zensho-pilot",

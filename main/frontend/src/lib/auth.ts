@@ -89,9 +89,9 @@ const MOCK_USER: CurrentUser = {
     {
       id: "S-1001",
       code: "S-1001",
-      name: "すき家 品川店",
+      name: "かっぱ寿司 品川店",
       brand_id: "B-001",
-      brand_name: "すき家",
+      brand_name: "かっぱ寿司",
       role: "manager",
       is_default: true,
     },

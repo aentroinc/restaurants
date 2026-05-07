@@ -82,9 +82,9 @@ async def seed_line_check_templates(db: AsyncSession, tenant_id: UUID) -> list[C
 
     created: list[ChecklistTemplate] = []
     plan = [
-        ("すき家 開店チェックリスト", "opening", SUKIYA_OPENING_ITEMS),
-        ("すき家 閉店チェックリスト", "closing", SUKIYA_CLOSING_ITEMS),
-        ("すき家 4h品質チェック", "4h", SUKIYA_4H_ITEMS),
+        ("かっぱ寿司 開店チェックリスト", "opening", SUKIYA_OPENING_ITEMS),
+        ("かっぱ寿司 閉店チェックリスト", "closing", SUKIYA_CLOSING_ITEMS),
+        ("かっぱ寿司 4h品質チェック", "4h", SUKIYA_4H_ITEMS),
     ]
     for name, schedule, items in plan:
         if name in existing_names:

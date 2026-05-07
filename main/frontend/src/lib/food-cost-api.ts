@@ -141,13 +141,13 @@ export async function computeVariance(storeId: string, period: string, periodSta
 // ---------------------------------------------------------------------------
 
 const DEMO_STORES: HeatmapStore[] = [
-  { id: "s-1", name: "すき家 渋谷店", code: "S001" },
-  { id: "s-2", name: "すき家 新宿東口店", code: "S002" },
-  { id: "s-3", name: "なか卯 池袋店", code: "S003" },
-  { id: "s-4", name: "ココス 横浜西口店", code: "S004" },
-  { id: "s-5", name: "ジョリーパスタ 心斎橋店", code: "S005" },
+  { id: "s-1", name: "かっぱ寿司 渋谷店", code: "S001" },
+  { id: "s-2", name: "かっぱ寿司 新宿東口店", code: "S002" },
+  { id: "s-3", name: "食べ放題特化型 池袋店", code: "S003" },
+  { id: "s-4", name: "郊外ロードサイド型 横浜西口店", code: "S004" },
+  { id: "s-5", name: "都市型 心斎橋店", code: "S005" },
   { id: "s-6", name: "ビッグボーイ 名古屋駅店", code: "S006" },
-  { id: "s-7", name: "はま寿司 福岡天神店", code: "S007" },
+  { id: "s-7", name: "都市型 福岡天神店", code: "S007" },
   { id: "s-8", name: "ロッテリア 札幌大通店", code: "S008" },
 ]
 

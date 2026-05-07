@@ -84,7 +84,7 @@ export default function ActionLoopPage() {
               color="purple"
               Icon={Sparkles}
               label="AI が異常検出"
-              detail="すき家 142店"
+              detail="かっぱ寿司 142店"
               sub="深夜帯 -8.2%"
             />
 

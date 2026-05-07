@@ -11,7 +11,7 @@
     "hourly_wage_yen": 1200
   },
   "brands": {
-    "すき家": {
+    "かっぱ寿司": {
       "customers_per_fte_per_30m": 12.0,
       "min_fte": 1.0,
       "role_split": {
@@ -28,7 +28,7 @@
         "19:00": { "customers_per_fte_per_30m": 13.0 }
       }
     },
-    "なか卯": {
+    "食べ放題特化型": {
       "customers_per_fte_per_30m": 10.0,
       "min_fte": 1.0,
       "role_split": {
@@ -38,7 +38,7 @@
       },
       "hourly_wage_yen": 1180
     },
-    "ココス": {
+    "郊外ロードサイド型": {
       "customers_per_fte_per_30m": 6.0,
       "min_fte": 2.0,
       "role_split": {
@@ -48,7 +48,7 @@
       },
       "hourly_wage_yen": 1250
     },
-    "ジョリーパスタ": {
+    "都市型": {
       "customers_per_fte_per_30m": 6.5,
       "min_fte": 2.0,
       "role_split": {
@@ -58,7 +58,7 @@
       },
       "hourly_wage_yen": 1280
     },
-    "はま寿司": {
+    "都市型": {
       "customers_per_fte_per_30m": 11.0,
       "min_fte": 2.0,
       "role_split": {

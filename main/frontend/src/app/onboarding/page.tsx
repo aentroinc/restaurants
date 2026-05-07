@@ -22,7 +22,7 @@ const STEPS: DeployStep[] = [
   { id: "ingest", title: "データ取り込み準備", detail: "Smaregi / KING OF TIME / 本部 CSV connector 配置", Icon: Cloud, duration: 1600, pct: 65 },
   { id: "sso", title: "SSO 設定", detail: "Azure AD OIDC + SAML metadata 生成", Icon: Lock, duration: 1400, pct: 80 },
   { id: "dr", title: "DR レプリケーション", detail: "ap-northeast-3 (大阪) クロスリージョン同期", Icon: Shield, duration: 1600, pct: 95 },
-  { id: "done", title: "完了", detail: "ゼンショーHD 専用環境が起動しました", Icon: CheckCircle2, duration: 1000, pct: 100 },
+  { id: "done", title: "完了", detail: "カッパ・クリエイト 専用環境が起動しました", Icon: CheckCircle2, duration: 1000, pct: 100 },
 ]
 
 interface DeployComponent {
@@ -122,7 +122,7 @@ export default function OnboardingPage() {
             <Rocket className="w-3.5 h-3.5" /> AENTRO Apollo Deployment
           </div>
           <h1 className="mt-1 text-[22px] sm:text-[28px] font-semibold text-white/95">
-            ゼンショーHD 専用環境を 12 秒で立ち上げる
+            カッパ・クリエイト 専用環境を 12 秒で立ち上げる
           </h1>
           <p className="mt-1 text-[13px] text-white/55">
             VPC isolated / Aurora encrypted / ECS Fargate / SSO / DR — すべて Terraform で自動構築
@@ -134,7 +134,7 @@ export default function OnboardingPage() {
           <div className="flex items-center gap-3">
             <Building2 className="w-6 h-6 text-blue-400" />
             <div className="flex-1">
-              <div className="text-[15px] font-semibold text-white/95">ゼンショーホールディングス</div>
+              <div className="text-[15px] font-semibold text-white/95">カッパ・クリエイト株式会社</div>
               <div className="text-[11px] text-white/45 mt-0.5">5,000 店舗 / 6 ブランド / 年商 7,200億円</div>
             </div>
             <div className="text-right">
@@ -151,7 +151,7 @@ export default function OnboardingPage() {
               <Rocket className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
               <p className="text-[15px] text-white/85 mb-5 leading-relaxed">
                 ボタンを押すと AWS Tokyo + Osaka リージョンに<br />
-                ゼンショーHD 専用環境が立ち上がります
+                カッパ・クリエイト 専用環境が立ち上がります
               </p>
               <button onClick={start} className="px-8 py-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[15px] font-medium inline-flex items-center gap-2">
                 <Rocket className="w-5 h-5" /> 専用環境を起動

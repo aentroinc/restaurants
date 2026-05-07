@@ -10,122 +10,104 @@ TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 COMPANY_ID = uuid.UUID("00000000-0000-0000-0000-000000000010")
 
 REGIONS = [
-    {"name": "北海道", "code": "HOKKAIDO"},
     {"name": "東北", "code": "TOHOKU"},
-    {"name": "関東", "code": "KANTO"},
+    {"name": "北関東", "code": "KITAKANTO"},
     {"name": "首都圏", "code": "METRO"},
     {"name": "中部", "code": "CHUBU"},
     {"name": "東海", "code": "TOKAI"},
     {"name": "関西", "code": "KANSAI"},
-    {"name": "中国四国", "code": "CHUSHIKOKU"},
     {"name": "九州", "code": "KYUSHU"},
 ]
 
 AREAS_PER_REGION = {
-    "HOKKAIDO": [
-        {"name": "札幌", "code": "HK01"},
-        {"name": "旭川・函館", "code": "HK02"},
-    ],
     "TOHOKU": [
-        {"name": "仙台", "code": "TH01"},
-        {"name": "盛岡", "code": "TH02"},
+        {"name": "福島", "code": "TH01"},
+        {"name": "宮城", "code": "TH02"},
+        {"name": "山形・秋田", "code": "TH03"},
     ],
-    "KANTO": [
-        {"name": "宇都宮", "code": "KT01"},
-        {"name": "高崎", "code": "KT02"},
-        {"name": "水戸", "code": "KT03"},
+    "KITAKANTO": [
+        {"name": "群馬", "code": "KK01"},
+        {"name": "栃木", "code": "KK02"},
+        {"name": "茨城", "code": "KK03"},
     ],
     "METRO": [
-        {"name": "品川(本社)", "code": "MT01"},
-        {"name": "新宿・渋谷", "code": "MT02"},
-        {"name": "横浜", "code": "MT03"},
-        {"name": "千葉", "code": "MT04"},
-        {"name": "大宮", "code": "MT05"},
-        {"name": "八王子・町田", "code": "MT06"},
+        {"name": "みなとみらい(本社)", "code": "MT01"},
+        {"name": "東京南部", "code": "MT02"},
+        {"name": "東京北部", "code": "MT03"},
+        {"name": "埼玉", "code": "MT04"},
+        {"name": "神奈川", "code": "MT05"},
+        {"name": "千葉", "code": "MT06"},
     ],
     "CHUBU": [
         {"name": "長野", "code": "CB01"},
         {"name": "新潟", "code": "CB02"},
-        {"name": "金沢", "code": "CB03"},
+        {"name": "山梨", "code": "CB03"},
     ],
     "TOKAI": [
-        {"name": "名古屋", "code": "TK01"},
-        {"name": "静岡", "code": "TK02"},
-        {"name": "浜松", "code": "TK03"},
+        {"name": "静岡", "code": "TK01"},
+        {"name": "愛知", "code": "TK02"},
     ],
     "KANSAI": [
         {"name": "大阪", "code": "KS01"},
-        {"name": "京都", "code": "KS02"},
-        {"name": "神戸", "code": "KS03"},
-    ],
-    "CHUSHIKOKU": [
-        {"name": "広島", "code": "CS01"},
-        {"name": "岡山", "code": "CS02"},
-        {"name": "松山・高松", "code": "CS03"},
+        {"name": "兵庫", "code": "KS02"},
+        {"name": "京都", "code": "KS03"},
     ],
     "KYUSHU": [
         {"name": "福岡", "code": "KY01"},
         {"name": "熊本", "code": "KY02"},
-        {"name": "鹿児島", "code": "KY03"},
     ],
 }
 
 BRANDS = [
-    {"name": "すき家", "service_model": "beef_bowl", "store_count": 50,
-     "avg_ticket_range": (450, 600), "daily_sales_range": (350000, 900000),
-     "cogs_target": 35, "labor_target": 27},
-    {"name": "はま寿司", "service_model": "sushi", "store_count": 20,
-     "avg_ticket_range": (1000, 1200), "daily_sales_range": (500000, 1500000),
-     "cogs_target": 42, "labor_target": 25},
-    {"name": "ココス", "service_model": "family_restaurant", "store_count": 15,
-     "avg_ticket_range": (1000, 1500), "daily_sales_range": (400000, 1000000),
-     "cogs_target": 32, "labor_target": 32},
-    {"name": "なか卯", "service_model": "donburi_udon", "store_count": 10,
-     "avg_ticket_range": (500, 700), "daily_sales_range": (250000, 600000),
-     "cogs_target": 33, "labor_target": 28},
-    {"name": "ジョリーパスタ", "service_model": "pasta", "store_count": 5,
-     "avg_ticket_range": (900, 1200), "daily_sales_range": (350000, 800000),
-     "cogs_target": 30, "labor_target": 30},
+    {"name": "かっぱ寿司 郊外ロードサイド型", "service_model": "kappa_roadside", "store_count": 75,
+     "avg_ticket_range": (1000, 1300), "daily_sales_range": (400000, 1000000),
+     "cogs_target": 48, "labor_target": 28},
+    {"name": "かっぱ寿司 都市型", "service_model": "kappa_urban", "store_count": 13,
+     "avg_ticket_range": (1200, 1600), "daily_sales_range": (350000, 800000),
+     "cogs_target": 46, "labor_target": 30},
+    {"name": "かっぱ寿司 食べ放題特化型", "service_model": "kappa_tabehoudai", "store_count": 7,
+     "avg_ticket_range": (2500, 3500), "daily_sales_range": (500000, 1200000),
+     "cogs_target": 52, "labor_target": 25},
+    {"name": "バンノウ水産", "service_model": "bannou_suisan", "store_count": 2,
+     "avg_ticket_range": (1500, 2200), "daily_sales_range": (300000, 600000),
+     "cogs_target": 40, "labor_target": 32},
+    {"name": "デリカ事業", "service_model": "delica", "store_count": 3,
+     "avg_ticket_range": (200, 500), "daily_sales_range": (200000, 500000),
+     "cogs_target": 55, "labor_target": 22},
 ]
 
 PREFECTURES = {
-    "HOKKAIDO": ["北海道"],
-    "TOHOKU": ["宮城県", "岩手県"],
-    "KANTO": ["栃木県", "群馬県", "茨城県"],
+    "TOHOKU": ["福島県", "宮城県", "山形県", "秋田県"],
+    "KITAKANTO": ["群馬県", "栃木県", "茨城県"],
     "METRO": ["東京都", "神奈川県", "千葉県", "埼玉県"],
-    "CHUBU": ["長野県", "新潟県", "石川県"],
-    "TOKAI": ["愛知県", "静岡県"],
-    "KANSAI": ["大阪府", "京都府", "兵庫県"],
-    "CHUSHIKOKU": ["広島県", "岡山県", "愛媛県", "香川県"],
-    "KYUSHU": ["福岡県", "熊本県", "鹿児島県"],
+    "CHUBU": ["長野県", "新潟県", "山梨県"],
+    "TOKAI": ["静岡県", "愛知県"],
+    "KANSAI": ["大阪府", "兵庫県", "京都府"],
+    "KYUSHU": ["福岡県", "熊本県"],
 }
 
 CITIES = {
-    "北海道": ["札幌市", "旭川市", "函館市"],
-    "宮城県": ["仙台市", "石巻市"],
-    "岩手県": ["盛岡市", "一関市"],
+    "福島県": ["福島市", "郡山市", "いわき市", "会津若松市"],
+    "宮城県": ["仙台市", "名取市", "石巻市"],
+    "山形県": ["山形市", "天童市"],
+    "秋田県": ["秋田市", "横手市"],
+    "群馬県": ["高崎市", "前橋市", "太田市"],
     "栃木県": ["宇都宮市", "小山市"],
-    "群馬県": ["高崎市", "前橋市"],
-    "茨城県": ["水戸市", "つくば市"],
-    "東京都": ["品川区", "新宿区", "渋谷区", "港区", "豊島区", "中野区", "目黒区", "世田谷区", "八王子市", "町田市"],
+    "茨城県": ["水戸市", "つくば市", "土浦市"],
+    "東京都": ["豊島区", "武蔵野市", "江東区", "練馬区", "板橋区", "八王子市", "町田市"],
     "神奈川県": ["横浜市", "川崎市", "相模原市", "藤沢市"],
     "千葉県": ["千葉市", "船橋市", "柏市", "松戸市"],
     "埼玉県": ["さいたま市", "川越市", "所沢市", "越谷市"],
-    "長野県": ["長野市", "松本市"],
+    "長野県": ["長野市", "松本市", "上田市", "佐久市", "諏訪市", "飯田市"],
     "新潟県": ["新潟市", "長岡市"],
-    "石川県": ["金沢市", "白山市"],
-    "愛知県": ["名古屋市", "豊田市", "一宮市", "春日井市"],
-    "静岡県": ["静岡市", "浜松市", "沼津市"],
-    "大阪府": ["大阪市", "堺市", "豊中市", "吹田市", "東大阪市"],
-    "京都府": ["京都市", "宇治市"],
+    "山梨県": ["甲府市", "富士吉田市"],
+    "静岡県": ["静岡市", "浜松市", "沼津市", "富士市"],
+    "愛知県": ["名古屋市", "豊田市", "一宮市"],
+    "大阪府": ["大阪市", "堺市", "豊中市", "吹田市"],
     "兵庫県": ["神戸市", "姫路市", "西宮市"],
-    "広島県": ["広島市", "福山市"],
-    "岡山県": ["岡山市", "倉敷市"],
-    "愛媛県": ["松山市", "今治市"],
-    "香川県": ["高松市", "丸亀市"],
+    "京都府": ["京都市", "宇治市"],
     "福岡県": ["福岡市", "北九州市", "久留米市"],
     "熊本県": ["熊本市", "八代市"],
-    "鹿児島県": ["鹿児島市", "霧島市"],
 }
 
 TRADE_AREA_TYPES = ["駅前", "ロードサイド", "商業施設", "オフィス街", "住宅街"]
@@ -136,149 +118,126 @@ EMPLOYEE_ROLES = {
     "manager": 30,
 }
 
-SUKIYA_PRODUCTS = {
-    "メイン": [("牛丼並盛", 450, 158), ("牛丼大盛", 580, 203), ("牛丼特盛", 730, 256), ("豚丼並盛", 400, 132)],
-    "バリエーション": [("ねぎ玉牛丼", 550, 193), ("キムチ牛丼", 530, 186), ("チーズ牛丼", 550, 193)],
-    "カレー": [("カレー並盛", 550, 165), ("牛あいがけカレー", 680, 238)],
-    "サイド": [("味噌汁", 80, 16), ("サラダ", 140, 28), ("牛皿", 350, 123)],
-    "限定": [("うな丼", 980, 392)],
+KAPPA_ROADSIDE_PRODUCTS = {
+    "110円皿": [("まぐろ", 110, 50), ("サーモン", 110, 44), ("えび", 110, 39), ("いか", 110, 33), ("たまご", 110, 15), ("かっぱ巻き", 110, 17), ("納豆巻き", 110, 15), ("ツナサラダ", 110, 22), ("コーン", 110, 18)],
+    "150-170円皿": [("ガーリックイカ", 150, 45), ("えびマヨ", 150, 45), ("びんちょうまぐろ", 150, 53), ("ゆず塩サーモン", 170, 51)],
+    "200-220円皿": [("活えび", 200, 80), ("ほたて", 200, 90), ("大切りサーモン", 220, 88), ("大切りまぐろ", 220, 99)],
+    "300-400円皿": [("中とろ", 330, 165), ("和牛", 380, 190), ("特大穴子", 350, 140), ("ウニ", 350, 175)],
+    "サイド": [("味噌汁", 110, 17), ("茶碗蒸し", 220, 55), ("唐揚げ", 330, 82), ("フライドポテト", 220, 44), ("枝豆", 220, 33)],
+    "ドリンク": [("ビール", 480, 120), ("ハイボール", 380, 57), ("ジュース", 180, 27)],
+    "デザート": [("チーズケーキ", 220, 55), ("シュークリーム", 110, 28), ("ソフトクリーム", 280, 42)],
 }
 
-HAMAZUSHI_PRODUCTS = {
-    "にぎり": [("まぐろ", 160, 72), ("サーモン", 160, 64), ("えび", 160, 56), ("いか", 160, 48), ("たまご", 160, 20)],
-    "プレミアム": [("中とろ", 330, 165), ("特盛りサーモン", 330, 132)],
-    "サイド": [("味噌汁", 110, 22), ("茶碗蒸し", 220, 66)],
-    "セット": [("ランチセット", 580, 232)],
-    "ドリンク": [("ビール", 418, 105), ("日本酒", 418, 105)],
+KAPPA_URBAN_PRODUCTS = {
+    "110円皿": [("まぐろ", 110, 50), ("サーモン", 110, 44), ("えび", 110, 39), ("たまご", 110, 15)],
+    "200-220円皿": [("活えび", 200, 80), ("ほたて", 200, 90), ("大切りサーモン", 220, 88)],
+    "300-400円皿": [("中とろ", 330, 165), ("和牛", 380, 190), ("ウニ", 350, 175)],
+    "サイド": [("茶碗蒸し", 220, 55), ("唐揚げ", 330, 82)],
+    "ドリンク": [("ビール", 480, 120), ("ハイボール", 380, 57)],
 }
 
-COCOS_PRODUCTS = {
-    "メイン": [("包み焼きハンバーグ", 1099, 330), ("チーズインハンバーグ", 1199, 360),
-              ("ビーフシチュー", 1299, 390), ("ミックスグリル", 1399, 420)],
-    "サイド": [("シーザーサラダ", 549, 110), ("ドリンクバー", 319, 32), ("ライス", 220, 44), ("スープバー", 319, 48)],
+KAPPA_TABEHOUDAI_PRODUCTS = {
+    "食べ放題コース": [("レギュラーコース70分", 2178, 1100), ("スペシャルコース70分", 2728, 1400), ("プレミアムコース70分", 3278, 1700)],
+    "追加ドリンク": [("ビール", 480, 120), ("ハイボール", 380, 57)],
+    "デザート": [("ソフトクリーム", 0, 42), ("チーズケーキ", 0, 55)],
 }
 
-NAKAU_PRODUCTS = {
-    "丼": [("親子丼並", 490, 162), ("親子丼大盛", 590, 195), ("カツ丼並", 590, 207), ("牛丼並", 450, 158)],
-    "うどん": [("京風きつねうどん", 430, 129), ("鶏塩うどん", 530, 159)],
-    "セット": [("小うどんセット", 190, 57)],
-    "サイド": [("味噌汁", 80, 16)],
+BANNOU_PRODUCTS = {
+    "刺身": [("刺身盛り合わせ", 1280, 512), ("本日の刺身5点", 980, 392)],
+    "焼物": [("サバの塩焼き", 780, 234), ("ホタテバター焼き", 880, 352)],
+    "定食": [("海鮮丼", 1380, 552), ("天ぷら定食", 1180, 354)],
+    "ドリンク": [("生ビール", 550, 138), ("日本酒", 680, 170)],
 }
 
-JOLLYPASTA_PRODUCTS = {
-    "パスタ": [("ミートソース", 769, 231), ("カルボナーラ", 879, 264), ("ペペロンチーノ", 769, 231),
-              ("シーフードパスタ", 979, 294)],
-    "ピザ": [("マルゲリータピザ", 879, 264)],
-    "サイド": [("サラダ", 439, 88), ("ドリンクバー", 319, 32), ("ティラミス", 439, 132)],
+DELICA_PRODUCTS = {
+    "製造品": [("コンビニ向け握りセット8貫", 350, 193), ("コンビニ向け巻き寿司", 280, 154), ("コンビニ向け海鮮丼", 450, 248)],
+    "業務用": [("業務用酢飯10kg", 2000, 1100), ("業務用ネタセット", 5000, 2750)],
 }
 
 REVIEW_SOURCES = ["google", "tabelog", "hotpepper", "gurunavi"]
 
 REVIEW_TEMPLATES_GOOD = [
-    # すき家
-    "牛丼のタレが絶妙。何度来ても飽きない。",
-    "24時間営業がありがたい。深夜でもクオリティが安定している。",
-    "テイクアウトの注文が簡単になった。アプリが便利。",
-    "セルフレジの導入で回転が速くなった。",
-    # はま寿司
-    "160円でこの品質は驚き。ネタが新鮮。",
-    "タッチパネルの注文が子供でも使いやすい。",
+    "110円でこの品質は素晴らしい。コスパ最強。",
+    "食べ放題がお得。70分で十分楽しめた。",
+    "タッチパネルの注文が使いやすい。子供でも操作できる。",
+    "河童ロボットが可愛い。子供が喜んでいた。",
+    "サーモンが肉厚で大満足。110円でこれはすごい。",
+    "駐車場が広くてファミリーに最適。",
     "期間限定メニューが毎回楽しみ。",
-    # ココス
-    "包み焼きハンバーグは鉄板メニュー。ジューシーで美味しい。",
-    "ドリンクバーの種類が豊富。ゆっくりできる。",
-    "子供連れに最適。キッズメニューが充実。",
-    # なか卯
-    "親子丼の卵がトロトロで最高。",
-    "京風うどんのダシが本格的。関西出身としても満足。",
-    # ジョリーパスタ
-    "生パスタのモチモチ感が他チェーンとは違う。",
-    "ランチセットがお得。スープバー付きで嬉しい。",
-    # 共通
     "清潔で快適な店内でした。",
     "スタッフの対応が丁寧で気持ちよく食事できました。",
-    "コスパが良く、大満足です。",
-    "駐車場が広くて停めやすい。",
     "何度来ても安定した美味しさ。",
-    "テイクアウトの包装が丁寧。",
+    "テイクアウトの注文が簡単。アプリが便利。",
+    "新しくなった店内がきれい。席も広くなった。",
+    "茶碗蒸しが美味しい。サイドメニューが充実。",
+    "唐揚げが意外に美味しい。お寿司と一緒に頼む。",
 ]
 
 REVIEW_TEMPLATES_BAD = [
-    # すき家（異物混入関連）
-    "最近のニュースが気になる。安全管理は大丈夫なのか。",
-    "以前より明らかに味が落ちた。コストカットしすぎ。",
-    "深夜のワンオペが心配。店員さんが大変そう。",
-    # はま寿司
-    "値上げ後のコスパが微妙。160円は高く感じる。",
-    "待ち時間が30分以上。回転が悪すぎる。",
-    "ネタが小さくなった気がする。",
-    # ココス
-    "ランチの提供が遅い。15分以上待った。",
-    "人手不足なのか、呼んでもなかなか来ない。",
-    # なか卯
-    "券売機の操作がわかりにくい。年配者には厳しい。",
-    "うどんの量が減った。",
-    # ジョリーパスタ
-    "価格に見合わない。もう少し安くしてほしい。",
-    # 共通
+    "ネタが小さくなった気がする。以前はもっと大きかった。",
+    "回転レーンが少なくなり、注文してから来るのが遅い。",
+    "スシローやはま寿司と比べると、やはりネタの鮮度が…",
+    "あの事件があったから、正直行きづらい。",
+    "食べ放題の制限時間がプレッシャー。もう少しゆっくりしたい。",
     "店内が汚れていた。テーブルが拭かれていない。",
     "接客態度が悪い。挨拶もない。",
     "料理が冷めていた。作り置き感がある。",
     "トイレが不衛生。",
     "混雑時の対応が雑。",
-    "エアコンが効きすぎて寒い。",
     "メニューの写真と実物が違いすぎる。",
     "配膳間違いがあった。",
-    "騒がしい客がいても注意しない。",
+    "まぐろのネタが筋だらけ。品質管理をしてほしい。",
+    "値段の割にネタが薄い。もう少し厚く切ってほしい。",
+    "待ち時間が長い。レーンの効率が悪い。",
 ]
 
 # Brand-specific bad review templates for anomaly stores
 REVIEW_TEMPLATES_SUKIYA_INCIDENT = [
-    "異物混入の件があってから不安で足が遠のいている。",
-    "SNSで異物混入の話を見て以来行っていない。衛生管理は大丈夫なのか。",
-    "異物混入が心配。子供を連れて行くのが怖い。",
-    "前に来た時に髪の毛が入っていた。それ以来行っていない。",
-    "衛生面が心配。しばらく様子見。",
+    "営業秘密の事件があってから、信頼できなくなった。",
+    "あの不祥事以来、足が遠のいている。企業倫理が心配。",
+    "事件のイメージが拭えない。子供を連れて行くのを躊躇する。",
+    "経営に対する信頼感が薄い。改善されているのだろうか。",
+    "以前は好きだったが、あの事件以来なんとなく避けている。",
 ]
 
 REVIEW_TEMPLATES_HAMAZUSHI_PRICE = [
-    "コメの値段が上がったせいか、以前よりネタが小さくなった気がする。",
-    "値上げ後のコスパが悪い。以前の160円一皿が懐かしい。",
-    "シャリの量が減った？原価高騰の影響を感じる。",
+    "原材料費高騰の影響か、ネタが明らかに小さくなった。",
+    "まぐろの品質が下がった。原価率48%は業界最悪と聞いたが、客に転嫁しないでほしい。",
+    "シャリの量が減った？米の高騰の影響を感じる。",
 ]
 
 REVIEW_TEMPLATES_COCOS_WAIT = [
-    "休日のランチは1時間待ち。もう少しスタッフを増やしてほしい。",
-    "料理の提供が遅すぎる。人手不足なのはわかるが改善してほしい。",
-    "注文してから30分以上待たされた。スタッフが足りていない。",
+    "食べ放題で廃棄が多い印象。もったいない。",
+    "制限時間に追われて落ち着かない。もう少し余裕がほしい。",
+    "食べ放題のネタの質が通常メニューより明らかに落ちる。",
 ]
 
 # Anomaly store indices per brand (global store indices)
-# すき家 = 0-49, はま寿司 = 50-69, ココス = 70-84, なか卯 = 85-94, ジョリーパスタ = 95-99
+# 郊外ロードサイド型 = 0-74, 都市型 = 75-87, 食べ放題特化型 = 88-94, バンノウ水産 = 95-96, デリカ = 97-99
 
 # --- Existing 6 ---
 LABOR_OVERRUN_STORES = [2, 8, 15, 22, 38]
 COGS_OVERRUN_STORES = [5, 12, 25, 33, 45]
-SALES_DECLINE_STORES = [7, 18, 30, 42, 55]
+SALES_DECLINE_STORES = [7, 18, 30, 42, 55]              # 客数12ヶ月連続前年割れ
 REVIEW_DECLINE_STORES = [10, 28, 50]
 DISCOUNT_OVERUSE_STORES = [14, 35, 60]
 IMPROVEMENT_SUCCESS_STORES = [3, 20, 40, 52, 65]
 
-# --- New 14 ---
-CONTAMINATION_IMPACT_STORES = [1, 6, 11, 16, 21]       # すき家 異物混入
-LATE_NIGHT_LABOR_STORES = [0, 4, 9, 13, 19, 23, 27, 31, 36, 39]  # すき家 深夜帯
-TAKEOUT_RATIO_DROP_STORES = [3, 17, 24]                 # テイクアウト低下
-RICE_COST_SURGE_STORES = [50, 52, 54, 56, 58, 60, 62, 64, 66, 68]  # はま寿司 コメ高騰
-WASTE_INCREASE_STORES = [51, 53, 57, 61]                # はま寿司 廃棄増
-WAIT_TIME_LONG_STORES = [55, 59, 63]                    # はま寿司 待ち時間
-PEAK_UNDERSTAFFED_STORES = [70, 73, 76, 79, 82]         # ココス ピーク人員不足
-MINIMUM_WAGE_IMPACT_STORES = [4, 9, 14, 19, 24, 29, 34, 39, 44, 49]  # 全ブランド 最低賃金
-DELIVERY_MARGIN_STORES = [6, 16, 26, 36, 46]            # デリバリー利益率悪化
+# --- New 14 (Kappa-specific) ---
+CONTAMINATION_IMPACT_STORES = [1, 6, 11, 16, 21]        # 不祥事後のブランド回復
+LATE_NIGHT_LABOR_STORES = [0, 4, 9, 13, 19, 23, 27, 31, 36, 39]  # DX化遅れによる人件費上昇
+TAKEOUT_RATIO_DROP_STORES = [3, 17, 24]                  # テイクアウト低下
+RICE_COST_SURGE_STORES = [50, 52, 54, 56, 58, 60, 62, 64, 66, 68]  # 原材料費（まぐろ・米・海苔）高騰
+WASTE_INCREASE_STORES = [88, 89, 90, 91]                 # 食べ放題の廃棄ロス
+WAIT_TIME_LONG_STORES = [75, 76, 77]                     # 都市型出店の立ち上がり
+PEAK_UNDERSTAFFED_STORES = [70, 73, 76, 79, 82]         # 人件費上昇
+MINIMUM_WAGE_IMPACT_STORES = [4, 9, 14, 19, 24, 29, 34, 39, 44, 49]  # 最低賃金改定の影響
+DELIVERY_MARGIN_STORES = [6, 16, 26, 36, 46]            # デリカ事業赤字影響
 ENERGY_COST_STORES = [3, 13, 23, 33, 43, 53, 63, 73, 83, 93]  # 光熱費高騰
-NEW_STORE_RAMPUP_STORES = [97, 98, 99]                  # 新店立ち上がり好調
-UDON_SEASON_STORES = [90, 91, 92]                       # なか卯 うどん季節需要
-TICKET_MACHINE_ISSUE_STORES = [93, 94]                   # なか卯 券売機トラブル
-DRINK_BAR_COST_STORES = [75, 78]                         # ココス ドリンクバー原価上昇
+NEW_STORE_RAMPUP_STORES = [97, 98, 99]                   # 都市型出店（南池袋、吉祥寺、亀戸）立ち上がり
+UDON_SEASON_STORES = [90, 91, 92]                        # 食べ放題特化型 季節需要
+TICKET_MACHINE_ISSUE_STORES = [93, 94]                    # タッチパネル不具合
+DRINK_BAR_COST_STORES = [75, 78]                          # スシロー・はま寿司との競争影響
 
 
 def make_uuid(namespace: int) -> uuid.UUID:
@@ -354,7 +313,7 @@ def generate_employees(areas):
                 "code": f"E{idx+1:04d}",
                 "name": f"{ln} {fn}",
                 "role": role,
-                "email": f"{role}{idx+1}@zensho.co.jp",
+                "email": f"{role}{idx+1}@kappacreate.co.jp",
                 "active": True,
             })
             idx += 1
@@ -369,43 +328,71 @@ def generate_employees(areas):
 
 
 # Realistic store location names per brand
-SUKIYA_STORE_LOCATIONS = [
-    "品川港南", "新宿三丁目", "渋谷宮益坂", "横浜鶴見", "千葉中央", "大宮東口", "八王子南口", "町田中央",
-    "札幌北24条", "仙台泉中央", "盛岡青山", "宇都宮東", "高崎問屋町", "水戸笠原",
-    "長野稲里", "新潟紫竹山", "金沢有松", "名古屋錦", "静岡馬渕", "浜松高丘",
-    "大阪堺筋本町", "京都四条大宮", "神戸三宮", "広島大州", "岡山大安寺", "松山南",
-    "福岡天神", "熊本東バイパス", "鹿児島中央", "川崎幸", "船橋北口", "川越脇田",
-    "品川大井", "新宿南口", "渋谷桜丘", "横浜都筑", "柏東口", "越谷東大沢",
-    "目黒三田", "世田谷上馬", "豊島要町", "中野新橋", "相模原橋本", "藤沢石川",
-    "松戸八柱", "所沢東", "名古屋東別院", "一宮大和", "豊田山之手", "春日井高蔵寺",
+KAPPA_ROADSIDE_LOCATIONS = [
+    # 長野（22店で最多）
+    "長野稲里", "松本村井", "上田国分", "佐久岩村田", "諏訪四賀", "飯田上郷", "長野東和田", "松本渚",
+    # 福島
+    "福島南", "郡山安積", "いわき平", "会津若松門田",
+    # 宮城
+    "仙台泉", "名取", "石巻蛇田",
+    # 群馬
+    "高崎飯塚", "前橋荒牧", "太田浜町",
+    # 栃木
+    "宇都宮鶴田", "小山城東",
+    # 茨城
+    "水戸笠原", "つくば学園", "土浦真鍋",
+    # 埼玉
+    "さいたま大宮", "川越新宿", "所沢北野", "越谷レイクタウン",
+    # 神奈川
+    "横浜六角橋", "川崎宮前", "相模原橋本", "藤沢石川",
+    # 千葉
+    "千葉都賀", "船橋薬円台", "柏旭町", "松戸五香",
+    # 新潟
+    "新潟紫竹山", "長岡喜多町",
+    # 山梨
+    "甲府上阿原",
+    # 静岡
+    "静岡国吉田", "浜松志都呂", "沼津大手", "富士宮",
+    # 愛知
+    "名古屋守山", "豊田山之手", "一宮大和",
+    # 大阪
+    "大阪鶴見", "堺中百舌鳥", "吹田山田",
+    # 兵庫
+    "神戸多聞", "姫路飾磨", "西宮北口",
+    # 京都
+    "京都伏見", "宇治小倉",
+    # 福岡
+    "福岡志免", "北九州八幡",
+    # 熊本
+    "熊本光の森", "八代松崎",
+    # 東京
+    "八王子堀之内", "町田鶴川", "練馬光が丘", "板橋前野",
+    # 秋田・山形
+    "秋田広面", "山形嶋", "天童芳賀",
+    # 追加ロードサイド
+    "上田秋和", "長野若里", "松本筑摩", "諏訪沖田", "佐久平駅前",
+    "郡山富田", "福島北", "いわき好間", "仙台南吉成",
+    "高崎中居", "前橋天川", "宇都宮東", "水戸河和田",
 ]
 
-HAMAZUSHI_STORE_LOCATIONS = [
-    "品川シーサイド", "横浜六角橋", "千葉都賀", "大宮吉敷", "八王子堀之内",
-    "札幌白石", "仙台南吉成", "宇都宮鶴田", "高崎貝沢",
-    "名古屋茶屋", "静岡清水", "浜松志都呂",
-    "大阪鶴見", "京都伏見", "神戸多聞",
-    "広島祇園", "岡山久米",
-    "福岡志免", "熊本佐土原", "鹿児島吉野",
+KAPPA_URBAN_LOCATIONS = [
+    "南池袋", "吉祥寺", "亀戸", "横浜駅前", "川崎ラゾーナ", "大宮駅東口",
+    "千葉駅前", "新潟駅前", "静岡パルコ", "名古屋栄",
+    "大阪梅田", "神戸三宮", "京都河原町",
 ]
 
-COCOS_STORE_LOCATIONS = [
-    "品川大井町", "横浜港北", "千葉おゆみ野", "大宮三橋", "町田小山",
-    "仙台富沢", "宇都宮インターパーク",
-    "名古屋守山", "静岡安倍川",
-    "大阪枚方", "京都桂",
-    "広島五日市",
-    "福岡大野城", "熊本清水", "鹿児島荒田",
+KAPPA_TABEHOUDAI_LOCATIONS = [
+    "長野稲里食べ放題", "郡山安積食べ放題", "さいたま大宮食べ放題",
+    "横浜六角橋食べ放題", "名古屋守山食べ放題", "大阪鶴見食べ放題",
+    "福岡志免食べ放題",
 ]
 
-NAKAU_STORE_LOCATIONS = [
-    "品川駅東口", "新宿靖国通り", "渋谷宮下公園", "横浜駅西口", "千葉駅前",
-    "大宮駅東口", "名古屋栄", "大阪梅田",
-    "京都河原町", "神戸元町",
+BANNOU_LOCATIONS = [
+    "静岡清水", "浜松志都呂",
 ]
 
-JOLLYPASTA_STORE_LOCATIONS = [
-    "品川ウィング", "横浜センター北", "千葉ペリエ", "名古屋緑", "大阪堺中百舌鳥",
+DELICA_LOCATIONS = [
+    "横浜工場", "長野工場", "仙台工場",
 ]
 
 
@@ -415,25 +402,25 @@ def generate_stores(brands_def, brand_records, areas, employees):
     manager_employees = [e for e in employees if e["role"] == "manager"]
 
     store_location_lists = [
-        SUKIYA_STORE_LOCATIONS,
-        HAMAZUSHI_STORE_LOCATIONS,
-        COCOS_STORE_LOCATIONS,
-        NAKAU_STORE_LOCATIONS,
-        JOLLYPASTA_STORE_LOCATIONS,
+        KAPPA_ROADSIDE_LOCATIONS,
+        KAPPA_URBAN_LOCATIONS,
+        KAPPA_TABEHOUDAI_LOCATIONS,
+        BANNOU_LOCATIONS,
+        DELICA_LOCATIONS,
     ]
 
     region_map = {
-        "HK": "HOKKAIDO", "TH": "TOHOKU", "KT": "KANTO", "MT": "METRO",
-        "CB": "CHUBU", "TK": "TOKAI", "KS": "KANSAI", "CS": "CHUSHIKOKU", "KY": "KYUSHU",
+        "TH": "TOHOKU", "KK": "KITAKANTO", "MT": "METRO",
+        "CB": "CHUBU", "TK": "TOKAI", "KS": "KANSAI", "KY": "KYUSHU",
     }
 
     # Brand-specific trade area tendencies
     brand_trade_areas = {
-        "beef_bowl": ["ロードサイド", "ロードサイド", "ロードサイド", "駅前", "住宅街"],  # mostly ロードサイド
-        "sushi": ["ロードサイド", "ロードサイド", "商業施設", "住宅街", "駅前"],
-        "family_restaurant": ["ロードサイド", "ロードサイド", "商業施設", "商業施設", "住宅街"],
-        "donburi_udon": ["駅前", "駅前", "駅前", "オフィス街", "商業施設"],  # mostly 駅前
-        "pasta": ["商業施設", "ロードサイド", "駅前", "住宅街", "商業施設"],
+        "kappa_roadside": ["ロードサイド", "ロードサイド", "ロードサイド", "住宅街", "ロードサイド"],
+        "kappa_urban": ["駅前", "駅前", "商業施設", "駅前", "オフィス街"],
+        "kappa_tabehoudai": ["ロードサイド", "ロードサイド", "商業施設", "住宅街", "ロードサイド"],
+        "bannou_suisan": ["ロードサイド", "ロードサイド", "住宅街", "駅前", "ロードサイド"],
+        "delica": ["オフィス街", "オフィス街", "オフィス街", "オフィス街", "オフィス街"],
     }
 
     for brand_idx, brand_def in enumerate(BRANDS):
@@ -461,19 +448,19 @@ def generate_stores(brands_def, brand_records, areas, employees):
 
             # Use realistic store name from location list
             location_name = locations[j % len(locations)]
-            if brand_def["name"] == "すき家":
-                store_name = f"すき家 {location_name}店"
-            elif brand_def["name"] == "はま寿司":
-                store_name = f"はま寿司 {location_name}店"
-            elif brand_def["name"] == "ココス":
-                store_name = f"ココス {location_name}店"
-            elif brand_def["name"] == "なか卯":
-                store_name = f"なか卯 {location_name}店"
+            if brand_def["service_model"] == "kappa_roadside":
+                store_name = f"かっぱ寿司 {location_name}店"
+            elif brand_def["service_model"] == "kappa_urban":
+                store_name = f"かっぱ寿司 {location_name}店"
+            elif brand_def["service_model"] == "kappa_tabehoudai":
+                store_name = f"かっぱ寿司 {location_name}店"
+            elif brand_def["service_model"] == "bannou_suisan":
+                store_name = f"バンノウ水産 {location_name}店"
             else:
-                store_name = f"ジョリーパスタ {location_name}店"
+                store_name = f"カッパ・デリカ {location_name}"
 
-            # すき家 drive-through at roadside
-            has_drive_through = trade_area == "ロードサイド" and brand_def["service_model"] == "beef_bowl"
+            # No drive-through for sushi
+            has_drive_through = False
 
             results.append({
                 "id": gen_deterministic_uuid("store", global_idx),
@@ -507,7 +494,7 @@ def generate_stores(brands_def, brand_records, areas, employees):
 
 def generate_products(brand_records):
     results = []
-    product_maps = [SUKIYA_PRODUCTS, HAMAZUSHI_PRODUCTS, COCOS_PRODUCTS, NAKAU_PRODUCTS, JOLLYPASTA_PRODUCTS]
+    product_maps = [KAPPA_ROADSIDE_PRODUCTS, KAPPA_URBAN_PRODUCTS, KAPPA_TABEHOUDAI_PRODUCTS, BANNOU_PRODUCTS, DELICA_PRODUCTS]
     idx = 0
 
     for brand_idx, brand in enumerate(brand_records):
@@ -1364,7 +1351,7 @@ def generate_value_cases(stores):
     results_metrics = []
 
     cases_data = [
-        {"name": "すき家首都圏 異物混入後の客数回復", "issue_type": "contamination_impact",
+        {"name": "かっぱ寿司 不祥事後のブランド信頼回復", "issue_type": "contamination_impact",
          "store_idxs": [1, 6, 11], "status": "active",
          "expected": 18000000, "realized": None,
          "metrics": [
@@ -1372,7 +1359,7 @@ def generate_value_cases(stores):
              {"metric_name": "口コミスコア", "baseline": 3.8, "measured": 3.1, "peer_adjusted": 3.2, "share": 0.3},
              {"metric_name": "月次売上", "baseline": 14000000, "measured": 12500000, "peer_adjusted": 12800000, "share": 0.2},
          ]},
-        {"name": "はま寿司 コメ高騰対策メニュー最適化", "issue_type": "cogs_overrun",
+        {"name": "かっぱ寿司 原材料費高騰対策メニュー最適化", "issue_type": "cogs_overrun",
          "store_idxs": [50, 52, 54], "status": "completed",
          "expected": 8000000, "realized": 6200000,
          "metrics": [
@@ -1380,7 +1367,7 @@ def generate_value_cases(stores):
              {"metric_name": "理論原価乖離率", "baseline": 4.5, "measured": 1.8, "peer_adjusted": 2.0, "share": 0.2},
              {"metric_name": "粗利率", "baseline": 54.0, "measured": 57.0, "peer_adjusted": 56.5, "share": 0.2},
          ]},
-        {"name": "ココス 首都圏シフト最適化", "issue_type": "labor_overrun",
+        {"name": "郊外ロードサイド型 シフト最適化", "issue_type": "labor_overrun",
          "store_idxs": [70, 73, 76], "status": "completed",
          "expected": 12000000, "realized": 8500000,
          "metrics": [
@@ -1388,7 +1375,7 @@ def generate_value_cases(stores):
              {"metric_name": "人時売上高", "baseline": 4200, "measured": 5100, "peer_adjusted": 4950, "share": 0.2},
              {"metric_name": "営業利益率", "baseline": 4.8, "measured": 7.5, "peer_adjusted": 7.2, "share": 0.2},
          ]},
-        {"name": "なか卯 テイクアウト比率向上", "issue_type": "sales_decline",
+        {"name": "食べ放題特化型 廃棄ロス削減", "issue_type": "sales_decline",
          "store_idxs": [90, 91], "status": "completed",
          "expected": 10000000, "realized": 7800000,
          "metrics": [
@@ -1396,7 +1383,7 @@ def generate_value_cases(stores):
              {"metric_name": "月次売上", "baseline": 8500000, "measured": 9800000, "peer_adjusted": 9600000, "share": 0.3},
              {"metric_name": "客単価", "baseline": 580, "measured": 610, "peer_adjusted": 600, "share": 0.2},
          ]},
-        {"name": "ジョリーパスタ 値上げ後の客数維持", "issue_type": "sales_decline",
+        {"name": "都市型出店 初期立ち上がり加速", "issue_type": "sales_decline",
          "store_idxs": [95, 96], "status": "active",
          "expected": 6000000, "realized": None,
          "metrics": [
@@ -1404,7 +1391,7 @@ def generate_value_cases(stores):
              {"metric_name": "客単価", "baseline": 1050, "measured": 1120, "peer_adjusted": 1100, "share": 0.3},
              {"metric_name": "月次売上", "baseline": 9000000, "measured": 8400000, "peer_adjusted": 8500000, "share": 0.2},
          ]},
-        {"name": "全社 深夜帯労働コスト最適化", "issue_type": "labor_overrun",
+        {"name": "全店 DX化による労働コスト最適化", "issue_type": "labor_overrun",
          "store_idxs": [0, 4, 9], "status": "completed",
          "expected": 15000000, "realized": 11000000,
          "metrics": [
@@ -1412,7 +1399,7 @@ def generate_value_cases(stores):
              {"metric_name": "人時売上高", "baseline": 3800, "measured": 4600, "peer_adjusted": 4400, "share": 0.2},
              {"metric_name": "営業利益率", "baseline": 3.5, "measured": 6.2, "peer_adjusted": 5.8, "share": 0.2},
          ]},
-        {"name": "はま寿司 廃棄ロス削減", "issue_type": "cogs_overrun",
+        {"name": "食べ放題型 廃棄ロス削減", "issue_type": "cogs_overrun",
          "store_idxs": [51, 53, 57], "status": "active",
          "expected": 5000000, "realized": None,
          "metrics": [
@@ -1420,7 +1407,7 @@ def generate_value_cases(stores):
              {"metric_name": "原価率", "baseline": 44.0, "measured": 43.0, "peer_adjusted": 43.2, "share": 0.3},
              {"metric_name": "粗利率", "baseline": 56.0, "measured": 57.0, "peer_adjusted": 56.8, "share": 0.2},
          ]},
-        {"name": "ココス ピーク帯人員配置最適化", "issue_type": "labor_overrun",
+        {"name": "郊外型 ピーク帯人員配置最適化", "issue_type": "labor_overrun",
          "store_idxs": [79, 82], "status": "completed",
          "expected": 7000000, "realized": 5500000,
          "metrics": [
@@ -1436,7 +1423,7 @@ def generate_value_cases(stores):
              {"metric_name": "人時売上高", "baseline": 5000, "measured": 4600, "peer_adjusted": 4700, "share": 0.3},
              {"metric_name": "営業利益率", "baseline": 7.0, "measured": 5.5, "peer_adjusted": 5.8, "share": 0.2},
          ]},
-        {"name": "すき家 新店立ち上がり加速", "issue_type": "improvement_success",
+        {"name": "都市型新規出店 立ち上がり加速", "issue_type": "improvement_success",
          "store_idxs": [97, 98, 99], "status": "completed",
          "expected": 9000000, "realized": 10500000,
          "metrics": [
@@ -1522,7 +1509,7 @@ def generate_meeting_pack(stores, tasks_list):
         "id": pack_id,
         "tenant_id": TENANT_ID,
         "company_id": COMPANY_ID,
-        "title": "2026年4月度 ゼンショーHD 経営会議資料",
+        "title": "2026年4月度 カッパ・クリエイト 経営会議資料",
         "meeting_date": date(2026, 5, 10),
         "status": "draft",
         "created_by": None,
@@ -1534,7 +1521,7 @@ def generate_meeting_pack(stores, tasks_list):
             "pack_id": pack_id,
             "item_type": "kpi_alert",
             "title": "全店KPIサマリー",
-            "content": {"description": "国内5ブランド100店舗KPI概況。はま寿司のコメ高騰影響でFL比率が前月比0.5pt上昇。"},
+            "content": {"description": "5業態100拠点KPI概況。原材料費高騰（まぐろ・米・海苔）影響でFL比率が前月比0.5pt上昇。"},
             "store_id": None,
             "task_id": None,
             "sort_order": 1,
@@ -1544,7 +1531,7 @@ def generate_meeting_pack(stores, tasks_list):
             "pack_id": pack_id,
             "item_type": "issue",
             "title": "人件費超過店舗への対応状況",
-            "content": {"description": "ココス首都圏5店舗で人件費率が35%を超過。シフト最適化プロジェクト進行中。"},
+            "content": {"description": "郊外ロードサイド型5店舗で人件費率が35%を超過。DX化によるシフト最適化プロジェクト進行中。"},
             "store_id": stores[2]["id"] if len(stores) > 2 else None,
             "task_id": tasks_list[0]["id"] if tasks_list else None,
             "sort_order": 2,
@@ -1629,7 +1616,7 @@ def generate_users(stores=None):
         {
             "id": gen_deterministic_uuid("user", 0),
             "tenant_id": TENANT_ID,
-            "email": "admin@zensho.co.jp",
+            "email": "admin@kappacreate.co.jp",
             "name": "管理者",
             "role": "admin",
             "employee_id": None,
@@ -1640,7 +1627,7 @@ def generate_users(stores=None):
         {
             "id": gen_deterministic_uuid("user", 1),
             "tenant_id": TENANT_ID,
-            "email": "sv@zensho.co.jp",
+            "email": "sv@kappacreate.co.jp",
             "name": "SV担当",
             "role": "sv",
             "employee_id": None,
@@ -1651,7 +1638,7 @@ def generate_users(stores=None):
         {
             "id": gen_deterministic_uuid("user", 2),
             "tenant_id": TENANT_ID,
-            "email": "manager@zensho.co.jp",
+            "email": "manager@kappacreate.co.jp",
             "name": "店長",
             "role": "manager",
             "employee_id": None,
@@ -1662,7 +1649,7 @@ def generate_users(stores=None):
         {
             "id": gen_deterministic_uuid("user", 3),
             "tenant_id": TENANT_ID,
-            "email": "staff@zensho.co.jp",
+            "email": "staff@kappacreate.co.jp",
             "name": "現場スタッフ",
             "role": "staff",
             "employee_id": None,
@@ -1702,16 +1689,16 @@ def generate_user_store_assignments(users, stores):
         idx += 1
         return rec
 
-    if "manager@zensho.co.jp" in by_email:
-        out.append(_row(by_email["manager@zensho.co.jp"], stores[0], "manager", True))
-    if "staff@zensho.co.jp" in by_email:
-        out.append(_row(by_email["staff@zensho.co.jp"], stores[0], "staff", True))
-    if "sv@zensho.co.jp" in by_email:
-        sv = by_email["sv@zensho.co.jp"]
+    if "manager@kappacreate.co.jp" in by_email:
+        out.append(_row(by_email["manager@kappacreate.co.jp"], stores[0], "manager", True))
+    if "staff@kappacreate.co.jp" in by_email:
+        out.append(_row(by_email["staff@kappacreate.co.jp"], stores[0], "staff", True))
+    if "sv@kappacreate.co.jp" in by_email:
+        sv = by_email["sv@kappacreate.co.jp"]
         for i, st in enumerate(stores[:8]):
             out.append(_row(sv, st, "sv", i == 0))
-    if "admin@zensho.co.jp" in by_email:
-        admin = by_email["admin@zensho.co.jp"]
+    if "admin@kappacreate.co.jp" in by_email:
+        admin = by_email["admin@kappacreate.co.jp"]
         # Seed first 20 explicitly; admin role auto-broadens via API.
         for i, st in enumerate(stores[:20]):
             out.append(_row(admin, st, "admin", i == 0))
@@ -2304,115 +2291,102 @@ def generate_ontology_data():
 def generate_industry_playbooks():
     playbooks = [
         {
-            "service_model": "beef_bowl",
-            "name": "すき家改善プレイブック",
+            "service_model": "kappa_roadside",
+            "name": "かっぱ寿司 郊外ロードサイド型改善プレイブック",
             "kpi_definitions": [
-                {"code": "sales_per_labor_hour", "name": "人時売上", "target": 5500, "unit": "円/時"},
-                {"code": "hourly_sales_mix", "name": "時間帯別売上構成", "target": None, "unit": "%"},
-                {"code": "takeout_ratio", "name": "テイクアウト比率", "target": 30, "unit": "%"},
-                {"code": "cogs_rate", "name": "原価率", "target": 35, "unit": "%"},
-                {"code": "avg_ticket", "name": "客単価", "target": 550, "unit": "円"},
-            ],
-            "issue_rules": [
-                {"issue_type": "idle_time_labor", "description": "アイドルタイムの人件費過剰", "threshold": {"sales_per_labor_hour": {"below": 4500}}},
-                {"issue_type": "peak_understaffing", "description": "ピーク時間帯の人員不足", "threshold": {"peak_wait_time": {"above": 10}}},
-                {"issue_type": "takeout_decline", "description": "テイクアウト比率低下", "threshold": {"takeout_ratio": {"below": 25}}},
-                {"issue_type": "cogs_rice_meat", "description": "米・肉の原価高騰", "threshold": {"cogs_rate": {"above": 38}}},
-                {"issue_type": "incident_review_decline", "description": "異物混入による口コミ低下", "threshold": {"review_score": {"below": 3.0}}},
-            ],
-            "recommended_actions": [
-                {"action": "アイドルタイムシフト削減", "description": "14-17時のシフト人数を見直し、人時売上を改善", "expected_impact": 200000},
-                {"action": "ピーク配置最適化", "description": "11-13時のキッチン・フロア配置バランスを調整", "expected_impact": 150000},
-                {"action": "セット販売強化", "description": "味噌汁・サラダのセット推奨で客単価向上", "expected_impact": 100000},
-                {"action": "衛生管理強化", "description": "異物混入対策の徹底とSNS対策", "expected_impact": 300000},
-            ],
-        },
-        {
-            "service_model": "sushi",
-            "name": "はま寿司改善プレイブック",
-            "kpi_definitions": [
-                {"code": "fish_cogs_rate", "name": "ネタ原価率", "target": 42, "unit": "%"},
+                {"code": "cogs_rate", "name": "原価率", "target": 48, "unit": "%"},
                 {"code": "waste_rate", "name": "廃棄率", "target": 3, "unit": "%"},
-                {"code": "table_turnover", "name": "テーブル回転", "target": 3.5, "unit": "回/日"},
-                {"code": "avg_ticket", "name": "客単価", "target": 1100, "unit": "円"},
-                {"code": "wait_time", "name": "待ち時間", "target": 15, "unit": "分"},
+                {"code": "table_turnover", "name": "テーブル回転", "target": 3.0, "unit": "回/日"},
+                {"code": "avg_ticket", "name": "客単価", "target": 1150, "unit": "円"},
+                {"code": "customer_count_yoy", "name": "客数前年比", "target": 100, "unit": "%"},
             ],
             "issue_rules": [
-                {"issue_type": "fish_cogs_overrun", "description": "ネタ原価率超過", "threshold": {"fish_cogs_rate": {"above": 45}}},
-                {"issue_type": "rice_cost_increase", "description": "コメ価格高騰による原価率悪化", "threshold": {"cogs_rate": {"above": 44}}},
-                {"issue_type": "waste_increase", "description": "廃棄率上昇", "threshold": {"waste_rate": {"above": 5}}},
-                {"issue_type": "turnover_decline", "description": "テーブル回転率低下", "threshold": {"table_turnover": {"below": 3.0}}},
+                {"issue_type": "customer_decline", "description": "客数12ヶ月連続前年割れ", "threshold": {"customer_count_yoy": {"below": 95}}},
+                {"issue_type": "cogs_overrun", "description": "原価率48%超過（業界最悪水準）", "threshold": {"cogs_rate": {"above": 50}}},
+                {"issue_type": "brand_trust_decline", "description": "不祥事後のブランド信頼低下", "threshold": {"review_score": {"below": 3.2}}},
+                {"issue_type": "competition_impact", "description": "スシロー・はま寿司との競争激化", "threshold": {"customer_count_yoy": {"below": 90}}},
             ],
             "recommended_actions": [
-                {"action": "仕入単価交渉", "description": "主要仕入先との価格交渉および代替仕入先の開拓", "expected_impact": 300000},
-                {"action": "廃棄削減オペ", "description": "レーン管理の見直しと需要予測に基づく握り調整", "expected_impact": 200000},
-                {"action": "コメ仕入先多様化", "description": "国産米の複数産地調達でコスト安定化", "expected_impact": 250000},
-                {"action": "高単価商品訴求", "description": "季節ネタや限定メニューの訴求強化", "expected_impact": 180000},
+                {"action": "原材料費削減", "description": "まぐろ・米・海苔の代替調達先開拓で原価率改善", "expected_impact": 300000},
+                {"action": "客数回復施策", "description": "110円皿の品質向上とSNS施策で客数回復", "expected_impact": 250000},
+                {"action": "ブランド信頼回復", "description": "衛生管理・コンプライアンス強化の発信", "expected_impact": 200000},
+                {"action": "DX化推進", "description": "タッチパネル・配膳ロボット導入で人件費削減", "expected_impact": 180000},
             ],
         },
         {
-            "service_model": "family_restaurant",
-            "name": "ココス改善プレイブック",
+            "service_model": "kappa_urban",
+            "name": "かっぱ寿司 都市型改善プレイブック",
             "kpi_definitions": [
-                {"code": "labor_cost_rate", "name": "人件費率", "target": 32, "unit": "%"},
-                {"code": "avg_ticket", "name": "客単価", "target": 1200, "unit": "円"},
-                {"code": "table_turnover", "name": "テーブル回転", "target": 2.5, "unit": "回/日"},
-                {"code": "drink_bar_ratio", "name": "ドリンクバー付帯率", "target": 60, "unit": "%"},
-                {"code": "cogs_rate", "name": "原価率", "target": 32, "unit": "%"},
-            ],
-            "issue_rules": [
-                {"issue_type": "labor_overrun", "description": "人件費率超過（人手不足による時給高騰）", "threshold": {"labor_cost_rate": {"above": 35}}},
-                {"issue_type": "peak_understaffing", "description": "ランチピーク時の待ち時間超過", "threshold": {"wait_time": {"above": 20}}},
-                {"issue_type": "turnover_decline", "description": "テーブル回転率低下", "threshold": {"table_turnover": {"below": 2.0}}},
-                {"issue_type": "cogs_overrun", "description": "原価率超過", "threshold": {"cogs_rate": {"above": 35}}},
-            ],
-            "recommended_actions": [
-                {"action": "シフト最適化", "description": "時間帯別需要予測に基づくシフト編成の見直し", "expected_impact": 250000},
-                {"action": "セルフオーダー導入", "description": "タブレットオーダー拡大でホールスタッフ効率化", "expected_impact": 200000},
-                {"action": "ドリンクバー付帯促進", "description": "セット提案による付帯率向上で客単価改善", "expected_impact": 150000},
-                {"action": "ランチ回転率改善", "description": "ランチ限定メニュー導入で滞在時間短縮", "expected_impact": 180000},
-            ],
-        },
-        {
-            "service_model": "donburi_udon",
-            "name": "なか卯改善プレイブック",
-            "kpi_definitions": [
-                {"code": "sales_per_labor_hour", "name": "人時売上", "target": 5000, "unit": "円/時"},
-                {"code": "takeout_ratio", "name": "テイクアウト比率", "target": 35, "unit": "%"},
-                {"code": "cogs_rate", "name": "原価率", "target": 33, "unit": "%"},
-                {"code": "avg_ticket", "name": "客単価", "target": 600, "unit": "円"},
-                {"code": "mobile_order_ratio", "name": "モバイルオーダー比率", "target": 25, "unit": "%"},
-            ],
-            "issue_rules": [
-                {"issue_type": "idle_time_labor", "description": "アイドルタイムの人件費過剰", "threshold": {"sales_per_labor_hour": {"below": 4000}}},
-                {"issue_type": "takeout_decline", "description": "テイクアウト比率低下", "threshold": {"takeout_ratio": {"below": 30}}},
-                {"issue_type": "cogs_overrun", "description": "原価率超過", "threshold": {"cogs_rate": {"above": 36}}},
-            ],
-            "recommended_actions": [
-                {"action": "テイクアウト強化", "description": "モバイルオーダー・事前注文の促進", "expected_impact": 200000},
-                {"action": "セットメニュー推奨", "description": "小うどんセット提案で客単価向上", "expected_impact": 120000},
-                {"action": "アイドルタイム施策", "description": "15-17時の限定メニューで集客強化", "expected_impact": 100000},
-            ],
-        },
-        {
-            "service_model": "pasta",
-            "name": "ジョリーパスタ改善プレイブック",
-            "kpi_definitions": [
-                {"code": "avg_ticket", "name": "客単価", "target": 1050, "unit": "円"},
-                {"code": "cogs_rate", "name": "原価率", "target": 30, "unit": "%"},
+                {"code": "cogs_rate", "name": "原価率", "target": 46, "unit": "%"},
+                {"code": "avg_ticket", "name": "客単価", "target": 1400, "unit": "円"},
                 {"code": "labor_cost_rate", "name": "人件費率", "target": 30, "unit": "%"},
-                {"code": "customer_count", "name": "来客数", "target": 300, "unit": "人/日"},
-                {"code": "drink_bar_ratio", "name": "ドリンクバー付帯率", "target": 55, "unit": "%"},
+                {"code": "customer_count", "name": "来客数", "target": 200, "unit": "人/日"},
+                {"code": "wait_time", "name": "待ち時間", "target": 10, "unit": "分"},
             ],
             "issue_rules": [
-                {"issue_type": "sales_decline_price_hike", "description": "値上げ後の客数減少", "threshold": {"customer_count_yoy": {"below": -10}}},
-                {"issue_type": "cogs_overrun", "description": "原材料高騰による原価率超過", "threshold": {"cogs_rate": {"above": 33}}},
-                {"issue_type": "labor_overrun", "description": "人件費率超過", "threshold": {"labor_cost_rate": {"above": 33}}},
+                {"issue_type": "urban_rampup_slow", "description": "都市型出店の立ち上がり遅延", "threshold": {"customer_count": {"below": 150}}},
+                {"issue_type": "labor_overrun", "description": "都市部人件費高騰", "threshold": {"labor_cost_rate": {"above": 33}}},
+                {"issue_type": "cogs_overrun", "description": "原価率超過", "threshold": {"cogs_rate": {"above": 48}}},
             ],
             "recommended_actions": [
-                {"action": "セットメニュー価値訴求", "description": "サラダ・ドリンクバーセットでお得感を演出", "expected_impact": 150000},
-                {"action": "ランチ集客強化", "description": "平日ランチ限定パスタセットの訴求強化", "expected_impact": 180000},
-                {"action": "SNS施策", "description": "生パスタの訴求強化によるブランド認知向上", "expected_impact": 100000},
+                {"action": "都市型メニュー最適化", "description": "高単価商品の訴求強化で客単価向上", "expected_impact": 200000},
+                {"action": "SNS・デジタル集客", "description": "南池袋・吉祥寺の認知度向上施策", "expected_impact": 180000},
+                {"action": "省人化オペレーション", "description": "配膳ロボット・セルフレジ導入で人件費抑制", "expected_impact": 150000},
+            ],
+        },
+        {
+            "service_model": "kappa_tabehoudai",
+            "name": "かっぱ寿司 食べ放題特化型改善プレイブック",
+            "kpi_definitions": [
+                {"code": "cogs_rate", "name": "原価率", "target": 52, "unit": "%"},
+                {"code": "waste_rate", "name": "廃棄率", "target": 5, "unit": "%"},
+                {"code": "avg_ticket", "name": "客単価", "target": 3000, "unit": "円"},
+                {"code": "table_turnover", "name": "テーブル回転", "target": 2.5, "unit": "回/日"},
+            ],
+            "issue_rules": [
+                {"issue_type": "waste_overrun", "description": "食べ放題の廃棄ロス過大", "threshold": {"waste_rate": {"above": 8}}},
+                {"issue_type": "cogs_overrun", "description": "原価率52%超過", "threshold": {"cogs_rate": {"above": 55}}},
+                {"issue_type": "turnover_decline", "description": "テーブル回転率低下", "threshold": {"table_turnover": {"below": 2.0}}},
+            ],
+            "recommended_actions": [
+                {"action": "廃棄予測AI", "description": "需要予測に基づく仕込み量最適化", "expected_impact": 250000},
+                {"action": "コース設計見直し", "description": "高原価ネタの提供制限と代替ネタの充実", "expected_impact": 200000},
+                {"action": "制限時間最適化", "description": "70分制限の効果検証とオペレーション改善", "expected_impact": 150000},
+            ],
+        },
+        {
+            "service_model": "bannou_suisan",
+            "name": "バンノウ水産改善プレイブック",
+            "kpi_definitions": [
+                {"code": "cogs_rate", "name": "原価率", "target": 40, "unit": "%"},
+                {"code": "avg_ticket", "name": "客単価", "target": 1800, "unit": "円"},
+                {"code": "labor_cost_rate", "name": "人件費率", "target": 32, "unit": "%"},
+                {"code": "customer_count", "name": "来客数", "target": 150, "unit": "人/日"},
+            ],
+            "issue_rules": [
+                {"issue_type": "cogs_overrun", "description": "原価率超過", "threshold": {"cogs_rate": {"above": 43}}},
+                {"issue_type": "labor_overrun", "description": "人件費率超過", "threshold": {"labor_cost_rate": {"above": 35}}},
+            ],
+            "recommended_actions": [
+                {"action": "定食メニュー拡充", "description": "ランチ定食の充実で客数増加", "expected_impact": 120000},
+                {"action": "地元食材活用", "description": "静岡県産食材の積極活用でブランド差別化", "expected_impact": 100000},
+            ],
+        },
+        {
+            "service_model": "delica",
+            "name": "デリカ事業改善プレイブック",
+            "kpi_definitions": [
+                {"code": "cogs_rate", "name": "原価率", "target": 55, "unit": "%"},
+                {"code": "labor_cost_rate", "name": "人件費率", "target": 22, "unit": "%"},
+                {"code": "production_efficiency", "name": "生産効率", "target": 95, "unit": "%"},
+            ],
+            "issue_rules": [
+                {"issue_type": "delica_deficit", "description": "デリカ事業赤字", "threshold": {"operating_profit_rate": {"below": 0}}},
+                {"issue_type": "cogs_overrun", "description": "原価率55%超過", "threshold": {"cogs_rate": {"above": 58}}},
+            ],
+            "recommended_actions": [
+                {"action": "コンビニ向け商品開発", "description": "高付加価値商品の開発で粗利改善", "expected_impact": 300000},
+                {"action": "生産ライン効率化", "description": "自動化投資で人件費削減", "expected_impact": 200000},
             ],
         },
     ]
@@ -2495,7 +2469,7 @@ def generate_ontology_v2_data(stores):
         ],
         "Brand": [
             ("name", "ブランド名", "string", True, None, None, 0),
-            ("service_model", "サービスモデル", "enum", False, ["beef_bowl", "sushi", "family_restaurant", "donburi_udon", "pasta"], None, 1),
+            ("service_model", "サービスモデル", "enum", False, ["kappa_roadside", "kappa_urban", "kappa_tabehoudai", "bannou_suisan", "delica"], None, 1),
             ("logo_url", "ロゴURL", "string", False, None, None, 2),
         ],
         "Employee": [
@@ -2827,7 +2801,7 @@ def generate_workspace_data():
         {
             "id": gen_deterministic_uuid("cohort", 0),
             "tenant_id": TENANT_ID,
-            "name": "首都圏ココス低収益店舗",
+            "name": "中部郊外ロードサイド型低収益店舗",
             "object_type": "Store",
             "filter_spec": {
                 "region": "関東",
@@ -2841,7 +2815,7 @@ def generate_workspace_data():
         {
             "id": gen_deterministic_uuid("cohort", 1),
             "tenant_id": TENANT_ID,
-            "name": "ココス人件費超過店舗群",
+            "name": "郊外型人件費超過店舗群",
             "object_type": "Store",
             "filter_spec": {
                 "labor_cost_rate_gt": 35,
@@ -3687,7 +3661,7 @@ def generate_access_logs():
 
 def generate_login_attempts():
     results = []
-    emails = ["admin@zensho.co.jp", "sv@zensho.co.jp", "manager@zensho.co.jp", "unknown@example.com"]
+    emails = ["admin@kappacreate.co.jp", "sv@kappacreate.co.jp", "manager@kappacreate.co.jp", "unknown@example.com"]
     ips = ["192.168.1.10", "10.0.0.5", "172.16.0.100"]
 
     for i in range(20):

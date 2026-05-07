@@ -65,7 +65,7 @@ export interface ChecklistRun {
 const MOCK_TEMPLATES: ChecklistTemplate[] = [
   {
     id: "tpl-opening",
-    name: "すき家 開店チェックリスト",
+    name: "かっぱ寿司 開店チェックリスト",
     schedule_type: "opening",
     brand_id: null,
     store_id: null,
@@ -80,7 +80,7 @@ const MOCK_TEMPLATES: ChecklistTemplate[] = [
   },
   {
     id: "tpl-closing",
-    name: "すき家 閉店チェックリスト",
+    name: "かっぱ寿司 閉店チェックリスト",
     schedule_type: "closing",
     brand_id: null,
     store_id: null,
@@ -93,7 +93,7 @@ const MOCK_TEMPLATES: ChecklistTemplate[] = [
   },
   {
     id: "tpl-4h",
-    name: "すき家 4h品質チェック",
+    name: "かっぱ寿司 4h品質チェック",
     schedule_type: "4h",
     brand_id: null,
     store_id: null,

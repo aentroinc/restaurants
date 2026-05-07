@@ -28,7 +28,7 @@ interface NavSection {
 
 const sections: NavSection[] = [
   {
-    title: "ゼンショー (毎朝)",
+    title: "カッパ・クリエイト (毎朝)",
     items: [
       { label: "Daily Brief（3分朝ブリーフ）", icon: Brain, href: "/daily-brief" },
       { label: "経営エグゼクティブ", icon: Sparkles, href: "/zensho-executive" },
@@ -48,7 +48,7 @@ const sections: NavSection[] = [
     ],
   },
   {
-    title: "ゼンショー POC",
+    title: "カッパ・クリエイト POC",
     items: [
       { label: "POC マネージャ", icon: FlaskConical, href: "/zensho-pilot" },
       { label: "SV プランナー", icon: Target, href: "/sv-planner" },
@@ -165,7 +165,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
               AENTRO
             </div>
             <div className="text-[9px] text-white/40 tracking-[0.10em]">
-              ゼンショーグループ 経営OS
+              カッパ・クリエイト 経営OS
             </div>
           </div>
         )}
@@ -253,7 +253,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
             <div className="text-[9px] uppercase tracking-[0.10em] text-white/30">期間</div>
             <div className="mt-1 text-[12px] text-white/70 font-mono tabular-nums">2026年4月</div>
             <div className="mt-2 text-[9px] text-white/20 text-center">
-              ゼンショーホールディングス
+              カッパ・クリエイト株式会社
             </div>
           </>
         ) : (

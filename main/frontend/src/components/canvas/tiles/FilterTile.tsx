@@ -9,7 +9,7 @@ interface Props {
   onChange: (next: SharedFilter) => void
 }
 
-const BRANDS = ["", "すき家", "はま寿司", "ココス", "なか卯", "ジョリーパスタ"]
+const BRANDS = ["", "かっぱ寿司", "かっぱ寿司", "郊外ロードサイド型", "食べ放題特化型", "都市型"]
 const REGIONS = ["", "関東", "関西", "中部", "九州", "東北"]
 
 export function FilterTile({ filters, onChange }: Props) {

@@ -72,7 +72,7 @@ export default function LoginPage() {
             AENTRO
           </div>
           <div className="text-[11px] text-white/40 tracking-[0.08em] mt-1">
-            ゼンショーグループ 経営OS
+            カッパ・クリエイト 経営OS
           </div>
         </div>
 
