@@ -35,6 +35,10 @@ export interface Course {
   opProfitImpactPctOfSalesLow: number
   opProfitImpactPctOfSalesHigh: number
   supersedes?: string[]
+  whatItDoes?: string
+  prerequisitesText?: string
+  whyPrerequisite?: string
+  fallbackApproach?: string
 }
 
 export interface ModuleDef {

@@ -1,4 +1,5 @@
 import type { Course, ModuleDef, SystemDef } from "@/src/types"
+import { COURSE_DESCRIPTIONS } from "./course_descriptions"
 
 export const BASE_STORES = 299
 export const BASE_CURRENCY = "JPY"
@@ -394,6 +395,16 @@ export const COURSES: Course[] = [
     supersedes: [],
   },
 ]
+
+for (const c of COURSES) {
+  const desc = COURSE_DESCRIPTIONS[c.id]
+  if (desc) {
+    c.whatItDoes = desc.whatItDoes
+    c.prerequisitesText = desc.prerequisitesText
+    c.whyPrerequisite = desc.whyPrerequisite
+    c.fallbackApproach = desc.fallbackApproach
+  }
+}
 
 export const MODULE_BY_ID = Object.fromEntries(MODULES.map((m) => [m.id, m])) as Record<string, ModuleDef>
 export const SYSTEM_BY_ID = Object.fromEntries(SYSTEMS.map((s) => [s.id, s])) as Record<string, SystemDef>

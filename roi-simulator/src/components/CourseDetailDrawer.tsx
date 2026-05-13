@@ -57,6 +57,15 @@ export function CourseDetailDrawer({ course, result, selected, onClose, onToggle
         </header>
 
         <div className="px-8 py-7 space-y-8">
+          {course.whatItDoes && (
+            <section>
+              <div className="label-eyebrow mb-3">このコースで実装できること</div>
+              <p className="text-[13.5px] text-navy-950 leading-[1.85] text-pretty">
+                {course.whatItDoes}
+              </p>
+            </section>
+          )}
+
           <section>
             <div className="label-eyebrow mb-3">主要指標（中央値）</div>
             <div className="grid grid-cols-2 gap-px bg-ink-200 border border-ink-200">
@@ -73,6 +82,20 @@ export function CourseDetailDrawer({ course, result, selected, onClose, onToggle
             <Spec label="工数" value={`${course.personMonthsLow}〜${course.personMonthsHigh} 人月`} />
             <Spec label="Start Rank" value={course.startRank} />
           </section>
+
+          {(course.prerequisitesText || course.whyPrerequisite || course.fallbackApproach) && (
+            <section className="space-y-5 border-t border-ink-200 pt-6">
+              {course.prerequisitesText && (
+                <Block label="注文できる前提" body={course.prerequisitesText} />
+              )}
+              {course.whyPrerequisite && (
+                <Block label="前提が必要な理由" body={course.whyPrerequisite} />
+              )}
+              {course.fallbackApproach && (
+                <Block label="未整備の場合の入り方" body={course.fallbackApproach} accent />
+              )}
+            </section>
+          )}
 
           <section>
             <div className="label-eyebrow mb-3">含まれるモジュール</div>
@@ -181,6 +204,23 @@ function Spec({ label, value }: { label: string; value: string }) {
     <div>
       <div className="text-[10px] uppercase tracking-[0.16em] text-ink-500 font-medium">{label}</div>
       <div className="num text-sm text-navy-950 font-medium mt-0.5">{value}</div>
+    </div>
+  )
+}
+
+function Block({
+  label,
+  body,
+  accent,
+}: {
+  label: string
+  body: string
+  accent?: boolean
+}) {
+  return (
+    <div className={accent ? "border-l-2 border-accent-500 pl-4" : ""}>
+      <div className="label-eyebrow mb-2">{label}</div>
+      <p className="text-[13px] text-ink-800 leading-[1.85] text-pretty">{body}</p>
     </div>
   )
 }
