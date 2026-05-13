@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    background-color: #fbfaf6;
+    color: #0f172a;
+    font-feature-settings: "palt", "ss01", "kern";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #07121f;
+    color: #fbfaf6;
+  }
+
+  hr {
+    border-color: #e2e8f0;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-full bg-transparent border-0 border-b border-ink-300 px-0 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:border-navy-900 focus:ring-0 transition;
+  }
+
+  .input-boxed {
+    @apply w-full rounded-none border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:border-navy-900 focus:ring-0 transition;
+  }
+
+  .label-eyebrow {
+    @apply text-[10px] uppercase tracking-[0.18em] text-ink-500 font-semibold;
+  }
+
+  .label-section {
+    @apply text-[11px] uppercase tracking-[0.22em] text-ink-700 font-semibold;
+  }
+
+  .panel {
+    @apply bg-white border border-ink-200 shadow-card;
+  }
+
+  .panel-dark {
+    @apply bg-navy-950 text-white border border-navy-800;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .headline {
+    font-family: var(--font-serif, ui-serif, Georgia, "Hiragino Mincho ProN", serif);
+    letter-spacing: -0.022em;
+  }
+
+  .rule-accent {
+    position: relative;
+  }
+  .rule-accent::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background-color: #8a6d29;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+}
